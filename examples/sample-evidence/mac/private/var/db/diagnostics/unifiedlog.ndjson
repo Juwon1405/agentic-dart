@@ -1,0 +1,8 @@
+{"timestamp":"2026-03-15 14:19:10","subsystem":"com.apple.TCC","processImagePath":"/Applications/RemoteAdmin.app/Contents/MacOS/RemoteAdmin","eventMessage":"deny kTCCServiceScreenCapture attempted access without authorization"}
+{"timestamp":"2026-03-15 14:20:05","subsystem":"com.apple.syspolicy","processImagePath":"/usr/libexec/syspolicyd","eventMessage":"translocation: relocated /Users/jbang/Downloads/helper.app -> /private/var/folders/...AppTranslocation/..."}
+{"timestamp":"2026-03-15 14:22:15","subsystem":"com.apple.xpc.launchd","processImagePath":"/sbin/launchd","eventMessage":"loaded: /Users/jbang/Library/LaunchAgents/com.remotehands.helper.plist"}
+{"timestamp":"2026-03-15 14:25:40","subsystem":"com.apple.xprotect","processImagePath":"/Library/Apple/System/Library/CoreServices/XProtect.app","eventMessage":"Detected malware signature: MACOS.ATTACKWARE.C for /private/tmp/stage2.bin"}
+{"timestamp":"2026-03-15 14:30:00","subsystem":"com.openssh.sshd","processImagePath":"/usr/sbin/sshd","eventMessage":"authentication failure; logname= uid=0 user=root rhost=203.0.113.42"}
+{"timestamp":"2026-03-15 14:30:05","subsystem":"com.openssh.sshd","processImagePath":"/usr/sbin/sshd","eventMessage":"Invalid user admin from 203.0.113.42"}
+{"timestamp":"2026-03-15 14:30:10","subsystem":"com.openssh.sshd","processImagePath":"/usr/sbin/sshd","eventMessage":"authentication failure; logname= uid=0 user=admin rhost=203.0.113.42"}
+{"timestamp":"2026-03-15 14:32:00","subsystem":"com.apple.kernel","processImagePath":"/kernel","eventMessage":"System idle for 120 seconds"}
