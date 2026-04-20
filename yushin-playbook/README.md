@@ -1,31 +1,22 @@
 # yushin-playbook
 
-Senior-analyst sequencing rules, expressed as YAML so other responders can contribute without touching Python.
+Senior-analyst sequencing rules, expressed as YAML. Community-extensible.
 
-## Philosophy
+## Why YAML
 
-What makes a senior analyst effective is not the tools — it is the **sequence** and the **self-challenge**. This directory captures that sequence as data.
+Because the sequencing logic of a senior analyst is not Python. It is a small set of decisions about what to look at first, when to stop and challenge yourself, and what constitutes "enough" to form a hypothesis. Encoding those as YAML lets another responder contribute their own senior-analyst DNA without touching the codebase.
 
-A playbook is a YAML file that tells `yushin-agent`:
+## Contents
 
-1. In what order to examine artifacts (volatile-first, then timeline, then anomaly, then hypothesis, then validate)
-2. What "normal" looks like for each artifact class
-3. What contradiction patterns must trigger a self-correction iteration
-4. When to declare a finding confirmed, inferred, or unresolvable
+- `senior-analyst-v1.yaml` — initial playbook, targeting insider-threat and DPRK IT-worker patterns
 
-## Current playbook
+## Contributing
 
-- [`senior-analyst-v1.yaml`](./senior-analyst-v1.yaml) — general-purpose incident triage, biased toward insider-threat and DPRK IT-worker-style case classes
+Fork, add a new YAML playbook under a descriptive filename, and open a PR. The playbook must include:
 
-## Contributing a playbook
+- A `target_case_class:` block
+- An ordered `sequence:` of phases (volatile → timeline → anomaly → hypothesis → validate → report)
+- A `self_challenge:` block describing when to stop and question the current hypothesis
+- A `termination:` block defining what "done" looks like
 
-PRs welcome. Each playbook must:
-
-- Declare a `target_case_class`
-- List the MCP functions it depends on
-- Include at least one `contradiction_pattern` with a documented self-correction branch
-- Be linted against the schema in `docs/architecture.md`
-
-## Status
-
-v1 is the reference playbook for the FIND EVIL! submission. Additional playbooks (ransomware, supply-chain, macOS-focused) are on the post-submission roadmap.
+See `senior-analyst-v1.yaml` for the canonical shape.

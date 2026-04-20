@@ -1,132 +1,128 @@
 # YuShin — Senior Analyst Playbook v1
-# Target: insider-threat and DPRK IT-worker-style case classes
-# Schema version: 1
----
-metadata:
-  name: senior-analyst-v1
-  version: 1.0.0
-  target_case_class:
-    - insider_threat
-    - dprk_it_worker
-    - remote_hands_ip_kvm
-  author: YuShin
-  license: MIT
+# Target: insider-threat and DPRK IT-worker-style patterns
 
-dependencies:
-  mcp_functions:
-    - get_amcache
-    - extract_mft_timeline
-    - parse_prefetch
-    - analyze_usb_history
-    - list_scheduled_tasks
-    - correlate_events
+version: 1
+name: senior-analyst-v1
+author: YuShin (Bang Juwon)
+target_case_class:
+  - insider_threat_unauthorized_access
+  - remote_hands_ip_kvm
+  - living_off_the_land_execution
 
-# ---- Sequencing ----
-# Senior analysts work volatile-first, then build a timeline, then challenge it.
+# ---------------------------------------------------------
+# Phase sequence — strict order. The agent is forbidden
+# from skipping ahead until the current phase is closed.
+# ---------------------------------------------------------
 sequence:
-  - phase: volatile
-    description: "Capture the most ephemeral signal before it decays further."
-    steps:
-      - call: list_scheduled_tasks
-        rationale: "Persistence mechanisms fastest to enumerate from memory-adjacent state."
-      - call: analyze_usb_history
-        rationale: "USB evidence correlates with physical-world action; validate early."
+  - phase: volatile_first
+    rationale: |
+      Memory disappears. Network sockets disappear. Anything that
+      evaporates on reboot is examined before anything that persists.
+    mcp_calls:
+      - analyze_memory_process_tree
+      - analyze_memory_network_sockets
+    exit_criteria:
+      - memory_artifacts_enumerated: true
+      - suspicious_processes_listed: true
 
-  - phase: timeline
-    description: "Build the skeleton timeline the rest of the analysis hangs on."
-    steps:
-      - call: extract_mft_timeline
-        window: case_default
-        rationale: "MFT is the anchor. Everything else is cross-referenced against it."
-      - call: parse_prefetch
-        target: "*"
-        rationale: "Execution evidence corroborates or contradicts the MFT narrative."
+  - phase: timeline_reconstruction
+    rationale: |
+      A timeline is the analyst's map. No hypothesis before the map.
+    mcp_calls:
+      - extract_mft_timeline
+      - get_amcache
+      - parse_prefetch
+      - list_scheduled_tasks
+    exit_criteria:
+      - timeline_built: true
+      - anomalies_surfaced: true
 
-  - phase: anomaly
-    description: "Surface what does not fit the pattern of the environment."
-    steps:
-      - call: get_amcache
-        rationale: "Installed/executed binaries with timestamps; rich anomaly surface."
+  - phase: anomaly_surfacing
+    rationale: |
+      Flag anomalies. Do not yet explain them. Explanation comes
+      after the timeline is closed, not during construction.
+    mcp_calls:
+      - correlate_events
+    exit_criteria:
+      - anomaly_list_frozen: true
 
-  - phase: hypothesis
-    description: "Form a named hypothesis and write it to progress.jsonl."
-    rules:
-      - must_write_hypothesis_to_progress_jsonl: true
-      - must_declare_confidence: true
-      - must_list_unresolved_gaps: true
+  - phase: hypothesis_formation
+    rationale: |
+      Form at most two competing hypotheses. One is not enough.
+      Three is too many to validate under deadline pressure.
+    outputs:
+      - primary_hypothesis
+      - alternative_hypothesis
+    exit_criteria:
+      - hypotheses_documented: true
+      - confidence_scored: true
 
-  - phase: validate
-    description: "Cross-source correlation. Contradictions are flagged, not smoothed."
-    steps:
-      - call: correlate_events
-        hypothesis_id: "{current}"
-        rationale: "Let the correlation engine find what the agent might rationalize away."
+  - phase: cross_source_validation
+    rationale: |
+      Validate the primary hypothesis against a source that was
+      not used to form it. If disk formed the hypothesis, test
+      against memory. And vice versa.
+    mcp_calls:
+      - analyze_usb_history
+      - correlate_events
+    exit_criteria:
+      - contradictions_resolved_or_flagged: true
 
-  - phase: report
-    description: "Emit analyst-readable report with audit_id backrefs."
-    rules:
-      - every_finding_must_have_audit_id: true
-      - unresolved_contradictions_must_be_listed: true
+  - phase: structured_report
+    rationale: |
+      Every claim carries an audit_id. No orphan findings.
+    outputs:
+      - report.pdf
+      - report.json
+    exit_criteria:
+      - all_findings_have_audit_id: true
+      - unresolved_items_documented: true
 
-# ---- Contradiction patterns (trigger self-correction) ----
-contradiction_patterns:
-  - id: usb_precedes_logon
-    description: >
-      USB insert timestamp precedes the corresponding authenticated logon
-      event by more than the tolerance window. Classic IP-KVM / remote-hands
-      signature.
-    detector: correlate_events
-    tolerance_minutes: 2
-    on_detect: iterate_with_expanded_usb_window
+# ---------------------------------------------------------
+# Self-challenge — the heart of senior-analyst judgment.
+# Triggered every N iterations OR on specific events.
+# ---------------------------------------------------------
+self_challenge:
+  trigger_every_iterations: 2
+  trigger_on_events:
+    - contradiction_flagged
+    - confidence_jumped_above_0_8_in_one_step
+    - single_source_hypothesis
+  questions:
+    - "What would I expect to see if this hypothesis were wrong?"
+    - "Have I checked a source that would falsify it?"
+    - "Is there an artifact I have NOT examined that a senior reviewer would ask about?"
+    - "Am I anchoring on the first thing I saw?"
+  action_on_unresolved:
+    - add_to_progress_jsonl_as_unresolved
+    - reduce_confidence_by_0_2
+    - schedule_additional_mcp_call
 
-  - id: process_tree_vs_disk_disagree
-    description: >
-      Memory process tree shows execution that MFT/Prefetch does not
-      corroborate. Possible in-memory-only payload or anti-forensics.
-    detector: correlate_events
-    on_detect: iterate_with_memory_deep_scan
-
-  - id: scheduled_task_without_creator_logon
-    description: >
-      Scheduled task exists with no corresponding interactive logon of the
-      creating principal in the window it was registered.
-    detector: correlate_events
-    on_detect: iterate_with_authentication_expansion
-
-# ---- Self-correction branches ----
-self_correction:
-  iterate_with_expanded_usb_window:
-    action: rerun_with_params
-    target: analyze_usb_history
-    param_overrides:
-      window_minutes_before_logon: 10
-      window_minutes_after_logon: 10
-
-  iterate_with_memory_deep_scan:
-    action: rerun_with_params
-    target: correlate_events
-    param_overrides:
-      memory_scan_depth: deep
-      include_unlinked_processes: true
-
-  iterate_with_authentication_expansion:
-    action: rerun_with_params
-    target: correlate_events
-    param_overrides:
-      include_non_interactive_logons: true
-      window_hours: 24
-
-# ---- Termination ----
+# ---------------------------------------------------------
+# Termination — what "done" looks like.
+# ---------------------------------------------------------
 termination:
-  max_iterations: 10
-  terminate_when:
-    - all_hypotheses_have_confidence_above: 0.85
-    - no_unresolved_contradictions: true
-  graceful_exit_on_cap: true
+  normal_exit:
+    - all_phases_completed: true
+    - all_findings_have_audit_id: true
+    - self_challenge_passed_on_final_iteration: true
+  forced_exit:
+    - max_iterations_reached: true
+    - on_forced_exit_write: closeout_report_with_unresolved_items
 
-# ---- Hard rules ----
-hard_rules:
-  - agent_may_not_smooth_over_contradictions: true
-  - agent_may_not_invoke_functions_not_listed_in_dependencies: true
-  - every_finding_must_be_traceable_via_audit_id: true
-  - evidence_is_read_only_at_os_level_and_mcp_surface: true
+# ---------------------------------------------------------
+# Evidence integrity — enforced by architecture, documented
+# here only for transparency to reviewers.
+# ---------------------------------------------------------
+evidence_integrity:
+  mount_mode: ro,noload
+  forbidden_operations:
+    - execute_shell
+    - write_file
+    - mount
+    - umount
+    - network_egress
+  verification:
+    - sha256_at_startup
+    - sha256_at_finalization
+    - mismatch_aborts_report

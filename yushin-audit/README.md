@@ -1,16 +1,15 @@
 # yushin-audit
 
-Structured JSONL logger. Side-tapped from every MCP call.
+Structured JSONL logger. Side-tapped from every MCP call. Append-only. Never rewritten.
 
-## Every entry
+## Entry schema
 
 ```json
 {
   "ts": "2026-06-01T14:23:17.412Z",
-  "run_id": "<uuid>",
   "iteration": 2,
   "tool_name": "extract_mft_timeline",
-  "inputs": {"start": "...", "end": "..."},
+  "inputs": {"start": "2025-12-01T00:00:00Z", "end": "2025-12-08T00:00:00Z"},
   "output_digest": "sha256:...",
   "audit_id": "a7f3e9",
   "token_count_in": 412,
@@ -19,12 +18,22 @@ Structured JSONL logger. Side-tapped from every MCP call.
 }
 ```
 
-## Guarantees
+## Why append-only matters
 
-- **Append-only.** The logger does not expose a delete or truncate function.
-- **Immutable per run.** Each run is sealed with a final SHA-256 of the full JSONL at finalization.
-- **Traceability.** Every finding in the final report carries an `audit_id` that resolves, in ≤3 clicks, to the exact MCP call, the exact underlying SIFT tool command, and the raw tool output.
+Every finding in the final report carries an `audit_id`. That ID resolves — in ≤3 clicks — to:
+
+1. The MCP call that produced the evidence
+2. The exact underlying SIFT tool command
+3. The raw tool output (byte-identical)
+
+If the audit log were rewritable, the trace would be untrustworthy. It is not.
+
+## Integrity
+
+- Each entry is written with `O_APPEND`
+- SHA-256 of each entry is included in the next entry (chain)
+- At finalization, the chain is verified end-to-end
 
 ## Status
 
-Specification finalized. Implementation follows `yushin-mcp` alpha.
+Scaffolding. Append-only writer + chain verifier target late April 2026.

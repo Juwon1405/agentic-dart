@@ -1,27 +1,24 @@
 # yushin-corr
 
-Cross-artifact correlation engine. Python + DuckDB.
+Cross-artifact correlation engine. Python + DuckDB. Performs timeline joins across disk, memory, and network evidence; flags contradictions as `UNRESOLVED`.
 
-## Purpose
+## Why a separate engine
 
-Perform timeline joins across independent evidence sources. When two sources contradict, flag the contradiction as **UNRESOLVED** rather than smoothing over it.
+The LLM is good at reasoning. It is not good at joining a 5M-row MFT against a 200K-row memory process list under deadline pressure. `yushin-corr` does the set algebra; the agent does the interpretation.
 
-## Sources correlated
+## Core operations
 
-| Source | Typical artifacts |
-|---|---|
-| Disk | MFT, Amcache, Prefetch, USB setupapi, registry hives |
-| Memory | Process tree, network sockets, in-RAM registry |
-| Network | PCAP flows, DNS, authentication telemetry |
+- Timeline merge across MFT / Amcache / Prefetch / USB setupapi / Security event log
+- Cross-reference disk timeline against memory process tree and network sockets
+- Contradiction flagging: when two sources disagree on a fact, mark `UNRESOLVED` — do not smooth over
 
-## Contradiction handling
+## Contradiction policy
 
-When `correlate_events(hypothesis_id)` finds two sources that disagree (e.g., USB insert time precedes authenticated logon by more than the tolerance window), the engine does **not** pick a winner. It emits an `UNRESOLVED` record into `progress.jsonl` with both sides preserved. The agent is architecturally required to address the contradiction before writing to the final report.
+The agent is architecturally forbidden from reporting a resolved finding when the correlation engine has flagged a contradiction on that same fact. The report must either:
 
-## DuckDB choice
-
-In-process, zero-config, columnar. Timeline joins over millions of MFT rows finish in single-digit seconds on SIFT Workstation defaults. No external DB, no credentials, no network.
+- Resolve the contradiction by running additional MCP calls, or
+- Explicitly report the finding as `UNRESOLVED` with both conflicting sources cited
 
 ## Status
 
-Scaffolding. First correlation pass targets mid-May 2026.
+Scaffolding. First join (MFT ↔ memory process tree) targets mid-May 2026.
