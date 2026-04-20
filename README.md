@@ -13,6 +13,15 @@
 
 ---
 
+
+## What YuShin is (and what it is not)
+
+**YuShin is:** an autonomous AI agent that sits on top of the [SANS SIFT Workstation](https://www.sans.org/tools/sift-workstation) and the [Protocol SIFT](https://findevil.devpost.com/) framework, runs a senior-analyst-style reasoning loop with architectural evidence-integrity guarantees, and produces a courtroom-traceable report of its findings.
+
+**YuShin is not:** a replacement for Velociraptor, KAPE, Timesketch, Plaso, or any SIEM/EDR. Those are the layers underneath. See [`docs/comparison.md`](./docs/comparison.md) for the layer map and a side-by-side table.
+
+**The single design principle:** evidence integrity is a property of the system's shape — what functions exist on the MCP server — not a rule the agent is asked to follow. The baseline [Protocol SIFT](https://findevil.devpost.com/) agent prompts the model to behave; YuShin removes the ability to misbehave.
+
 ## Why YuShin exists
 
 Protocol SIFT proved that AI agents can operate the SIFT Workstation. It also hallucinates more than a DFIR practitioner can stand behind in a courtroom-grade report. YuShin is an attempt to close that gap by encoding the *reasoning pattern of a senior analyst* as architecture — not as a prompt.
@@ -115,7 +124,39 @@ Self-correction observed:  true
 
 Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for the full methodology, ground truth, honest limitations, and the measured bypass test table (6/6 passing).
 
-## Roadmap
+
+## Status — what is implemented vs. what is roadmap
+
+### Implemented end-to-end (working in the MVP)
+
+| Component | What it does |
+|---|---|
+| `yushin_mcp.get_amcache` | Amcache.hve reader, paginated output |
+| `yushin_mcp.analyze_usb_history` | setupapi.dev.log parser + IP-KVM VID/PID signature detection |
+| `yushin_mcp.extract_mft_timeline` | MFTECmd-CSV reader with `[start, end]` window |
+| `yushin_mcp.parse_prefetch` | Native + PECmd-sidecar reader |
+| `yushin_mcp.list_scheduled_tasks` | Evidence tree enumeration with per-file SHA-256 |
+| `yushin_mcp.correlate_events` | Cross-artifact timeline join, contradiction flagging |
+| `yushin_mcp.match_sigma_rules` | Minimal Sigma YAML matcher (supports `equals`, `contains`, `startswith`) |
+| `yushin_agent` | Iteration controller, hypothesis tracker, self-correction loop, max-iter cap |
+| `yushin_audit` | SHA-256-chained JSONL logger + `verify / lookup / trace / summary` CLI |
+| `yushin_playbook/senior-analyst-v1.yaml` | Sequencing rules for insider-threat / remote-hands class |
+
+### Roadmap (explicitly not in the MVP)
+
+| Component | Target |
+|---|---|
+| Full EVTX parser integration (channel enumeration, EVT parsing) | W2–W3 |
+| Volatility-3 memory analysis wrappers | W3 |
+| Protocol SIFT `--mode live` (actual Claude Code integration) | W3 |
+| DuckDB-backed correlation for million-row timelines | W4 |
+| macOS artifacts (UnifiedLogs, KnowledgeC, FSEvents) | Post-submission |
+| Multi-agent decomposition (Memory / Disk / Network / Synthesizer) | Post-submission |
+
+Honesty note: the above list reflects what a reviewer can exercise on a
+clean checkout right now vs. what is on the six-week submission plan.
+
+## Roadmap (legacy — now consolidated above)
 
 - MFTECmd / PECmd wrappers (W2 — completes the scaffolded functions)
 - Live Claude Code integration via MCP stdio (W3)

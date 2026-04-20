@@ -1,0 +1,5 @@
+{"ts": "2026-03-15 14:19:47", "event_type": "usb_insert", "vid": "046D", "pid": "C31C", "device": "Logitech keyboard"}
+{"ts": "2026-03-15 14:19:47", "event_type": "usb_insert", "vid": "0557", "pid": "2419", "device": "ATEN composite KVM"}
+{"ts": "2026-03-15 14:22:00", "event_type": "logon", "user": "jbang", "workstation": "WKS-07"}
+{"ts": "2026-03-15 14:22:03", "event_type": "task_registration", "author": "NT AUTHORITY\\SYSTEM", "name": "RemoteHandsSync", "command": "C:\\Users\\jbang\\Downloads\\remote-admin.exe"}
+{"ts": "2026-03-15 14:23:11", "event_type": "file_create", "user": "jbang", "path": "C:\\Users\\jbang\\Downloads\\remote-admin.exe"}

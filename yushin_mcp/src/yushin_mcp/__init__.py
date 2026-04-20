@@ -410,6 +410,125 @@ def correlate_events(hypothesis_id, usb_events=None, logon_events=None,
     }
 
 
+
+@tool(
+    name="match_sigma_rules",
+    description="Walk a directory of Sigma YAML rules and match against event log "
+                "entries. Returns matched rule IDs + matching events. Supports the "
+                "subset of Sigma modifiers used in the bundled sample ruleset.",
+    schema={
+        "type": "object",
+        "properties": {
+            "rule_dir":        {"type": "string"},
+            "event_log_path":  {"type": "string"},
+        },
+        "required": ["rule_dir", "event_log_path"],
+    },
+)
+def match_sigma_rules(rule_dir: str, event_log_path: str) -> dict:
+    """Minimal Sigma matcher — supports `equals`, `contains`, and `startswith`
+    on flat field paths. Not a full Sigma implementation; enough to catch
+    the two canonical patterns bundled in examples/sigma-rules/. Extending
+    this is a W4 roadmap item — PRs welcome.
+    """
+    rdir = _safe_resolve(rule_dir)
+    elog = _safe_resolve(event_log_path)
+    if not rdir.exists() or not rdir.is_dir():
+        return {"error": "rule_dir_not_found", "path": str(rdir)}
+    if not elog.exists():
+        return {"error": "event_log_not_found", "path": str(elog)}
+
+    try:
+        import yaml
+    except ImportError:
+        return {"error": "pyyaml_missing",
+                "hint": "pip install pyyaml (added to requirements)"}
+
+    # Load rules
+    rules = []
+    for rule_file in sorted(rdir.rglob("*.yml")) + sorted(rdir.rglob("*.yaml")):
+        try:
+            r = yaml.safe_load(rule_file.read_text(encoding="utf-8"))
+            if isinstance(r, dict) and "detection" in r:
+                r["_source_path"] = str(rule_file.relative_to(EVIDENCE_ROOT))
+                rules.append(r)
+        except Exception as e:
+            continue
+
+    # Load events (JSONL — one event per line)
+    events = []
+    for line in elog.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            events.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+
+    def _field_matches(event_val, selector_val):
+        """Minimal Sigma match: exact, contains (ends with |contains),
+        startswith (ends with |startswith). Case-insensitive on strings."""
+        if isinstance(selector_val, list):
+            return any(_field_matches(event_val, sv) for sv in selector_val)
+        if not isinstance(event_val, str) or not isinstance(selector_val, str):
+            return event_val == selector_val
+        ev = event_val.lower()
+        sv = selector_val.lower()
+        return ev == sv
+
+    def _selection_matches(event, selection):
+        """All keys in a selection must match (AND). Keys with |contains or
+        |startswith modifiers are handled."""
+        for raw_key, expected in selection.items():
+            key = raw_key
+            mod = None
+            if "|" in raw_key:
+                key, mod = raw_key.split("|", 1)
+            actual = event.get(key)
+            if actual is None:
+                return False
+            if mod == "contains":
+                targets = expected if isinstance(expected, list) else [expected]
+                if not any(str(t).lower() in str(actual).lower() for t in targets):
+                    return False
+            elif mod == "startswith":
+                targets = expected if isinstance(expected, list) else [expected]
+                if not any(str(actual).lower().startswith(str(t).lower()) for t in targets):
+                    return False
+            else:
+                if not _field_matches(actual, expected):
+                    return False
+        return True
+
+    matches = []
+    for rule in rules:
+        detection = rule.get("detection", {})
+        condition = detection.get("condition", "selection")
+        # We support 'selection' and 'selection and not filter' only.
+        selection = detection.get("selection", {})
+        filter_   = detection.get("filter", {})
+        use_filter = "not filter" in condition
+
+        for event in events:
+            if _selection_matches(event, selection):
+                if use_filter and _selection_matches(event, filter_):
+                    continue
+                matches.append({
+                    "rule_id":    rule.get("id"),
+                    "rule_title": rule.get("title"),
+                    "level":      rule.get("level"),
+                    "source":     rule["_source_path"],
+                    "event":      event,
+                })
+
+    return {
+        "rule_count":  len(rules),
+        "event_count": len(events),
+        "match_count": len(matches),
+        "matches":     matches,
+    }
+
 def __forbidden_never_registered():
     """Intentionally NOT registered: execute_shell, write_file, mount, network_egress.
     The agent cannot call them because they are not in _REGISTRY.

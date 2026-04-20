@@ -1,0 +1,21 @@
+title: IP-KVM USB Device Insertion
+id: 4f3e21aa-1234-4c9d-9b2e-yushin-001
+description: Detects insertion of a known IP-KVM / remote-hands USB device
+  (ATEN VID 0557 / PID 2419) into a workstation.
+status: experimental
+author: YuShin
+level: high
+logsource:
+  product: windows
+  category: usb
+detection:
+  selection:
+    event_type: usb_insert
+    vid: "0557"
+    pid: "2419"
+  condition: selection
+falsepositives:
+  - Legitimate KVM lab equipment — document per environment
+tags:
+  - attack.initial_access
+  - attack.t1200
