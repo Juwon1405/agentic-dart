@@ -113,11 +113,14 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 Runs on SIFT Workstation (primary), Ubuntu, and **macOS 12+** (Intel and Apple Silicon). See [`docs/running-on-macos.md`](./docs/running-on-macos.md) for the 5-minute macOS quickstart.
 
-YuShin covers **both** Windows and macOS artifacts:
+YuShin covers **Windows + macOS artifacts + browser activity + network exfiltration**:
 
-- **Windows (10 functions):** Amcache, Prefetch, ShimCache, MFT, USB history, ShellBags, Scheduled Tasks, Persistence (Run keys/Services/Tasks), Event Logs, Process tree with LOTL detection
-- **macOS (3 functions):** UnifiedLog (with rule pack), KnowledgeC, FSEvents
-- **Cross-platform (2 functions):** `correlate_events` (proximity join), `correlate_timeline` (DuckDB scale engine)
+- **Windows system (10 functions):** Amcache, Prefetch, ShimCache, MFT, USB history, ShellBags, Scheduled Tasks, Persistence (Run keys/Services/Tasks), Event Logs, Process tree with LOTL detection
+- **macOS system (3 functions):** UnifiedLog (rule pack), KnowledgeC (SQLite), FSEvents
+- **Browser + exfiltration (4 functions):** Chrome/Edge/Firefox/Safari history, download records + Mark-of-the-Web, download-to-execution chain correlation, exfiltration pattern detection
+- **Cross-artifact correlation (2 functions):** `correlate_events` (proximity join), `correlate_timeline` (DuckDB scale engine)
+
+This covers the full kill chain: **phishing email → browser download → execution → persistence → C2 → data exfiltration**. No gap.
 
 
 ## Live mode (real Claude API + MCP stdio)

@@ -91,6 +91,9 @@ def test_surface_is_exact_positive_and_negative_set():
         "correlate_events", "correlate_timeline",
         # macOS
         "parse_unified_log", "parse_knowledgec", "parse_fsevents",
+        # Browser + exfiltration
+        "parse_browser_history", "analyze_downloads",
+        "correlate_download_to_execution", "detect_exfiltration",
     }
     negative = {"execute_shell", "write_file", "mount", "umount", "eval",
                 "exec_python", "network_egress", "delete_file", "system",

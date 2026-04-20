@@ -1,0 +1,8 @@
+ts,url,title,visit_count,transition,referrer
+2026-03-15 14:15:00,https://outlook.office.com/mail,Outlook Inbox,1,link,
+2026-03-15 14:15:45,https://finance-update-secure.tk/download?token=abc123,Quarterly Report,1,link,https://outlook.office.com/mail
+2026-03-15 14:16:02,https://203.0.113.42:8080/payload,Redirect,1,redirect,https://finance-update-secure.tk/download?token=abc123
+2026-03-15 14:22:30,https://www.google.com/search?q=how+to+disable+defender,Google Search,1,typed,
+2026-03-15 14:25:00,https://bashupload.com/upload,bashupload,1,typed,
+2026-03-15 14:26:15,https://transfer.sh,transfer.sh,1,typed,
+2026-03-15 14:30:00,https://internal-wiki.company.com,Company Wiki,3,typed,

@@ -1057,6 +1057,534 @@ def parse_fsevents(fsevents_csv, path_contains=None, flag_filter=None, limit=500
             "events": events}
 
 
+# =============================================================================
+# BROWSER & EXFILTRATION (infection vector + data loss)
+# =============================================================================
+#
+# Most real intrusions follow this chain:
+#
+#     phishing email
+#       → browser download (1)
+#       → file execution (2)
+#       → persistence (3)
+#       → C2 / exfiltration (4)
+#
+# The functions above cover (3) in depth. This section covers (1), (2)'s
+# link back to (1), and (4). Without these, an analyst using YuShin
+# would see the malware running but not know how it got there, and
+# would miss the data that left.
+
+# Known-bad TLDs and URL fragments for ranking suspicious downloads.
+SUSPICIOUS_URL_PATTERNS = [
+    r"\.(?:tk|top|xyz|click|download|gq|cf)(?:/|$)",
+    r"bit\.ly|tinyurl|is\.gd|shorturl",
+    r"pastebin\.com/raw|transfer\.sh|anonfiles",
+    r"(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?/",  # raw IP
+    r"(?:mega|mediafire|dropbox|wetransfer)\.(?:co\.nz|com)/.*\.(?:zip|rar|7z|exe)",
+]
+SUSPICIOUS_URL_RE = re.compile("|".join(SUSPICIOUS_URL_PATTERNS), re.IGNORECASE)
+
+EXFIL_FILE_EXTS = {".zip", ".rar", ".7z", ".tar", ".tar.gz", ".tgz", ".gz"}
+EXFIL_UPLOAD_DOMAINS = {
+    "transfer.sh", "anonfiles.com", "bashupload.com", "file.io",
+    "gofile.io", "wetransfer.com", "mega.nz", "pastebin.com",
+    "drive.google.com", "dropbox.com", "1drv.ms",
+}
+
+
+@tool(
+    name="parse_browser_history",
+    description="Parse browser history databases (Chrome/Edge Chromium SQLite, "
+                "Firefox places.sqlite, Safari History.db). Returns URLs, "
+                "visit times, and transition types. Flags suspicious URLs "
+                "against a pattern set.",
+    schema={"type": "object", "properties": {
+        "history_db": {"type": "string",
+                       "description": "path to History (Chrome/Edge), "
+                                      "places.sqlite (Firefox), or History.db (Safari)"},
+        "browser": {"type": "string",
+                    "enum": ["chrome", "edge", "firefox", "safari", "auto"],
+                    "default": "auto"},
+        "time_window_start": {"type": "string"},
+        "time_window_end": {"type": "string"},
+        "limit": {"type": "integer", "default": 500, "maximum": 5000},
+    }, "required": ["history_db"]},
+)
+def parse_browser_history(history_db, browser="auto", time_window_start=None,
+                          time_window_end=None, limit=500):
+    """Browser history reader. Uses stdlib sqlite3 read-only URI.
+
+    For environments where the live database is locked (Chrome open), the
+    function also accepts a sidecar CSV at <history_db>.csv with columns:
+        ts,url,title,visit_count,transition,referrer
+    """
+    p = _safe_resolve(history_db)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+
+    # Sidecar CSV path (handles locked/live databases)
+    sidecar = p.with_suffix(p.suffix + ".csv")
+    if sidecar.exists():
+        rows = _read_csv(sidecar)
+        items = []
+        sdt = _parse_ts(time_window_start) if time_window_start else None
+        edt = _parse_ts(time_window_end) if time_window_end else None
+        for r in rows[:limit]:
+            ts = _parse_ts(r.get("ts") or r.get("visit_time") or "")
+            if sdt and ts and ts < sdt:
+                continue
+            if edt and ts and ts > edt:
+                continue
+            url = r.get("url", "")
+            items.append({
+                "ts": r.get("ts"),
+                "url": url,
+                "title": r.get("title"),
+                "visit_count": r.get("visit_count"),
+                "transition": r.get("transition"),
+                "referrer": r.get("referrer"),
+                "is_suspicious": bool(SUSPICIOUS_URL_RE.search(url)),
+            })
+        sus = [i for i in items if i["is_suspicious"]]
+        return {"source": {"path": str(p), "sha256": _sha256(p)},
+                "sidecar": str(sidecar.relative_to(EVIDENCE_ROOT)),
+                "browser": browser, "total": len(rows),
+                "returned": len(items),
+                "suspicious_url_count": len(sus),
+                "suspicious_samples": sus[:20],
+                "items": items}
+
+    # Native SQLite (read-only URI, immutable=1 prevents any write)
+    try:
+        import sqlite3
+        uri = f"file:{p.as_posix()}?mode=ro&immutable=1"
+        con = sqlite3.connect(uri, uri=True)
+        con.row_factory = sqlite3.Row
+
+        # Auto-detect browser by schema
+        tables = {r[0] for r in con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+        if "urls" in tables and "visits" in tables:
+            detected = "chromium"  # Chrome/Edge/Brave
+            q = """
+                SELECT datetime(v.visit_time/1000000 - 11644473600,
+                                'unixepoch') AS ts,
+                       u.url AS url, u.title AS title,
+                       u.visit_count AS visit_count,
+                       v.transition AS transition
+                FROM visits v JOIN urls u ON v.url = u.id
+                ORDER BY v.visit_time DESC LIMIT ?
+            """
+        elif "moz_places" in tables:
+            detected = "firefox"
+            q = """
+                SELECT datetime(h.visit_date/1000000, 'unixepoch') AS ts,
+                       p.url AS url, p.title AS title,
+                       p.visit_count AS visit_count,
+                       h.visit_type AS transition
+                FROM moz_historyvisits h JOIN moz_places p ON h.place_id = p.id
+                ORDER BY h.visit_date DESC LIMIT ?
+            """
+        elif "history_visits" in tables:
+            detected = "safari"
+            q = """
+                SELECT datetime(v.visit_time + 978307200, 'unixepoch') AS ts,
+                       i.url AS url, v.title AS title,
+                       i.visit_count AS visit_count,
+                       NULL AS transition
+                FROM history_visits v JOIN history_items i
+                  ON v.history_item = i.id
+                ORDER BY v.visit_time DESC LIMIT ?
+            """
+        else:
+            con.close()
+            return {"error": "unknown_browser_schema",
+                    "tables_found": sorted(tables),
+                    "hint": "provide sidecar CSV (see function docstring)"}
+
+        rows = [dict(r) for r in con.execute(q, (limit,)).fetchall()]
+        con.close()
+
+        items = []
+        sdt = _parse_ts(time_window_start) if time_window_start else None
+        edt = _parse_ts(time_window_end) if time_window_end else None
+        for r in rows:
+            ts = _parse_ts(r.get("ts") or "")
+            if sdt and ts and ts < sdt:
+                continue
+            if edt and ts and ts > edt:
+                continue
+            url = r.get("url") or ""
+            r["is_suspicious"] = bool(SUSPICIOUS_URL_RE.search(url))
+            items.append(r)
+
+        sus = [i for i in items if i["is_suspicious"]]
+        return {"source": {"path": str(p), "sha256": _sha256(p)},
+                "browser": detected, "total": len(rows),
+                "returned": len(items),
+                "suspicious_url_count": len(sus),
+                "suspicious_samples": sus[:20],
+                "items": items, "engine": "sqlite3_readonly"}
+
+    except Exception as ex:
+        return {"error": "sqlite_read_failed", "detail": str(ex)[:300],
+                "hint": "provide sidecar CSV"}
+
+
+@tool(
+    name="analyze_downloads",
+    description="Parse browser download records (Chromium History 'downloads' "
+                "table, Firefox moz_annos, Safari Downloads.plist) AND check "
+                "Mark-of-the-Web (MOTW) via Zone.Identifier ADS / quarantine "
+                "xattr. Returns each download with source URL, target path, "
+                "referrer, and whether MOTW propagated.",
+    schema={"type": "object", "properties": {
+        "downloads_source": {"type": "string",
+                             "description": "browser History db OR directory "
+                                            "containing Zone.Identifier files"},
+        "mode": {"type": "string",
+                 "enum": ["browser_db", "zone_identifier", "auto"],
+                 "default": "auto"},
+        "limit": {"type": "integer", "default": 200},
+    }, "required": ["downloads_source"]},
+)
+def analyze_downloads(downloads_source, mode="auto", limit=200):
+    """Downloads analysis with MOTW propagation check.
+
+    browser_db mode  → reads the browser's download table
+    zone_identifier  → walks a directory for *.Zone.Identifier ADS files
+                       (Windows NTFS only) and correlates to original URLs
+    """
+    p = _safe_resolve(downloads_source)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+
+    items = []
+
+    if mode in ("browser_db", "auto") and p.is_file():
+        # Sidecar-first for portability
+        sidecar = p.with_suffix(p.suffix + ".downloads.csv")
+        if sidecar.exists():
+            for r in _read_csv(sidecar)[:limit]:
+                url = r.get("url") or r.get("referrer_url") or ""
+                items.append({
+                    "source": "browser_db_sidecar",
+                    "ts": r.get("ts") or r.get("start_time"),
+                    "url": url,
+                    "referrer": r.get("referrer") or r.get("referrer_url"),
+                    "target_path": r.get("target_path") or r.get("path"),
+                    "file_size": r.get("file_size"),
+                    "sha256": r.get("sha256"),
+                    "mime_type": r.get("mime_type"),
+                    "state": r.get("state"),
+                    "url_is_suspicious": bool(SUSPICIOUS_URL_RE.search(url)),
+                })
+        else:
+            # Try native SQLite (Chromium schema)
+            try:
+                import sqlite3
+                uri = f"file:{p.as_posix()}?mode=ro&immutable=1"
+                con = sqlite3.connect(uri, uri=True)
+                con.row_factory = sqlite3.Row
+                tables = {r[0] for r in con.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+                if "downloads" in tables:
+                    q = """
+                        SELECT datetime(start_time/1000000 - 11644473600,
+                                        'unixepoch') AS ts,
+                               current_path AS target_path,
+                               received_bytes AS file_size,
+                               mime_type, state,
+                               (SELECT url FROM downloads_url_chains c
+                                WHERE c.id = d.id
+                                ORDER BY chain_index DESC LIMIT 1) AS url,
+                               referrer
+                        FROM downloads d
+                        ORDER BY start_time DESC LIMIT ?
+                    """
+                    for r in con.execute(q, (limit,)).fetchall():
+                        d = dict(r)
+                        url = d.get("url") or ""
+                        d["source"] = "browser_db_native"
+                        d["url_is_suspicious"] = bool(SUSPICIOUS_URL_RE.search(url))
+                        items.append(d)
+                con.close()
+            except Exception as ex:
+                return {"error": "sqlite_read_failed", "detail": str(ex)[:200]}
+
+    if mode in ("zone_identifier", "auto") and p.is_dir():
+        # Windows NTFS: filename.ext:Zone.Identifier alternate data stream
+        # On a forensic image, these appear as plain files named
+        # "filename.ext.Zone.Identifier" in a typical export.
+        for zi_path in sorted(p.rglob("*.Zone.Identifier"))[:limit]:
+            try:
+                content = zi_path.read_text(encoding="utf-8", errors="replace")
+            except Exception:
+                continue
+            # INI-like content: HostUrl=, ReferrerUrl=, ZoneId=
+            zone_id = re.search(r"ZoneId=(\d+)", content)
+            host_url = re.search(r"HostUrl=(\S+)", content)
+            referrer = re.search(r"ReferrerUrl=(\S+)", content)
+            target = zi_path.with_suffix("")  # strip .Zone.Identifier
+            items.append({
+                "source": "zone_identifier_ads",
+                "target_path": str(target.relative_to(EVIDENCE_ROOT)),
+                "zone_id": int(zone_id.group(1)) if zone_id else None,
+                "zone_meaning": {
+                    0: "Local Machine", 1: "Local Intranet",
+                    2: "Trusted Sites", 3: "Internet",
+                    4: "Restricted Sites",
+                }.get(int(zone_id.group(1)) if zone_id else -1, "unknown"),
+                "url": host_url.group(1) if host_url else None,
+                "referrer": referrer.group(1) if referrer else None,
+                "motw_present": True,
+                "url_is_suspicious": bool(host_url and SUSPICIOUS_URL_RE.search(host_url.group(1))),
+            })
+
+    sus = [i for i in items if i.get("url_is_suspicious")]
+    ext_files = [i for i in items if i.get("target_path") and
+                 any(i["target_path"].lower().endswith(ext)
+                     for ext in (".exe", ".dll", ".ps1", ".bat", ".vbs", ".js",
+                                 ".jar", ".msi", ".scr", ".hta", ".lnk"))]
+    return {"source": {"path": str(p)},
+            "mode_used": mode, "total_downloads": len(items),
+            "suspicious_url_count": len(sus),
+            "executable_download_count": len(ext_files),
+            "executable_downloads": ext_files,
+            "suspicious_samples": sus[:20],
+            "items": items}
+
+
+@tool(
+    name="correlate_download_to_execution",
+    description="Given a download record and execution evidence, return the "
+                "chain: URL → downloaded file → first execution → child "
+                "processes. This is the smoking-gun query for 'how did "
+                "this malware get here?' — it answers by joining browser "
+                "download records against Prefetch/Amcache/process tree.",
+    schema={"type": "object", "properties": {
+        "downloads": {"type": "array",
+                      "description": "output[items] from analyze_downloads"},
+        "executions": {"type": "array",
+                       "description": "list of {ts, image, pid, ppid} "
+                                      "from get_process_tree or Amcache"},
+        "window_seconds": {"type": "integer", "default": 86400,
+                           "description": "max seconds between download and execution"},
+    }, "required": ["downloads", "executions"]},
+)
+def correlate_download_to_execution(downloads, executions, window_seconds=86400):
+    """Join downloads ↔ executions by path similarity AND time proximity."""
+    downloads = downloads or []
+    executions = executions or []
+
+    chains = []
+    for d in downloads:
+        target = (d.get("target_path") or "").replace("\\", "/").lower()
+        if not target:
+            continue
+        # Strip path to filename only — that's what Prefetch captures
+        target_filename = target.rsplit("/", 1)[-1]
+        d_ts = _parse_ts(d.get("ts") or "")
+
+        for e in executions:
+            e_img = (e.get("image") or e.get("executable") or "").replace("\\", "/").lower()
+            e_filename = e_img.rsplit("/", 1)[-1] if e_img else ""
+            if not e_filename:
+                continue
+
+            # Match rules (any of):
+            #  (a) exact filename match
+            #  (b) download target path appears as substring of execution path
+            matched = False
+            if target_filename and target_filename == e_filename:
+                matched = True
+            elif target_filename and target_filename in e_img:
+                matched = True
+
+            if not matched:
+                continue
+
+            e_ts = _parse_ts(e.get("ts") or e.get("start_ts") or
+                             e.get("last_run") or "")
+            if d_ts and e_ts:
+                delta = (e_ts - d_ts).total_seconds()
+                if delta < 0 or delta > window_seconds:
+                    continue
+            else:
+                delta = None
+
+            chains.append({
+                "download_url": d.get("url"),
+                "download_referrer": d.get("referrer"),
+                "download_ts": d.get("ts"),
+                "download_target": d.get("target_path"),
+                "zone_id": d.get("zone_id"),
+                "url_suspicious": d.get("url_is_suspicious"),
+                "execution_image": e.get("image") or e.get("executable"),
+                "execution_ts": e.get("ts") or e.get("last_run"),
+                "execution_pid": e.get("pid"),
+                "delay_seconds": delta,
+                "severity": "critical" if d.get("url_is_suspicious") else "high",
+            })
+
+    return {"download_count": len(downloads),
+            "execution_count": len(executions),
+            "chain_count": len(chains),
+            "chains": chains,
+            "critical_chains": [c for c in chains if c["severity"] == "critical"]}
+
+
+@tool(
+    name="detect_exfiltration",
+    description="Scan for data-exfiltration indicators: large archive files "
+                "created shortly before network upload activity, uploads to "
+                "suspicious domains, clipboard-staging, and abnormal byte "
+                "transfer patterns. Answers 'did data leave, and how?'",
+    schema={"type": "object", "properties": {
+        "fsevents_or_mft": {"type": "array",
+                            "description": "items[] from parse_fsevents or "
+                                           "extract_mft_timeline"},
+        "network_events": {"type": "array",
+                           "description": "list of {ts, dst_host, dst_ip, "
+                                          "bytes_sent, bytes_recv, process}"},
+        "browser_history": {"type": "array",
+                            "description": "items[] from parse_browser_history"},
+        "min_archive_bytes": {"type": "integer", "default": 1_048_576},
+    }, "required": []},
+)
+def detect_exfiltration(fsevents_or_mft=None, network_events=None,
+                        browser_history=None, min_archive_bytes=1_048_576):
+    fsevents_or_mft = fsevents_or_mft or []
+    network_events = network_events or []
+    browser_history = browser_history or []
+
+    signals = []
+
+    # Signal 1: archive files created
+    archive_creates = []
+    for e in fsevents_or_mft:
+        path = (e.get("path") or "").lower()
+        flags = e.get("flags") or []
+        is_create = "Created" in flags or e.get("created") is not None
+        if not is_create:
+            continue
+        if any(path.endswith(ext) for ext in EXFIL_FILE_EXTS):
+            archive_creates.append({
+                "path": e.get("path"),
+                "ts": e.get("ts") or e.get("created"),
+                "size_hint": e.get("size"),
+            })
+
+    if archive_creates:
+        signals.append({
+            "signal": "archive_creation",
+            "count": len(archive_creates),
+            "samples": archive_creates[:10],
+            "severity": "medium",
+            "interpretation": "Archive file(s) created — possible staging for exfil",
+        })
+
+    # Signal 2: large upload to suspicious domain
+    suspicious_uploads = []
+    large_uploads = []
+    for n in network_events:
+        host = (n.get("dst_host") or "").lower()
+        sent = n.get("bytes_sent") or 0
+        try:
+            sent = int(sent)
+        except (TypeError, ValueError):
+            sent = 0
+        if any(d in host for d in EXFIL_UPLOAD_DOMAINS):
+            suspicious_uploads.append({
+                "ts": n.get("ts"), "dst_host": n.get("dst_host"),
+                "bytes_sent": sent, "process": n.get("process"),
+            })
+        if sent >= min_archive_bytes * 10:  # >10MB single-direction
+            large_uploads.append({
+                "ts": n.get("ts"), "dst_host": n.get("dst_host"),
+                "bytes_sent": sent, "process": n.get("process"),
+            })
+
+    if suspicious_uploads:
+        signals.append({
+            "signal": "upload_to_suspicious_domain",
+            "count": len(suspicious_uploads),
+            "samples": suspicious_uploads[:10],
+            "severity": "high",
+            "interpretation": "Traffic to known file-drop / paste services",
+        })
+    if large_uploads:
+        signals.append({
+            "signal": "large_outbound_transfer",
+            "count": len(large_uploads),
+            "samples": large_uploads[:10],
+            "severity": "medium",
+            "interpretation": f"Outbound transfer(s) > {min_archive_bytes*10} bytes",
+        })
+
+    # Signal 3: archive + upload within short window = exfil chain
+    chains = []
+    for ac in archive_creates:
+        ac_ts = _parse_ts(ac.get("ts") or "")
+        if ac_ts is None:
+            continue
+        for up in suspicious_uploads + large_uploads:
+            up_ts = _parse_ts(up.get("ts") or "")
+            if up_ts is None:
+                continue
+            delta = (up_ts - ac_ts).total_seconds()
+            if 0 <= delta <= 3600:  # within an hour
+                chains.append({
+                    "archive": ac, "upload": up,
+                    "delta_seconds": int(delta),
+                    "severity": "critical",
+                })
+
+    if chains:
+        signals.append({
+            "signal": "archive_then_upload_chain",
+            "count": len(chains),
+            "samples": chains[:10],
+            "severity": "critical",
+            "interpretation": "Archive created then uploaded within 1 hour — "
+                              "high-confidence exfil chain",
+        })
+
+    # Signal 4: browser visited known upload service in the same window
+    visited_upload_services = []
+    for h in browser_history:
+        url = (h.get("url") or "").lower()
+        if any(d in url for d in EXFIL_UPLOAD_DOMAINS):
+            visited_upload_services.append({
+                "ts": h.get("ts"), "url": h.get("url"),
+                "title": h.get("title"),
+            })
+    if visited_upload_services:
+        signals.append({
+            "signal": "browser_visited_upload_service",
+            "count": len(visited_upload_services),
+            "samples": visited_upload_services[:10],
+            "severity": "medium",
+            "interpretation": "User browsed to a known file-drop/paste service",
+        })
+
+    max_sev = "info"
+    sev_rank = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+    for s in signals:
+        if sev_rank.get(s["severity"], 0) > sev_rank.get(max_sev, 0):
+            max_sev = s["severity"]
+
+    return {"signals": signals, "signal_count": len(signals),
+            "max_severity": max_sev,
+            "stats": {
+                "archives_created": len(archive_creates),
+                "uploads_to_known_dropsites": len(suspicious_uploads),
+                "large_uploads": len(large_uploads),
+                "exfil_chains": len(chains),
+                "browser_visited_dropsites": len(visited_upload_services),
+            }}
+
+
 def __forbidden_never_registered():
     """Intentionally NOT registered: execute_shell, write_file, mount,
     delete_file, network_egress, spawn_process, kill_process. See

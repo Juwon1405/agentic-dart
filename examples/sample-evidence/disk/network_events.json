@@ -1,0 +1,6 @@
+[
+  {"ts": "2026-03-15 14:16:30", "src_ip": "10.0.0.50", "dst_ip": "203.0.113.42", "dst_host": "finance-update-secure.tk", "bytes_recv": 847392, "bytes_sent": 1024, "process": "chrome.exe", "pid": 2100},
+  {"ts": "2026-03-15 14:23:15", "src_ip": "10.0.0.50", "dst_ip": "198.51.100.77", "dst_host": "c2.attacker-infra.xyz", "bytes_recv": 512, "bytes_sent": 2048, "process": "quarterly-report.pdf.exe", "pid": 5832},
+  {"ts": "2026-03-15 14:28:00", "src_ip": "10.0.0.50", "dst_ip": "185.199.108.153", "dst_host": "bashupload.com", "bytes_recv": 256, "bytes_sent": 45678912, "process": "powershell.exe", "pid": 4812},
+  {"ts": "2026-03-15 14:35:00", "src_ip": "10.0.0.50", "dst_ip": "172.67.72.18", "dst_host": "transfer.sh", "bytes_recv": 128, "bytes_sent": 23456789, "process": "curl.exe", "pid": 4920}
+]

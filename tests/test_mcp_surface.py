@@ -20,6 +20,9 @@ def test_registered_tools_are_exact_set():
         "correlate_events", "correlate_timeline",
         # macOS
         "parse_unified_log", "parse_knowledgec", "parse_fsevents",
+        # Browser + exfiltration (infection vector + data loss)
+        "parse_browser_history", "analyze_downloads",
+        "correlate_download_to_execution", "detect_exfiltration",
     }
     assert names == expected, f"surface drift: {names ^ expected}"
 

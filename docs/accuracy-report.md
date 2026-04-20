@@ -120,3 +120,34 @@ python3 scripts/measure_accuracy.py
 | Live MCP mode (Claude Code stdio) | "planned" | 📋 W5 (mid-May) |
 
 **10 of 12 roadmap items are real implementations.**
+
+## Case 04 — Phishing → Download → Execution → Exfiltration (NEW)
+
+Covers the infection-vector and data-loss halves of the attack chain,
+which earlier case studies did not address.
+
+| MCP call | Real output on bundled evidence |
+|---|---|
+| `parse_browser_history` | 7 visits, 3 flagged suspicious (.tk, raw IP, file-drop) |
+| `analyze_downloads` (browser_db) | 3 downloads, 2 executables, 2 from suspicious URLs |
+| `analyze_downloads` (zone_identifier) | 2 MOTW-tagged files, both ZoneId=3 (Internet) |
+| `correlate_download_to_execution` | 1 critical chain: URL → file → execution in 390s |
+| `detect_exfiltration` | 5 signals, max_severity=critical, 4 archive→upload chains |
+
+## Coverage map (what YuShin can actually see)
+
+```
+        [infection vector]  [foothold]    [action on objectives]
+             │                 │                   │
+     ┌───────┴────────┐  ┌────┴────┐  ┌────────────┴────────────┐
+     │ parse_browser_ │  │ get_    │  │ detect_exfiltration    │
+     │ history        │  │ process_│  │ correlate_download_to_ │
+     │ analyze_       │  │ tree    │  │   execution            │
+     │ downloads      │  │ detect_ │  │ correlate_timeline     │
+     │ (MOTW)         │  │persist. │  │                        │
+     └────────────────┘  └─────────┘  └─────────────────────────┘
+             │                 │                   │
+             └──────── all joined by correlate_timeline ────────┘
+```
+
+No gap in the kill chain.

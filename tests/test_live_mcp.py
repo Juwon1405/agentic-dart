@@ -46,7 +46,7 @@ def test_live_mode_subprocess_dryrun():
         # Check stderr for handshake banner
         assert "MCP handshake OK" in result.stderr, \
             f"MCP handshake banner missing:\n{result.stderr}"
-        assert "15 tools visible" in result.stderr, \
+        assert "19 tools visible" in result.stderr, \
             f"Expected 15 tools over the wire:\n{result.stderr}"
 
         # Outputs exist
@@ -98,6 +98,9 @@ def test_live_mcp_server_advertises_correct_surface():
         "correlate_events", "correlate_timeline",
         # macOS
         "parse_unified_log", "parse_knowledgec", "parse_fsevents",
+        # Browser + exfiltration
+        "parse_browser_history", "analyze_downloads",
+        "correlate_download_to_execution", "detect_exfiltration",
     }
     assert advertised == expected, \
         f"wire surface drift:\n" \
