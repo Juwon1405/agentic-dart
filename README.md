@@ -24,7 +24,8 @@ The name is a Japanese reading of **優心**, meaning "discerning mind."
 Evidence is mounted **read-only at the OS level** before the agent is ever started. Integrity is a property of the system shape, not a rule the agent is asked to follow.
 
 ## Repository layout
-yushin-dfir/
+
+```textyushin-dfir/
 ├── yushin-mcp/        # Custom MCP server: typed, read-only forensic functions
 ├── yushin-agent/      # Claude Code wrapper: system prompt, hypothesis tracker, iteration controller
 ├── yushin-corr/       # Cross-artifact correlation engine (Python + DuckDB)
@@ -37,6 +38,7 @@ yushin-dfir/
 ├── scripts/
 │   └── install.sh     # One-command deploy on a clean SIFT OVA
 └── examples/          # Sample runs against public ground-truth datasets
+```
 
 ## Quick start (on a SIFT Workstation OVA)
 
