@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yushin-mcp"
+version = "0.1.0"
+description = "YuShin — read-only MCP server for DFIR"
+requires-python = ">=3.10"
+
+[project.scripts]
+yushin-mcp-server = "yushin_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

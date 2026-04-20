@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yushin-agent"
+version = "0.1.0"
+description = "YuShin — DFIR agent iteration controller"
+requires-python = ">=3.10"
+dependencies = ["yushin-audit", "yushin-mcp"]
+
+[project.scripts]
+yushin-agent = "yushin_agent:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

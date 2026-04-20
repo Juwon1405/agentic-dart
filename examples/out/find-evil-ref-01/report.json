@@ -1,0 +1,42 @@
+{
+  "primary_hypothesis": {
+    "statement": "Remote-hands insider access via IP-KVM; operator credentials misused",
+    "confidence": 0.82,
+    "supporting_findings": [
+      "F-001",
+      "F-013"
+    ],
+    "contradicting_findings": []
+  },
+  "alternative_hypothesis": {
+    "statement": "Legitimate admin maintenance activity",
+    "confidence": 0.05,
+    "supporting_findings": [],
+    "contradicting_findings": [
+      "F-013"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "description": "Unusual binary first-executed shortly after reported login",
+      "audit_ids": [
+        "f0c08e85"
+      ],
+      "status": "confirmed"
+    },
+    {
+      "finding_id": "F-013",
+      "description": "IP-KVM device inserted ~3 min before operator logon \u2014 remote-hands pattern",
+      "audit_ids": [
+        "6c77c2d0",
+        "29e6b29f"
+      ],
+      "status": "confirmed"
+    }
+  ],
+  "unresolved": [
+    "USB timeline contradicts login telemetry: IP-KVM insertion (VID=0557 PID=2419) precedes the operator logon by ~3 minutes."
+  ],
+  "iterations": 5
+}
