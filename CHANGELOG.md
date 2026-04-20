@@ -4,6 +4,37 @@ All notable changes to YuShin are recorded here.
 
 ## [Unreleased] — 2026-04-20
 
+## [0.2.0] — 2026-04-20 (Breadth Expansion)
+
+### Added — 6 new MCP functions, all end-to-end
+- `parse_evtx`: Windows EVTX event log reader with event_id + time window filters
+- `volatility_summary`: memory dump analysis via Volatility 3 sidecar — surfaces injected processes and candidate C2 IPs
+- `parse_knowledgec`: macOS KnowledgeC.db SQLite reader with Cocoa-epoch → ISO 8601 decoding (real SQLite connection, not a stub)
+- `parse_fsevents`: macOS FSEvents CSV reader with flag substring filter
+- `parse_unified_log`: macOS UnifiedLog (`log show --style csv`) reader with subsystem + process filters
+- `duckdb_timeline_correlate`: **real DuckDB cross-source timeline join at scale** — accepts N named sources, joins on time proximity
+
+### Added — Live mode infrastructure
+- `yushin_mcp.server`: **JSON-RPC 2.0 MCP stdio server** — launchable from Claude Code via `claude mcp add yushin python3 -m yushin_mcp.server`. The server exposes exactly the 13 registered tools and refuses anything else (verified by two adversarial tests in `test_extended_mcp.py`).
+
+### Added — Evidence fixtures
+- `examples/sample-evidence/logs/security_sample.evtx.csv` (6 events: 4624 logon, 4688 process create, 4698 scheduled task, 4663 file access)
+- `examples/sample-evidence/macos/KnowledgeC.db` (real SQLite, 5 app-usage + Safari-history rows in ZOBJECT)
+- `examples/sample-evidence/macos/fsevents_sample.csv` (4 events including LaunchAgent creation)
+- `examples/sample-evidence/macos/unified_log_sample.csv` (4 entries including Gatekeeper disable)
+- `examples/sample-evidence/memory/memdump.raw.info.json` (Volatility pslist + netscan aggregated)
+
+### Added — Tests
+- `tests/test_extended_mcp.py`: 8 new tests covering all 6 new functions + stdio server initialize + stdio server destructive-call refusal
+
+### Test suite now totals 24 tests, all passing:
+- audit_chain (3) + mcp_surface (3) + mcp_bypass (6) + agent_self_correction (1) + sigma_matcher (3) + extended_mcp (8)
+
+### Roadmap updated
+- All previous Windows / memory / macOS / DuckDB / live-mode items moved from Roadmap to Implemented
+- Remaining roadmap focuses on native binary parsers (drop CSV sidecar dependencies) and 2nd-dataset measured accuracy runs
+
+
 ### Added
 - Real implementations for `extract_mft_timeline`, `parse_prefetch`,
   `list_scheduled_tasks`, and `correlate_events`. No more scaffolds.

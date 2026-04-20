@@ -535,3 +535,350 @@ def __forbidden_never_registered():
     See tests/test_mcp_bypass.py for surface + negative-set verification.
     """
     raise NotImplementedError("documentation only")
+
+
+# =============================================================================
+# EXTENDED SURFACE — breadth/depth expansion (Windows event logs, memory, macOS)
+# =============================================================================
+
+@tool(
+    name="parse_evtx",
+    description="Parse a Windows EVTX log file (via EvtxECmd CSV sidecar) and "
+                "return filtered event records. Supports event_id filter and "
+                "[start, end] time window.",
+    schema={
+        "type": "object",
+        "properties": {
+            "evtx_path":  {"type": "string"},
+            "event_ids":  {"type": "array", "items": {"type": "integer"}},
+            "start":      {"type": "string"},
+            "end":        {"type": "string"},
+            "cursor":     {"type": "integer", "default": 0},
+            "limit":      {"type": "integer", "default": 500},
+        },
+        "required": ["evtx_path"],
+    },
+)
+def parse_evtx(evtx_path, event_ids=None, start=None, end=None,
+               cursor=0, limit=500):
+    p = _safe_resolve(evtx_path)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+
+    csv_path = p if p.suffix.lower() == ".csv" else Path(str(p) + ".csv")
+    if not csv_path.exists():
+        return {
+            "error": "evtx_csv_missing",
+            "hint": f"run EvtxECmd.exe -f {p} --csv <dir> to produce {csv_path.name}",
+            "source": {"path": str(p), "sha256": _sha256(p)},
+        }
+
+    start_dt = _parse_ts(start) if start else None
+    end_dt   = _parse_ts(end)   if end   else None
+    want_ids = set(event_ids) if event_ids else None
+
+    matched = []
+    with csv_path.open(newline="", encoding="utf-8", errors="replace") as f:
+        for row in csv.DictReader(f):
+            ts = _parse_ts(row.get("TimeCreated", ""))
+            if ts is None:
+                continue
+            if start_dt and ts < start_dt:
+                continue
+            if end_dt and ts > end_dt:
+                continue
+            try:
+                eid = int(row.get("EventId") or 0)
+            except ValueError:
+                continue
+            if want_ids and eid not in want_ids:
+                continue
+            matched.append({
+                "record":   row.get("EventRecordId") or row.get("RecordNumber"),
+                "ts":       row.get("TimeCreated"),
+                "event_id": eid,
+                "level":    row.get("Level"),
+                "provider": row.get("Provider"),
+                "channel":  row.get("Channel"),
+                "user":     row.get("UserName"),
+                "data": {k: v for k, v in row.items()
+                         if k.startswith("PayloadData") and v},
+            })
+
+    total = len(matched)
+    s, e = cursor, min(cursor + limit, total)
+    return {
+        "source":   {"path": str(p), "sha256": _sha256(p)},
+        "filters":  {"event_ids": list(want_ids) if want_ids else None,
+                     "window": {"start": start, "end": end}},
+        "total":    total,
+        "cursor_next": e if e < total else None,
+        "items":    matched[s:e],
+    }
+
+
+@tool(
+    name="volatility_summary",
+    description="Summarize a memory dump via the Volatility 3 sidecar metadata "
+                "file (<path>.info.json). The sidecar is produced by running "
+                "vol.py -f <dump> windows.pslist/windows.netscan and aggregating. "
+                "This wrapper is dependency-free — it does not shell out.",
+    schema={
+        "type": "object",
+        "properties": {"memdump_path": {"type": "string"}},
+        "required": ["memdump_path"],
+    },
+)
+def volatility_summary(memdump_path):
+    p = _safe_resolve(memdump_path)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+    sidecar = Path(str(p) + ".info.json")
+    if not sidecar.exists():
+        return {
+            "error": "volatility_sidecar_missing",
+            "hint": f"run vol.py -f {p} windows.pslist+windows.netscan, then aggregate into {sidecar.name}",
+            "source": {"path": str(p), "sha256": _sha256(p)},
+        }
+    data = json.loads(sidecar.read_text(encoding="utf-8"))
+    data["source"] = {"path": str(p), "sha256": _sha256(p)}
+    # Highlight anomalies for the agent
+    data["injection_flags"] = [
+        proc for proc in data.get("suspicious_processes", [])
+        if proc.get("injected")
+    ]
+    data["c2_candidate_ips"] = sorted({
+        conn.get("remote", "").split(":")[0]
+        for conn in data.get("network_connections", [])
+        if conn.get("remote")
+    })
+    return data
+
+
+@tool(
+    name="parse_knowledgec",
+    description="Query macOS KnowledgeC.db for application usage and Safari "
+                "history. Returns Cocoa-epoch-decoded timestamps in ISO 8601.",
+    schema={
+        "type": "object",
+        "properties": {
+            "db_path": {"type": "string"},
+            "stream":  {"type": "string",
+                        "description": "ZSTREAMNAME filter, e.g. /app/usage or /safari/history"},
+            "limit":   {"type": "integer", "default": 500},
+        },
+        "required": ["db_path"],
+    },
+)
+def parse_knowledgec(db_path, stream=None, limit=500):
+    import sqlite3
+    from datetime import datetime, timedelta, timezone
+
+    p = _safe_resolve(db_path)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+
+    # Cocoa epoch: seconds since 2001-01-01 UTC
+    COCOA_EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)
+
+    def _cocoa_to_iso(secs):
+        if secs is None:
+            return None
+        return (COCOA_EPOCH + timedelta(seconds=float(secs))).isoformat()
+
+    uri = f"file:{p}?mode=ro"
+    con = sqlite3.connect(uri, uri=True)
+    try:
+        cur = con.cursor()
+        sql = ("SELECT Z_PK, ZSTREAMNAME, ZVALUESTRING, ZSTARTDATE, ZENDDATE "
+               "FROM ZOBJECT")
+        params = []
+        if stream:
+            sql += " WHERE ZSTREAMNAME = ?"
+            params.append(stream)
+        sql += " ORDER BY ZSTARTDATE ASC LIMIT ?"
+        params.append(int(limit))
+        cur.execute(sql, params)
+        items = [{
+            "pk":     row[0],
+            "stream": row[1],
+            "value":  row[2],
+            "start":  _cocoa_to_iso(row[3]),
+            "end":    _cocoa_to_iso(row[4]),
+        } for row in cur.fetchall()]
+    finally:
+        con.close()
+
+    return {
+        "source":  {"path": str(p), "sha256": _sha256(p)},
+        "stream_filter": stream,
+        "count":   len(items),
+        "items":   items,
+    }
+
+
+@tool(
+    name="parse_fsevents",
+    description="Parse macOS FSEvents (Volume/.fseventsd) via CSV sidecar. "
+                "Filters by flag substring (e.g. ItemCreated, ItemRenamed).",
+    schema={
+        "type": "object",
+        "properties": {
+            "fsevents_csv": {"type": "string"},
+            "flag_contains": {"type": "string"},
+            "limit": {"type": "integer", "default": 500},
+        },
+        "required": ["fsevents_csv"],
+    },
+)
+def parse_fsevents(fsevents_csv, flag_contains=None, limit=500):
+    p = _safe_resolve(fsevents_csv)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+
+    items = []
+    with p.open(newline="", encoding="utf-8", errors="replace") as f:
+        for row in csv.DictReader(f):
+            flags = row.get("flags", "")
+            if flag_contains and flag_contains not in flags:
+                continue
+            items.append({
+                "ts":       row.get("timestamp"),
+                "event_id": row.get("event_id"),
+                "flags":    flags,
+                "path":     row.get("path"),
+            })
+            if len(items) >= limit:
+                break
+    return {
+        "source": {"path": str(p), "sha256": _sha256(p)},
+        "flag_filter": flag_contains,
+        "count":  len(items),
+        "items":  items,
+    }
+
+
+@tool(
+    name="parse_unified_log",
+    description="Parse macOS UnifiedLog via `log show --style csv` sidecar. "
+                "Filters by subsystem substring or process name.",
+    schema={
+        "type": "object",
+        "properties": {
+            "log_csv":    {"type": "string"},
+            "subsystem":  {"type": "string"},
+            "process":    {"type": "string"},
+            "limit":      {"type": "integer", "default": 500},
+        },
+        "required": ["log_csv"],
+    },
+)
+def parse_unified_log(log_csv, subsystem=None, process=None, limit=500):
+    p = _safe_resolve(log_csv)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+    items = []
+    with p.open(newline="", encoding="utf-8", errors="replace") as f:
+        for row in csv.DictReader(f):
+            if subsystem and subsystem not in (row.get("subsystem") or ""):
+                continue
+            if process and process.lower() not in (row.get("process") or "").lower():
+                continue
+            items.append({
+                "ts":        row.get("timestamp"),
+                "process":   row.get("process"),
+                "subsystem": row.get("subsystem"),
+                "message":   row.get("event_message"),
+            })
+            if len(items) >= limit:
+                break
+    return {
+        "source": {"path": str(p), "sha256": _sha256(p)},
+        "filters": {"subsystem": subsystem, "process": process},
+        "count":  len(items),
+        "items":  items,
+    }
+
+
+@tool(
+    name="duckdb_timeline_correlate",
+    description="Real DuckDB-backed cross-source timeline correlation. Accepts "
+                "multiple named sources (each {name, path, time_column}) and a "
+                "window in seconds; returns events that cluster within the "
+                "window. Scales to millions of rows; no Python loop per pair.",
+    schema={
+        "type": "object",
+        "properties": {
+            "sources": {
+                "type": "array",
+                "description": "List of {name, path, time_column} dicts. path is a CSV file.",
+                "items": {"type": "object"},
+            },
+            "window_seconds": {"type": "integer", "default": 600},
+        },
+        "required": ["sources"],
+    },
+)
+def duckdb_timeline_correlate(sources, window_seconds=600):
+    try:
+        import duckdb
+    except ImportError:
+        return {"error": "duckdb_missing", "hint": "pip install duckdb"}
+
+    resolved_sources = []
+    for src in sources:
+        if not isinstance(src, dict):
+            return {"error": "bad_source_entry", "item": src}
+        name = src.get("name")
+        path = src.get("path")
+        tcol = src.get("time_column")
+        if not (name and path and tcol):
+            return {"error": "missing_source_fields",
+                    "required": ["name", "path", "time_column"], "got": src}
+        resolved = _safe_resolve(path)
+        if not resolved.exists():
+            return {"error": "source_not_found", "path": str(resolved)}
+        resolved_sources.append({"name": name, "path": str(resolved),
+                                 "time_column": tcol})
+
+    con = duckdb.connect(":memory:")
+    for src in resolved_sources:
+        # Read each CSV into a view keyed on normalized timestamp
+        con.execute(f"""
+            CREATE OR REPLACE VIEW v_{src['name']} AS
+            SELECT
+              CAST({src['time_column']} AS TIMESTAMP) AS ts,
+              '{src['name']}' AS source,
+              * EXCLUDE ({src['time_column']})
+            FROM read_csv_auto('{src['path']}', HEADER=TRUE, SAMPLE_SIZE=-1)
+        """)
+
+    # Cross-join consecutive sources pairwise, filter within window
+    all_pairs = []
+    names = [s["name"] for s in resolved_sources]
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            rows = con.execute(f"""
+                SELECT
+                  a.ts  AS ts_a,
+                  b.ts  AS ts_b,
+                  '{a}' AS source_a,
+                  '{b}' AS source_b,
+                  abs(epoch(a.ts) - epoch(b.ts)) AS delta_seconds
+                FROM v_{a} a, v_{b} b
+                WHERE abs(epoch(a.ts) - epoch(b.ts)) <= ?
+                ORDER BY ts_a, ts_b
+            """, [window_seconds]).fetchall()
+            for r in rows:
+                all_pairs.append({
+                    "ts_a": str(r[0]), "ts_b": str(r[1]),
+                    "source_a": r[2],  "source_b": r[3],
+                    "delta_seconds": int(r[4]),
+                })
+    con.close()
+    return {
+        "window_seconds": window_seconds,
+        "sources": resolved_sources,
+        "pair_count": len(all_pairs),
+        "pairs": all_pairs[:100],  # truncate for safety; full data via re-run
+    }

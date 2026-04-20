@@ -1,0 +1,15 @@
+{
+  "image": "memdump.raw",
+  "size_bytes": 8589934592,
+  "suggested_profile": "Win10x64_19041",
+  "kdbg_offset": "0xf80067af0220",
+  "suspicious_processes": [
+    {"pid": 4812, "ppid": 2148, "name": "remote-admin.exe", "cmdline": "remote-admin.exe --connect c2.example.com", "injected": false},
+    {"pid": 5120, "ppid": 4812, "name": "cmd.exe",          "cmdline": "cmd.exe /c net user backdoor P@ssw0rd! /add", "injected": false},
+    {"pid": 3001, "ppid": 4812, "name": "svchost.exe",      "cmdline": "C:\\Windows\\System32\\svchost.exe -k netsvcs", "injected": true, "injection_details": "WerFault hollowing, .rdata RWX"}
+  ],
+  "network_connections": [
+    {"pid": 4812, "local": "10.0.0.42:49312",  "remote": "192.0.2.88:443",  "state": "ESTABLISHED", "protocol": "TCP"},
+    {"pid": 3001, "local": "10.0.0.42:49315",  "remote": "192.0.2.88:4444", "state": "ESTABLISHED", "protocol": "TCP"}
+  ]
+}

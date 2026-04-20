@@ -1,84 +1,84 @@
-"""MCP server entry point.
+"""yushin-mcp stdio server — speaks JSON-RPC 2.0 per the MCP spec.
 
-Wires yushin_mcp's typed function registry to the Model Context Protocol
-via stdio transport. Run as:
+Launch from Claude Code with:
 
-    python -m yushin_mcp.server
+    claude mcp add yushin python3 -m yushin_mcp.server
 
-Claude Code registers this with:
-
-    claude mcp add yushin-mcp --transport stdio \\
-        --command python --args -m,yushin_mcp.server
+The server exposes exactly the set of tools registered via @tool. Nothing
+else is reachable. This is the 'live' runtime used by the `--mode live`
+path; the `--mode deterministic` path used in CI does not need this
+because it imports the tool registry in-process.
 """
 from __future__ import annotations
 
-import asyncio
 import json
 import sys
+from typing import Any
 
 from . import list_tools, call_tool
 
+PROTOCOL_VERSION = "2024-11-05"
+SERVER_INFO = {"name": "yushin-mcp", "version": "0.2.0"}
 
-async def _serve_stdio() -> None:
-    """Minimal JSON-RPC over stdio loop, compatible with the MCP handshake.
 
-    We ship a hand-rolled transport here to keep the MVP zero-dep. Swap in
-    `mcp.server.stdio` from the official SDK in W3 for full MCP features
-    (resource, prompt, sampling). Tool-calling semantics below match the
-    JSON-RPC 2.0 shape the SDK expects.
-    """
-    reader = asyncio.StreamReader()
-    loop = asyncio.get_event_loop()
-    transport_in, _ = await loop.connect_read_pipe(
-        lambda: asyncio.StreamReaderProtocol(reader), sys.stdin
-    )
+def _send(msg: dict) -> None:
+    sys.stdout.write(json.dumps(msg) + "\n")
+    sys.stdout.flush()
 
-    def send(msg: dict) -> None:
-        sys.stdout.write(json.dumps(msg) + "\n")
-        sys.stdout.flush()
 
-    while True:
-        line = await reader.readline()
-        if not line:
-            break
+def _error(req_id, code, message):
+    _send({"jsonrpc": "2.0", "id": req_id,
+           "error": {"code": code, "message": message}})
+
+
+def _handle(req: dict) -> None:
+    method = req.get("method")
+    req_id = req.get("id")
+    params = req.get("params") or {}
+
+    if method == "initialize":
+        _send({
+            "jsonrpc": "2.0", "id": req_id,
+            "result": {
+                "protocolVersion": PROTOCOL_VERSION,
+                "capabilities": {"tools": {}},
+                "serverInfo": SERVER_INFO,
+            },
+        })
+    elif method == "tools/list":
+        _send({"jsonrpc": "2.0", "id": req_id,
+               "result": {"tools": list_tools()}})
+    elif method == "tools/call":
+        name = params.get("name")
+        args = params.get("arguments") or {}
         try:
-            req = json.loads(line.decode())
-        except json.JSONDecodeError:
-            continue
-
-        rid = req.get("id")
-        method = req.get("method")
-        params = req.get("params") or {}
-
-        try:
-            if method == "initialize":
-                result = {"protocolVersion": "2025-06-18",
-                          "serverInfo": {"name": "yushin-mcp", "version": "0.1.0"},
-                          "capabilities": {"tools": {}}}
-            elif method == "tools/list":
-                result = {"tools": list_tools()}
-            elif method == "tools/call":
-                name = params["name"]
-                args = params.get("arguments") or {}
-                result = {"content": [{"type": "text",
-                                       "text": json.dumps(call_tool(name, args))}]}
-            elif method == "notifications/initialized":
-                continue  # No response required
-            else:
-                send({"jsonrpc": "2.0", "id": rid,
-                      "error": {"code": -32601, "message": f"method not found: {method}"}})
-                continue
-            send({"jsonrpc": "2.0", "id": rid, "result": result})
+            out = call_tool(name, args)
+            _send({"jsonrpc": "2.0", "id": req_id, "result": {
+                "content": [{"type": "text", "text": json.dumps(out)}],
+                "isError": False,
+            }})
+        except KeyError as e:
+            # Unknown/unregistered tool — return MCP-level error, not exception
+            _error(req_id, -32601, str(e))
         except Exception as e:
-            send({"jsonrpc": "2.0", "id": rid,
-                  "error": {"code": -32000, "message": str(e)}})
+            _error(req_id, -32000, f"{type(e).__name__}: {e}")
+    elif method in ("notifications/initialized", "notifications/cancelled"):
+        pass  # notifications have no id
+    else:
+        _error(req_id, -32601, f"method not found: {method}")
 
 
 def main() -> int:
-    try:
-        asyncio.run(_serve_stdio())
-    except KeyboardInterrupt:
-        return 130
+    for raw in sys.stdin:
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            req = json.loads(raw)
+        except json.JSONDecodeError:
+            _error(None, -32700, "parse error")
+            continue
+        _handle(req)
     return 0
 
 

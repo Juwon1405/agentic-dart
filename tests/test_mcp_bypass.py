@@ -81,7 +81,7 @@ def test_surface_is_exact_positive_and_negative_set():
     """Both POSITIVE (what's registered) and NEGATIVE (what must never be)
     sets are asserted. Any drift fails this test."""
     positive = {"get_amcache", "analyze_usb_history", "extract_mft_timeline",
-                "parse_prefetch", "list_scheduled_tasks", "correlate_events", "match_sigma_rules"}
+                "parse_prefetch", "list_scheduled_tasks", "correlate_events", "match_sigma_rules", "parse_evtx", "volatility_summary", "parse_knowledgec", "parse_fsevents", "parse_unified_log", "duckdb_timeline_correlate"}
     negative = {"execute_shell", "write_file", "mount", "umount", "eval",
                 "exec_python", "network_egress", "delete_file", "system",
                 "spawn_process", "kill_process"}

@@ -127,42 +127,62 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end (working in the MVP)
+### Implemented end-to-end — 13 MCP functions, all callable from Claude Code live mode
+
+**Windows artifacts**
+
+| Function | What it does |
+|---|---|
+| `get_amcache` | Amcache.hve reader, paginated output |
+| `extract_mft_timeline` | MFTECmd-CSV reader with `[start, end]` window |
+| `parse_prefetch` | Native + PECmd-sidecar reader |
+| `list_scheduled_tasks` | Evidence tree enumeration with per-file SHA-256 |
+| `analyze_usb_history` | setupapi.dev.log parser + IP-KVM VID/PID signature detection |
+| `parse_evtx` | EVTX event log reader (EvtxECmd CSV sidecar) with event_id + time window filters |
+
+**Memory forensics**
+
+| Function | What it does |
+|---|---|
+| `volatility_summary` | Volatility 3 sidecar reader — surfaces injected processes + candidate C2 IPs |
+
+**macOS artifacts**
+
+| Function | What it does |
+|---|---|
+| `parse_knowledgec` | KnowledgeC.db SQLite reader with Cocoa-epoch → ISO 8601 decoding |
+| `parse_fsevents` | FSEvents CSV reader with flag filter (ItemCreated / ItemRenamed / …) |
+| `parse_unified_log` | UnifiedLog `log show --style csv` reader with subsystem + process filters |
+
+**Reasoning layer**
+
+| Function | What it does |
+|---|---|
+| `correlate_events` | Python cross-artifact timeline join, contradiction flagging |
+| `duckdb_timeline_correlate` | **Real DuckDB-backed cross-source join at scale** — accepts N named sources, joins on time proximity, returns paired events |
+| `match_sigma_rules` | YAML Sigma matcher (`equals`, `contains`, `startswith` modifiers) |
+
+**Infrastructure**
 
 | Component | What it does |
 |---|---|
-| `yushin_mcp.get_amcache` | Amcache.hve reader, paginated output |
-| `yushin_mcp.analyze_usb_history` | setupapi.dev.log parser + IP-KVM VID/PID signature detection |
-| `yushin_mcp.extract_mft_timeline` | MFTECmd-CSV reader with `[start, end]` window |
-| `yushin_mcp.parse_prefetch` | Native + PECmd-sidecar reader |
-| `yushin_mcp.list_scheduled_tasks` | Evidence tree enumeration with per-file SHA-256 |
-| `yushin_mcp.correlate_events` | Cross-artifact timeline join, contradiction flagging |
-| `yushin_mcp.match_sigma_rules` | Minimal Sigma YAML matcher (supports `equals`, `contains`, `startswith`) |
-| `yushin_agent` | Iteration controller, hypothesis tracker, self-correction loop, max-iter cap |
-| `yushin_audit` | SHA-256-chained JSONL logger + `verify / lookup / trace / summary` CLI |
+| `yushin_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` cap |
+| `yushin_audit` (CLI) | SHA-256-chained JSONL logger + `verify / lookup / trace / summary` subcommands |
+| `yushin_mcp.server` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add yushin python3 -m yushin_mcp.server` |
 | `yushin_playbook/senior-analyst-v1.yaml` | Sequencing rules for insider-threat / remote-hands class |
 
-### Roadmap (explicitly not in the MVP)
+### Remaining roadmap (honest)
 
-| Component | Target |
+| Item | Target |
 |---|---|
-| Full EVTX parser integration (channel enumeration, EVT parsing) | W2–W3 |
-| Volatility-3 memory analysis wrappers | W3 |
-| Protocol SIFT `--mode live` (actual Claude Code integration) | W3 |
-| DuckDB-backed correlation for million-row timelines | W4 |
-| macOS artifacts (UnifiedLogs, KnowledgeC, FSEvents) | Post-submission |
-| Multi-agent decomposition (Memory / Disk / Network / Synthesizer) | Post-submission |
+| Native EVTX binary parser (drop EvtxECmd CSV dependency) | W3 |
+| Native Volatility 3 subprocess wiring (drop info.json sidecar) | W3 |
+| Baseline Protocol SIFT agent head-to-head accuracy runs on 2 external datasets | W4 |
+| Ali Hadi Challenge #1 + NIST CFReDS Hacking Case measured accuracy | W4–W5 |
+| Multi-agent decomposition (Memory / Disk / Network / Synthesizer specialists) | Post-submission |
+| TimeSketch export format | Post-submission |
 
-Honesty note: the above list reflects what a reviewer can exercise on a
-clean checkout right now vs. what is on the six-week submission plan.
 
-## Roadmap (legacy — now consolidated above)
-
-- MFTECmd / PECmd wrappers (W2 — completes the scaffolded functions)
-- Live Claude Code integration via MCP stdio (W3)
-- DuckDB correlation engine (W4)
-- macOS evidence depth (UnifiedLogs, KnowledgeC, FSEvents) — post-submission
-- Multi-agent decomposition — post-submission
 
 ## License
 
