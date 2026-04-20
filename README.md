@@ -119,6 +119,25 @@ YuShin covers **both** Windows and macOS artifacts:
 - **macOS (3 functions):** UnifiedLog (with rule pack), KnowledgeC, FSEvents
 - **Cross-platform (2 functions):** `correlate_events` (proximity join), `correlate_timeline` (DuckDB scale engine)
 
+
+## Live mode (real Claude API + MCP stdio)
+
+YuShin can run in `live` mode where Claude is the agent, connected to `yushin-mcp` over real MCP stdio JSON-RPC:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+python3 -m yushin_agent --mode live --case my-case --out /tmp/out \
+    --prompt "Investigate for IP-KVM insider pattern"
+```
+
+Or without an API key (scripted mock-Claude over real MCP plumbing):
+
+```bash
+python3 -m yushin_agent --mode live --case test --out /tmp/out --dry-run
+```
+
+See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-use loop, and `tests/test_live_mcp.py` for end-to-end wire-level tests (no API key needed).
+
 ## Case study for judges
 
 See [`examples/case-studies/case-01-ipkvm-insider/`](./examples/case-studies/case-01-ipkvm-insider/README.md) for a step-by-step walkthrough of the bundled IP-KVM remote-hands case — what the agent does at each iteration, what `audit.jsonl` records, and how `yushin-audit trace F-013` resolves a finding back to raw evidence in three clicks.

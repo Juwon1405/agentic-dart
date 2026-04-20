@@ -316,20 +316,35 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--max-iterations", type=int, default=10)
     ap.add_argument("--mode", choices=["deterministic", "live"], default="deterministic",
                     help="deterministic: scripted analyst (for demo/accuracy). "
-                         "live: uses Claude Code via MCP stdio transport.")
+                         "live: Claude API talking to yushin-mcp via stdio.")
+    # Live-mode-only args (ignored in deterministic mode)
+    ap.add_argument("--prompt", default="Investigate the bundled evidence "
+                                        "and report any high-severity findings.",
+                    help="(live mode) initial user prompt to Claude")
+    ap.add_argument("--model", default="claude-opus-4-7",
+                    help="(live mode) Anthropic model id")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="(live mode) use scripted mock Claude — no API key needed")
     args = ap.parse_args(argv)
 
     args.out.mkdir(parents=True, exist_ok=True)
+
+    if args.mode == "live":
+        # Route to live controller (separate module to keep optional deps optional)
+        from .live import live_run
+        import asyncio
+        return asyncio.run(live_run(
+            case=args.case, out_dir=str(args.out), prompt=args.prompt,
+            model=args.model, max_iter=args.max_iterations, dry_run=args.dry_run,
+        ))
+
+    # Deterministic path (unchanged)
     audit_path = args.out / "audit.jsonl"
     progress_path = args.out / "progress.jsonl"
     report_path = args.out / "report.json"
 
     audit = AuditLogger(audit_path, run_id=args.case)
     progress = ProgressTracker(progress_path)
-
-    if args.mode != "deterministic":
-        print("live mode not wired yet — targets W3. Use --mode deterministic.", file=sys.stderr)
-        return 2
 
     analyst = DeterministicAnalyst(audit, progress, max_iter=args.max_iterations)
     report = analyst.run()
