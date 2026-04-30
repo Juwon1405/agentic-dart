@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./agentic-dart-hero.png" alt="Agentic-DART — Autonomous DFIR Agent" width="100%">
+  <img src="./agentic-dart-thumbnail.png" alt="Agentic-DART — Autonomous DFIR Agent" width="100%">
 </p>
 
 <p align="center">
