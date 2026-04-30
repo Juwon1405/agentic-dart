@@ -8,7 +8,7 @@ export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 python3 scripts/measure_accuracy.py
 ```
 
-## MCP surface — 15 functions, all implemented end-to-end
+## MCP surface — 31 functions, all implemented end-to-end
 
 ### Windows
 
@@ -161,10 +161,10 @@ escalation.
 
 | MCP call | Real output on bundled evidence |
 |---|---|
-| `analyze_windows_logons` | 16 events → 5 success + 4 fail + 2 explicit; 1 brute-force survivor (jbang@203.0.113.42 after 4 fails); 1 after-hours RDP at 02:17 |
+| `analyze_windows_logons` | 16 events → 5 success + 4 fail + 2 explicit; 1 brute-force survivor (analyst@203.0.113.42 after 4 fails); 1 after-hours RDP at 02:17 |
 | `detect_lateral_movement` | 2 remote-admin hits (psexec + wmiexec), 5 suspicious pairs, all HIGH |
 | `analyze_kerberos_events` | **3 Kerberoasting** (RC4 TGS to MSSQL/Exchange/LDAP), **1 AS-REP Roast** (alice no-preauth) |
-| `analyze_unix_auth` | 10-failure brute force from 203.0.113.42 → 1 survivor (jbang publickey); 3 dangerous sudo commands (shadow read, curl\|bash) |
+| `analyze_unix_auth` | 10-failure brute force from 203.0.113.42 → 1 survivor (analyst publickey); 3 dangerous sudo commands (shadow read, curl\|bash) |
 | `detect_privilege_escalation` | 2 CRITICAL transitions: SSH → root in 85s and 100s |
 
 ## Coverage map — full DFIR dimensions
@@ -200,7 +200,7 @@ classification (credential stuffing vs password spray vs single-account).
 |---|---|
 | `analyze_web_access_log` | 27 lines, **13 attacks** across 5 rule classes (SQLi/LFI/SSRF/Log4Shell/RCE/webshell_upload), 19 scanner-UA hits, 1 scanning IP (198.51.100.77 at 65% error ratio) |
 | `detect_webshell` | 12 files scanned, **3 HIGH findings with 0 false positives** (x.php/shell.php/cmd.php), 3 age_anomalies confirming recent drops |
-| `detect_brute_force_rdp` | 15 RDP failures → 1 credential-stuffing IP (8 distinct users), 1 password-spray user (4 source IPs), **1 CRITICAL survivor** (jbang) |
+| `detect_brute_force_rdp` | 15 RDP failures → 1 credential-stuffing IP (8 distinct users), 1 password-spray user (4 source IPs), **1 CRITICAL survivor** (analyst) |
 
 ## Initial-access vector coverage (complete)
 

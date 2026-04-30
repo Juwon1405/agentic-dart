@@ -37,7 +37,7 @@ the bundled evidence returns **7 alerts**:
 
 ### Iteration 2 — Corroborate with KnowledgeC
 
-`parse_knowledgec('mac/Users/jbang/Library/Application Support/Knowledge/knowledgeC.db')`
+`parse_knowledgec('mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db')`
 returns user activity:
 
 - `com.apple.Terminal` — 3 focus events during the attack window
@@ -68,7 +68,7 @@ events = [
     {"ts": "2026-03-15 14:19:10", "source": "unifiedlog", "type": "tcc_deny",
      "actor": "/Applications/RemoteAdmin.app/..."},
     {"ts": "2026-03-15 14:22:00", "source": "knowledgec", "type": "device_unlock",
-     "actor": "jbang"},
+     "actor": "analyst"},
     {"ts": "2026-03-15 14:25:40", "source": "unifiedlog", "type": "xprotect",
      "target": "/private/tmp/stage2.bin"},
     {"ts": "2026-03-15 14:25:45", "source": "fsevents", "type": "file_create",
@@ -94,7 +94,7 @@ import json
 
 for name, args in [
     ('parse_unified_log', {'unifiedlog_json': 'mac/private/var/db/diagnostics/unifiedlog.ndjson'}),
-    ('parse_knowledgec',  {'knowledgec_db': 'mac/Users/jbang/Library/Application Support/Knowledge/knowledgeC.db'}),
+    ('parse_knowledgec',  {'knowledgec_db': 'mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db'}),
     ('parse_fsevents',    {'fsevents_csv': 'mac/fsevents.csv'}),
 ]:
     r = call_tool(name, args)

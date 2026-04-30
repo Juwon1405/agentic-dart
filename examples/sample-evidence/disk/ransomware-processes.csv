@@ -1,24 +1,24 @@
 PID,ParentPID,Image,CommandLine,StartTime,User
-5000,1100,C:\Windows\System32\powershell.exe,"powershell -enc SQBFAFgA...",2026-03-15 14:30:00,jbang
-5010,5000,C:\Windows\System32\vssadmin.exe,"vssadmin delete shadows /all /quiet",2026-03-15 14:30:05,jbang
-5020,5000,C:\Windows\System32\wbadmin.exe,"wbadmin delete catalog -quiet",2026-03-15 14:30:08,jbang
-5030,5000,C:\Windows\System32\bcdedit.exe,"bcdedit /set {default} recoveryenabled no",2026-03-15 14:30:12,jbang
-5040,5000,C:\Windows\System32\bcdedit.exe,"bcdedit /set {default} bootstatuspolicy ignoreallfailures",2026-03-15 14:30:14,jbang
-5050,5000,C:\Windows\System32\wevtutil.exe,"wevtutil cl Security",2026-03-15 14:30:20,jbang
-5051,5000,C:\Windows\System32\wevtutil.exe,"wevtutil cl System",2026-03-15 14:30:22,jbang
-5052,5000,C:\Windows\System32\wevtutil.exe,"wevtutil cl Application",2026-03-15 14:30:23,jbang
-5060,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM sqlservr.exe",2026-03-15 14:30:30,jbang
-5061,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM MsMpEng.exe",2026-03-15 14:30:31,jbang
-5062,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM msftesql.exe",2026-03-15 14:30:32,jbang
-5063,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM sqlagent.exe",2026-03-15 14:30:33,jbang
-5064,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM sqlbrowser.exe",2026-03-15 14:30:34,jbang
-5065,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM sqlwriter.exe",2026-03-15 14:30:35,jbang
-5066,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM oracle.exe",2026-03-15 14:30:36,jbang
-5067,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM ocssd.exe",2026-03-15 14:30:37,jbang
-5068,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM dbsnmp.exe",2026-03-15 14:30:38,jbang
-5069,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM synctime.exe",2026-03-15 14:30:39,jbang
-5070,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM agntsvc.exe",2026-03-15 14:30:40,jbang
-5071,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM mydesktopqos.exe",2026-03-15 14:30:41,jbang
-5080,5000,C:\Windows\System32\net.exe,"net stop VSS",2026-03-15 14:30:45,jbang
-5081,5000,C:\Windows\System32\net.exe,"net stop BackupExec",2026-03-15 14:30:46,jbang
-5082,5000,C:\Windows\System32\net.exe,"net stop Veeam",2026-03-15 14:30:47,jbang
+5000,1100,C:\Windows\System32\powershell.exe,"powershell -enc SQBFAFgA...",2026-03-15 14:30:00,analyst
+5010,5000,C:\Windows\System32\vssadmin.exe,"vssadmin delete shadows /all /quiet",2026-03-15 14:30:05,analyst
+5020,5000,C:\Windows\System32\wbadmin.exe,"wbadmin delete catalog -quiet",2026-03-15 14:30:08,analyst
+5030,5000,C:\Windows\System32\bcdedit.exe,"bcdedit /set {default} recoveryenabled no",2026-03-15 14:30:12,analyst
+5040,5000,C:\Windows\System32\bcdedit.exe,"bcdedit /set {default} bootstatuspolicy ignoreallfailures",2026-03-15 14:30:14,analyst
+5050,5000,C:\Windows\System32\wevtutil.exe,"wevtutil cl Security",2026-03-15 14:30:20,analyst
+5051,5000,C:\Windows\System32\wevtutil.exe,"wevtutil cl System",2026-03-15 14:30:22,analyst
+5052,5000,C:\Windows\System32\wevtutil.exe,"wevtutil cl Application",2026-03-15 14:30:23,analyst
+5060,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM sqlservr.exe",2026-03-15 14:30:30,analyst
+5061,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM MsMpEng.exe",2026-03-15 14:30:31,analyst
+5062,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM msftesql.exe",2026-03-15 14:30:32,analyst
+5063,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM sqlagent.exe",2026-03-15 14:30:33,analyst
+5064,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM sqlbrowser.exe",2026-03-15 14:30:34,analyst
+5065,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM sqlwriter.exe",2026-03-15 14:30:35,analyst
+5066,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM oracle.exe",2026-03-15 14:30:36,analyst
+5067,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM ocssd.exe",2026-03-15 14:30:37,analyst
+5068,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM dbsnmp.exe",2026-03-15 14:30:38,analyst
+5069,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM synctime.exe",2026-03-15 14:30:39,analyst
+5070,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM agntsvc.exe",2026-03-15 14:30:40,analyst
+5071,5000,C:\Windows\System32\taskkill.exe,"taskkill /F /IM mydesktopqos.exe",2026-03-15 14:30:41,analyst
+5080,5000,C:\Windows\System32\net.exe,"net stop VSS",2026-03-15 14:30:45,analyst
+5081,5000,C:\Windows\System32\net.exe,"net stop BackupExec",2026-03-15 14:30:46,analyst
+5082,5000,C:\Windows\System32\net.exe,"net stop Veeam",2026-03-15 14:30:47,analyst

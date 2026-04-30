@@ -45,7 +45,7 @@ Combined, these are high-confidence LOTL indicators.
 `detect_persistence()` returns **3 HIGH-severity** findings:
 
 - Registry Run key "SecurityUpdate" → `powershell -w hidden -c IEX(DownloadString(...))`
-- Service "RemoteHandsHelper" → `C:\Users\jbang\AppData\Local\Temp\rhh.exe` (Temp path!)
+- Service "RemoteHandsHelper" → `C:\Users\analyst\AppData\Local\Temp\rhh.exe` (Temp path!)
 - Scheduled task "RemoteHandsSync" (from Case 01)
 
 ### Iteration 4 — Cross-source correlation
@@ -63,7 +63,7 @@ by `dart-audit trace`:
 
 ```
 IP-KVM inserted (Case 01)
-  → Logon as jbang (3 min later)
+  → Logon as analyst (3 min later)
   → explorer → powershell -enc (encoded command)
   → powershell → cmd (LOTL)
   → cmd → net user / net localgroup / reg add (account creation + persistence)

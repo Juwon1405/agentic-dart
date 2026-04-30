@@ -6,7 +6,7 @@ over real MCP stdio JSON-RPC. This exercises:
 
   1. Subprocess spawn of `python -m dart_mcp.server_stdio`
   2. MCP initialize() handshake
-  3. list_tools() over the wire — verifies all 15 functions are advertised
+  3. list_tools() over the wire — verifies all 31 functions are advertised
   4. call_tool() over the wire — verifies a real tool returns real data
   5. The ToolNotFound guardrail survives the wire (adversarial path)
   6. Agent writes live_transcript.txt, live_tool_calls.jsonl, live_summary.json

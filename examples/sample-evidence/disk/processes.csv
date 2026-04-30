@@ -2,10 +2,10 @@ PID,ParentPID,Image,CommandLine,StartTime,User
 4,0,System,,2026-03-15 08:00:00,SYSTEM
 540,4,C:\Windows\System32\smss.exe,,2026-03-15 08:00:01,SYSTEM
 820,540,C:\Windows\System32\winlogon.exe,,2026-03-15 08:00:05,SYSTEM
-1100,820,C:\Windows\explorer.exe,,2026-03-15 14:22:10,jbang
-4812,1100,C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe,"powershell -enc JABjAD0ATg==",2026-03-15 14:23:00,jbang
-4820,4812,C:\Windows\System32\cmd.exe,"cmd.exe /c whoami /all",2026-03-15 14:23:15,jbang
-4824,4812,C:\Windows\System32\wscript.exe,"wscript stage.vbs",2026-03-15 14:23:30,jbang
-4830,4820,C:\Windows\System32\net.exe,"net user admin123 /add",2026-03-15 14:23:45,jbang
-4835,4820,C:\Windows\System32\net.exe,"net localgroup Administrators admin123 /add",2026-03-15 14:24:00,jbang
-4840,4820,C:\Windows\System32\reg.exe,"reg add HKLM\Software\...",2026-03-15 14:24:15,jbang
+1100,820,C:\Windows\explorer.exe,,2026-03-15 14:22:10,analyst
+4812,1100,C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe,"powershell -enc JABjAD0ATg==",2026-03-15 14:23:00,analyst
+4820,4812,C:\Windows\System32\cmd.exe,"cmd.exe /c whoami /all",2026-03-15 14:23:15,analyst
+4824,4812,C:\Windows\System32\wscript.exe,"wscript stage.vbs",2026-03-15 14:23:30,analyst
+4830,4820,C:\Windows\System32\net.exe,"net user admin123 /add",2026-03-15 14:23:45,analyst
+4835,4820,C:\Windows\System32\net.exe,"net localgroup Administrators admin123 /add",2026-03-15 14:24:00,analyst
+4840,4820,C:\Windows\System32\reg.exe,"reg add HKLM\Software\...",2026-03-15 14:24:15,analyst

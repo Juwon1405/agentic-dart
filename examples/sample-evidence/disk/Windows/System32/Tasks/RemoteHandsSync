@@ -9,6 +9,6 @@
     <LogonTrigger><Enabled>true</Enabled></LogonTrigger>
   </Triggers>
   <Actions>
-    <Exec><Command>C:\Users\jbang\Downloads\remote-admin.exe</Command></Exec>
+    <Exec><Command>C:\Users\analyst\Downloads\remote-admin.exe</Command></Exec>
   </Actions>
 </Task>

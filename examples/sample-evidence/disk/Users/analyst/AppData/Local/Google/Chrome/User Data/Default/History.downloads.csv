@@ -1,0 +1,4 @@
+ts,url,referrer,target_path,file_size,sha256,mime_type,state
+2026-03-15 14:16:30,https://203.0.113.42:8080/payload,https://finance-update-secure.tk/download?token=abc123,C:\Users\analyst\Downloads\quarterly-report.pdf.exe,847392,a7f3e9c2b4d5e6f7089012345678901234567890123456789012345678901234,application/octet-stream,complete
+2026-03-15 14:17:02,https://203.0.113.42:8080/stage2,https://finance-update-secure.tk,C:\Users\analyst\Downloads\helper.zip,2458102,b81c4f2a5d6e7f8901234567890123456789012345678901234567890123,application/zip,complete
+2026-03-15 13:00:00,https://www.adobe.com/acrobat/installer,,C:\Users\analyst\Downloads\AcroRdrDCInstaller.exe,241823456,c92e5d3f6a7b8c9012345678901234567890123456789012345678901234,application/x-msdownload,complete

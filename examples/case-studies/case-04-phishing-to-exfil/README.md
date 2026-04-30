@@ -1,7 +1,7 @@
 # Case Study 04 — Phishing → Browser Download → Execution → Exfiltration
 
 **Scenario class:** Classic data-theft chain (the 80% case)
-**Evidence:** bundled at `examples/sample-evidence/disk/Users/jbang/`
+**Evidence:** bundled at `examples/sample-evidence/disk/Users/analyst/`
 **Functions used:** `parse_browser_history`, `analyze_downloads`,
   `correlate_download_to_execution`, `detect_exfiltration`
 
@@ -22,7 +22,7 @@ and **whether data left**.
 
 ## The scenario (bundled evidence)
 
-At 14:15, user `jbang` opened an email in Outlook containing a link to
+At 14:15, user `analyst` opened an email in Outlook containing a link to
 `https://finance-update-secure.tk/download?token=abc123`. The link
 redirected to `https://203.0.113.42:8080/payload` which served
 `quarterly-report.pdf.exe`. The user ran it 6 minutes later. The
@@ -52,7 +52,7 @@ establishing phishing email as the entry vector.
 
 ```json
 {
-  "target_path": "C:\\Users\\jbang\\Downloads\\quarterly-report.pdf.exe",
+  "target_path": "C:\\Users\\analyst\\Downloads\\quarterly-report.pdf.exe",
   "url": "https://203.0.113.42:8080/payload",
   "referrer": "https://finance-update-secure.tk/download?token=abc123",
   "file_size": 847392,
@@ -73,8 +73,8 @@ download records against process-tree / Prefetch evidence:
 ```json
 {
   "download_url": "https://203.0.113.42:8080/payload",
-  "download_target": "C:\\Users\\jbang\\Downloads\\quarterly-report.pdf.exe",
-  "execution_image": "C:/Users/jbang/Downloads/quarterly-report.pdf.exe",
+  "download_target": "C:\\Users\\analyst\\Downloads\\quarterly-report.pdf.exe",
+  "execution_image": "C:/Users/analyst/Downloads/quarterly-report.pdf.exe",
   "delay_seconds": 390,
   "severity": "critical"
 }
@@ -111,7 +111,7 @@ stats:
 
 ## Complete attack reconstruction (what the analyst writes in the report)
 
-> At 14:15:45 UTC, user jbang clicked a link in an Outlook email that
+> At 14:15:45 UTC, user analyst clicked a link in an Outlook email that
 > directed to `finance-update-secure.tk` (a freshly registered TLD).
 > The link redirected to `203.0.113.42:8080/payload`, from which
 > `quarterly-report.pdf.exe` was downloaded (MOTW confirmed from-Internet).
@@ -136,17 +136,17 @@ from dart_mcp import call_tool
 import json
 
 hist = call_tool('parse_browser_history', {
-    'history_db': 'disk/Users/jbang/AppData/Local/Google/Chrome/User Data/Default/History',
+    'history_db': 'disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History',
 })
 print(f'Browser history: {hist[\"total\"]} visits, {hist[\"suspicious_url_count\"]} suspicious')
 
 dl = call_tool('analyze_downloads', {
-    'downloads_source': 'disk/Users/jbang/AppData/Local/Google/Chrome/User Data/Default/History',
+    'downloads_source': 'disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History',
 })
 print(f'Downloads: {dl[\"total_downloads\"]} total, {dl[\"executable_download_count\"]} executables')
 
 motw = call_tool('analyze_downloads', {
-    'downloads_source': 'disk/Users/jbang/Downloads',
+    'downloads_source': 'disk/Users/analyst/Downloads',
     'mode': 'zone_identifier',
 })
 print(f'MOTW: {motw[\"total_downloads\"]} Internet-zone files')

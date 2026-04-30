@@ -1,4 +1,4 @@
 ServiceName,ImagePath,Start
 W32Time,C:\Windows\System32\svchost.exe -k LocalService,Auto
 BITS,C:\Windows\System32\svchost.exe -k netsvcs,Auto
-RemoteHandsHelper,"C:\Users\jbang\AppData\Local\Temp\rhh.exe",Auto
+RemoteHandsHelper,"C:\Users\analyst\AppData\Local\Temp\rhh.exe",Auto

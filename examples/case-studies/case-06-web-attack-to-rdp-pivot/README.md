@@ -76,7 +76,7 @@ age_anomalies:
 
 Starting at 13:50, attacker at `198.51.100.77` performed RDP brute force
 against the jump server. They tried 8 distinct usernames (administrator,
-admin, root, user, backup, guest, test, jbang), with `jbang` attempted
+admin, root, user, backup, guest, test, analyst), with `analyst` attempted
 4 times before succeeding at 13:50:45. Separately, user `alice` was
 targeted by a password spray from 4 different IPs.
 
@@ -89,7 +89,7 @@ max_severity: critical
 
 credential_stuffing_ips: [
   {source_ip: "198.51.100.77", failure_count: 11, distinct_users: 8,
-   users_sample: [admin, administrator, backup, guest, jbang, root,
+   users_sample: [admin, administrator, backup, guest, analyst, root,
                   test, user], pattern: "credential_stuffing"}
 ]
 
@@ -99,7 +99,7 @@ password_spray_users: [
 ]
 
 survivors: [
-  {user: "jbang", source_ip: "198.51.100.77",
+  {user: "analyst", source_ip: "198.51.100.77",
    ts: "2026-03-15 13:50:45", severity: "critical",
    interpretation: "successful RDP logon after brute force from same IP"}
 ]
@@ -111,7 +111,7 @@ The two scenarios can be stitched together via `correlate_timeline`:
 
 ```
 13:50:00  RDP credential-stuffing begins from 198.51.100.77
-13:50:45  jbang RDP succeeds                               ← foothold 1
+13:50:45  analyst RDP succeeds                               ← foothold 1
 14:05:00  sqlmap scan begins from same IP 198.51.100.77    ← attacker shifted to web
 14:05:25  LFI to read /etc/passwd
 14:05:28  SSRF to AWS metadata endpoint

@@ -1,4 +1,4 @@
 [
-  {"EventID": 1102, "TimeCreated": "2026-03-15 14:30:20", "Channel": "Security", "SubjectUserName": "jbang", "SubjectDomainName": "CORP"},
-  {"EventID": 104, "TimeCreated": "2026-03-15 14:30:22", "Channel": "System", "SubjectUserName": "jbang"}
+  {"EventID": 1102, "TimeCreated": "2026-03-15 14:30:20", "Channel": "Security", "SubjectUserName": "analyst", "SubjectDomainName": "CORP"},
+  {"EventID": 104, "TimeCreated": "2026-03-15 14:30:22", "Channel": "System", "SubjectUserName": "analyst"}
 ]

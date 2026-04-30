@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dart-mcp"
 version = "0.2.0"
-description = "Agentic-DART typed, read-only forensic MCP server (15 functions)"
+description = "Agentic-DART typed, read-only forensic MCP server (31 functions)"
 requires-python = ">=3.10"
 dependencies = [
     "duckdb>=1.0.0",

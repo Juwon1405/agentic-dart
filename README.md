@@ -21,6 +21,28 @@
 
 ---
 
+## Table of contents
+
+- [About the name](#about-the-name)
+- [Development approach](#development-approach)
+- [What Agentic-DART is (and what it is not)](#what-agentic-dart-is-and-what-it-is-not)
+- [Why Agentic-DART exists](#why-agentic-dart-exists)
+- [Architecture](#architecture)
+- [Repository layout](#repository-layout)
+- [**Quick start — prove it works in 30 seconds**](#quick-start--prove-it-works-in-30-seconds)
+- [Running the tests](#running-the-tests)
+- [Target case class](#target-case-class)
+- [Judging-criteria alignment (SANS FIND EVIL!)](#judging-criteria-alignment-sans-find-evil)
+- [Platform support](#platform-support)
+- [Live mode (real Claude API + MCP stdio)](#live-mode-real-claude-api--mcp-stdio)
+- [Case study for judges](#case-study-for-judges)
+- [Measured accuracy (reproducible)](#measured-accuracy-reproducible)
+- [Status — what is implemented vs. what is roadmap](#status--what-is-implemented-vs-what-is-roadmap)
+- [License](#license)
+- [Team](#team)
+
+---
+
 ## About the name
 
 **DART** = **D**etection **A**nd **R**esponse **T**eam.
@@ -168,7 +190,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 |---|---|---|
 | Autonomous Execution Quality | Hypothesis tracker + persistent learning loop + self-correction | `progress.jsonl` shows iteration 4 contradiction + auto-widened retry |
 | IR Accuracy | Cross-artifact correlation; contradictions flagged, not smoothed | F-013 replaces F-001 hypothesis when USB contradicts logon |
-| Breadth / Depth | Disk + USB + (memory, MFT, prefetch scaffolded) on a single trace | `dart_mcp/__init__.py` exposes 6 typed functions |
+| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp/__init__.py` exposes 31 typed functions |
 | Constraint Implementation | **Architectural** — no `execute_shell` function exists in the registry | `test_mcp_surface.py::test_calling_unregistered_function_raises` |
 | Audit Trail Quality | Every finding → `audit_id` → MCP call → command → raw output | `audit.jsonl` chain verifiable end-to-end |
 | Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on any Python 3.10+ host |
@@ -235,7 +257,7 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end — 13 MCP functions, all callable from Claude Code live mode
+### Implemented end-to-end — 31 MCP functions, all callable from Claude Code live mode
 
 **Windows artifacts**
 
@@ -296,7 +318,17 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 
 MIT — see [LICENSE](./LICENSE).
 
-## Author
+## Team
 
-**Agentic-DART (優心 / Bang Juwon)** — DFIR practitioner.
-Contact via GitHub.
+Agentic-DART is a small team effort. Roles below describe the headline area
+each person owns; in practice a lot of the work is collaborative.
+
+| Member | Role | Contact |
+|---|---|---|
+| **Bang Juwon** | Architecture, MCP surface design, audit chain, agent loop | [juwon1405.jp@doubles1405.com](mailto:juwon1405.jp@doubles1405.com) &nbsp;·&nbsp; [@Juwon1405](https://github.com/Juwon1405) |
+| **Lee Geonhui** | Detection coverage review, MITRE mapping sanity-check | [luxpal21@gmail.com](mailto:luxpal21@gmail.com) |
+| **Justin Kwon** &nbsp;<sub>(Kwon Youngsoo)</sub> | Test corpus, dataset reproducibility, CI | [@Ju571nK](https://github.com/Ju571nK) |
+| **ohgun** &nbsp;<sub>(Oh Sejoon)</sub> | Live mode integration, MCP stdio wire tests | [@peacej](https://github.com/peacej) |
+
+Lead contact for SANS FIND EVIL! 2026 submission: **Bang Juwon**.
+
