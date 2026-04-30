@@ -198,7 +198,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 |---|---|---|
 | Autonomous Execution Quality | Hypothesis tracker + persistent learning loop + self-correction | `progress.jsonl` shows iteration 4 contradiction + auto-widened retry |
 | IR Accuracy | Cross-artifact correlation; contradictions flagged, not smoothed | F-013 replaces F-001 hypothesis when USB contradicts logon |
-| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp/__init__.py` exposes 31 typed functions |
+| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp/__init__.py` exposes 35 typed functions |
 | Constraint Implementation | **Architectural** — no `execute_shell` function exists in the registry | `test_mcp_surface.py::test_calling_unregistered_function_raises` |
 | Audit Trail Quality | Every finding → `audit_id` → MCP call → command → raw output | `audit.jsonl` chain verifiable end-to-end |
 | Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on any Python 3.10+ host |
@@ -206,22 +206,66 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 ## Platform support
 
-Runs on SIFT Workstation (primary), Ubuntu, and **macOS 12+** (Intel and Apple Silicon). See [`docs/running-on-macos.md`](./docs/running-on-macos.md) for the 5-minute macOS quickstart.
+Agentic-DART runs on **Linux**, **macOS**, and **Windows** as the host (Python 3.10+, no native dependencies). Evidence from any of those operating systems can be analyzed regardless of which OS the agent runs on.
 
-Agentic-DART covers **31 forensic functions** across 11 of 12 MITRE ATT&CK enterprise tactics:
+### Supported analysis targets — explicit matrix
 
-- **Windows system (10):** Amcache, Prefetch, ShimCache, MFT, USB history, ShellBags, Scheduled Tasks, Persistence (Run keys/Services/Tasks), Event Logs, Process tree with LOTL detection
-- **macOS system (3):** UnifiedLog (rule pack), KnowledgeC (SQLite), FSEvents
-- **Browser + exfiltration (4):** Chrome/Edge/Firefox/Safari history, download records + Mark-of-the-Web, download-to-execution chain correlation, exfiltration pattern detection
-- **Authentication + lateral movement (5):** Windows Security log (4624/4625/4648), AD/Kerberos attack detection (Kerberoasting RC4, AS-REP Roasting), Unix auth.log (SSH/sudo/su), PsExec/WMIExec/WinRM detection, cross-platform privilege escalation
-- **Web/WAS + RDP brute force (3):** Apache/Nginx/IIS access log with SQLi/LFI/SSRF/Log4Shell/RCE detection, webshell detection (filename + content + age anomaly), RDP-specific brute force (credential stuffing vs password spray vs single-account)
-- **MITRE ATT&CK gap-fillers (4):** credential access (Mimikatz/LOLBin/LSASS/SAM/NTDS), ransomware behavior (shadow-copy deletion/mass-rename/ransom notes), defense evasion (event log clearing/timestomping/$SI-$FN analysis), discovery (AD enumeration/BloodHound/scripted recon burst)
-- **Cross-artifact correlation (2):** `correlate_events` (proximity join), `correlate_timeline` (DuckDB scale engine)
+| Target OS | Coverage | Evidence types analyzed |
+|---|:---:|---|
+| **Windows** &nbsp;<sub>10 / 11 / Server 2016+</sub> | 🟢 Deep | Registry hives (SYSTEM, SOFTWARE, NTUSER.DAT, AmCache.hve), $MFT, Prefetch, ShellBags, ShimCache, EVTX (Security/System/Application/Sysmon), Scheduled Tasks, USBSTOR + setupapi.dev.log, Volume Shadow metadata |
+| **macOS** &nbsp;<sub>11 Big Sur → 14 Sonoma</sub> | 🟢 Standard | UnifiedLog (`log show --style ndjson`), KnowledgeC.db (CoreDuet), FSEvents (fseventsd), LaunchAgent / LaunchDaemon plists, browser SQLite (Safari, Chrome, Firefox), Spotlight metadata, Quarantine xattrs |
+| **Linux** &nbsp;<sub>RHEL/Rocky/Alma 8+, Ubuntu 20.04+, Debian 11+</sub> | 🟢 Standard | auditd (`/var/log/audit/audit.log`), systemd-journal (`journalctl -o json`), syslog (`auth.log` / `secure`), bash/zsh history, cron / systemd-units, web access logs (Apache / Nginx) |
+| **Cross-platform** | 🟢 | Process trees, browser SQLite (Chrome / Firefox / Safari / Edge), Sigma rule matching against any pre-extracted event log, MITRE ATT&CK chain reasoning |
 
-Full kill-chain coverage:
-`phishing email / web attack / RDP brute force → execution → authentication (WHO) → persistence → lateral movement → C2 → data exfiltration`
+> **Note on host vs. target:** the agent reads forensic *output* the
+> operator produces (CSV / JSON / SQLite / plist / NDJSON). It does not
+> require live agent installation on the target host. This is what
+> makes it work on disk images and offline triage.
 
-Four DFIR dimensions — **WHAT** ran, **HOW** it got in, **WHO** authenticated, **WHEN** — all covered across Windows, macOS, and Linux. Initial-access vectors covered: phishing, web attack, RDP/SSH brute force, SMB, Kerberos abuse, physical IP-KVM insider.
+### 35 typed forensic functions — by platform
+
+The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`.
+
+| Platform | Functions | Count |
+|---|---|:---:|
+| **Windows** | `get_amcache`, `parse_prefetch`, `parse_shimcache`, `parse_shellbags`, `extract_mft_timeline`, `list_scheduled_tasks`, `analyze_usb_history`, `analyze_event_logs`, `analyze_windows_logons`, `detect_lateral_movement`, `detect_brute_force_rdp`, `detect_persistence` | 12 |
+| **Windows AD** | `analyze_kerberos_events` (4768 / 4769 / 4770 / 4771) | 1 |
+| **macOS** | `parse_unified_log`, `parse_knowledgec`, `parse_fsevents`, `parse_launchd_plist` | 4 |
+| **Linux** | `parse_auditd_log`, `parse_systemd_journal`, `analyze_unix_auth` | 3 |
+| **Linux + macOS** | `parse_bash_history` (with attacker-pattern detection: T1059.004, T1098.004, T1070.003, T1105, T1548.001, etc.) | 1 |
+| **Cross-platform** | `get_process_tree`, `parse_browser_history`, `analyze_downloads`, `correlate_download_to_execution`, `detect_exfiltration`, `detect_credential_access`, `detect_ransomware_behavior`, `detect_defense_evasion`, `detect_discovery`, `detect_privilege_escalation`, `analyze_web_access_log`, `detect_webshell`, `correlate_events`, `correlate_timeline` | 14 |
+| **Total** | | **35** |
+
+### How the surface was built — references and provenance
+
+The 35 functions are not invented from scratch. Each one is grounded in a published reference. The full mapping with hyperlinks lives in the wiki ([MCP function catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)). High-level sources:
+
+| Domain | Primary references |
+|---|---|
+| **Windows artifacts** | SANS FOR500 (Windows Forensic Analysis), SANS FOR508 (Advanced IR & Threat Hunting), Microsoft official docs (EVTX schema, Sysmon, Amcache), Eric Zimmerman's tools (PECmd, AmcacheParser, ShellBags Explorer, MFTECmd) — naming and field semantics aligned for operator familiarity |
+| **macOS artifacts** | SANS FOR518 (Mac & iOS Forensic Analysis), Apple Developer Library, Patrick Wardle's *The Art of Mac Malware* (vol. 1: persistence; vol. 2: detection), mac4n6.com, Sarah Edwards' KnowledgeC research |
+| **Linux artifacts** | SANS FOR577 (Linux IR & Threat Hunting), Red Hat RHEL Security Guide ch.7 (auditd), `systemd.journal-fields(7)`, freedesktop.org Journal Export Format, Hal Pomeranz's Linux IR talks |
+| **Cross-platform / TTPs** | MITRE ATT&CK Enterprise (every detection function is mapped to a tactic + technique), Sigma rules (community detection corpus), Florian Roth's signature-base, Atomic Red Team |
+| **Architecture** | MITRE Cyber Resiliency Engineering Framework, Anthropic's Model Context Protocol spec, "Threat Hunting in the Real World" (NIST SP 800-150), the AuditChain pattern from RFC 6234 (SHA-256) + RFC 5246 (chained MAC) |
+
+### MITRE ATT&CK coverage — 11 of 12 enterprise tactics
+
+| # | Tactic | Covered by |
+|:---:|---|---|
+| TA0001 | Initial Access | `analyze_usb_history`, `analyze_web_access_log`, `detect_webshell` |
+| TA0002 | Execution | `get_amcache`, `parse_prefetch`, `parse_shimcache`, `get_process_tree`, `parse_bash_history` |
+| TA0003 | Persistence | `detect_persistence`, `list_scheduled_tasks`, `parse_launchd_plist`, `parse_systemd_journal` (units), `parse_bash_history` (cron, rc.local) |
+| TA0004 | Privilege Escalation | `detect_privilege_escalation`, `parse_auditd_log` (setuid syscalls), `parse_bash_history` (chmod +s) |
+| TA0005 | Defense Evasion | `detect_defense_evasion`, `extract_mft_timeline` ($SI/$FN timestomp), `parse_bash_history` (history clear) |
+| TA0006 | Credential Access | `detect_credential_access`, `analyze_windows_logons`, `analyze_kerberos_events`, `analyze_unix_auth`, `detect_brute_force_rdp` |
+| TA0007 | Discovery | `detect_discovery`, `parse_shellbags`, `parse_knowledgec` |
+| TA0008 | Lateral Movement | `detect_lateral_movement` (PsExec / WMIExec / WinRM / SMB) |
+| TA0009 | Collection | `parse_browser_history`, `analyze_downloads`, `parse_fsevents` |
+| TA0010 | Exfiltration | `detect_exfiltration`, `correlate_download_to_execution` |
+| **TA0011** | **Command and Control** | ⚠ **Partial** — process-side indicators only. Full PCAP-based C2 detection is **deferred to Phase 2** (honest scope) |
+| TA0040 | Impact | `detect_ransomware_behavior` (mass-rename + shadow-copy delete + ransom notes) |
+
+Coverage = **11 / 12** with one tactic explicitly partial. We do not claim 12/12 because doing so would require reading PCAPs end-to-end, which is a Phase-2 deliverable. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for the per-technique mapping that includes specific T-IDs.
 
 
 ## Live mode (real Claude API + MCP stdio)
@@ -265,7 +309,7 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end — 31 MCP functions, all callable from Claude Code live mode
+### Implemented end-to-end — 35 MCP functions, all callable from Claude Code live mode
 
 **Windows artifacts**
 

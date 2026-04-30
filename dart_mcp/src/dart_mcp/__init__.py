@@ -3419,3 +3419,7 @@ def __forbidden_never_registered():
     delete_file, network_egress, spawn_process, kill_process. See
     tests/test_mcp_bypass.py for the surface + negative-set verification."""
     raise NotImplementedError("documentation only")
+
+
+# v0.4 expansion: Linux + macOS coverage (4 functions)
+from dart_mcp import _v04_expansion as _v04  # noqa: E402, F401

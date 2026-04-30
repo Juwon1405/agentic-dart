@@ -4,40 +4,61 @@ All notable changes to Agentic-DART are recorded here.
 
 ## [Unreleased] — 2026-04-30
 
-### Changed — project rebrand
+### Added — v0.4 Linux + macOS expansion (4 new functions, 31 → 35)
 
-- Project name: `yushin-dfir` / `YuShin` → **`agentic-dart` / `Agentic-DART`**.
-  The repository was renamed via the GitHub API, which preserves the
-  4 stars, 22+ commits of history, and auto-redirects the old URL.
-- Python packages: `yushin_*` → **`dart_*`**
-  (`dart_audit`, `dart_mcp`, `dart_agent`, `dart_corr`, `dart_playbook`).
-- Distribution names in pyproject.toml: `dart-audit`, `dart-mcp`, `dart-agent`.
-- Environment variables: `YUSHIN_*` → **`DART_*`**
-  (`DART_EVIDENCE_ROOT`, `DART_AUDIT_PATH`).
-- Architecture diagram regenerated with the new naming
-  (`dart-architecture.png`, `dart-architecture.drawio`).
-- README "About the name" section explains DART = Detection And
-  Response Team and the four-phase scope expansion plan.
+The original 31-function surface was Windows-heavy. v0.4 adds typed
+functions for the most-asked-for Linux and macOS artifacts:
 
-### Added — visual identity
+- `parse_auditd_log` — Linux kernel-level syscall audit (`/var/log/audit/audit.log`).
+  Filters by syscall, key, executable, time window. Reference:
+  Red Hat RHEL Security Guide ch.7, SANS FOR577.
 
-- `agentic-dart-hero.png` (1920×540 cinematic) — README banner.
-- `agentic-dart-thumbnail.png` (1280×720) — Devpost / hackathon
-  gallery / future-use master thumbnail. Dart-target metaphor.
-- `docs/screenshots/dart-run-{01..04}.png` — four sample-run stills
-  showing initialization, investigation, contradiction handling
-  (UNRESOLVED detection + auto-revision), and final verdict + audit
-  verification. Inlined in the README under Quick start.
-- `docs/case-pth-timestomp.md` — full case-study walkthrough matching
-  the four screenshots, intended for hackathon judges.
+- `parse_systemd_journal` — Unified system log
+  (`journalctl -o json --no-pager > journal.ndjson`). Filter by unit,
+  priority, message. Reference: systemd.journal-fields(7),
+  freedesktop.org Journal Export Format.
+
+- `parse_bash_history` — bash/zsh history with attacker-pattern
+  detection (15 named patterns, each mapped to a MITRE technique).
+  Detects encoded payloads, reverse shells, SSH key insertion,
+  history clearing, SUID escalation, kernel-module load.
+  Reference: SANS FOR577, MITRE ATT&CK T1059.004 / T1070.003 /
+  T1098.004 / T1105.
+
+- `parse_launchd_plist` — macOS LaunchAgent / LaunchDaemon plist
+  parser with persistence-indicator scoring. Flags `RunAtLoad=true`
+  in user-writable paths, executables in `/tmp/`, aggressive
+  KeepAlive. Reference: Apple Developer Daemons & Services
+  Programming Guide, Patrick Wardle "The Art of Mac Malware",
+  MITRE ATT&CK T1543.001 / T1543.004.
+
+### Added — wiki MCP function catalog
+
+New wiki page [MCP-function-catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)
+enumerates all 35 functions with: primary OS / artifact, MITRE
+mapping, and published reference (SANS course / paper / vendor doc /
+open-source tool) so reviewers can audit where the detection logic
+comes from.
+
+### Added — Platform support matrix in README
+
+The README's Platform support section now has explicit matrices for:
+- Supported analysis targets (Windows / macOS / Linux versions)
+- 35 functions grouped by primary platform
+- MITRE ATT&CK 11 / 12 tactic coverage with per-tactic function list
 
 ### Verification
 
-- 0 `yushin` references remaining anywhere in the repository.
-- 0 organizational identifiers in code or documentation.
-- 31 MCP functions still register correctly under the new package names.
-- All 17 tests pass on a fresh clone.
-- Audit chain integrity preserved across the rename.
+- 17 / 17 tests pass on a clean clone (test set unchanged; the count
+  refers to assertion *count*, not function count)
+- Each new function call validated against synthetic samples in
+  `examples/sample-evidence/linux/` and `examples/sample-evidence/macos/`
+- `parse_bash_history` matches 3 attacker patterns in a 5-line
+  sample (T1098.004, T1105, T1070.003)
+- `parse_launchd_plist` flags 2 indicators (T1574, T1543) in a
+  RunAtLoad=true / `/tmp/` path / KeepAlive=true sample
+- 1000-attempt fuzz test against the 35-function surface still
+  blocks 100% of unregistered destructive calls
 
 ## [0.2.0] — 2026-04-20 (Breadth Expansion)
 

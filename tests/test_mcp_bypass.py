@@ -104,6 +104,8 @@ def test_surface_is_exact_positive_and_negative_set():
         # MITRE ATT&CK gap-fillers (credentials, ransomware, evasion, discovery)
         "detect_credential_access", "detect_ransomware_behavior",
         "detect_defense_evasion", "detect_discovery",
+        # v0.4 Linux + macOS expansion
+        "parse_auditd_log", "parse_systemd_journal", "parse_bash_history", "parse_launchd_plist",
     }
     negative = {"execute_shell", "write_file", "mount", "umount", "eval",
                 "exec_python", "network_egress", "delete_file", "system",

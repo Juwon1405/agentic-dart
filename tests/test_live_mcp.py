@@ -46,8 +46,8 @@ def test_live_mode_subprocess_dryrun():
         # Check stderr for handshake banner
         assert "MCP handshake OK" in result.stderr, \
             f"MCP handshake banner missing:\n{result.stderr}"
-        assert "31 tools visible" in result.stderr, \
-            f"Expected 15 tools over the wire:\n{result.stderr}"
+        assert "35 tools visible" in result.stderr, \
+            f"Expected 35 tools over the wire:\n{result.stderr}"
 
         # Outputs exist
         out = Path(td)
@@ -111,6 +111,8 @@ def test_live_mcp_server_advertises_correct_surface():
         # MITRE ATT&CK gap-fillers (credentials, ransomware, evasion, discovery)
         "detect_credential_access", "detect_ransomware_behavior",
         "detect_defense_evasion", "detect_discovery",
+        # v0.4 Linux + macOS expansion
+        "parse_auditd_log", "parse_systemd_journal", "parse_bash_history", "parse_launchd_plist",
     }
     assert advertised == expected, \
         f"wire surface drift:\n" \

@@ -1,0 +1,3 @@
+{"__REALTIME_TIMESTAMP":"1764000000123456","_SYSTEMD_UNIT":"sshd.service","MESSAGE":"Accepted password for root from 192.168.1.100 port 47832 ssh2","PRIORITY":"6","_PID":"5678","_UID":"0","_COMM":"sshd","_EXE":"/usr/sbin/sshd"}
+{"__REALTIME_TIMESTAMP":"1764000010456789","_SYSTEMD_UNIT":"systemd.service","MESSAGE":"Started suspicious-service.service","PRIORITY":"5","_PID":"1","_UID":"0"}
+{"__REALTIME_TIMESTAMP":"1764000020789012","_SYSTEMD_UNIT":"sshd.service","MESSAGE":"Failed password for invalid user admin","PRIORITY":"3","_PID":"5679"}
