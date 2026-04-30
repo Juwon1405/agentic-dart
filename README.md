@@ -318,17 +318,18 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 
 MIT — see [LICENSE](./LICENSE).
 
-## Team
+## Author
 
-Agentic-DART is a small team effort. Roles below describe the headline area
-each person owns; in practice a lot of the work is collaborative.
+**Bang Juwon** &nbsp;·&nbsp; 방주원 &nbsp;·&nbsp; 優心 (ゆうしん)
 
-| Member | Role | Contact |
-|---|---|---|
-| **Bang Juwon** | Architecture, MCP surface design, audit chain, agent loop | [juwon1405.jp@doubles1405.com](mailto:juwon1405.jp@doubles1405.com) &nbsp;·&nbsp; [@Juwon1405](https://github.com/Juwon1405) |
-| **Lee Geonhui** | Detection coverage review, MITRE mapping sanity-check | [luxpal21@gmail.com](mailto:luxpal21@gmail.com) |
-| **Justin Kwon** &nbsp;<sub>(Kwon Youngsoo)</sub> | Test corpus, dataset reproducibility, CI | [@Ju571nK](https://github.com/Ju571nK) |
-| **ohgun** &nbsp;<sub>(Oh Sejoon)</sub> | Live mode integration, MCP stdio wire tests | [@peacej](https://github.com/peacej) |
+DFIR practitioner & detection engineer based in Tokyo.
 
-Lead contact for SANS FIND EVIL! 2026 submission: **Bang Juwon**.
+- 🐙 GitHub &nbsp; &mdash; &nbsp; [github.com/Juwon1405](https://github.com/Juwon1405)
+- ✉️ Email &nbsp; &mdash; &nbsp; juwon1405.jp@doubles1405.com
+- 🎯 Hackathon &nbsp; &mdash; &nbsp; [SANS FIND EVIL! 2026](https://findevil.devpost.com/)
+
+This project is a **personal/independent submission**. Built outside any
+employer relationship. All work, opinions, and code in this repository
+are my own and do not represent the views of any organization I am
+affiliated with.
 
