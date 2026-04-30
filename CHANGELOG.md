@@ -2,7 +2,42 @@
 
 All notable changes to Agentic-DART are recorded here.
 
-## [Unreleased] — 2026-04-20
+## [Unreleased] — 2026-04-30
+
+### Changed — project rebrand
+
+- Project name: `yushin-dfir` / `YuShin` → **`agentic-dart` / `Agentic-DART`**.
+  The repository was renamed via the GitHub API, which preserves the
+  4 stars, 22+ commits of history, and auto-redirects the old URL.
+- Python packages: `yushin_*` → **`dart_*`**
+  (`dart_audit`, `dart_mcp`, `dart_agent`, `dart_corr`, `dart_playbook`).
+- Distribution names in pyproject.toml: `dart-audit`, `dart-mcp`, `dart-agent`.
+- Environment variables: `YUSHIN_*` → **`DART_*`**
+  (`DART_EVIDENCE_ROOT`, `DART_AUDIT_PATH`).
+- Architecture diagram regenerated with the new naming
+  (`dart-architecture.png`, `dart-architecture.drawio`).
+- README "About the name" section explains DART = Detection And
+  Response Team and the four-phase scope expansion plan.
+
+### Added — visual identity
+
+- `agentic-dart-hero.png` (1920×540 cinematic) — README banner.
+- `agentic-dart-thumbnail.png` (1280×720) — Devpost / hackathon
+  gallery / future-use master thumbnail. Dart-target metaphor.
+- `docs/screenshots/dart-run-{01..04}.png` — four sample-run stills
+  showing initialization, investigation, contradiction handling
+  (UNRESOLVED detection + auto-revision), and final verdict + audit
+  verification. Inlined in the README under Quick start.
+- `docs/case-pth-timestomp.md` — full case-study walkthrough matching
+  the four screenshots, intended for hackathon judges.
+
+### Verification
+
+- 0 `yushin` references remaining anywhere in the repository.
+- 0 organizational identifiers in code or documentation.
+- 31 MCP functions still register correctly under the new package names.
+- All 17 tests pass on a fresh clone.
+- Audit chain integrity preserved across the rename.
 
 ## [0.2.0] — 2026-04-20 (Breadth Expansion)
 

@@ -214,7 +214,11 @@ See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-us
 
 ## Case study for judges
 
-See [`examples/case-studies/case-01-ipkvm-insider/`](./examples/case-studies/case-01-ipkvm-insider/README.md) for a step-by-step walkthrough of the bundled IP-KVM remote-hands case — what the agent does at each iteration, what `audit.jsonl` records, and how `dart-audit trace F-013` resolves a finding back to raw evidence in three clicks.
+Two case studies are bundled:
+
+1. **[Pass-the-Hash with timestomp pre-existence](./docs/case-pth-timestomp.md)** &mdash; the headline walkthrough. Watch the agent build a coherent partial MITRE chain, then have it broken by a `dart-corr` contradiction (timestomp before the credential event), then revise to a correct verdict. This is the architecture-first claim made concrete.
+
+2. **[IP-KVM remote-hands insider](./examples/case-studies/case-01-ipkvm-insider/README.md)** &mdash; a step-by-step walkthrough of the bundled IP-KVM case showing what the agent does at each iteration, what `audit.jsonl` records, and how `dart-audit trace F-013` resolves a finding back to raw evidence in three clicks.
 
 ## Measured accuracy (reproducible)
 
