@@ -1,0 +1,84 @@
+name: 🐛 Bug report
+description: Something is wrong with how the agent or tooling behaves on real evidence.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing. Before you start, two things:
+
+        1. If this is a security finding (audit chain bypass, evidence
+           write, sandbox escape) — **do not file here**. Open a private
+           security advisory instead. See `SECURITY.md`.
+        2. If you're not sure whether something is a bug or just an
+           accuracy issue, file it as a bug — easier to recategorize
+           than to dig out of the wrong queue.
+
+  - type: input
+    id: short-summary
+    attributes:
+      label: One-line summary
+      description: What broke?
+      placeholder: "dart-corr crashes when MFT has > N rows"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Repro
+      description: Smallest sequence of commands that reproduces the issue.
+      render: bash
+      placeholder: |
+        export DART_EVIDENCE_ROOT=/path/to/case
+        python3 -m dart_agent --case mycase --max-iterations 25
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: What did happen? Paste the relevant log/traceback. Trim noise.
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "Python 3.12 on SIFT 22.04 / commit abc1234"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Which subsystem?
+      options:
+        - dart-agent (the wrapper loop)
+        - dart-mcp (typed tool surface)
+        - dart-corr (correlation engine)
+        - dart-audit (audit chain)
+        - dart-playbook (YAML)
+        - tests / CI
+        - docs
+        - not sure
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: triage
+    attributes:
+      label: Self-check
+      options:
+        - label: I've run `python3 tests/test_audit_chain.py` and it still passes (or noted that it doesn't)
+        - label: I've checked existing issues for duplicates

@@ -1,0 +1,63 @@
+name: 📊 Accuracy regression
+description: A measurement on a known dataset moved in the wrong direction.
+labels: ["accuracy", "dataset"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this if a per-tactic detection rate, FP rate, or hallucination
+        count drifted on a dataset that was previously stable.
+
+        For *new* dataset onboarding (first measurement), use the bug
+        template instead — there's nothing to regress against yet.
+
+  - type: dropdown
+    id: dataset
+    attributes:
+      label: Which dataset?
+      options:
+        - NIST CFReDS Hacking Case
+        - Ali Hadi Memory Forensic Challenge #1
+        - Digital Corpora M57
+        - Bundled IP-KVM case
+        - Bundled synthetic sample-evidence
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: input
+    id: tactic
+    attributes:
+      label: Which MITRE tactic / metric regressed?
+      placeholder: "T1070.006 — recall dropped from 1.00 → 0.83"
+    validations:
+      required: true
+
+  - type: textarea
+    id: before-after
+    attributes:
+      label: Before / after numbers
+      render: text
+      placeholder: |
+                                      before    after
+        Recall                         1.000    0.833
+        FP rate                        0.000    0.012
+        Hallucination count            0        2
+        Audit-chain tail hash          (matched)  (drifted)
+    validations:
+      required: true
+
+  - type: input
+    id: bisect
+    attributes:
+      label: Suspect commit (if known)
+      placeholder: "abc1234 — 'tighten T1070.006 detection threshold'"
+
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Why do you think it regressed?
+      placeholder: |
+        Tightening the $SI-vs-$FN delta threshold from 60s → 10s probably
+        rejected legitimate timestamp drift on certain filesystem ops.
+        Worth testing 30s as a middle ground.

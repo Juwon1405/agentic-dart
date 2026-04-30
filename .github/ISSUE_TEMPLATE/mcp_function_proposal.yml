@@ -1,0 +1,97 @@
+name: 🎯 New MCP function proposal
+description: Propose a new typed forensic function for the read-only MCP surface.
+labels: ["mcp-surface", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The MCP surface is **architecturally sensitive**. Anything we add
+        becomes part of the agent's vocabulary — and architecture-first
+        means we'd rather have 30 tight functions than 100 fuzzy ones.
+
+        Please open this issue *before* writing code. Discuss the schema
+        first, implement second.
+
+  - type: input
+    id: name
+    attributes:
+      label: Proposed function name
+      placeholder: "parse_vss"
+    validations:
+      required: true
+
+  - type: textarea
+    id: signature
+    attributes:
+      label: Proposed signature
+      description: Type-annotated. Pretend you're writing the docstring.
+      render: python
+      placeholder: |
+        @tool
+        def parse_vss(host: str = "$default") -> VssReport:
+            """List shadow copies on the host's evidence image.
+            Returns: id, creation_time, size, original_volume."""
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: What case class does this unlock?
+      description: |
+        Be concrete. A function we can't justify with a real DFIR scenario
+        almost certainly doesn't belong on the surface.
+      placeholder: |
+        Ransomware that deletes shadow copies (T1490) sometimes happens
+        with the vssadmin event already evicted from the log. Without
+        a way to enumerate VSS state itself, we can only detect the
+        deletion *event*, not the deletion *fact*.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: read-or-write
+    attributes:
+      label: Read-only?
+      description: |
+        If you're proposing a write-side tool, this is the wrong template
+        — open a `discussion` issue instead. The MCP surface is read-only
+        by design.
+      options:
+        - "Yes, read-only over the evidence mount"
+        - "No, this writes (please use discussion template)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mitre
+    attributes:
+      label: Primary MITRE tactic this addresses
+      options:
+        - TA0001 Initial Access
+        - TA0002 Execution
+        - TA0003 Persistence
+        - TA0004 Privilege Escalation
+        - TA0005 Defense Evasion
+        - TA0006 Credential Access
+        - TA0007 Discovery
+        - TA0008 Lateral Movement
+        - TA0009 Collection
+        - TA0010 Exfiltration
+        - TA0011 Command and Control
+        - TA0040 Impact
+        - "Cross-tactic / not MITRE-mappable"
+
+  - type: textarea
+    id: bypass-test
+    attributes:
+      label: How will you write the bypass test for this?
+      description: |
+        Every MCP function ships with a test that proves it can't escape
+        `EVIDENCE_ROOT`. What's the analog test for *your* function?
+      placeholder: |
+        - Feed it a path with `../`, assert ToolNotFound
+        - Feed it an absolute path outside DART_EVIDENCE_ROOT, assert refusal
+        - Feed it a path with NUL byte, assert refusal
+    validations:
+      required: true
