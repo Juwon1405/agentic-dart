@@ -132,7 +132,7 @@ stats:
 ```bash
 # Each function end-to-end against bundled evidence
 python3 -c "
-from agentic_dart_mcp import call_tool
+from dart_mcp import call_tool
 import json
 
 hist = call_tool('parse_browser_history', {

@@ -1,5 +1,5 @@
 <mxfile host="app.diagrams.net" modified="2026-04-20T10:00:00.000Z" agent="Agentic-DART" version="24.0.0">
-  <diagram name="Agentic-DART Architecture" id="agentic-dart-arch-v1">
+  <diagram name="Agentic-DART Architecture" id="dart-arch-v1">
     <mxGraphModel dx="1500" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1000" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -25,8 +25,8 @@
           <mxGeometry x="600" y="175" width="300" height="55" as="geometry" />
         </mxCell>
 
-        <!-- agentic-dart-agent -->
-        <mxCell id="agentic_dart_agent" value="agentic-dart-agent (Wrapper)&#10;• Senior-analyst system prompt&#10;• Hypothesis tracker&#10;• Iteration controller (--max-iterations cap)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=left;spacingLeft=15;" vertex="1" parent="1">
+        <!-- dart-agent -->
+        <mxCell id="dart_agent" value="dart-agent (Wrapper)&#10;• Senior-analyst system prompt&#10;• Hypothesis tracker&#10;• Iteration controller (--max-iterations cap)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=left;spacingLeft=15;" vertex="1" parent="1">
           <mxGeometry x="560" y="260" width="380" height="95" as="geometry" />
         </mxCell>
 
@@ -35,8 +35,8 @@
           <mxGeometry x="220" y="260" width="210" height="95" as="geometry" />
         </mxCell>
 
-        <!-- agentic-dart-playbook -->
-        <mxCell id="playbook" value="agentic-dart-playbook (YAML)&#10;• Sequencing rules&#10;• Analyst heuristics&#10;• Community-extensible" style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+        <!-- dart-playbook -->
+        <mxCell id="playbook" value="dart-playbook (YAML)&#10;• Sequencing rules&#10;• Analyst heuristics&#10;• Community-extensible" style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
           <mxGeometry x="1070" y="260" width="210" height="95" as="geometry" />
         </mxCell>
 
@@ -45,18 +45,18 @@
           <mxGeometry x="220" y="395" width="1060" height="475" as="geometry" />
         </mxCell>
 
-        <!-- agentic-dart-audit (side-tapped inside boundary) -->
-        <mxCell id="agentic_dart_audit" value="agentic-dart-audit&#10;(JSONL Logger)&#10;&#10;Side-tapped&#10;from every&#10;MCP call&#10;&#10;Every entry:&#10;timestamp&#10;tool_name&#10;inputs&#10;outputs&#10;audit_id&#10;token_count" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;align=center;fontStyle=1;" vertex="1" parent="1">
+        <!-- dart-audit (side-tapped inside boundary) -->
+        <mxCell id="dart_audit" value="dart-audit&#10;(JSONL Logger)&#10;&#10;Side-tapped&#10;from every&#10;MCP call&#10;&#10;Every entry:&#10;timestamp&#10;tool_name&#10;inputs&#10;outputs&#10;audit_id&#10;token_count" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;align=center;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="250" y="480" width="150" height="260" as="geometry" />
         </mxCell>
 
-        <!-- agentic-dart-mcp -->
-        <mxCell id="agentic_dart_mcp" value="agentic-dart-mcp (Custom MCP Server) — Primary Enforcement Layer&#10;&#10;Typed, schema-validated functions ONLY:&#10;   • get_amcache( )                 • parse_prefetch(target)&#10;   • extract_mft_timeline( )        • analyze_usb_history( )&#10;   • list_scheduled_tasks( )        • correlate_events(hypothesis_id)&#10;&#10;Cursor-paginated JSON output · Pre-parsed · Context-window safe" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=left;spacingLeft=20;spacingTop=10;" vertex="1" parent="1">
+        <!-- dart-mcp -->
+        <mxCell id="dart_mcp" value="dart-mcp (Custom MCP Server) — Primary Enforcement Layer&#10;&#10;Typed, schema-validated functions ONLY:&#10;   • get_amcache( )                 • parse_prefetch(target)&#10;   • extract_mft_timeline( )        • analyze_usb_history( )&#10;   • list_scheduled_tasks( )        • correlate_events(hypothesis_id)&#10;&#10;Cursor-paginated JSON output · Pre-parsed · Context-window safe" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=left;spacingLeft=20;spacingTop=10;" vertex="1" parent="1">
           <mxGeometry x="430" y="440" width="610" height="170" as="geometry" />
         </mxCell>
 
-        <!-- agentic-dart-corr -->
-        <mxCell id="agentic_dart_corr" value="agentic-dart-corr (Cross-Artifact Correlation Engine)&#10;Python + DuckDB · Timeline joins · Flags contradictions as UNRESOLVED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+        <!-- dart-corr -->
+        <mxCell id="dart_corr" value="dart-corr (Cross-Artifact Correlation Engine)&#10;Python + DuckDB · Timeline joins · Flags contradictions as UNRESOLVED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="430" y="630" width="610" height="55" as="geometry" />
         </mxCell>
 
@@ -79,40 +79,40 @@
         <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=2;endArrow=classic;" edge="1" parent="1" source="user" target="claude_code">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;" edge="1" parent="1" source="claude_code" target="agentic_dart_agent">
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;" edge="1" parent="1" source="claude_code" target="dart_agent">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" value="read/write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#666666;endArrow=classicThin;startArrow=classicThin;fontSize=10;" edge="1" parent="1" source="agentic_dart_agent" target="progress">
+        <mxCell id="e3" value="read/write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#666666;endArrow=classicThin;startArrow=classicThin;fontSize=10;" edge="1" parent="1" source="dart_agent" target="progress">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e4" value="read" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#666666;endArrow=classicThin;fontSize=10;" edge="1" parent="1" source="playbook" target="agentic_dart_agent">
+        <mxCell id="e4" value="read" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#666666;endArrow=classicThin;fontSize=10;" edge="1" parent="1" source="playbook" target="dart_agent">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e5" value="MCP calls&#10;(typed only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;exitX=0.5;exitY=1;endArrow=classic;fontSize=10;fontStyle=1;" edge="1" parent="1" source="agentic_dart_agent" target="agentic_dart_mcp">
+        <mxCell id="e5" value="MCP calls&#10;(typed only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;exitX=0.5;exitY=1;endArrow=classic;fontSize=10;fontStyle=1;" edge="1" parent="1" source="dart_agent" target="dart_mcp">
           <mxGeometry relative="1" as="geometry" />
           <Array as="points">
             <mxPoint x="750" y="425" />
           </Array>
         </mxCell>
-        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;" edge="1" parent="1" source="agentic_dart_mcp" target="agentic_dart_corr">
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;" edge="1" parent="1" source="dart_mcp" target="dart_corr">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;" edge="1" parent="1" source="agentic_dart_corr" target="sift_tools">
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;" edge="1" parent="1" source="dart_corr" target="sift_tools">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e8" value="read-only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;fontSize=10;fontStyle=1;fontColor=#b85450;" edge="1" parent="1" source="sift_tools" target="evidence">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e9" value="append-only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#d79b00;strokeWidth=2;endArrow=classic;fontSize=10;fontStyle=1;fontColor=#d79b00;" edge="1" parent="1" source="agentic_dart_mcp" target="agentic_dart_audit">
+        <mxCell id="e9" value="append-only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#d79b00;strokeWidth=2;endArrow=classic;fontSize=10;fontStyle=1;fontColor=#d79b00;" edge="1" parent="1" source="dart_mcp" target="dart_audit">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="agentic_dart_agent" target="report">
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=classic;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="dart_agent" target="report">
           <mxGeometry relative="1" as="geometry" />
           <Array as="points">
             <mxPoint x="750" y="885" />
           </Array>
         </mxCell>
-        <mxCell id="e11" value="audit_id lookup" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#d79b00;endArrow=classicThin;fontSize=10;" edge="1" parent="1" source="agentic_dart_audit" target="report">
+        <mxCell id="e11" value="audit_id lookup" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#d79b00;endArrow=classicThin;fontSize=10;" edge="1" parent="1" source="dart_audit" target="report">
           <mxGeometry relative="1" as="geometry" />
           <Array as="points">
             <mxPoint x="325" y="930" />

@@ -1,7 +1,7 @@
 """Tests for the extended surface added in the breadth/depth expansion:
   parse_evtx, volatility_summary, parse_knowledgec,
   parse_fsevents, parse_unified_log, duckdb_timeline_correlate,
-  and the MCP stdio server (agentic_dart_mcp.server)."""
+  and the MCP stdio server (dart_mcp.server)."""
 import json
 import os
 import subprocess
@@ -9,10 +9,10 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "agentic_dart_mcp" / "src"))
-os.environ["AGENTIC_DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
+os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
 
-from agentic_dart_mcp import call_tool, list_tools
+from dart_mcp import call_tool, list_tools
 
 
 def test_parse_evtx_filters_by_event_id_and_window():
@@ -89,12 +89,12 @@ def test_duckdb_correlate_joins_evtx_and_fsevents():
 
 def test_mcp_stdio_server_handles_initialize_and_tools_list():
     proc = subprocess.Popen(
-        [sys.executable, "-m", "agentic_dart_mcp.server"],
+        [sys.executable, "-m", "dart_mcp.server"],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         cwd=str(REPO), text=True,
         env={**os.environ,
-             "PYTHONPATH": str(REPO / "agentic_dart_mcp" / "src"),
-             "AGENTIC_DART_EVIDENCE_ROOT": os.environ["AGENTIC_DART_EVIDENCE_ROOT"]},
+             "PYTHONPATH": str(REPO / "dart_mcp" / "src"),
+             "DART_EVIDENCE_ROOT": os.environ["DART_EVIDENCE_ROOT"]},
     )
     init = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}
     tlist = {"jsonrpc": "2.0", "id": 2, "method": "tools/list"}
@@ -106,7 +106,7 @@ def test_mcp_stdio_server_handles_initialize_and_tools_list():
     assert len(lines) == 2, f"expected 2 responses, got {len(lines)}: {err}"
     init_resp = json.loads(lines[0])
     tools_resp = json.loads(lines[1])
-    assert init_resp["result"]["serverInfo"]["name"] == "agentic-dart-mcp"
+    assert init_resp["result"]["serverInfo"]["name"] == "dart-mcp"
     tool_names = {t["name"] for t in tools_resp["result"]["tools"]}
     # All 13 functions present: 7 from before + 6 new
     assert len(tool_names) == 13, f"expected 13 tools, got {tool_names}"
@@ -118,12 +118,12 @@ def test_mcp_stdio_server_handles_initialize_and_tools_list():
 
 def test_mcp_stdio_server_refuses_unregistered_tool():
     proc = subprocess.Popen(
-        [sys.executable, "-m", "agentic_dart_mcp.server"],
+        [sys.executable, "-m", "dart_mcp.server"],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         cwd=str(REPO), text=True,
         env={**os.environ,
-             "PYTHONPATH": str(REPO / "agentic_dart_mcp" / "src"),
-             "AGENTIC_DART_EVIDENCE_ROOT": os.environ["AGENTIC_DART_EVIDENCE_ROOT"]},
+             "PYTHONPATH": str(REPO / "dart_mcp" / "src"),
+             "DART_EVIDENCE_ROOT": os.environ["DART_EVIDENCE_ROOT"]},
     )
     bad = {"jsonrpc": "2.0", "id": 99, "method": "tools/call",
            "params": {"name": "execute_shell", "arguments": {"cmd": "rm -rf /"}}}

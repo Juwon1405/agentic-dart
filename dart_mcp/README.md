@@ -1,4 +1,4 @@
-# agentic-dart-mcp
+# dart-mcp
 
 Custom MCP server that exposes typed, schema-validated, **read-only** forensic functions to Claude Code. The primary enforcement layer for Agentic-DART's evidence integrity guarantee.
 
@@ -22,7 +22,7 @@ If a destructive capability is not part of the MCP surface, the agent cannot inv
 | `parse_prefetch(target)` | Prefetch for a single target |
 | `analyze_usb_history()` | USB setupapi + registry USB history |
 | `list_scheduled_tasks()` | System-wide scheduled task enumeration |
-| `correlate_events(hypothesis_id)` | Delegates to `agentic-dart-corr` |
+| `correlate_events(hypothesis_id)` | Delegates to `dart-corr` |
 
 All functions return cursor-paginated JSON. None accept arbitrary file paths outside the evidence mount.
 

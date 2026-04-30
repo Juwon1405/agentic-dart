@@ -1,10 +1,10 @@
-"""Tests for agentic-dart-mcp: the agent attack surface is a hard-coded set."""
+"""Tests for dart-mcp: the agent attack surface is a hard-coded set."""
 import sys
 from pathlib import Path
-SRC = Path(__file__).resolve().parents[1] / "agentic_dart_mcp" / "src"
+SRC = Path(__file__).resolve().parents[1] / "dart_mcp" / "src"
 sys.path.insert(0, str(SRC))
 
-from agentic_dart_mcp import list_tools, call_tool
+from dart_mcp import list_tools, call_tool
 
 
 def test_registered_tools_are_exact_set():

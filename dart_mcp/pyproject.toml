@@ -3,18 +3,16 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "agentic-dart-agent"
+name = "dart-mcp"
 version = "0.2.0"
-description = "Agentic-DART autonomous DFIR agent (deterministic + live modes)"
+description = "Agentic-DART typed, read-only forensic MCP server (15 functions)"
 requires-python = ">=3.10"
 dependencies = [
-    "agentic-dart-audit",
-    "agentic-dart-mcp",
+    "duckdb>=1.0.0",
 ]
 
 [project.optional-dependencies]
-live = [
-    "anthropic>=0.40.0",
+stdio = [
     "mcp>=1.0.0",
 ]
 

@@ -1,4 +1,4 @@
-# agentic-dart-playbook
+# dart-playbook
 
 Senior-analyst sequencing rules, expressed as YAML. Community-extensible.
 

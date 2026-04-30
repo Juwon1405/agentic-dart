@@ -59,7 +59,7 @@ Combined, these are high-confidence LOTL indicators.
 ### Result
 
 Attack narrative assembled from 4 different evidence sources, all linked
-by `agentic-dart-audit trace`:
+by `dart-audit trace`:
 
 ```
 IP-KVM inserted (Case 01)
@@ -75,14 +75,14 @@ IP-KVM inserted (Case 01)
 
 ```bash
 # Test each new function on its own
-python3 -c "from agentic_dart_mcp import call_tool; import json; \
+python3 -c "from dart_mcp import call_tool; import json; \
   print(json.dumps(call_tool('get_process_tree', {'process_csv': 'disk/processes.csv'})['flags'], indent=2))"
 
-python3 -c "from agentic_dart_mcp import call_tool; import json; \
+python3 -c "from dart_mcp import call_tool; import json; \
   r = call_tool('analyze_event_logs', {'events_json': 'disk/events.json'}); \
   print(json.dumps(r['alerts_by_severity'], indent=2))"
 
-python3 -c "from agentic_dart_mcp import call_tool; import json; \
+python3 -c "from dart_mcp import call_tool; import json; \
   r = call_tool('detect_persistence', {}); \
   print(json.dumps(r['by_mechanism'], indent=2))"
 ```

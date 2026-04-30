@@ -10,7 +10,7 @@ public issue.
 Specifically in scope:
 
 - Any function that escapes `_safe_resolve` and reads outside `EVIDENCE_ROOT`
-- Any tampering of `audit.jsonl` that is NOT caught by `agentic-dart-audit verify`
+- Any tampering of `audit.jsonl` that is NOT caught by `dart-audit verify`
 - Any agent-reachable path to a destructive operation
 
 Out of scope:

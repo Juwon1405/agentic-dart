@@ -39,7 +39,7 @@ log "Available disk at \$HOME: ${DISK_GB} GB"
 
 # --- Anthropic API key ---
 if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-  warn "ANTHROPIC_API_KEY is not set. Export it before running agentic-dart-agent."
+  warn "ANTHROPIC_API_KEY is not set. Export it before running dart-agent."
 fi
 
 # --- Clone repo ---
@@ -63,15 +63,15 @@ source .venv/bin/activate
 pip install --upgrade pip wheel >/dev/null
 
 # --- Module installs (populated as modules land) ---
-# pip install -e ./agentic-dart-mcp
-# pip install -e ./agentic-dart-agent
-# pip install -e ./agentic-dart-corr
-# pip install -e ./agentic-dart-audit
-log "Module install step reserved — populated as agentic-dart-mcp / agentic-dart-agent reach alpha"
+# pip install -e ./dart-mcp
+# pip install -e ./dart-agent
+# pip install -e ./dart-corr
+# pip install -e ./dart-audit
+log "Module install step reserved — populated as dart-mcp / dart-agent reach alpha"
 
 # --- Claude Code MCP registration (placeholder) ---
-# claude mcp add agentic-dart-mcp --transport stdio --command agentic-dart-mcp-server
-log "Claude Code MCP registration reserved — runs after agentic-dart-mcp alpha"
+# claude mcp add dart-mcp --transport stdio --command dart-mcp-server
+log "Claude Code MCP registration reserved — runs after dart-mcp alpha"
 
 log "Bootstrap complete. See docs/troubleshooting.md if anything looks off."
-log "Next: export ANTHROPIC_API_KEY and run agentic-dart-agent --help"
+log "Next: export ANTHROPIC_API_KEY and run dart-agent --help"

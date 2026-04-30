@@ -89,7 +89,7 @@ bash examples/demo-run.sh
 
 # Exercise each macOS function
 python3 -c "
-from agentic_dart_mcp import call_tool
+from dart_mcp import call_tool
 import json
 
 for name, args in [

@@ -20,7 +20,7 @@ If the SIFT Workstation default is older, use pyenv or a system-level install.
 
 ### `ANTHROPIC_API_KEY` not set
 
-`agentic-dart-agent` talks to Claude through Claude Code, which reads this environment variable:
+`dart-agent` talks to Claude through Claude Code, which reads this environment variable:
 
 ```bash
 export ANTHROPIC_API_KEY="sk-ant-..."
@@ -45,7 +45,7 @@ This is also by design. Runaway execution is worse than a bounded early exit.
 
 ### Context-window exhaustion
 
-`agentic-dart-mcp` pre-parses tool output and returns cursor-paginated JSON. If context exhaustion still occurs:
+`dart-mcp` pre-parses tool output and returns cursor-paginated JSON. If context exhaustion still occurs:
 
 - Reduce `--max-iterations`
 - Narrow the time window on `extract_mft_timeline`
@@ -57,10 +57,10 @@ This is also by design. Runaway execution is worse than a bounded early exit.
 claude mcp list
 ```
 
-If `agentic-dart-mcp` is not listed, re-run the registration step:
+If `dart-mcp` is not listed, re-run the registration step:
 
 ```bash
-claude mcp add agentic-dart-mcp --transport stdio --command agentic-dart-mcp-server
+claude mcp add dart-mcp --transport stdio --command dart-mcp-server
 ```
 
 ## Evidence

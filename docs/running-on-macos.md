@@ -25,18 +25,18 @@ pip3 install duckdb --break-system-packages
 # python3 -m venv .venv && source .venv/bin/activate && pip install duckdb
 
 # 4. Run the bundled demo
-export AGENTIC_DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
-export PYTHONPATH="$PWD/agentic_dart_audit/src:$PWD/agentic_dart_mcp/src:$PWD/agentic_dart_agent/src"
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 bash examples/demo-run.sh
 ```
 
 Expected output (identical on Linux and macOS):
 
 ```
-[agentic-dart-agent] iterations: 5
-[agentic-dart-agent] findings: 2
-[agentic-dart-agent] audit chain: chain verified: 3 entries
-[demo] PASS — "ToolNotFound: 'execute_shell' is not exposed by agentic-dart-mcp"
+[dart-agent] iterations: 5
+[dart-agent] findings: 2
+[dart-agent] audit chain: chain verified: 3 entries
+[demo] PASS — "ToolNotFound: 'execute_shell' is not exposed by dart-mcp"
 ```
 
 ## Analyzing a real macOS system with Agentic-DART
@@ -58,13 +58,13 @@ log show --style ndjson --last 24h \
   > /tmp/triage-evidence/mac/private/var/db/diagnostics/unifiedlog.ndjson
 
 # 2. Point Agentic-DART at it
-export AGENTIC_DART_EVIDENCE_ROOT=/tmp/triage-evidence
+export DART_EVIDENCE_ROOT=/tmp/triage-evidence
 cd ~/agentic-dart
-export PYTHONPATH="$PWD/agentic_dart_audit/src:$PWD/agentic_dart_mcp/src:$PWD/agentic_dart_agent/src"
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 
 # 3. Run just the macOS function
 python3 -c "
-from agentic_dart_mcp import call_tool
+from dart_mcp import call_tool
 import json
 r = call_tool('parse_unified_log',
               {'unifiedlog_json': 'mac/private/var/db/diagnostics/unifiedlog.ndjson'})
@@ -125,8 +125,8 @@ python3 tests/test_agent_self_correction.py
 python3 scripts/measure_accuracy.py
 
 # Inspect audit chain
-python3 -m agentic_dart_audit verify examples/out/find-evil-ref-01/audit.jsonl
-python3 -m agentic_dart_audit trace  examples/out/find-evil-ref-01/audit.jsonl F-013
+python3 -m dart_audit verify examples/out/find-evil-ref-01/audit.jsonl
+python3 -m dart_audit trace  examples/out/find-evil-ref-01/audit.jsonl F-013
 ```
 
 ## Known differences vs. SIFT/Linux

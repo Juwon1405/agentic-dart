@@ -1,5 +1,5 @@
 """
-agentic-dart-mcp — Custom MCP server exposing typed, read-only forensic functions.
+dart-mcp — Custom MCP server exposing typed, read-only forensic functions.
 
 Design rule: the set of functions registered on this server IS the agent's
 attack surface. There is no execute_shell, no write_file, no mount.
@@ -41,7 +41,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
-EVIDENCE_ROOT = Path(os.environ.get("AGENTIC_DART_EVIDENCE_ROOT", "/mnt/evidence"))
+EVIDENCE_ROOT = Path(os.environ.get("DART_EVIDENCE_ROOT", "/mnt/evidence"))
 
 
 # --- Guardrails --------------------------------------------------------------
@@ -100,7 +100,7 @@ def list_tools():
 
 def call_tool(name, arguments):
     if name not in _REGISTRY:
-        raise KeyError(f"ToolNotFound: '{name}' is not exposed by agentic-dart-mcp")
+        raise KeyError(f"ToolNotFound: '{name}' is not exposed by dart-mcp")
     return _REGISTRY[name].handler(**arguments)
 
 

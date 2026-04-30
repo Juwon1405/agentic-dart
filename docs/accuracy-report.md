@@ -4,7 +4,7 @@ All numbers in this document are produced by `scripts/measure_accuracy.py`
 against bundled sample evidence. Reproducible by any reviewer:
 
 ```bash
-export PYTHONPATH="$PWD/agentic_dart_audit/src:$PWD/agentic_dart_mcp/src:$PWD/agentic_dart_agent/src"
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 python3 scripts/measure_accuracy.py
 ```
 

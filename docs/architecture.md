@@ -6,23 +6,23 @@ Protocol SIFT works. It also hallucinates more than a DFIR practitioner can stan
 
 ## System overview
 
-See [`../agentic-dart-architecture.png`](../agentic-dart-architecture.png).
+See [`../dart-architecture.png`](../dart-architecture.png).
 
 The stack is a deliberate hybrid of three of the four supported FIND EVIL! architectural patterns:
 
-1. **Custom MCP Server (primary enforcement layer)** — `agentic-dart-mcp`
-2. **Direct Agent Extension on Claude Code** — `agentic-dart-agent`
+1. **Custom MCP Server (primary enforcement layer)** — `dart-mcp`
+2. **Direct Agent Extension on Claude Code** — `dart-agent`
 3. **Persistent Learning Loop** — iteration controller + `progress.jsonl`
 
 The fourth pattern (Multi-Agent Framework) is reserved for the post-submission roadmap.
 
 ## Components
 
-### `agentic-dart-agent` — Claude Code wrapper
+### `dart-agent` — Claude Code wrapper
 
 Responsible for:
 
-- Loading the senior-analyst system prompt from `agentic_dart_playbook/`
+- Loading the senior-analyst system prompt from `dart_playbook/`
 - Maintaining the hypothesis tracker (writes to `progress.jsonl`)
 - Running the iteration controller with `--max-iterations` hard cap
 - Routing all forensic work through the MCP server — never through shell
@@ -31,7 +31,7 @@ Not responsible for:
 
 - Security boundaries (those live in the MCP server + OS mount)
 
-### `agentic-dart-mcp` — Custom MCP Server
+### `dart-mcp` — Custom MCP Server
 
 The enforcement layer. Exposes **typed, schema-validated functions only**. Examples:
 
@@ -53,7 +53,7 @@ Functions that **are not exposed** (and therefore cannot be called):
 
 The server pre-parses tool output (which can be gigabytes) and returns cursor-paginated JSON so the LLM context is never flooded.
 
-### `agentic-dart-corr` — Cross-artifact correlation engine
+### `dart-corr` — Cross-artifact correlation engine
 
 Python + DuckDB. Performs timeline joins across:
 
@@ -63,7 +63,7 @@ Python + DuckDB. Performs timeline joins across:
 
 When two sources contradict, the contradiction is flagged as **UNRESOLVED** and written to `progress.jsonl`. The agent is architecturally forbidden from smoothing over contradictions in its report.
 
-### `agentic-dart-audit` — JSONL logger
+### `dart-audit` — JSONL logger
 
 Side-tapped from every MCP call. Each entry:
 
@@ -83,9 +83,9 @@ Side-tapped from every MCP call. Each entry:
 
 Every finding in the final report carries an `audit_id`. Judges can trace any claim back to the exact tool call in ≤3 clicks.
 
-### `agentic-dart-playbook` — YAML sequencing rules
+### `dart-playbook` — YAML sequencing rules
 
-The senior-analyst playbook, expressed as YAML so other responders can contribute without touching Python. See [`../agentic_dart_playbook/senior-analyst-v1.yaml`](../agentic_dart_playbook/senior-analyst-v1.yaml).
+The senior-analyst playbook, expressed as YAML so other responders can contribute without touching Python. See [`../dart_playbook/senior-analyst-v1.yaml`](../dart_playbook/senior-analyst-v1.yaml).
 
 ## Evidence integrity — by architecture
 

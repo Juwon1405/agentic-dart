@@ -1,7 +1,7 @@
 """
-agentic-dart-agent — Iteration controller with senior-analyst loop and self-correction.
+dart-agent — Iteration controller with senior-analyst loop and self-correction.
 
-This is the wrapper that sits between Claude Code and agentic-dart-mcp. It:
+This is the wrapper that sits between Claude Code and dart-mcp. It:
 
 1. Loads the senior-analyst playbook YAML
 2. Runs phases in the order the playbook specifies
@@ -13,7 +13,7 @@ This is the wrapper that sits between Claude Code and agentic-dart-mcp. It:
 For the MVP, the "agent" runs in two modes:
 
 - `live`: talks to Claude Code via the MCP stdio server. Requires network.
-- `deterministic`: a scripted analyst that calls agentic_dart_mcp functions directly
+- `deterministic`: a scripted analyst that calls dart_mcp functions directly
   and exercises the self-correction path. This mode is what the demo video
   and accuracy report run against — reproducible, offline, no API calls.
 """
@@ -30,8 +30,8 @@ from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Any
 
-from agentic_dart_audit import AuditLogger
-from agentic_dart_mcp import call_tool, EVIDENCE_ROOT
+from dart_audit import AuditLogger
+from dart_mcp import call_tool, EVIDENCE_ROOT
 
 
 # =============================================================================
@@ -83,7 +83,7 @@ class DeterministicAnalyst:
     """A scripted senior analyst that exercises the playbook end-to-end.
 
     The order of calls, the self-challenge trigger, and the contradiction
-    flagging are ALL the actual logic that agentic-dart-agent runs. What's
+    flagging are ALL the actual logic that dart-agent runs. What's
     'deterministic' is only the LLM reasoning — here we replace it with
     pre-scripted hypotheses so the demo is reproducible.
 
@@ -106,7 +106,7 @@ class DeterministicAnalyst:
         """Invoke an MCP tool AND log it. Returns (output, audit_id).
 
         finding_ids forward-declares which findings this call will support
-        so the audit chain is queryable via `agentic-dart-audit trace <fid>`.
+        so the audit chain is queryable via `dart-audit trace <fid>`.
         """
         output = call_tool(tool_name, inputs)
         aid = self.audit.log(
@@ -153,7 +153,7 @@ class DeterministicAnalyst:
 
     def _phase_timeline(self) -> None:
         self.iteration += 1
-        # Pre-declare F-001 on the audit entry so `agentic-dart-audit trace F-001`
+        # Pre-declare F-001 on the audit entry so `dart-audit trace F-001`
         # resolves to this exact MCP call.
         out, aid = self._call(
             "get_amcache",
@@ -309,14 +309,14 @@ def _now() -> str:
 # =============================================================================
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="agentic-dart-agent",
+    ap = argparse.ArgumentParser(prog="dart-agent",
                                  description="Agentic-DART autonomous DFIR agent")
     ap.add_argument("--case", required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--max-iterations", type=int, default=10)
     ap.add_argument("--mode", choices=["deterministic", "live"], default="deterministic",
                     help="deterministic: scripted analyst (for demo/accuracy). "
-                         "live: Claude API talking to agentic-dart-mcp via stdio.")
+                         "live: Claude API talking to dart-mcp via stdio.")
     # Live-mode-only args (ignored in deterministic mode)
     ap.add_argument("--prompt", default="Investigate the bundled evidence "
                                         "and report any high-severity findings.",
@@ -351,11 +351,11 @@ def main(argv: list[str] | None = None) -> int:
 
     report_path.write_text(json.dumps(report, indent=2, default=str))
     ok, msg = AuditLogger.verify(audit_path)
-    print(f"[agentic-dart-agent] case={args.case}")
-    print(f"[agentic-dart-agent] iterations: {report['iterations']}")
-    print(f"[agentic-dart-agent] findings: {len(report['findings'])}")
-    print(f"[agentic-dart-agent] audit chain: {msg}")
-    print(f"[agentic-dart-agent] outputs in: {args.out}")
+    print(f"[dart-agent] case={args.case}")
+    print(f"[dart-agent] iterations: {report['iterations']}")
+    print(f"[dart-agent] findings: {len(report['findings'])}")
+    print(f"[dart-agent] audit chain: {msg}")
+    print(f"[dart-agent] outputs in: {args.out}")
     return 0 if ok else 1
 
 

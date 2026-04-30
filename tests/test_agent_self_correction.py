@@ -6,16 +6,16 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-for p in ["agentic_dart_audit/src", "agentic_dart_mcp/src", "agentic_dart_agent/src"]:
+for p in ["dart_audit/src", "dart_mcp/src", "dart_agent/src"]:
     sys.path.insert(0, str(REPO / p))
 
 
 def test_full_run_produces_self_correction():
-    os.environ["AGENTIC_DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+    os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
     # Re-import with new env var
-    if "agentic_dart_mcp" in sys.modules:
-        del sys.modules["agentic_dart_mcp"]
-    from agentic_dart_agent import main
+    if "dart_mcp" in sys.modules:
+        del sys.modules["dart_mcp"]
+    from dart_agent import main
     with tempfile.TemporaryDirectory() as td:
         rc = main(["--case", "ci-test", "--out", td, "--mode", "deterministic"])
         assert rc == 0, "agent exited non-zero"

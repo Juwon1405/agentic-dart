@@ -1,10 +1,10 @@
-# agentic-dart-corr
+# dart-corr
 
 Cross-artifact correlation engine. Python + DuckDB. Performs timeline joins across disk, memory, and network evidence; flags contradictions as `UNRESOLVED`.
 
 ## Why a separate engine
 
-The LLM is good at reasoning. It is not good at joining a 5M-row MFT against a 200K-row memory process list under deadline pressure. `agentic-dart-corr` does the set algebra; the agent does the interpretation.
+The LLM is good at reasoning. It is not good at joining a 5M-row MFT against a 200K-row memory process list under deadline pressure. `dart-corr` does the set algebra; the agent does the interpretation.
 
 ## Core operations
 

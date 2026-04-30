@@ -1,10 +1,10 @@
-"""agentic-dart-audit CLI — operations on JSONL audit logs.
+"""dart-audit CLI — operations on JSONL audit logs.
 
 Usage:
-  python -m agentic_dart_audit verify  <audit.jsonl>
-  python -m agentic_dart_audit lookup  <audit.jsonl> <audit_id>
-  python -m agentic_dart_audit trace   <audit.jsonl> <finding_id>
-  python -m agentic_dart_audit summary <audit.jsonl>
+  python -m dart_audit verify  <audit.jsonl>
+  python -m dart_audit lookup  <audit.jsonl> <audit_id>
+  python -m dart_audit trace   <audit.jsonl> <finding_id>
+  python -m dart_audit summary <audit.jsonl>
 
 'lookup' returns the full entry for a single audit_id.
 'trace' walks the chain and emits every entry that produced the given

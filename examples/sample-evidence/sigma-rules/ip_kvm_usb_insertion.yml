@@ -1,5 +1,5 @@
 title: IP-KVM USB Device Insertion
-id: 4f3e21aa-1234-4c9d-9b2e-agentic-dart-001
+id: 4f3e21aa-1234-4c9d-9b2e-dart-001
 description: Detects insertion of a known IP-KVM / remote-hands USB device
   (ATEN VID 0557 / PID 2419) into a workstation.
 status: experimental

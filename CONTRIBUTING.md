@@ -8,13 +8,13 @@ welcomed.
 ## Ways to contribute
 
 - **New playbook YAML** — add a sequencing profile for a case class
-  (LOTL, ransomware staging, etc.) under `agentic_dart_playbook/`. No Python
+  (LOTL, ransomware staging, etc.) under `dart_playbook/`. No Python
   change required.
-- **New typed MCP function** — add a parser under `agentic_dart_mcp/`. Must
+- **New typed MCP function** — add a parser under `dart_mcp/`. Must
   be read-only, must use `_safe_resolve`, must have a Pydantic/JSON
   schema, must include a bypass test.
 - **New IP-KVM / remote-hands signature** — extend `IP_KVM_VID_PID` in
-  `agentic_dart_mcp/src/agentic_dart_mcp/__init__.py`. Include a CVE, advisory, or
+  `dart_mcp/src/dart_mcp/__init__.py`. Include a CVE, advisory, or
   observed-in-wild reference in the PR description.
 - **Documentation and cases** — case studies under
   `examples/case-studies/` following the pattern of

@@ -1,5 +1,5 @@
 """
-Adversarial bypass tests for agentic-dart-mcp.
+Adversarial bypass tests for dart-mcp.
 
 These are NEGATIVE tests — they assert that architectural guardrails hold
 when the agent (or an adversary feeding the agent prompts) tries to:
@@ -18,10 +18,10 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "agentic_dart_mcp" / "src"))
-os.environ["AGENTIC_DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
+os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
 
-from agentic_dart_mcp import call_tool, list_tools, PathTraversalAttempt
+from dart_mcp import call_tool, list_tools, PathTraversalAttempt
 
 
 def test_unregistered_destructive_function_raises_ToolNotFound():
@@ -121,7 +121,7 @@ def test_handler_does_not_write_outside_root(tmp_path=None):
     """Sanity: none of the registered handlers should create files anywhere
     outside the evidence tree. This is a smoke test — the real guarantee
     is the MCP server API surface, but this catches regressions early."""
-    evidence_root = Path(os.environ["AGENTIC_DART_EVIDENCE_ROOT"]).resolve()
+    evidence_root = Path(os.environ["DART_EVIDENCE_ROOT"]).resolve()
     before = {p for p in evidence_root.rglob("*") if p.is_file()}
 
     call_tool("get_amcache",

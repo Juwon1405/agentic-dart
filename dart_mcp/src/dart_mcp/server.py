@@ -1,8 +1,8 @@
-"""agentic-dart-mcp stdio server — speaks JSON-RPC 2.0 per the MCP spec.
+"""dart-mcp stdio server — speaks JSON-RPC 2.0 per the MCP spec.
 
 Launch from Claude Code with:
 
-    claude mcp add agentic-dart python3 -m agentic_dart_mcp.server
+    claude mcp add agentic-dart python3 -m dart_mcp.server
 
 The server exposes exactly the set of tools registered via @tool. Nothing
 else is reachable. This is the 'live' runtime used by the `--mode live`
@@ -18,7 +18,7 @@ from typing import Any
 from . import list_tools, call_tool
 
 PROTOCOL_VERSION = "2024-11-05"
-SERVER_INFO = {"name": "agentic-dart-mcp", "version": "0.2.0"}
+SERVER_INFO = {"name": "dart-mcp", "version": "0.2.0"}
 
 
 def _send(msg: dict) -> None:

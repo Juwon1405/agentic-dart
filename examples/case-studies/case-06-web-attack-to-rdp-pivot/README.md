@@ -127,11 +127,11 @@ smoking-gun attribution.
 ## What the judges should run
 
 ```bash
-export AGENTIC_DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
-export PYTHONPATH="$PWD/agentic_dart_audit/src:$PWD/agentic_dart_mcp/src:$PWD/agentic_dart_agent/src"
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 
 python3 << 'PY'
-from agentic_dart_mcp import call_tool
+from dart_mcp import call_tool
 import json
 
 # A. Web log analysis

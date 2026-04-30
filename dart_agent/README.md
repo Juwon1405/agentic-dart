@@ -1,10 +1,10 @@
-# agentic-dart-agent
+# dart-agent
 
 Claude Code wrapper. Loads the senior-analyst system prompt, maintains the hypothesis tracker, and runs the iteration controller.
 
 ## Responsibilities
 
-- Load playbook YAML from `agentic-dart-playbook/`
+- Load playbook YAML from `dart-playbook/`
 - Build the senior-analyst system prompt
 - Run the iteration loop with `--max-iterations` hard cap
 - Write `progress.jsonl` after every iteration (hypothesis, confidence, unresolved gaps)
@@ -12,18 +12,18 @@ Claude Code wrapper. Loads the senior-analyst system prompt, maintains the hypot
 
 ## Not responsible for
 
-- Security boundaries (those live in `agentic-dart-mcp` + OS mount)
-- Tool execution (delegated to `agentic-dart-mcp`)
-- Correlation logic (delegated to `agentic-dart-corr`)
+- Security boundaries (those live in `dart-mcp` + OS mount)
+- Tool execution (delegated to `dart-mcp`)
+- Correlation logic (delegated to `dart-corr`)
 
 ## CLI (draft)
 
 ```bash
-agentic-dart-agent \
+dart-agent \
     --case <case-id> \
     --image <path-to-disk-image> \
     --memory <path-to-memory-capture> \
-    --playbook agentic-dart-playbook/senior-analyst-v1.yaml \
+    --playbook dart-playbook/senior-analyst-v1.yaml \
     --max-iterations 10 \
     --out ./out/<case-id>/
 ```

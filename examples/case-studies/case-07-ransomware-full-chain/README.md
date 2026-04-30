@@ -153,7 +153,7 @@ stats:
 
 ```bash
 python3 << 'PY'
-from agentic_dart_mcp import call_tool
+from dart_mcp import call_tool
 import csv
 
 def load(path):

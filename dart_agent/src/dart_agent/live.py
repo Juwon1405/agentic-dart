@@ -1,17 +1,17 @@
-"""Live-mode controller for agentic-dart-agent.
+"""Live-mode controller for dart-agent.
 
-Connects Claude (via the Anthropic API) to agentic-dart-mcp over a stdio subprocess.
-Claude sees only the typed forensic tools registered in agentic-dart-mcp; it
+Connects Claude (via the Anthropic API) to dart-mcp over a stdio subprocess.
+Claude sees only the typed forensic tools registered in dart-mcp; it
 cannot execute arbitrary code because there is no execute_shell for it
 to call.
 
 Usage:
     export ANTHROPIC_API_KEY=sk-ant-...
-    python3 -m agentic_dart_agent --mode live --case my-case --out /tmp/out \\
+    python3 -m dart_agent --mode live --case my-case --out /tmp/out \\
         --prompt "Investigate the bundled IP-KVM evidence"
 
 Or with a custom model:
-    python3 -m agentic_dart_agent --mode live --model claude-sonnet-4-6 ...
+    python3 -m dart_agent --mode live --model claude-sonnet-4-6 ...
 
 If ANTHROPIC_API_KEY is unset or --dry-run is given, the controller
 executes a scripted fake-LLM that simulates the same tool-calling
@@ -48,7 +48,7 @@ except ImportError:
 SYSTEM_PROMPT = """You are Agentic-DART, a senior DFIR analyst.
 
 You have access to a set of typed, read-only forensic functions exposed by
-the agentic-dart-mcp server. These functions are the ONLY way you can interact
+the dart-mcp server. These functions are the ONLY way you can interact
 with evidence. You cannot execute shell commands. You cannot write files.
 You cannot make network calls. These restrictions are architectural — the
 functions simply are not available to you.
@@ -229,15 +229,15 @@ async def live_run(case: str, out_dir: str, prompt: str,
     print(f"[live] case={case}  mode={'REAL-CLAUDE' if use_real else 'DRY-RUN'}  "
           f"max_iter={max_iter}", file=sys.stderr)
 
-    # Launch agentic-dart-mcp as a stdio subprocess
+    # Launch dart-mcp as a stdio subprocess
     server_params = StdioServerParameters(
         command=sys.executable,
-        args=["-m", "agentic_dart_mcp.server_stdio"],
+        args=["-m", "dart_mcp.server_stdio"],
         env={**os.environ},
     )
 
     async with AsyncExitStack() as stack:
-        # Open stdio transport to agentic-dart-mcp
+        # Open stdio transport to dart-mcp
         read, write = await stack.enter_async_context(stdio_client(server_params))
         session = await stack.enter_async_context(ClientSession(read, write))
         await session.initialize()
@@ -282,7 +282,7 @@ async def live_run(case: str, out_dir: str, prompt: str,
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="agentic-dart-agent live-mode controller")
+    ap = argparse.ArgumentParser(description="dart-agent live-mode controller")
     ap.add_argument("--case", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--prompt", default="Investigate the bundled evidence and "

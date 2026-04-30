@@ -1,4 +1,4 @@
-# agentic-dart-audit
+# dart-audit
 
 Structured JSONL logger. Side-tapped from every MCP call. Append-only. Never rewritten.
 

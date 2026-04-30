@@ -1,10 +1,10 @@
 """End-to-end test of live-mode MCP plumbing.
 
 Does NOT require an ANTHROPIC_API_KEY. Runs in --dry-run which uses a
-scripted mock-Claude that still calls the real agentic-dart-mcp subprocess
+scripted mock-Claude that still calls the real dart-mcp subprocess
 over real MCP stdio JSON-RPC. This exercises:
 
-  1. Subprocess spawn of `python -m agentic_dart_mcp.server_stdio`
+  1. Subprocess spawn of `python -m dart_mcp.server_stdio`
   2. MCP initialize() handshake
   3. list_tools() over the wire — verifies all 15 functions are advertised
   4. call_tool() over the wire — verifies a real tool returns real data
@@ -20,22 +20,22 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "agentic_dart_mcp" / "src"))
-sys.path.insert(0, str(REPO / "agentic_dart_audit" / "src"))
-sys.path.insert(0, str(REPO / "agentic_dart_agent" / "src"))
-os.environ["AGENTIC_DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
+sys.path.insert(0, str(REPO / "dart_audit" / "src"))
+sys.path.insert(0, str(REPO / "dart_agent" / "src"))
+os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
 os.environ["PYTHONPATH"] = (
-    f"{REPO / 'agentic_dart_mcp' / 'src'}:"
-    f"{REPO / 'agentic_dart_audit' / 'src'}:"
-    f"{REPO / 'agentic_dart_agent' / 'src'}"
+    f"{REPO / 'dart_mcp' / 'src'}:"
+    f"{REPO / 'dart_audit' / 'src'}:"
+    f"{REPO / 'dart_agent' / 'src'}"
 )
 
 
 def test_live_mode_subprocess_dryrun():
-    """Run `agentic-dart-agent --mode live --dry-run` end-to-end."""
+    """Run `dart-agent --mode live --dry-run` end-to-end."""
     with tempfile.TemporaryDirectory() as td:
         result = subprocess.run(
-            [sys.executable, "-m", "agentic_dart_agent",
+            [sys.executable, "-m", "dart_agent",
              "--mode", "live", "--case", "live-test",
              "--out", td, "--dry-run", "--max-iterations", "5"],
             capture_output=True, text=True, timeout=60,
@@ -65,7 +65,7 @@ def test_live_mode_subprocess_dryrun():
 
 
 def test_live_mcp_server_advertises_correct_surface():
-    """Spawn agentic-dart-mcp stdio server and call list_tools() over the wire.
+    """Spawn dart-mcp stdio server and call list_tools() over the wire.
 
     This is the guardrail-over-wire check: the protocol surface must match
     the in-process _REGISTRY exactly. Any drift fails this test.
@@ -76,7 +76,7 @@ def test_live_mcp_server_advertises_correct_surface():
     async def run():
         params = StdioServerParameters(
             command=sys.executable,
-            args=["-m", "agentic_dart_mcp.server_stdio"],
+            args=["-m", "dart_mcp.server_stdio"],
             env={**os.environ},
         )
         async with stdio_client(params) as (read, write):
@@ -126,7 +126,7 @@ def test_live_mcp_executes_real_tool_over_wire():
     async def run():
         params = StdioServerParameters(
             command=sys.executable,
-            args=["-m", "agentic_dart_mcp.server_stdio"],
+            args=["-m", "dart_mcp.server_stdio"],
             env={**os.environ},
         )
         async with stdio_client(params) as (read, write):
@@ -159,7 +159,7 @@ def test_live_mcp_refuses_unregistered_tool_over_wire():
     async def run():
         params = StdioServerParameters(
             command=sys.executable,
-            args=["-m", "agentic_dart_mcp.server_stdio"],
+            args=["-m", "dart_mcp.server_stdio"],
             env={**os.environ},
         )
         async with stdio_client(params) as (read, write):

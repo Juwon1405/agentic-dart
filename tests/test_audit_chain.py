@@ -1,14 +1,14 @@
-"""Tests for agentic-dart-audit: chain integrity and tamper detection."""
+"""Tests for dart-audit: chain integrity and tamper detection."""
 import json
 import os
 import sys
 import tempfile
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parents[1] / "agentic_dart_audit" / "src"
+SRC = Path(__file__).resolve().parents[1] / "dart_audit" / "src"
 sys.path.insert(0, str(SRC))
 
-from agentic_dart_audit import AuditLogger
+from dart_audit import AuditLogger
 
 
 def test_chain_verifies_clean():

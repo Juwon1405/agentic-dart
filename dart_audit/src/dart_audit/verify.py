@@ -1,11 +1,11 @@
-"""CLI entry point: python -m agentic_dart_audit.verify path/to/audit.jsonl"""
+"""CLI entry point: python -m dart_audit.verify path/to/audit.jsonl"""
 import sys
 from . import AuditLogger
 
 
 def main() -> int:
     if len(sys.argv) != 2:
-        print("usage: python -m agentic_dart_audit.verify <audit.jsonl>", file=sys.stderr)
+        print("usage: python -m dart_audit.verify <audit.jsonl>", file=sys.stderr)
         return 2
     ok, msg = AuditLogger.verify(sys.argv[1])
     print(msg)
