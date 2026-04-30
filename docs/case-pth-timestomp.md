@@ -28,7 +28,7 @@ A breach is suspected on a small Windows network with two hosts:
 The IR analyst hands the case folder to `dart-agent` and walks away.
 The agent has no prompt about *where* to look or *what* to find — only
 the senior-analyst playbook (`dart_playbook/senior-analyst-v1.yaml`)
-and the read-only MCP surface (`dart-mcp`, 31 typed functions).
+and the read-only MCP surface (`dart-mcp`, 35 typed functions).
 
 ---
 
@@ -38,7 +38,7 @@ and the read-only MCP surface (`dart-mcp`, 31 typed functions).
 
 The agent loads the senior-analyst playbook, spawns `dart-mcp` over
 stdio, verifies the read-only mount, and opens the SHA-256 audit
-chain. Tool surface is enumerated to **31 typed forensic functions**
+chain. Tool surface is enumerated to **35 typed forensic functions**
 — anything outside that list (e.g. `execute_shell`, `write_file`,
 `mount`) is not callable by construction.
 

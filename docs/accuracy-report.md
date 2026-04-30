@@ -8,7 +8,7 @@ export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 python3 scripts/measure_accuracy.py
 ```
 
-## MCP surface — 31 functions, all implemented end-to-end
+## MCP surface — 35 functions (31 originals + 4 v0.4 Linux/macOS expansion), all implemented end-to-end
 
 ### Windows
 
