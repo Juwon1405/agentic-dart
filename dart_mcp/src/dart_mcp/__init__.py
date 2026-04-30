@@ -55,8 +55,14 @@ def _safe_resolve(path_str: str) -> Path:
         raise PathTraversalAttempt(f"invalid path: {path_str!r}")
     if "\x00" in path_str:
         raise PathTraversalAttempt("null byte in path")
+    if len(path_str) > 1024:
+        raise PathTraversalAttempt(f"path too long: {len(path_str)} chars (max 1024)")
     root = EVIDENCE_ROOT.resolve()
-    requested = (EVIDENCE_ROOT / path_str).resolve()
+    try:
+        requested = (EVIDENCE_ROOT / path_str).resolve()
+    except OSError as e:
+        # File-name-too-long, no-such-process, etc. — treat as path attack
+        raise PathTraversalAttempt(f"path resolution failed: {e}") from e
     try:
         requested.relative_to(root)
     except ValueError as e:

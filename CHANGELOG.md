@@ -1,5 +1,36 @@
 # Changelog
 
+## [v0.4.1] — 2026-04-30 — Audit chain race fix + path safety hardening
+
+### Fixed (HIGH severity — discovered by post-v0.4 1000+-call QA pass)
+
+- **`AuditLogger.log()` race condition**: concurrent callers could read
+  the same `_prev_hash`, compute different `entry_hash`es, and append
+  both — chain validation then failed because the second entry's
+  `prev_hash` no longer matched its file-position predecessor's
+  `entry_hash`. This breaks the architectural guarantee that the audit
+  chain is tamper-evident under any access pattern.
+
+  Fix: per-instance `threading.Lock()` around the prev_hash read /
+  entry_hash compute / file append / prev_hash update critical section.
+  Verified by `test_concurrent_writes_preserve_chain` (50 threads ×
+  20 calls = 1000-entry chain still validates).
+
+- **`_safe_resolve()` graceful errors**: passing `None`, an int, a list,
+  or a 2000-char path raised unwrapped exceptions (`AttributeError`,
+  `OSError [Errno 36] File name too long`) instead of the architectural
+  `PathTraversalAttempt`. Fix: wrap `Path.resolve()` in try/except,
+  re-raise as `PathTraversalAttempt`. New 1024-char path-length cap.
+
+### Added
+
+- `tests/test_concurrency_and_edge_cases.py` (3 tests):
+  - `test_concurrent_writes_preserve_chain`
+  - `test_safe_resolve_rejects_too_long_paths`
+  - `test_safe_resolve_rejects_non_string_inputs`
+
+  Test count: 17 → **20**.
+
 All notable changes to Agentic-DART are recorded here.
 
 ## [Unreleased] — 2026-04-30

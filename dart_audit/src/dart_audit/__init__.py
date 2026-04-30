@@ -7,6 +7,11 @@ rewrite history because the file is opened O_APPEND and the chain is
 verified at finalization.
 
 This is the audit layer that makes every finding traceable.
+
+Thread safety: AuditLogger.log() is protected by a per-instance lock
+so concurrent calls from multiple threads cannot interleave the
+prev_hash read / entry_hash compute / file append / prev_hash update
+critical section. Verified by tests/test_audit_chain.py.
 """
 from __future__ import annotations
 
@@ -14,6 +19,7 @@ import hashlib
 import json
 import os
 import secrets
+import threading
 import time
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
@@ -51,6 +57,7 @@ class AuditLogger:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.run_id = run_id or secrets.token_hex(8)
         self._prev_hash = self._load_tail_hash()
+        self._lock = threading.Lock()  # Critical section: prev_hash R / hash compute / file append / prev_hash W
 
     def _load_tail_hash(self) -> str:
         if not self.path.exists() or self.path.stat().st_size == 0:
@@ -75,33 +82,39 @@ class AuditLogger:
         token_count_out: int,
         finding_ids: list | None = None,
     ) -> str:
-        """Record one MCP call. Returns audit_id."""
+        """Record one MCP call. Returns audit_id.
+
+        Thread-safe: the lock serializes the prev_hash read → entry_hash
+        compute → file append → prev_hash update sequence so concurrent
+        callers cannot produce two entries with the same prev_hash.
+        """
         # Hash the output (not the output itself — audit log must stay small)
         output_bytes = json.dumps(output, sort_keys=True, default=str).encode()
         output_digest = "sha256:" + hashlib.sha256(output_bytes).hexdigest()
 
-        entry = AuditEntry(
-            ts=time.strftime("%Y-%m-%dT%H:%M:%S.", time.gmtime()) + f"{int(time.time()*1000)%1000:03d}Z",
-            iteration=iteration,
-            tool_name=tool_name,
-            inputs=inputs,
-            output_digest=output_digest,
-            token_count_in=token_count_in,
-            token_count_out=token_count_out,
-            finding_ids=finding_ids or [],
-            audit_id=secrets.token_hex(4),
-            prev_hash=self._prev_hash,
-        )
-        # Chain: hash(prev_hash || canonical_body)
-        entry.entry_hash = hashlib.sha256(entry.canonical_body().encode()).hexdigest()
+        with self._lock:
+            entry = AuditEntry(
+                ts=time.strftime("%Y-%m-%dT%H:%M:%S.", time.gmtime()) + f"{int(time.time()*1000)%1000:03d}Z",
+                iteration=iteration,
+                tool_name=tool_name,
+                inputs=inputs,
+                output_digest=output_digest,
+                token_count_in=token_count_in,
+                token_count_out=token_count_out,
+                finding_ids=finding_ids or [],
+                audit_id=secrets.token_hex(4),
+                prev_hash=self._prev_hash,
+            )
+            # Chain: hash(prev_hash || canonical_body)
+            entry.entry_hash = hashlib.sha256(entry.canonical_body().encode()).hexdigest()
 
-        # Append atomically with O_APPEND semantics
-        with self.path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(asdict(entry), sort_keys=True) + "\n")
-            f.flush()
-            os.fsync(f.fileno())
+            # Append atomically with O_APPEND semantics
+            with self.path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(asdict(entry), sort_keys=True) + "\n")
+                f.flush()
+                os.fsync(f.fileno())
 
-        self._prev_hash = entry.entry_hash
+            self._prev_hash = entry.entry_hash
         return entry.audit_id
 
     @staticmethod

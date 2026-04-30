@@ -7,7 +7,7 @@
   <a href="https://www.python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
   <a href="https://findevil.devpost.com/"><img src="https://img.shields.io/badge/SANS%20FIND%20EVIL%21-2026-dc2626.svg" alt="SANS FIND EVIL! 2026"></a>
   <img src="https://img.shields.io/badge/MITRE%20ATT%26CK-11%2F12%20tactics-4F46E5.svg" alt="MITRE ATT&CK 11/12">
-  <img src="https://img.shields.io/badge/tests-17%2F17%20passing-22c55e.svg" alt="tests 17/17">
+  <img src="https://img.shields.io/badge/tests-20%2F20%20passing-22c55e.svg" alt="tests 20/20">
 </p>
 
 # Agentic-DART — Autonomous DFIR Agent on SANS SIFT Workstation
@@ -64,7 +64,7 @@ This project is developed by [Juwon Bang](https://github.com/Juwon1405) with ext
 
 - **Human-driven**: architectural decisions, security model, threat coverage taxonomy, MITRE ATT&CK mapping, evidence-integrity invariants, and final code review.
 - **AI-accelerated**: implementation, sample-evidence generation, test scaffolding, documentation drafting.
-- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 17-test suite must pass on a clean clone before any commit lands on `main`.
+- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 20-test suite must pass on a clean clone before any commit lands on `main`.
 
 This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
@@ -168,18 +168,19 @@ This is the architecture-first claim made concrete: when artifacts disagree, `da
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 
-python3 tests/test_audit_chain.py            #  3 — chain integrity + tamper detection
-python3 tests/test_mcp_surface.py            #  3 — surface is the exact positive set
-python3 tests/test_mcp_bypass.py             #  6 — destructive ops are blocked
-python3 tests/test_agent_self_correction.py  #  1 — end-to-end self-correction
-python3 tests/test_live_mcp.py               #  4 — JSON-RPC stdio wire tests
+python3 tests/test_audit_chain.py                       #  3 — chain integrity + tamper detection
+python3 tests/test_mcp_surface.py                       #  3 — surface is the exact positive set
+python3 tests/test_mcp_bypass.py                        #  6 — destructive ops are blocked
+python3 tests/test_agent_self_correction.py             #  1 — end-to-end self-correction
+python3 tests/test_live_mcp.py                          #  4 — JSON-RPC stdio wire tests
+python3 tests/test_concurrency_and_edge_cases.py        #  3 — concurrent audit writes + path safety
                                              # ──
-                                             # 17 tests
+                                             # 20 tests
 ```
 
-All 17 pass on a clean checkout. The repo also contains
+All 20 pass on a clean checkout. The repo also contains
 `tests/_pending/` — tests for Phase 2 functions not yet on the
-MCP surface. Those are intentionally not part of the 17/17 count.
+MCP surface. Those are intentionally not part of the 20/20 count.
 
 ## Target case class
 
