@@ -1,22 +1,41 @@
 # dart-playbook
 
-Senior-analyst sequencing rules, expressed as YAML. Community-extensible.
+YAML sequencing rules for the senior-analyst loop. Operator-tunable; lives outside the model prompt.
 
-## Why YAML
+## Bundled playbooks
 
-Because the sequencing logic of a senior analyst is not Python. It is a small set of decisions about what to look at first, when to stop and challenge yourself, and what constitutes "enough" to form a hypothesis. Encoding those as YAML lets another responder contribute their own senior-analyst DNA without touching the codebase.
+- **`senior-analyst-v1.yaml`** — initial playbook, targeting insider-threat and DPRK IT-worker patterns. Compact (128 lines), 4 phases.
+- **`senior-analyst-v2.yaml`** ⭐ — comprehensive senior-analyst methodology (845 lines, 10 phases). Synthesizes:
+  - Mandiant M-Trends 2026 + Targeted Attack Lifecycle
+  - SANS PICERL + Lockheed Cyber Kill Chain + David Bianco's Pyramid of Pain & Hunting Maturity Model
+  - MITRE ATT&CK Enterprise v16 + Diamond Model + F3EAD
+  - The DFIR Report 2024–2026 case studies (BlackSuit, Akira, Fog, Lynx, BlueSky)
+  - Field practice from Sean Metcalf, Sarah Edwards, Patrick Wardle, Hal Pomeranz, Eric Zimmerman, Andrew Case, Florian Roth, JPCERT/CC
 
-## Contents
+  Covers 10 case classes: insider-threat, ransomware-recovery-denial, vishing, exploit, third-party, cloud-hybrid, division-of-labour-handoff, identity-centric, remote-hands, LotL.
 
-- `senior-analyst-v1.yaml` — initial playbook, targeting insider-threat and DPRK IT-worker patterns
+  v2 is the recommended playbook for any new case in 2026.
 
-## Contributing
+## Schema
 
-Fork, add a new YAML playbook under a descriptive filename, and open a PR. The playbook must include:
+```yaml
+version: 2
+target_case_classes: [...]
+posture:                    # M-Trends priors (dwell time, attacker speed)
+sequence:                   # Phase definitions with rationale, MCP calls, exit criteria
+next_call_decisions: [...]  # State → tool routing
+contradiction_triggers: [...]  # When dart-corr flags UNRESOLVED
+stop_conditions: [...]      # When to emit findings
+references: {...}           # Every claim is grounded in a published source
+```
 
-- A `target_case_class:` block
-- An ordered `sequence:` of phases (volatile → timeline → anomaly → hypothesis → validate → report)
-- A `self_challenge:` block describing when to stop and question the current hypothesis
-- A `termination:` block defining what "done" looks like
+See `senior-analyst-v2.yaml` for the canonical shape.
 
-See `senior-analyst-v1.yaml` for the canonical shape.
+## Forking for your case class
+
+1. Copy `senior-analyst-v2.yaml` to `dart_playbook/<your-name>-v1.yaml`
+2. Update `target_case_classes` and `next_call_decisions`
+3. Add environment-specific `contradiction_triggers`
+4. Run with `--playbook dart_playbook/<your-name>-v1.yaml`
+
+The architectural guarantees (read-only MCP boundary, audit chain, contradiction enforcement) apply to every playbook. Forking cannot loosen them.

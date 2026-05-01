@@ -1,5 +1,41 @@
 # Changelog
 
+## [v0.4.2] — 2026-04-30 — Senior-analyst playbook v2
+
+### Added
+
+- **`dart_playbook/senior-analyst-v2.yaml`** — comprehensive playbook
+  synthesizing frontline DFIR methodology (845 lines, 10 phases, 7
+  contradiction triggers, 25 grounded references). Sources:
+  Mandiant M-Trends 2026, Targeted Attack Lifecycle, SANS PICERL,
+  Cyber Kill Chain, MITRE ATT&CK v16, David Bianco's Pyramid of
+  Pain & Hunting Maturity Model, Diamond Model, F3EAD; The DFIR
+  Report 2024-2026 case studies (BlackSuit, Akira AA24-109A,
+  Fog, Lynx, BlueSky); field practice from Sean Metcalf, Sarah
+  Edwards, Patrick Wardle, Hal Pomeranz, Eric Zimmerman, Andrew
+  Case, Florian Roth, JPCERT/CC.
+
+  v2 covers 10 case classes vs v1's 3: adds ransomware-recovery-
+  denial (M-Trends 2026 #1 trend), vishing (11% initial vector),
+  exploit (32% initial vector), third-party compromise (DBIR 2025
+  30%), cloud hybrid pivot, identity-centric intrusion, division-
+  of-labour 22-second handoff.
+
+  v2 is the recommended playbook for any new case in 2026; v1 is
+  retained as a compact reference.
+
+### Changed
+
+- `dart_playbook/README.md` — documents both v1 and v2, links to
+  full methodology lineage.
+
+### Notes
+
+- `dart-agent` deterministic mode still routes through hardcoded
+  Python phases (Phase 1 design). Phase 2 will auto-map v2 YAML
+  sequence into the agent loop. v2 today serves as the canonical
+  *specification* of senior-analyst behavior.
+
 ## [v0.4.1] — 2026-04-30 — Audit chain race fix + path safety hardening
 
 ### Fixed (HIGH severity — discovered by post-v0.4 1000+-call QA pass)

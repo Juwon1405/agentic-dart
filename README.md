@@ -352,7 +352,7 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 | `dart_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` cap |
 | `dart_audit` (CLI) | SHA-256-chained JSONL logger + `verify / lookup / trace / summary` subcommands |
 | `dart_mcp.server` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart python3 -m dart_mcp.server` |
-| `dart_playbook/senior-analyst-v1.yaml` | Sequencing rules for insider-threat / remote-hands class |
+| `dart_playbook/senior-analyst-v2.yaml` (recommended) or `senior-analyst-v1.yaml` | Sequencing rules for insider-threat / remote-hands class |
 
 ### Remaining roadmap (honest)
 
