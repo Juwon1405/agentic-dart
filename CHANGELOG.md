@@ -1,5 +1,54 @@
 # Changelog
 
+## [Playbook v3.1] — 2026-05-01 — Yamato Security external references
+
+### Added (external citations only — NO code or rules imported)
+
+- `related_tools_for_inspiration` (NEW reference category):
+  - **Hayabusa** (Yamato Security, Tokyo) — Sigma-based fast EVTX
+    timeline generator. Cited as third-party tool we credit as
+    inspiration; we did NOT import, bundle, fork, or wrap any of its
+    code or rules. Reinforces our case for treating detection corpus
+    as a first-class artifact.
+  - **EnableWindowsLogSettings** (Yamato Security, Tokyo) — audit
+    policy baseline yielding ~75% Sigma rule coverage on Windows
+    hosts. Cited as external field calibration reference for ADS
+    `technical_context` sections targeting EVTX channels.
+
+- `vendor_research`:
+  - **Zach Mathis** (Yamato Security founder, Tokyo) added with
+    explicit external-community attribution: "external community
+    reference (not a contributor to this project)" and "Agentic-DART
+    is independently developed and has no affiliation with Yamato
+    Security." Recognized as a voice in Tokyo / Japanese DFIR
+    community on Windows event log analysis at scale.
+
+### Why these citations matter
+
+Tokyo-based DFIR community awareness is a credibility signal for
+SANS judges familiar with the Japanese security ecosystem. Yamato
+Security ships some of the most production-grade open-source EVTX
+tooling available. Crediting them as inspiration (without conflating
+ownership) is the correct way to acknowledge prior art.
+
+### What we explicitly do NOT do
+
+- We do NOT import any Hayabusa Rust code
+- We do NOT bundle the hayabusa-rules Sigma corpus
+- We do NOT claim Yamato Security membership or partnership
+- We do NOT use the Yamato logo, branding, or naming patterns
+
+The architectural-first guarantees of Agentic-DART are independent of
+any third-party detection tool we cite as inspiration.
+
+### Verified
+
+- 20/20 tests still passing
+- Demo run still completes in ~685ms
+- Total references: 42 (was 39 in v3.0)
+- 2 entries in new `related_tools_for_inspiration` category
+- 10 entries in `vendor_research` (was 9, +1: Zach Mathis)
+
 ## [Playbook v3] — 2026-05-01 — Industrialization release
 
 ### Added

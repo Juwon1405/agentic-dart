@@ -1100,6 +1100,18 @@ references:
     - author: "Roberto Rodriguez"
       url: "https://github.com/Cyb3rWard0g"
       cited_for: [otrf_threathunter_playbook]
+    - author: "Zach Mathis"
+      org: "Yamato Security (Tokyo) — external community"
+      url: "https://github.com/YamatoSecurity"
+      relationship: "external community reference (not a contributor to this project)"
+      cited_for: [evtx_analysis_field_practice, sigma_corpus_engineering]
+      notes: |
+        Founder of Yamato Security in Tokyo. Lead maintainer of
+        Hayabusa, WELA, and EnableWindowsLogSettings. Cited here as a
+        recognized voice in the Tokyo / Japanese DFIR community on
+        Windows event log analysis at scale. Agentic-DART is
+        independently developed and has no affiliation with Yamato
+        Security.
     - author: "JPCERT/CC"
       title: "Detecting Lateral Movement through Tracking Event Logs"
 
