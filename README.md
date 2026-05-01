@@ -373,9 +373,9 @@ MIT — see [LICENSE](./LICENSE).
 
 ## Author
 
-**Bang Juwon** &nbsp;·&nbsp; 방주원 &nbsp;·&nbsp; 優心 (ゆうしん)
+**Bang Juwon** &nbsp;·&nbsp; 방주원 &nbsp;·&nbsp; 優心 (ゆうしん, *yushin*)
 
-DFIR practitioner & detection engineer based in Tokyo.
+DFIR practitioner & detection engineer based in Tokyo. Goes by **yushin** in shells, terminals, and most places that aren't legal documents.
 
 - 🐙 GitHub &nbsp; &mdash; &nbsp; [github.com/Juwon1405](https://github.com/Juwon1405)
 - ✉️ Email &nbsp; &mdash; &nbsp; juwon1405.jp@doubles1405.com

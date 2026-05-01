@@ -1,5 +1,5 @@
 timestamp,process,subsystem,event_message
-2026-03-15 14:20:00,loginwindow,com.apple.loginwindow,"user analyst authenticated via password"
+2026-03-15 14:20:00,loginwindow,com.apple.loginwindow,"user yushin authenticated via password"
 2026-03-15 14:22:50,launchd,com.apple.xpc.launchd,"loaded com.analyst.helper from /Library/LaunchAgents/"
-2026-03-15 14:23:10,sudo,com.apple.sudo,"analyst TTY=ttys002 COMMAND=/usr/sbin/spctl --master-disable"
-2026-03-15 14:25:00,Gatekeeper,com.apple.security,"gatekeeper disabled by user analyst"
+2026-03-15 14:23:10,sudo,com.apple.sudo,"yushin TTY=ttys002 COMMAND=/usr/sbin/spctl --master-disable"
+2026-03-15 14:25:00,Gatekeeper,com.apple.security,"gatekeeper disabled by user yushin"
