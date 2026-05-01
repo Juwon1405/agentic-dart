@@ -1,0 +1,845 @@
+# =============================================================================
+#  Agentic-DART — Senior Analyst Playbook v2
+#
+#  Methodology synthesized from frontline DFIR practice. Sources:
+#
+#    - Mandiant M-Trends 2026 (500K hrs of IR engagements, 2025 data)
+#    - Mandiant Targeted Attack Lifecycle (8-phase model)
+#    - SANS PICERL (Preparation / Identification / Containment /
+#      Eradication / Recovery / Lessons learned)
+#    - Lockheed Martin Cyber Kill Chain (7 phases)
+#    - David Bianco — Pyramid of Pain + Hunting Maturity Model
+#    - MITRE ATT&CK Enterprise v16
+#    - Diamond Model of Intrusion Analysis
+#    - F3EAD (Find, Fix, Finish, Exploit, Analyze, Disseminate)
+#    - The DFIR Report case studies (BlackSuit, Akira, Fog, BlueSky 2024-2026)
+#    - JPCERT/CC — Detecting Lateral Movement through Tracking Event Logs
+#    - Sean Metcalf (adsecurity.org) — AD attack detection
+#    - Sarah Edwards (mac4n6) — macOS forensic analysis
+#    - Patrick Wardle — The Art of Mac Malware
+#    - Hal Pomeranz — Linux IR talks + auditd workflows
+#    - Eric Zimmerman — Windows artifact tools field semantics
+#    - Andrew Case (Volatility) — memory forensics
+#    - Florian Roth (Sigma) — signature-base detection corpus
+#    - CISA #StopRansomware advisories (Akira AA24-109A Nov 2025)
+#    - Microsoft DART (Detection and Response Team) blog series
+#    - Verizon DBIR 2025 + 2026
+#    - Atomic Red Team — TTP test corpus
+# =============================================================================
+version: 2
+name: senior-analyst-v2
+author: Agentic-DART
+created: 2026-04-30
+methodology_lineage:
+  - mandiant_targeted_attack_lifecycle
+  - lockheed_kill_chain
+  - sans_picerl
+  - mitre_attack_v16
+  - bianco_pyramid_of_pain
+  - diamond_model
+  - f3ead
+
+target_case_classes:
+  # primary — what this playbook is tuned for
+  - insider_threat_unauthorized_access
+  - remote_hands_ip_kvm
+  - living_off_the_land_execution
+  - ransomware_response_recovery_denial    # M-Trends 2026 trend
+  - identity_centric_intrusion             # Kerberoasting / AS-REP / token theft
+  - vishing_initial_access                 # M-Trends 2026 #2 vector (11%)
+  - exploit_initial_access                 # M-Trends 2026 #1 vector (32%)
+  - third_party_compromise                 # DBIR 2025 — 30% of breaches
+  - cloud_hybrid_lateral_movement          # on-prem ↔ Entra ID pivot
+  - division_of_labour_handoff             # M-Trends 2026 — 22-sec hand-off
+
+# ---------------------------------------------------------------------------
+# OPERATIONAL POSTURE — what every senior analyst remembers before iter 1
+# ---------------------------------------------------------------------------
+posture:
+  dwell_time_assumption_days: 14   # M-Trends 2026 global median (was 11 in 2024)
+  initial_access_priors:
+    - vector: exploit_public_facing_app
+      probability: 0.32
+      mitre: T1190
+      evidence_to_pull_first:
+        - external_facing_logs
+        - web_access_logs
+        - waf_logs
+    - vector: vishing_or_voice_phishing
+      probability: 0.11
+      mitre: T1566.004
+      evidence_to_pull_first:
+        - phone_system_records
+        - help_desk_tickets
+        - user_self_reports
+        - mfa_push_fatigue_logs
+    - vector: stolen_credentials_via_iab
+      probability: 0.10
+      mitre: T1078
+      evidence_to_pull_first:
+        - vpn_login_geo_anomalies
+        - sso_idp_logs
+        - first_time_admin_activity
+    - vector: phishing_email
+      probability: 0.05
+      mitre: T1566.001
+      evidence_to_pull_first:
+        - email_headers
+        - link_telemetry
+        - sandbox_detonations
+
+  attacker_speed_assumption:
+    initial_access_to_handoff_seconds: 22       # M-Trends 2026 median
+    handoff_to_lateral_movement_minutes: 10     # DFIR Report BlackSuit baseline
+    lateral_to_domain_admin_hours: 6            # DFIR Report median
+    domain_admin_to_ransomware_hours: 32        # BlueSky case (under 32 min was outlier)
+    implication: |
+      Treat any low-impact alert as a potential precursor to a
+      hand-off. Routine malware alerts must be triaged within
+      minutes, not the next business day.
+
+# ---------------------------------------------------------------------------
+# PHASE SEQUENCE — strict order. Senior analysts do not skip phases.
+# Each phase has a rationale (WHY this order), MCP calls (HOW),
+# anti-patterns (what naive analysts do wrong), and exit criteria.
+# ---------------------------------------------------------------------------
+sequence:
+
+  # =========================================================================
+  - phase: P0_scope_and_volatility
+    pyramid_layer: orientation
+    rationale: |
+      Memory and network state evaporate on reboot. Process tree,
+      open sockets, and loaded drivers must be captured before
+      anything else, even before reading disk artifacts. Mandiant's
+      first commandment: "Volatile data is non-recoverable."
+
+      Senior-analyst principle (Eric Zimmerman): "Order of volatility
+      is not a suggestion; it's a one-way door."
+    mcp_calls:
+      - get_process_tree
+      - detect_credential_access     # LSASS access, Mimikatz indicators
+    anti_patterns:
+      - "Pulling the disk image before snapshotting memory"
+      - "Rebooting 'to be safe' — destroys all volatile evidence"
+      - "Running antivirus scan as first action — may quarantine evidence"
+    exit_criteria:
+      - process_tree_captured: true
+      - credential_access_signals_logged: true
+      - any_running_threats_isolated_at_network_layer_only: true
+
+  # =========================================================================
+  - phase: P1_initial_access_vector_triage
+    pyramid_layer: bottom_to_middle
+    rationale: |
+      Before reconstructing the timeline, identify the most-likely
+      initial access vector based on M-Trends priors. This is
+      hypothesis bootstrapping — not commitment. We will revise.
+
+      Mandiant's Targeted Attack Lifecycle starts with "Initial
+      Reconnaissance / Initial Compromise". We work backward from
+      the alert to that point.
+    mcp_calls:
+      - analyze_web_access_log              # exploit vector check (32% prior)
+      - detect_webshell                     # post-exploit web persistence
+      - analyze_unix_auth                   # SSH brute-force, vishing-fed creds
+      - analyze_windows_logons              # logon-type analysis
+      - detect_brute_force_rdp              # RDP brute force pattern
+    bianco_priority_targets:
+      - ttps                                # NOT IPs/hashes — those churn
+      - tools                               # net.exe / wmiexec / Impacket
+      - host_artifacts                      # registry / AmCache / Prefetch
+    anti_patterns:
+      - "Indexing IOCs before understanding TTPs"
+      - "Trusting the first plausible vector and stopping"
+      - "Ignoring vishing because 'we have MFA' — push fatigue exists"
+    exit_criteria:
+      - candidate_vectors_ranked: true
+      - external_facing_logs_collected: true
+
+  # =========================================================================
+  - phase: P2_timeline_reconstruction
+    pyramid_layer: foundation
+    rationale: |
+      A timeline is the analyst's map. No hypothesis before the map
+      is dense enough to test. Senior analysts (Rob Lee SANS FOR508,
+      Hal Pomeranz) build timelines from $MFT + Prefetch + AmCache +
+      EVTX *before* committing to a kill-chain narrative.
+
+      Eric Zimmerman: "MFT is god. Everything else is a witness."
+    mcp_calls:
+      - extract_mft_timeline                # NTFS $SI vs $FN — timestomp detection
+      - get_amcache                         # T1059 / T1218 LOLBin execution
+      - parse_prefetch                      # execution timeline + parent chain
+      - parse_shimcache                     # AppCompatCache — pre-execution touch
+      - list_scheduled_tasks                # T1053.005 persistence
+      - parse_unified_log                   # macOS unified log
+      - parse_systemd_journal               # Linux journal
+      - parse_auditd_log                    # Linux kernel-level syscalls
+      - parse_bash_history                  # T1059.004 + T1070.003
+    senior_analyst_heuristic: |
+      Build the timeline backwards from the alert in 60-second
+      windows. Then 5-min. Then 1-hour. Don't expand to days until
+      the immediate vicinity is exhausted (Sarah Edwards pattern).
+    anti_patterns:
+      - "Building a 30-day timeline first — drowns in noise"
+      - "Trusting timestamps without $SI vs $FN comparison (timestomp blind spot)"
+      - "Ignoring AmCache because 'it's just installer data' — every binary touches it"
+    exit_criteria:
+      - mft_timeline_complete: true
+      - timestomp_check_done: true
+      - prefetch_parent_chain_documented: true
+
+  # =========================================================================
+  - phase: P3_anomaly_surfacing
+    pyramid_layer: middle
+    rationale: |
+      Surface anomalies. Do not yet explain them. Explanation comes
+      after the anomaly list is frozen, not during construction.
+
+      David Bianco's hunting principle: "An anomaly is a question,
+      not an answer. Treat it as a hypothesis trigger."
+    mcp_calls:
+      - correlate_events
+      - correlate_timeline
+      - parse_shellbags                     # folder access — what did they look at?
+    surfacing_rules:
+      # TTP-level — Pyramid of Pain top tier
+      - rule: "Process spawned without parent in process tree"
+        mitre: T1055
+        severity: high
+      - rule: "EVTX 4624 logon-type 9 (NewCredentials) with admin token"
+        mitre: T1134
+        severity: high
+      - rule: "$SI < $FN by > 1 second on executable"
+        mitre: T1070.006
+        severity: critical
+      - rule: "Service installation (4697) immediately followed by 4672 admin logon"
+        mitre: T1543.003 + T1078
+        severity: high
+      - rule: "wmiprvse.exe spawning cmd.exe / powershell.exe"
+        mitre: T1047
+        severity: high
+      - rule: "comsvcs.dll loaded by rundll32 with MiniDump argument"
+        mitre: T1003.001
+        severity: critical
+      - rule: "Bash history has 'history -c' or 'unset HISTFILE'"
+        mitre: T1070.003
+        severity: high
+      - rule: "Auditd EXECVE with key=suspicious_exec or key=auth_log + uid=0"
+        mitre: T1059.004
+        severity: high
+      - rule: "macOS LaunchAgent in user-writable path with RunAtLoad=true"
+        mitre: T1543.004
+        severity: high
+    anti_patterns:
+      - "Explaining anomalies as you find them — premature commitment"
+      - "Filtering by severity before listing all anomalies"
+    exit_criteria:
+      - anomaly_list_frozen: true
+      - count_minimum_required: 3   # too few = analysis incomplete
+
+  # =========================================================================
+  - phase: P4_hypothesis_formation
+    pyramid_layer: top
+    rationale: |
+      A good hypothesis is *falsifiable*. A senior analyst's
+      hypothesis names: (a) the actor / capability, (b) the entry
+      vector, (c) the persistence mechanism, (d) the goal.
+
+      Bianco hunting hypothesis = adversary behavior + data source +
+      confirming indicator. Each hypothesis must specify all three.
+    hypothesis_template:
+      adversary_behavior: |
+        Specific TTP from MITRE ATT&CK (e.g. T1003.001 LSASS dump
+        via comsvcs.dll LOLBin)
+      data_source: |
+        Where the evidence WOULD appear (Sysmon EID 10, EVTX 4688,
+        comsvcs DLL loaded by rundll32)
+      confirming_indicator: |
+        Specific value/pattern that would confirm (rundll32 +
+        comsvcs.dll + MiniDump in command line)
+      mitre_chain_required: true
+      contradiction_check_required: true
+    mcp_calls:
+      - correlate_events
+      - detect_credential_access
+      - detect_persistence
+      - detect_lateral_movement
+      - detect_defense_evasion
+      - detect_discovery
+      - detect_privilege_escalation
+    anti_patterns:
+      - "Hypothesis = 'something bad happened' — not falsifiable"
+      - "Hypothesis without MITRE technique IDs"
+      - "Single-source hypothesis (Eric Zimmerman: 'one artifact never tells the truth')"
+    exit_criteria:
+      - hypothesis_falsifiable: true
+      - mitre_techniques_named: true
+      - data_sources_named: true
+
+  # =========================================================================
+  - phase: P5_kill_chain_assembly
+    pyramid_layer: top
+    rationale: |
+      Assemble the MITRE ATT&CK chain — at least 3 tactics in a
+      causal sequence, with timestamps and audit_id citations.
+
+      M-Trends 2026 / DFIR Report common chains observed in 2025:
+        Akira:    T1190 → T1078 → T1558.003 → T1003.001 → T1021.002 → T1486
+        BlackSuit: T1566 → T1059.001 → T1558 → T1003.001 → T1021.001 → T1486
+        Fog:       T1190 (SonicWall) → T1078 → T1558 → T1219 (AnyDesk) → T1486
+        Insider:  T1078 → T1133 (IP-KVM) → T1078.002 → T1070.006 → T1567
+    mcp_calls:
+      - correlate_download_to_execution
+      - analyze_kerberos_events            # Kerberoasting / AS-REP roasting
+      - analyze_windows_logons
+      - detect_lateral_movement
+      - analyze_usb_history
+      - parse_browser_history
+      - analyze_downloads
+    chain_validation_rules:
+      - "Each tactic must cite at least one finding with audit_id"
+      - "Timestamps must monotonically increase across the chain"
+      - "Any non-monotonic timestamps trigger contradiction handler"
+      - "Missing pre-conditions (privilege escalation without credential access) flag UNRESOLVED"
+    anti_patterns:
+      - "Chain with skipped tactics — 'persistence' without 'execution'"
+      - "Out-of-order timestamps swept under the rug"
+      - "Single-host chain claimed without cross-host correlation"
+    exit_criteria:
+      - tactics_count_min: 3
+      - all_tactics_have_audit_ids: true
+      - timestamp_monotonicity_verified: true
+
+  # =========================================================================
+  - phase: P6_contradiction_handling
+    pyramid_layer: top
+    rationale: |
+      A senior analyst NEVER smooths over disagreement between
+      artifacts. dart-corr surfaces UNRESOLVED contradictions — the
+      agent MUST address them or revise the hypothesis.
+
+      This is the architectural-first guarantee made operational:
+      the agent cannot rationalize its way out of a contradiction.
+      Either find the third explanation, or declare the hypothesis
+      wrong.
+    contradiction_heuristics:
+      # Pattern: timestomp before claimed initial access
+      - pattern: |
+          MFT $SI < $FN by > 1s on the suspect binary,
+          AND timestamp < claimed initial-access timestamp
+        interpretation: |
+          Persistence pre-existed the alert. The "initial access"
+          being investigated is actually a re-entry. Hunt earlier.
+        mitre_pivot: T1070.006 + T1574 (DLL Search Order)
+      # Pattern: VPN session ended but IP-KVM session continued
+      - pattern: |
+          VPN logoff_time < IP-KVM session_end_time
+        interpretation: |
+          Credentials were used after the legitimate user left.
+          Hand-off, account takeover, or shared credential.
+        mitre_pivot: T1078 (Valid Accounts)
+      # Pattern: Process exists in memory but not in EVTX 4688
+      - pattern: |
+          Memory process_tree has PID X
+          BUT EVTX 4688 has no creation event for X within ±60s
+        interpretation: |
+          Process was injected (T1055) or EVTX was cleared (T1070.001).
+          Check Sysmon EID 1 / EID 10 / EID 11 for hidden execution.
+        mitre_pivot: T1055 / T1070.001
+      # Pattern: Domain admin logon without preceding privilege escalation
+      - pattern: |
+          EVTX 4672 (admin privileges) on user
+          BUT no preceding T1003 / T1558 / T1068 evidence
+        interpretation: |
+          Either credentials were already compromised pre-collection,
+          OR Kerberos ticket forging (T1558.001 Golden Ticket) occurred.
+        mitre_pivot: T1558.001 / T1078
+    mcp_calls:
+      - correlate_events
+      - correlate_timeline
+    exit_criteria:
+      - all_unresolved_contradictions_addressed: true
+
+  # =========================================================================
+  - phase: P7_attribution_and_diamond_model
+    pyramid_layer: top
+    rationale: |
+      Apply the Diamond Model of Intrusion Analysis (Caltagirone,
+      Pendergast, Betz 2013): adversary, capability, infrastructure,
+      victim. Even a partial fill is more useful than a kill chain
+      alone — it surfaces missing pieces of the picture.
+
+      M-Trends 2026 attribution clusters seen in 2025:
+        UNC1543 (FAKEUPDATES drive-by drop)
+        UNC2165 (Evil Corp overlap, financially motivated)
+        FIN11 / CL0P (Oracle EBS extortion campaign)
+        Suspected PRC-nexus (SAP NetWeaver exploit chains)
+        Scattered Spider (vishing → SaaS pivot)
+    diamond_model_required_fields:
+      adversary:
+        - threat_cluster_name_or_unc
+        - confidence_level
+        - prior_seen_ttps_overlap
+      capability:
+        - tools_used                       # Cobalt Strike / Rubeus / Mimikatz / NetExec
+        - mitre_techniques_observed
+      infrastructure:
+        - source_ips
+        - c2_domains
+        - hosting_provider                 # Railnet / Virtualine bulletproof — Lynx case
+        - rdp_hostname_observed            # DESKTOP-* attacker hostnames
+      victim:
+        - target_assets
+        - data_at_risk
+    anti_patterns:
+      - "Skipping attribution because 'we just want to remediate'"
+      - "Forcing attribution on weak overlap (Bianco: 'attribution requires multi-vector confidence')"
+    exit_criteria:
+      - diamond_corners_filled: 4
+      - confidence_level_documented: true
+
+  # =========================================================================
+  - phase: P8_recovery_denial_check
+    pyramid_layer: top
+    rationale: |
+      M-Trends 2026 #1 ransomware trend: "Recovery Denial". Attackers
+      systematically destroy the ability to recover by targeting:
+        1. Identity services (AD CS template abuse, MFA-exempt accounts)
+        2. Virtualization management plane (ESXi hypervisor encryption)
+        3. Backup infrastructure (Veeam credentials, immutable storage bypass)
+        4. Privileged credential vaults (mass-extraction from CyberArk-class)
+
+      Every modern ransomware case must include a recovery-denial
+      surface check, not just an encryption-impact check.
+    mcp_calls:
+      - detect_persistence                  # AD CS template abuse residue
+      - detect_ransomware_behavior          # shadow copy delete + mass rename
+      - analyze_event_logs                  # 4624/4625 surge on backup hosts
+      - detect_defense_evasion              # 1102 log clear on identity services
+    surfacing_rules:
+      - rule: "ADCS template modified within 30 days of incident"
+        mitre: T1484.002
+        severity: critical
+      - rule: "vssadmin delete shadows / wmic shadowcopy delete"
+        mitre: T1490
+        severity: critical
+      - rule: "Veeam / Commvault / Rubrik credentials accessed"
+        mitre: T1003 + T1078
+        severity: critical
+      - rule: "ESXi host SSH session from unusual source IP"
+        mitre: T1021.004
+        severity: critical
+      - rule: "Mass file rename on hypervisor management plane"
+        mitre: T1486
+        severity: critical
+    anti_patterns:
+      - "Stopping analysis at endpoint encryption — misses recovery denial"
+      - "Treating backup compromise as separate incident — it's THE incident"
+    exit_criteria:
+      - identity_service_check_done: true
+      - virtualization_plane_check_done: true
+      - backup_infra_check_done: true
+
+  # =========================================================================
+  - phase: P9_finding_emission
+    pyramid_layer: deliverable
+    rationale: |
+      Findings must be emittable to a court of law, a board of
+      directors, or a peer review. Each finding cites: claim,
+      evidence (audit_id), MITRE technique, confidence level.
+
+      F3EAD framework: the "Disseminate" step must produce findings
+      consumable by both technical (SOC) and executive (board)
+      audiences. Two outputs, one audit chain.
+    finding_schema:
+      id: F-NNN                            # F-001, F-002, ...
+      claim: |
+        One-sentence factual claim, no qualifiers, no editorializing.
+      supporting_audit_ids:                # MUST cite at least one
+        - audit_id_1
+        - audit_id_2
+      mitre_technique: T1NNN[.NNN]
+      confidence: low|medium|high|verified
+      data_sources:                        # Pyramid of Pain layer
+        - source_name
+      contradicts: []                      # F-IDs that contradict (if any)
+    anti_patterns:
+      - "Findings without audit_id (architecturally blocked)"
+      - "Findings with hedging language ('possibly', 'may have')"
+      - "Findings without MITRE technique"
+      - "Findings emitted while UNRESOLVED contradictions exist"
+    exit_criteria:
+      - all_findings_have_audit_ids: true
+      - all_findings_have_mitre: true
+      - confidence_levels_assigned: true
+      - report_passes_serializer: true
+
+# ---------------------------------------------------------------------------
+# DECISION POLICY — what to call next, given current state
+# (used by deterministic mode; live mode lets the model deviate
+# but the architectural boundary still applies)
+# ---------------------------------------------------------------------------
+next_call_decisions:
+  # ===== Phase 0: volatility =====
+  - when_state: "no process tree captured yet"
+    call: get_process_tree
+    confidence_gain: 0.10
+
+  - when_state: "process_tree captured AND no credential_access scan yet"
+    call: detect_credential_access
+    confidence_gain: 0.15
+
+  # ===== Phase 1: initial access triage =====
+  - when_state: "case_class includes exploit_initial_access AND no web log analysis yet"
+    call: analyze_web_access_log
+    confidence_gain: 0.15
+
+  - when_state: "web access log shows >100 4xx errors from single IP in 60s window"
+    call: detect_webshell
+    confidence_gain: 0.20
+
+  - when_state: "case_class includes vishing AND no logon analysis yet"
+    call: analyze_windows_logons
+    confidence_gain: 0.15
+
+  # ===== Phase 2: timeline =====
+  - when_state: "no MFT timeline yet"
+    call: extract_mft_timeline
+    confidence_gain: 0.20
+    rationale: "MFT is foundational — Eric Zimmerman: 'MFT is god'"
+
+  - when_state: "MFT timeline shows $SI < $FN mismatch"
+    call: detect_defense_evasion
+    confidence_gain: 0.25
+    mitre_pivot: T1070.006
+
+  - when_state: "no AmCache enumeration yet"
+    call: get_amcache
+    confidence_gain: 0.15
+
+  - when_state: "no Prefetch parsed yet"
+    call: parse_prefetch
+    confidence_gain: 0.15
+
+  # ===== Linux-specific =====
+  - when_state: "host is Linux AND auditd not yet parsed"
+    call: parse_auditd_log
+    confidence_gain: 0.20
+
+  - when_state: "host is Linux AND systemd journal not yet parsed"
+    call: parse_systemd_journal
+    confidence_gain: 0.15
+
+  - when_state: "host is Linux/macOS AND bash history not yet checked"
+    call: parse_bash_history
+    confidence_gain: 0.15
+
+  # ===== macOS-specific =====
+  - when_state: "host is macOS AND unified log not yet parsed"
+    call: parse_unified_log
+    confidence_gain: 0.15
+
+  - when_state: "host is macOS AND launchd plists not yet checked"
+    call: parse_launchd_plist
+    confidence_gain: 0.15
+
+  - when_state: "host is macOS AND knowledgec not yet checked"
+    call: parse_knowledgec
+    confidence_gain: 0.10
+
+  # ===== Phase 3: anomaly surfacing =====
+  - when_state: "timeline built AND no correlation run"
+    call: correlate_events
+    confidence_gain: 0.20
+
+  # ===== Phase 5: kill chain =====
+  - when_state: "execution evidence found AND credential access not yet checked"
+    call: detect_credential_access
+    confidence_gain: 0.20
+
+  - when_state: "credential access confirmed AND lateral movement not yet checked"
+    call: detect_lateral_movement
+    confidence_gain: 0.20
+
+  - when_state: "AD environment AND Kerberos events not analyzed"
+    call: analyze_kerberos_events
+    confidence_gain: 0.15
+
+  - when_state: "case_class includes physical access AND USB not yet checked"
+    call: analyze_usb_history
+    confidence_gain: 0.15
+
+  # ===== Phase 8: recovery denial =====
+  - when_state: "ransomware suspected AND defense evasion not yet checked"
+    call: detect_defense_evasion
+    confidence_gain: 0.20
+
+  - when_state: "ransomware suspected AND ransomware behavior not yet detected"
+    call: detect_ransomware_behavior
+    confidence_gain: 0.25
+
+  # ===== Phase 7: discovery =====
+  - when_state: "lateral movement confirmed AND discovery not yet checked"
+    call: detect_discovery
+    confidence_gain: 0.10
+
+  - when_state: "exfiltration suspected AND exfiltration not yet checked"
+    call: detect_exfiltration
+    confidence_gain: 0.20
+
+  - when_state: "browser activity may be relevant AND not yet checked"
+    call: parse_browser_history
+    confidence_gain: 0.10
+
+# ---------------------------------------------------------------------------
+# CONTRADICTION TRIGGERS — used by dart-corr to flag UNRESOLVED state
+# Senior analyst principle: contradictions are the most valuable signal
+# in the entire investigation. Mandiant: "Disagreement is data."
+# ---------------------------------------------------------------------------
+contradiction_triggers:
+
+  - id: timestomp_predates_alert
+    source_a: mft_si_fn_mismatch
+    source_b: alert_timestamp
+    rule: "If $SI < $FN AND mismatch_ts < alert_ts, persistence pre-existed"
+    threshold_seconds: 1
+    pivot: hunt_earlier_in_timeline
+    severity: critical
+    mitre: T1070.006
+
+  - id: vpn_kvm_session_overlap_violation
+    source_a: vpn_logoff
+    source_b: ipkvm_session_end
+    rule: "If VPN logoff < IP-KVM end, credentials used after legitimate user left"
+    threshold_seconds: 60
+    pivot: account_takeover_or_handoff
+    severity: critical
+    mitre: T1078
+
+  - id: process_in_memory_no_evtx_creation
+    source_a: memory_process_tree
+    source_b: evtx_4688_process_creation
+    rule: "Process in memory but no creation event ±60s = injection or log clear"
+    threshold_seconds: 60
+    pivot: T1055_or_T1070.001
+    severity: high
+    mitre: T1055
+
+  - id: admin_privilege_no_escalation_path
+    source_a: evtx_4672_admin_logon
+    source_b: credential_access_evidence
+    rule: "Admin privileges granted with no preceding T1003/T1558/T1068"
+    threshold_seconds: 86400  # 24h prior
+    pivot: T1558.001_golden_ticket
+    severity: critical
+    mitre: T1558.001
+
+  - id: ssh_auth_success_no_keys_no_password_log
+    source_a: linux_auth_log_ssh_accept
+    source_b: known_keys_or_password_change
+    rule: "SSH accepted but no key-add and no password change in window"
+    threshold_seconds: 604800  # 7d prior
+    pivot: T1098.004_authorized_keys_modify
+    severity: high
+    mitre: T1098.004
+
+  - id: launchd_user_writable_runatload
+    source_a: launchd_plist_location
+    source_b: launchd_plist_runatload_flag
+    rule: "RunAtLoad=true in user-writable LaunchAgent path"
+    pivot: T1543.004_persistence
+    severity: high
+    mitre: T1543.004
+
+  - id: ransomware_without_recovery_denial_evidence
+    source_a: ransomware_behavior_detected
+    source_b: shadow_copy_or_backup_evidence
+    rule: |
+      Encryption observed but no shadow-copy delete / backup access seen.
+      Either evidence is missing, OR this is not full ransomware
+      (could be wiper, could be staging).
+    pivot: hunt_pre_encryption_recovery_targeting
+    severity: high
+    mitre: T1490
+
+# ---------------------------------------------------------------------------
+# STOP CONDITIONS — when the agent exits the loop
+# ---------------------------------------------------------------------------
+stop_conditions:
+  - condition: confidence >= 0.92
+    action: emit_findings
+  - condition: iterations >= 30
+    action: emit_with_warning_low_confidence
+  - condition: all_phases_closed AND no_unresolved_contradictions
+    action: emit_findings
+  - condition: unresolved_contradictions > 0 AND iterations >= 25
+    action: emit_with_unresolved_section
+    note: |
+      Senior analysts NEVER bury contradictions. If we cannot resolve
+      them in iteration budget, surface them honestly in the report.
+      "I don't know" is a valid finding.
+  - condition: hypothesis_revision_count >= 5
+    action: declare_complex_case_request_human
+    note: |
+      A case that has revised the hypothesis 5+ times is beyond what
+      automated reasoning should commit to. Hand off to a human
+      analyst with the audit chain attached.
+
+# ---------------------------------------------------------------------------
+# REFERENCES — every claim above is grounded in a published source
+# ---------------------------------------------------------------------------
+references:
+  primary_methodology:
+    - title: "M-Trends 2026"
+      author: "Mandiant / Google Cloud"
+      url: "https://cloud.google.com/security/resources/m-trends"
+      year: 2026
+      cited_for: [dwell_time, attacker_speed, recovery_denial, vishing_rise]
+
+    - title: "Targeted Attack Lifecycle"
+      author: "Mandiant Consulting"
+      url: "https://cloud.google.com/security/resources/insights/targeted-attack-lifecycle"
+      cited_for: [phase_sequence, posture_assumptions]
+
+    - title: "Pyramid of Pain"
+      author: "David Bianco"
+      url: "https://www.sans.org/tools/the-pyramid-of-pain"
+      year: 2013
+      cited_for: [bianco_priority_targets, ttps_over_iocs]
+
+    - title: "Hunting Maturity Model"
+      author: "David Bianco"
+      url: "https://www.sans.org/tools/hunting-maturity-model"
+      cited_for: [hypothesis_template, hunt_methodology]
+
+    - title: "Diamond Model of Intrusion Analysis"
+      authors: ["Caltagirone", "Pendergast", "Betz"]
+      year: 2013
+      cited_for: [P7_attribution_and_diamond_model]
+
+    - title: "Intelligence-Driven Computer Network Defense"
+      authors: ["Hutchins", "Cloppert", "Amin"]
+      org: "Lockheed Martin"
+      year: 2011
+      cited_for: [kill_chain_methodology]
+
+    - title: "Cyber Kill Chain"
+      org: "Lockheed Martin"
+      cited_for: [P5_kill_chain_assembly]
+
+    - title: "F3EAD framework"
+      origin: "U.S. military targeting cycle"
+      cited_for: [P9_finding_emission]
+
+  case_studies_2025:
+    - title: "Navigating Through The Fog"
+      org: "The DFIR Report"
+      year: 2025
+      cited_for: [fog_attack_chain, sonicwall_initial_access, anydesk_persistence]
+
+    - title: "BlackSuit Ransomware"
+      org: "The DFIR Report"
+      year: 2024
+      cited_for: [blacksuit_attack_chain, kerberoasting_pattern]
+
+    - title: "Akira Ransomware joint advisory AA24-109A"
+      orgs: [CISA, FBI, DC3, HHS, Europol]
+      date: 2025-11-13
+      cited_for: [akira_lolbin_chain, comsvcs_lsass_pattern]
+
+    - title: "Lynx Ransomware (Cat's Got Your Files)"
+      org: "The DFIR Report"
+      year: 2025
+      cited_for: [bulletproof_hosting_attribution, attacker_hostname_patterns]
+
+  vendor_research:
+    - author: "Sean Metcalf"
+      url: "https://adsecurity.org"
+      cited_for: [kerberoasting_detection, ad_attack_chain]
+
+    - author: "Sarah Edwards"
+      url: "https://www.mac4n6.com"
+      cited_for: [knowledgec_analysis, mac_timeline_methodology]
+
+    - author: "Patrick Wardle"
+      title: "The Art of Mac Malware vol 1: Persistence"
+      cited_for: [launchd_persistence_indicators]
+
+    - author: "Hal Pomeranz"
+      cited_for: [linux_auditd_methodology, linux_ir_workflow]
+
+    - author: "Eric Zimmerman"
+      url: "https://ericzimmerman.github.io/"
+      cited_for: [mft_methodology, amcache_field_semantics, prefetch_analysis]
+
+    - author: "Andrew Case"
+      org: "Volatility Foundation"
+      cited_for: [memory_forensics_methodology]
+
+    - author: "Florian Roth"
+      url: "https://github.com/Neo23x0/signature-base"
+      cited_for: [sigma_rule_corpus, webshell_signatures]
+
+    - author: "JPCERT/CC"
+      title: "Detecting Lateral Movement through Tracking Event Logs"
+      url: "https://www.jpcert.or.jp/english/pub/sr/ir_research.html"
+      cited_for: [lateral_movement_event_id_matrix]
+
+  standards:
+    - title: "MITRE ATT&CK Enterprise v16"
+      url: "https://attack.mitre.org/"
+
+    - title: "NIST SP 800-61 — Computer Security Incident Handling Guide"
+      cited_for: [picerl_phases]
+
+    - title: "NIST SP 800-86 — Guide to Integrating Forensic Techniques"
+      cited_for: [chain_of_custody_requirements]
+
+    - title: "NIST SP 800-150 — Guide to Cyber Threat Information Sharing"
+      cited_for: [hypothesis_driven_hunting]
+
+    - title: "Verizon DBIR 2025 + 2026"
+      cited_for: [third_party_compromise_30pct, vulnerability_exploitation_180pct]
+
+# ---------------------------------------------------------------------------
+# OPERATOR NOTES
+# ---------------------------------------------------------------------------
+operator_notes: |
+  This playbook is intentionally opinionated. It encodes how a senior
+  DFIR analyst would investigate, not how a junior analyst with a
+  checklist would. Specifically:
+
+  1. Phase order is strict. A senior analyst does NOT skip volatility
+     to get to "the interesting stuff". Memory disappears.
+
+  2. Hypotheses are falsifiable. "Something bad happened" is not a
+     hypothesis. "T1003.001 LSASS dump via comsvcs.dll executed at
+     14:23:09 UTC" is.
+
+  3. Contradictions are gold. When two artifacts disagree, that's the
+     most valuable signal in the case. Smoothing it over is malpractice.
+
+  4. Recovery denial check is mandatory for any ransomware case.
+     Modern attackers (M-Trends 2026) systematically destroy recovery.
+     Endpoint encryption is the diversion, not the impact.
+
+  5. Attribution is a multi-vector exercise. Single-IOC attribution
+     is what gets analysts fired. Diamond Model with 4 corners or no
+     attribution claim.
+
+  6. Findings cite audit_ids. Always. The serializer will refuse to
+     emit any finding without one — that's not a guideline, that's
+     architecture.
+
+  Forking this playbook for your case class:
+    1. Copy this file to dart_playbook/<your-name>-v1.yaml
+    2. Update target_case_classes
+    3. Tune next_call_decisions for your priorities
+    4. Add contradiction_triggers specific to your environment
+    5. Run with --playbook <your-name>-v1.yaml
+
+  The architectural guarantees (read-only, audit chain, contradiction
+  enforcement) apply to every playbook. You cannot loosen them by
+  forking.

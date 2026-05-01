@@ -85,7 +85,7 @@ Every finding in the final report carries an `audit_id`. Judges can trace any cl
 
 ### `dart-playbook` — YAML sequencing rules
 
-The senior-analyst playbook, expressed as YAML so other responders can contribute without touching Python. See [`../dart_playbook/senior-analyst-v1.yaml`](../dart_playbook/senior-analyst-v1.yaml).
+The senior-analyst playbook, expressed as YAML so other responders can contribute without touching Python. See [`../dart_playbook/senior-analyst-v2.yaml`](../dart_playbook/senior-analyst-v2.yaml) (recommended) or [`v1`](../dart_playbook/senior-analyst-v1.yaml).
 
 ## Evidence integrity — by architecture
 
