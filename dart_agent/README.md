@@ -23,7 +23,7 @@ dart-agent \
     --case <case-id> \
     --image <path-to-disk-image> \
     --memory <path-to-memory-capture> \
-    --playbook dart-playbook/senior-analyst-v1.yaml \
+    --playbook dart-playbook/senior-analyst-v2.yaml \
     --max-iterations 10 \
     --out ./out/<case-id>/
 ```
