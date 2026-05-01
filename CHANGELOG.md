@@ -1,5 +1,55 @@
 # Changelog
 
+## [Playbook v2] — 2026-04-30 — Senior-analyst methodology
+
+### Added
+
+- **`dart_playbook/senior-analyst-v2.yaml`** (845 lines, 10 phases) —
+  comprehensive senior-analyst playbook synthesizing Mandiant M-Trends
+  2026 + Targeted Attack Lifecycle, SANS PICERL, Lockheed Cyber Kill
+  Chain, David Bianco's Pyramid of Pain + Hunting Maturity Model,
+  Diamond Model, MITRE ATT&CK v16, F3EAD framework, NIST SP 800-61/86/150,
+  The DFIR Report 2024-2026 case studies (BlackSuit, Akira, Fog, Lynx,
+  BlueSky), CISA #StopRansomware advisories, and field practice from
+  Sean Metcalf, Sarah Edwards, Patrick Wardle, Hal Pomeranz, Eric
+  Zimmerman, Andrew Case, Florian Roth, JPCERT/CC.
+
+  v2 covers 10 case classes (was 3 in v1):
+    - insider_threat_unauthorized_access
+    - remote_hands_ip_kvm
+    - living_off_the_land_execution
+    - ransomware_response_recovery_denial      (M-Trends 2026 #1 trend)
+    - identity_centric_intrusion
+    - vishing_initial_access                   (M-Trends 2026 #2 vector)
+    - exploit_initial_access                   (M-Trends 2026 #1 vector)
+    - third_party_compromise                   (DBIR 2025 - 30%)
+    - cloud_hybrid_lateral_movement
+    - division_of_labour_handoff               (M-Trends 2026 - 22sec)
+
+  Includes a `posture` block encoding M-Trends 2026 priors (14-day
+  median dwell time, 22-second hand-off, 32%/11%/10% initial access
+  vector probabilities), 25 `next_call_decisions` rules, 7
+  `contradiction_triggers` (timestomp-predates-alert,
+  vpn-kvm-overlap-violation, process-in-memory-no-evtx-creation,
+  admin-privilege-no-escalation-path, ssh-auth-no-keys-no-password,
+  launchd-user-writable-runatload, ransomware-without-recovery-denial),
+  and 5 `stop_conditions` including the architecturally important
+  `declare_complex_case_request_human` for hypothesis-revision-count >=5.
+
+  v2 is the recommended default. v1 is kept for backward compatibility
+  and short-form demos.
+
+### Changed
+
+- **`dart_playbook/README.md`** — comprehensive rewrite documenting
+  v2 methodology lineage, the 10 phases, schema, and the six
+  senior-analyst principles encoded in `operator_notes`.
+
+### Wiki
+
+- `dart-playbook.md` page rewritten to reflect v2 as default, with
+  full methodology citations and the case-class table.
+
 ## [v0.4.2] — 2026-04-30 — Senior-analyst playbook v2
 
 ### Added
