@@ -1,5 +1,67 @@
 # Changelog
 
+## [Playbook v3] — 2026-05-01 — Industrialization release
+
+### Added
+
+- **`dart_playbook/senior-analyst-v3.yaml`** (1135 lines) —
+  industrialization release. Builds on v2's 10-phase Mandiant + Bianco
+  + Diamond methodology by adding four framework blocks that mature
+  SOCs use to ship detection at scale:
+
+  1. **Palantir ADS Framework** — every detection now carries a 9-section
+     documentation contract (goal, categorization, strategy abstract,
+     technical context, blind spots, false positives, validation,
+     priority, response). Lint mode `warn` (default) → `strict` (v3.1).
+
+  2. **MaGMa Use Case Framework** (FI-ISAC NL, Rob van Os) — three-tier
+     traceability:
+       L1 business drivers (4 entries): protect data integrity,
+                                         detect ransomware before recovery
+                                         denial, etc.
+       L2 attack patterns (8 entries, MITRE-mapped): AP-001 .. AP-008
+       L3 detection coverage: MCP function mapping per L2.
+     Plus CMMI 5-level maturity self-classification (v3 ships at L3
+     Defined; L4 Quantitatively Managed is Phase 2 target).
+
+  3. **TaHiTI threat hunt cycle** (Rob van Os et al.) — when the
+     deterministic playbook plateaus (`confidence < 0.6 AND iter >= 8`),
+     the agent enters structured hunt mode: H1 Initiate → H2 Hunt →
+     H3 Finalize. New stop condition `hunt_mode_active AND
+     H3_finalize_complete → emit_with_hunt_findings`.
+
+  4. **Bianco Hunting Maturity Model (HMM 0–4)** — operationalized.
+     Every run self-classifies its hunting maturity. v3 ships at HMM3
+     Innovative (analyst-formed hypotheses). HMM4 Leading (automated
+     hypothesis generation) is the Phase 2 target.
+
+### Reference corpus expansion
+
+- 39 published references (was 25 in v2 — +14 new):
+  - **industrialization_frameworks_v3** (15 NEW) — Palantir ADS, MaGMa,
+    TaHiTI, SOC-CMM, MITRE 11 Strategies, awesome-soc (cyb3rxp),
+    awesome-incident-response (meirwah), awesome-threat-detection
+    (0x4D31), ThreatHunter-Playbook (OTRF), Florian Roth Detection
+    Engineering Cheat Sheet, *Crafting the InfoSec Playbook* (Bollinger
+    et al.), Atomic Red Team, Sigma schema
+  - primary_methodology (6 carried)
+  - case_studies_2025 (4 carried)
+  - vendor_research (9, +1 — Roberto Rodriguez OTRF)
+  - standards (5 carried)
+
+### Backward compatibility
+
+- v2 and v1 retained. v3 is the new default.
+- All architectural guarantees preserved (read-only MCP boundary, audit
+  chain, contradiction enforcement, path safety).
+- 35 MCP functions unchanged. v3 changes the methodology *around* the
+  surface, not the surface itself.
+
+### Wiki
+
+- `dart-playbook` page updated to feature v3 as default.
+- Roadmap updated with Playbook v3 entry in Done section.
+
 ## [Playbook v2] — 2026-04-30 — Senior-analyst methodology
 
 ### Added

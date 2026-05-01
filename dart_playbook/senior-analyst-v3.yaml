@@ -1,0 +1,1135 @@
+# =============================================================================
+#  Agentic-DART — Senior Analyst Playbook v3
+#
+#  v3 builds on v2's 10-phase Mandiant + Bianco + Diamond methodology by
+#  adding three layered frameworks that mature SOCs use to industrialize
+#  detection and hunting:
+#
+#    +  Palantir ADS (Alerting & Detection Strategy) Framework
+#       — every detection rule must have: Goal, Categorization, Strategy
+#         Abstract, Technical Context, Blind Spots & Assumptions,
+#         False Positives, Validation, Priority, Response.
+#       → encoded as `ads_template` and applied to every contradiction
+#         trigger, every detection function, every finding emission.
+#
+#    +  MaGMa Use Case Framework (FI-ISAC NL, Rob van Os)
+#       — three-tier use case model (L1 business / L2 attack / L3 detection)
+#         with CMMI 5-level maturity scoring per use case.
+#       → encoded as `usecase_tiers` and `maturity_levels`. Every case
+#         class in this playbook now has a MaGMa-compatible UC ID and
+#         is mapped to an L2 attack pattern.
+#
+#    +  TaHiTI (Targeted Hunting integrating Threat Intelligence)
+#       — 3-phase hunt cycle (Initiate / Hunt / Finalize) with hypothesis
+#         tracking from threat intel through to detection deployment.
+#       → encoded as `hunt_cycle` and triggered when any phase exits
+#         with `confidence < 0.6` after iterations >= 8.
+#
+#  Plus: David Bianco's Hunting Maturity Model (HMM) is now operational
+#  in the agent, not just cited. Each playbook execution self-classifies
+#  to HMM 0–4 based on data sources used and hypothesis source.
+#
+#  Methodology lineage (cumulative — v2 + v3 additions):
+#
+#    Industrialization frameworks (v3 additions)
+#    ────────────────────────────────────────────────────────────────
+#    - Palantir ADS Framework — github.com/palantir/alerting-detection-strategy-framework
+#    - MaGMa UCF — FI-ISAC NL, Rob van Os (SOC-CMM author)
+#    - TaHiTI — Threat Hunting methodology by Rob van Os et al.
+#    - SOC-CMM — SOC Capability Maturity Model by Rob van Os
+#    - Bianco Hunting Maturity Model (HMM 0–4) — operationalized
+#    - MITRE 11 Strategies of a World-Class SOC (Strategy 6 + 7 + 8)
+#    - Florian Roth, Detection Engineering Cheat Sheet (Sigma corpus)
+#    - awesome-soc (cyb3rxp) — detection engineering pages
+#    - awesome-incident-response (meirwah) — DFIR tool corpus
+#    - awesome-threat-detection (0x4D31) — hunting + detection
+#    - ThreatHunter-Playbook (OTRF) — community hunt definitions
+#    - Splunk Boss of the SOC (BOTS) — adversarial scenario corpus
+#    - Cisco "Crafting the InfoSec Playbook" — Bollinger, Enright, Valites
+#    - Atomic Red Team — TTP test corpus for validation
+#    - Sigma rule schema (SigmaHQ) — detection-as-code standard
+#
+#    Methodology (carried from v2)
+#    ────────────────────────────────────────────────────────────────
+#    - Mandiant M-Trends 2026 (500K hrs of IR engagements)
+#    - Mandiant Targeted Attack Lifecycle (8-phase model)
+#    - SANS PICERL — incident response phases
+#    - Lockheed Cyber Kill Chain (Hutchins, Cloppert & Amin 2011)
+#    - David Bianco — Pyramid of Pain + Hunting Maturity Model
+#    - Diamond Model — Caltagirone, Pendergast, Betz 2013
+#    - MITRE ATT&CK Enterprise v16
+#    - F3EAD — Find Fix Finish Exploit Analyze Disseminate
+#    - The DFIR Report case studies — BlackSuit, Akira, Fog, Lynx, BlueSky
+#    - CISA #StopRansomware advisories (Akira AA24-109A Nov 2025)
+#    - JPCERT/CC — Detecting Lateral Movement through Tracking Event Logs
+#    - Verizon DBIR 2025 + 2026
+#    - NIST SP 800-61 / 800-86 / 800-150
+#
+#    Field practitioners
+#    ────────────────────────────────────────────────────────────────
+#    - Sean Metcalf (adsecurity.org) — AD attack detection
+#    - Sarah Edwards (mac4n6) — macOS forensic analysis
+#    - Patrick Wardle (objective-see) — *The Art of Mac Malware*
+#    - Hal Pomeranz — Linux IR + auditd workflows
+#    - Eric Zimmerman — Windows artifact tools (PECmd, MFTECmd, AmcacheParser)
+#    - Andrew Case (Volatility Foundation) — memory forensics
+#    - Florian Roth (Sigma / signature-base) — detection corpus
+#    - Roberto Rodriguez (OTRF / ThreatHunter-Playbook) — hunting
+#    - Rob van Os (SOC-CMM / MaGMa / TaHiTI) — SOC maturity
+# =============================================================================
+version: 3
+name: senior-analyst-v3
+created: 2026-05-01
+supersedes: senior-analyst-v2
+methodology_lineage:
+  # v2 carry-over
+  - mandiant_targeted_attack_lifecycle
+  - lockheed_kill_chain
+  - sans_picerl
+  - mitre_attack_v16
+  - bianco_pyramid_of_pain
+  - diamond_model
+  - f3ead
+  # v3 additions
+  - palantir_ads_framework
+  - magma_ucf
+  - tahiti_threat_hunting
+  - soc_cmm
+  - bianco_hunting_maturity_model
+  - mitre_11_strategies_world_class_soc
+
+# ---------------------------------------------------------------------------
+# v3 ADDITIONS BLOCK 1 — ADS (Alerting & Detection Strategy) framework
+# Source: Palantir IR team, https://github.com/palantir/alerting-detection-strategy-framework
+# Why: every detection rule shipped to production should have rigorous
+# documentation. Without this, alerts decay into the "low-quality, fatiguing"
+# corpus Palantir warns about. We adopt the 9-section template verbatim.
+# ---------------------------------------------------------------------------
+ads_template:
+  # Each finding emitted by dart-agent MUST be annotatable with all 9 sections
+  # at lint time. The serializer warns (not yet errors) if any are missing.
+  required_sections:
+    - id: goal
+      description: |
+        One-sentence plaintext description of the malicious behavior.
+        Example: "Detect LSASS memory dump via comsvcs.dll MiniDump argument."
+    - id: categorization
+      description: |
+        MITRE ATT&CK tactic + technique mapping.
+        Example: "TA0006 Credential Access · T1003.001 OS Credential Dumping: LSASS Memory"
+      required_format: "T\\d{4}(\\.\\d{3})?"
+    - id: strategy_abstract
+      description: |
+        High-level detection logic (1-3 sentences). Example:
+        "Detect rundll32.exe loading comsvcs.dll with MiniDump in command
+        line, which is the canonical LOLBin path for LSASS extraction."
+    - id: technical_context
+      description: |
+        Where the evidence appears (data source + field + expected shape).
+        Example: "Sysmon EID 1 process creation. CommandLine field contains
+        'comsvcs.dll', 'MiniDump', and a numeric PID. Parent process is
+        rundll32.exe spawned from explorer.exe or cmd.exe."
+    - id: blind_spots_and_assumptions
+      description: |
+        What this detection MISSES. The honest catalog of failure modes.
+        Example:
+          - "Misses if attacker uses ProcDump.exe directly (different rule)"
+          - "Misses if Sysmon is uninstalled or EID 1 is filtered"
+          - "Misses if attacker uses syscall-based dumper (e.g. nanodump)"
+    - id: false_positives
+      description: |
+        Known legitimate triggers + how to whitelist.
+        Example: "Microsoft Defender SDD diagnostics; vendor IT triage scripts."
+    - id: validation
+      description: |
+        Reproducible scenario that fires this detection.
+        Example: "Atomic Red Team T1003.001-1 (`comsvcs.dll MiniDump`)
+        executed on a test VM with Sysmon installed and EID 1 enabled."
+      requires_atomic_red_team_id: true
+    - id: priority
+      description: |
+        critical | high | medium | low. Tied to MaGMa risk score.
+    - id: response
+      description: |
+        SOAR runbook reference or manual response steps.
+        Example: "Isolate host (network containment), capture memory dump,
+        rotate compromised account credentials, hunt for lateral movement
+        from this host within ±2 hours."
+
+  # Lint enforcement levels
+  lint_modes:
+    strict:    "All 9 sections required. Missing → finding rejected by serializer."
+    warn:      "All 9 sections recommended. Missing → warning, finding emitted."
+    permissive: "Only goal + categorization required (current default)."
+
+  current_default: warn   # v3 ships in warn mode; v3.1 will flip to strict.
+
+
+# ---------------------------------------------------------------------------
+# v3 ADDITIONS BLOCK 2 — MaGMa Use Case Framework (UCF)
+# Source: FI-ISAC NL, Rob van Os
+#  https://www.betaalvereniging.nl/wp-content/uploads/FI-ISAC-Use-Case-Framework-Full-Documentation.pdf
+# Why: turns the playbook's "case classes" into managed, measurable
+# detection use cases that map cleanly to business risk and ATT&CK.
+# Three tiers:
+#   L1 — Business / compliance driver (e.g. "protect customer PII")
+#   L2 — Attack pattern (e.g. "ransomware against file servers")
+#   L3 — Detection rule (e.g. "comsvcs.dll LSASS dump in T-1h window")
+# CMMI 5-level maturity scoring per use case (Initial → Optimizing).
+# ---------------------------------------------------------------------------
+magma_ucf:
+  # Tier 1: Business/compliance drivers — what the SOC protects and why
+  l1_business_drivers:
+    - id: BD-001
+      name: "Protect data integrity and chain-of-custody for forensic evidence"
+      compliance: ["NIST SP 800-86", "ISO/IEC 27037"]
+    - id: BD-002
+      name: "Detect and respond to ransomware before recovery is denied"
+      compliance: ["M-Trends 2026 #1 trend", "CISA #StopRansomware"]
+    - id: BD-003
+      name: "Detect insider threats and unauthorized privileged access"
+      compliance: ["NIST SP 800-53 AC-2", "ISO/IEC 27001 A.9"]
+    - id: BD-004
+      name: "Detect identity-centric intrusions (Kerberoasting / Golden Ticket)"
+      compliance: ["MITRE ATT&CK TA0006"]
+
+  # Tier 2: Attack patterns — what attackers do
+  l2_attack_patterns:
+    - id: AP-001
+      name: "Ransomware deployment with recovery denial"
+      kill_chain_phase: "Actions on Objectives"
+      mitre_techniques: ["T1486", "T1490", "T1484.002", "T1003"]
+      maps_to_business: [BD-001, BD-002]
+      maps_to_case_class: ransomware_response_recovery_denial
+
+    - id: AP-002
+      name: "Pass-the-Hash + lateral movement"
+      kill_chain_phase: "Lateral Movement"
+      mitre_techniques: ["T1003.001", "T1550.002", "T1021.002"]
+      maps_to_business: [BD-001, BD-003]
+      maps_to_case_class: insider_threat_unauthorized_access
+
+    - id: AP-003
+      name: "Kerberoasting / AS-REP roasting"
+      kill_chain_phase: "Credential Access"
+      mitre_techniques: ["T1558.003", "T1558.004"]
+      maps_to_business: [BD-004]
+      maps_to_case_class: identity_centric_intrusion
+
+    - id: AP-004
+      name: "Vishing-initiated account takeover"
+      kill_chain_phase: "Initial Access"
+      mitre_techniques: ["T1566.004", "T1078"]
+      maps_to_business: [BD-003]
+      maps_to_case_class: vishing_initial_access
+
+    - id: AP-005
+      name: "Edge-device exploitation (SonicWall, Citrix, F5, Fortinet)"
+      kill_chain_phase: "Initial Access"
+      mitre_techniques: ["T1190"]
+      maps_to_business: [BD-001]
+      maps_to_case_class: exploit_initial_access
+
+    - id: AP-006
+      name: "Living-off-the-land binary abuse (LOLBin)"
+      kill_chain_phase: "Execution + Defense Evasion"
+      mitre_techniques: ["T1218", "T1059"]
+      maps_to_business: [BD-001, BD-003]
+      maps_to_case_class: living_off_the_land_execution
+
+    - id: AP-007
+      name: "Anti-forensic timestomping"
+      kill_chain_phase: "Defense Evasion"
+      mitre_techniques: ["T1070.006"]
+      maps_to_business: [BD-001]
+      maps_to_case_class: living_off_the_land_execution
+      contradiction_trigger: timestomp_predates_alert
+
+    - id: AP-008
+      name: "Remote-hands physical access (IP-KVM)"
+      kill_chain_phase: "Initial Access + Persistence"
+      mitre_techniques: ["T1133", "T1078"]
+      maps_to_business: [BD-003]
+      maps_to_case_class: remote_hands_ip_kvm
+
+  # Tier 3: Detection rules — implemented as MCP function calls
+  # (mapping is in next_call_decisions; this block tracks coverage)
+  l3_detection_coverage:
+    by_l2_attack_pattern:
+      AP-001: ["detect_ransomware_behavior", "detect_persistence", "detect_defense_evasion"]
+      AP-002: ["detect_credential_access", "detect_lateral_movement", "analyze_windows_logons"]
+      AP-003: ["analyze_kerberos_events", "detect_credential_access"]
+      AP-004: ["analyze_windows_logons", "analyze_unix_auth"]
+      AP-005: ["analyze_web_access_log", "detect_webshell"]
+      AP-006: ["get_amcache", "parse_prefetch", "detect_defense_evasion"]
+      AP-007: ["extract_mft_timeline", "detect_defense_evasion"]
+      AP-008: ["analyze_usb_history", "analyze_windows_logons"]
+
+  # CMMI 5-level maturity per use case
+  maturity_levels:
+    1_initial:
+      description: "Ad-hoc; no documentation; analyst-dependent."
+      example: "We sometimes catch comsvcs.dll if the analyst notices."
+    2_managed:
+      description: "Documented; basic detection in place; reactive."
+      example: "We have a Sigma rule for comsvcs.dll. Triggers an alert."
+    3_defined:
+      description: "Full ADS template filled; peer-reviewed; cross-mapped to ATT&CK."
+      example: "Sigma rule + ADS doc + MITRE T1003.001 + Atomic Red Team validation."
+    4_quantitatively_managed:
+      description: "FP/TP rates measured; tuned for precision; metrics-driven."
+      example: "0.02 FP/day; 100% TP rate vs Atomic Red Team T1003.001-1."
+    5_optimizing:
+      description: "Continuous improvement; threat-intel-driven tuning."
+      example: "Auto-detunes when DFIR Report publishes new variant TTPs."
+
+  # Self-classification rule for any case run
+  self_classification:
+    rule_for_case_class:
+      - if: "playbook < senior-analyst-v2"
+        level: 1
+      - if: "playbook == senior-analyst-v2 AND ads_lint_mode == permissive"
+        level: 2
+      - if: "playbook == senior-analyst-v3 AND ads_lint_mode IN [warn, strict]"
+        level: 3
+      - if: "level >= 3 AND fp_rate_measured == true"
+        level: 4
+      - if: "level == 4 AND ti_feedback_loop_active == true"
+        level: 5
+    current_target: 3   # v3 ships at L3 by default
+
+
+# ---------------------------------------------------------------------------
+# v3 ADDITIONS BLOCK 3 — TaHiTI (Threat Hunting integrating TI)
+# Source: Rob van Os et al., FI-ISAC NL TaHiTI methodology
+# Why: when the agent gets stuck (confidence < 0.6 after 8+ iterations),
+# we shift from "investigation mode" to "hunt mode" — the structured,
+# hypothesis-driven, threat-intel-grounded process that handles the
+# cases the playbook can't decide.
+# ---------------------------------------------------------------------------
+hunt_cycle:
+  trigger:
+    condition: "confidence < 0.6 AND iterations >= 8"
+    action: enter_hunt_mode
+    rationale: |
+      The investigation has plateaued. The playbook's deterministic
+      sequencing isn't reaching a verdict. Time to hunt.
+
+  phases:
+    - id: H1_initiate
+      activities:
+        - "Document the un-hunted hypothesis as a TaHiTI hunt artifact"
+        - "Pull threat intel context: M-Trends, DFIR Report, CISA, Sigma"
+        - "State a falsifiable hunt hypothesis with confirming indicators"
+      exit_criteria:
+        - "hunt_hypothesis written"
+        - "ti_context attached"
+
+    - id: H2_hunt
+      activities:
+        - "Execute targeted MCP function calls to confirm or refute"
+        - "Pivot through evidence using Bianco's Pyramid (TTPs > IOCs)"
+        - "Track every call in the audit chain — hunt is not invisible"
+      exit_criteria:
+        - "hypothesis confirmed | refuted | partial"
+        - "audit_ids logged for every hunt step"
+
+    - id: H3_finalize
+      activities:
+        - "If confirmed: emit findings + create new ADS for repeated detection"
+        - "If refuted: document negative result + update playbook priors"
+        - "If partial: hand off to human analyst with full audit chain"
+      exit_criteria:
+        - "outcome documented"
+        - "ads_template created (if confirmed)"
+        - "playbook prior updated (if applicable)"
+
+
+# ---------------------------------------------------------------------------
+# v3 ADDITIONS BLOCK 4 — Bianco Hunting Maturity Model (HMM)
+# Source: David Bianco, https://www.sans.org/tools/hunting-maturity-model
+# Why: self-classify the agent's hunt capability per run. This is what
+# distinguishes "we have an agent" from "we have a mature hunt program".
+# ---------------------------------------------------------------------------
+hunting_maturity_model:
+  levels:
+    HMM0_initial:
+      name: "Initial — no hunt"
+      data_sources: "ad-hoc"
+      hypothesis_source: "none"
+    HMM1_minimal:
+      name: "Minimal — TI-driven"
+      data_sources: "limited; basic logs"
+      hypothesis_source: "threat intel feeds (IOC-based)"
+    HMM2_procedural:
+      name: "Procedural — published procedures"
+      data_sources: "host + network logs"
+      hypothesis_source: "published hunt procedures (e.g. ThreatHunter-Playbook)"
+    HMM3_innovative:
+      name: "Innovative — analyst hypotheses"
+      data_sources: "rich; cross-correlated"
+      hypothesis_source: "analyst-formed, data-driven hypotheses"
+    HMM4_leading:
+      name: "Leading — automated"
+      data_sources: "comprehensive + correlated"
+      hypothesis_source: "automated hypothesis generation"
+
+  # Self-classify Agentic-DART
+  agentic_dart_self_classification:
+    current_level: HMM3_innovative
+    rationale: |
+      v3 forms hypotheses from playbook priors + correlation evidence
+      (HMM3). Automated hypothesis generation (HMM4) is on the Phase 2
+      roadmap (#10 Sigma synthesis, #34 auto-execute YAML).
+    target_phase_2: HMM4_leading
+
+
+# ---------------------------------------------------------------------------
+# v2 carry-over — case classes (with MaGMa UC IDs added)
+# ---------------------------------------------------------------------------
+target_case_classes:
+  - id: insider_threat_unauthorized_access
+    magma_l2: AP-002
+  - id: remote_hands_ip_kvm
+    magma_l2: AP-008
+  - id: living_off_the_land_execution
+    magma_l2: AP-006
+  - id: ransomware_response_recovery_denial      # M-Trends 2026 trend
+    magma_l2: AP-001
+  - id: identity_centric_intrusion
+    magma_l2: AP-003
+  - id: vishing_initial_access                   # M-Trends 2026 #2 vector
+    magma_l2: AP-004
+  - id: exploit_initial_access                   # M-Trends 2026 #1 vector
+    magma_l2: AP-005
+  - id: third_party_compromise                   # DBIR 2025 — 30%
+    magma_l2: AP-005     # treated as exploit chain
+  - id: cloud_hybrid_lateral_movement
+    magma_l2: AP-002
+  - id: division_of_labour_handoff               # M-Trends 2026 — 22sec
+    magma_l2: AP-002
+
+
+# ---------------------------------------------------------------------------
+# v2 carry-over — operational posture (M-Trends 2026 priors)
+# ---------------------------------------------------------------------------
+posture:
+  dwell_time_assumption_days: 14
+  initial_access_priors:
+    - vector: exploit_public_facing_app
+      probability: 0.32
+      mitre: T1190
+      magma_l2: AP-005
+    - vector: vishing_or_voice_phishing
+      probability: 0.11
+      mitre: T1566.004
+      magma_l2: AP-004
+    - vector: stolen_credentials_via_iab
+      probability: 0.10
+      mitre: T1078
+      magma_l2: AP-002
+    - vector: phishing_email
+      probability: 0.05
+      mitre: T1566.001
+      magma_l2: null
+
+  attacker_speed_assumption:
+    initial_access_to_handoff_seconds: 22       # M-Trends 2026 median
+    handoff_to_lateral_movement_minutes: 10
+    lateral_to_domain_admin_hours: 6
+    domain_admin_to_ransomware_hours: 32
+    implication: |
+      Treat any low-impact alert as a potential precursor to a
+      hand-off. Routine malware alerts must be triaged within minutes,
+      not the next business day.
+
+
+# ---------------------------------------------------------------------------
+# Phase sequence — same 10 phases as v2, extended with ADS template
+# enforcement and MaGMa UC tracking. Phase notes added where v3 differs.
+# ---------------------------------------------------------------------------
+sequence:
+
+  - phase: P0_scope_and_volatility
+    pyramid_layer: orientation
+    hmm_level_required: HMM1_minimal
+    rationale: |
+      Memory and network state evaporate on reboot. Process tree, open
+      sockets, and loaded drivers must be captured before anything else,
+      even before reading disk artifacts.
+
+      Senior-analyst principle (Eric Zimmerman): "Order of volatility is
+      not a suggestion; it's a one-way door."
+    mcp_calls:
+      - get_process_tree
+      - detect_credential_access
+    anti_patterns:
+      - "Pulling the disk image before snapshotting memory"
+      - "Rebooting 'to be safe' — destroys all volatile evidence"
+      - "Running antivirus scan as first action — may quarantine evidence"
+    exit_criteria:
+      process_tree_captured: true
+      credential_access_signals_logged: true
+
+  - phase: P1_initial_access_vector_triage
+    pyramid_layer: bottom_to_middle
+    hmm_level_required: HMM2_procedural
+    rationale: |
+      Identify the most-likely initial access vector based on M-Trends
+      priors. This is hypothesis bootstrapping — not commitment.
+    mcp_calls:
+      - analyze_web_access_log
+      - detect_webshell
+      - analyze_unix_auth
+      - analyze_windows_logons
+      - detect_brute_force_rdp
+    bianco_priority_targets:
+      - ttps                                # NOT IPs/hashes — those churn
+      - tools                               # net.exe / wmiexec / Impacket
+      - host_artifacts                      # registry / AmCache / Prefetch
+    exit_criteria:
+      candidate_vectors_ranked: true
+      external_facing_logs_collected: true
+
+  - phase: P2_timeline_reconstruction
+    pyramid_layer: foundation
+    hmm_level_required: HMM2_procedural
+    rationale: |
+      A timeline is the analyst's map. No hypothesis before the map is
+      dense enough to test. Eric Zimmerman: "MFT is god."
+    mcp_calls:
+      - extract_mft_timeline
+      - get_amcache
+      - parse_prefetch
+      - parse_shimcache
+      - list_scheduled_tasks
+      - parse_unified_log
+      - parse_systemd_journal
+      - parse_auditd_log
+      - parse_bash_history
+    exit_criteria:
+      mft_timeline_complete: true
+      timestomp_check_done: true
+      prefetch_parent_chain_documented: true
+
+  - phase: P3_anomaly_surfacing
+    pyramid_layer: middle
+    hmm_level_required: HMM2_procedural
+    rationale: |
+      Surface anomalies. Don't yet explain them. Bianco: "An anomaly is
+      a question, not an answer. Treat it as a hypothesis trigger."
+    mcp_calls:
+      - correlate_events
+      - correlate_timeline
+      - parse_shellbags
+    surfacing_rules:
+      - rule: "Process spawned without parent in process tree"
+        mitre: T1055
+        severity: high
+        ads_section_validation: "covered in detect_credential_access ADS"
+      - rule: "$SI < $FN by > 1 second on executable"
+        mitre: T1070.006
+        severity: critical
+        ads_section_validation: "Atomic Red Team T1070.006-1"
+      - rule: "comsvcs.dll loaded by rundll32 with MiniDump argument"
+        mitre: T1003.001
+        severity: critical
+        ads_section_validation: "Atomic Red Team T1003.001-1"
+    exit_criteria:
+      anomaly_list_frozen: true
+      count_minimum_required: 3
+
+  - phase: P4_hypothesis_formation
+    pyramid_layer: top
+    hmm_level_required: HMM3_innovative
+    rationale: |
+      A good hypothesis is *falsifiable* AND has an ADS template attached.
+      v3 enforces: every hypothesis names its (a) MITRE technique,
+      (b) data source, (c) confirming indicator, (d) blind spots.
+    hypothesis_template:
+      adversary_behavior: "Specific TTP from MITRE ATT&CK"
+      data_source: "Where the evidence WOULD appear"
+      confirming_indicator: "Specific value/pattern that would confirm"
+      mitre_chain_required: true
+      contradiction_check_required: true
+      ads_template_required: true   # v3 — Palantir ADS framework enforced
+    mcp_calls:
+      - correlate_events
+      - detect_credential_access
+      - detect_persistence
+      - detect_lateral_movement
+      - detect_defense_evasion
+      - detect_discovery
+      - detect_privilege_escalation
+    exit_criteria:
+      hypothesis_falsifiable: true
+      mitre_techniques_named: true
+      data_sources_named: true
+      ads_template_drafted: true   # v3
+
+  - phase: P5_kill_chain_assembly
+    pyramid_layer: top
+    hmm_level_required: HMM3_innovative
+    rationale: |
+      Assemble the MITRE ATT&CK chain — at least 3 tactics in causal
+      sequence, with timestamps and audit_id citations.
+    mcp_calls:
+      - correlate_download_to_execution
+      - analyze_kerberos_events
+      - analyze_windows_logons
+      - detect_lateral_movement
+      - analyze_usb_history
+      - parse_browser_history
+      - analyze_downloads
+    chain_validation_rules:
+      - "Each tactic must cite at least one finding with audit_id"
+      - "Timestamps must monotonically increase across the chain"
+      - "Any non-monotonic timestamps trigger contradiction handler"
+      - "Missing pre-conditions flag UNRESOLVED"
+    exit_criteria:
+      tactics_count_min: 3
+      all_tactics_have_audit_ids: true
+      timestamp_monotonicity_verified: true
+
+  - phase: P6_contradiction_handling
+    pyramid_layer: top
+    hmm_level_required: HMM3_innovative
+    rationale: |
+      A senior analyst NEVER smooths over disagreement between artifacts.
+      dart-corr surfaces UNRESOLVED contradictions — the agent MUST
+      address them or revise the hypothesis.
+
+      v3 — when the contradiction handler exhausts plays without
+      resolution, the agent enters TaHiTI hunt mode (see hunt_cycle).
+    contradiction_heuristics_v3_enhanced:
+      enter_hunt_mode_when:
+        - "contradiction count >= 3 within iter window 5"
+        - "hypothesis_revision_count >= 3"
+    mcp_calls:
+      - correlate_events
+      - correlate_timeline
+    exit_criteria:
+      all_unresolved_contradictions_addressed: true
+
+  - phase: P7_attribution_and_diamond_model
+    pyramid_layer: top
+    hmm_level_required: HMM3_innovative
+    rationale: |
+      Apply the Diamond Model (Caltagirone 2013): adversary, capability,
+      infrastructure, victim. Even a partial fill is more useful than a
+      kill chain alone.
+    diamond_model_required_fields:
+      adversary:
+        - threat_cluster_name_or_unc
+        - confidence_level
+        - prior_seen_ttps_overlap
+      capability:
+        - tools_used
+        - mitre_techniques_observed
+      infrastructure:
+        - source_ips
+        - c2_domains
+        - hosting_provider
+        - rdp_hostname_observed
+      victim:
+        - target_assets
+        - data_at_risk
+    exit_criteria:
+      diamond_corners_filled: 4
+      confidence_level_documented: true
+
+  - phase: P8_recovery_denial_check
+    pyramid_layer: top
+    hmm_level_required: HMM3_innovative
+    rationale: |
+      M-Trends 2026 #1 ransomware trend: "Recovery Denial". Attackers
+      systematically destroy the ability to recover by targeting
+      identity, virtualization, backup, and credential vault planes.
+    mcp_calls:
+      - detect_persistence
+      - detect_ransomware_behavior
+      - analyze_event_logs
+      - detect_defense_evasion
+    exit_criteria:
+      identity_service_check_done: true
+      virtualization_plane_check_done: true
+      backup_infra_check_done: true
+
+  - phase: P9_finding_emission
+    pyramid_layer: deliverable
+    hmm_level_required: HMM3_innovative
+    rationale: |
+      Findings must be emittable to a court of law, a board of
+      directors, or a peer review. v3 — every finding additionally
+      requires an ADS template at lint mode `warn` or above.
+    finding_schema:
+      id: F-NNN
+      claim: "One-sentence factual claim"
+      supporting_audit_ids: ["..."]
+      mitre_technique: "T1NNN[.NNN]"
+      confidence: "low|medium|high|verified"
+      data_sources: ["source_name"]
+      contradicts: []
+      # v3 additions
+      ads_template:
+        goal: "..."
+        categorization: "..."
+        strategy_abstract: "..."
+        technical_context: "..."
+        blind_spots_and_assumptions: ["..."]
+        false_positives: ["..."]
+        validation: "Atomic Red Team test ID"
+        priority: "critical|high|medium|low"
+        response: "SOAR runbook ref or manual steps"
+      magma_uc_id: "AP-NNN"
+    exit_criteria:
+      all_findings_have_audit_ids: true
+      all_findings_have_mitre: true
+      all_findings_have_ads_template: true   # v3 — warn level
+      confidence_levels_assigned: true
+      report_passes_serializer: true
+
+
+# ---------------------------------------------------------------------------
+# Decision policy — same as v2, with hunt-mode entry conditions
+# ---------------------------------------------------------------------------
+next_call_decisions:
+  - when_state: "no process tree captured yet"
+    call: get_process_tree
+    confidence_gain: 0.10
+
+  - when_state: "process_tree captured AND no credential_access scan yet"
+    call: detect_credential_access
+    confidence_gain: 0.15
+
+  - when_state: "case_class includes exploit_initial_access AND no web log analysis yet"
+    call: analyze_web_access_log
+    confidence_gain: 0.15
+    magma_uc: AP-005
+
+  - when_state: "web access log shows >100 4xx errors from single IP in 60s window"
+    call: detect_webshell
+    confidence_gain: 0.20
+    magma_uc: AP-005
+
+  - when_state: "case_class includes vishing AND no logon analysis yet"
+    call: analyze_windows_logons
+    confidence_gain: 0.15
+    magma_uc: AP-004
+
+  - when_state: "no MFT timeline yet"
+    call: extract_mft_timeline
+    confidence_gain: 0.20
+    rationale: "MFT is foundational"
+
+  - when_state: "MFT timeline shows $SI < $FN mismatch"
+    call: detect_defense_evasion
+    confidence_gain: 0.25
+    mitre_pivot: T1070.006
+    magma_uc: AP-007
+
+  - when_state: "no AmCache enumeration yet"
+    call: get_amcache
+    confidence_gain: 0.15
+
+  - when_state: "no Prefetch parsed yet"
+    call: parse_prefetch
+    confidence_gain: 0.15
+
+  - when_state: "host is Linux AND auditd not yet parsed"
+    call: parse_auditd_log
+    confidence_gain: 0.20
+
+  - when_state: "host is Linux AND systemd journal not yet parsed"
+    call: parse_systemd_journal
+    confidence_gain: 0.15
+
+  - when_state: "host is Linux/macOS AND bash history not yet checked"
+    call: parse_bash_history
+    confidence_gain: 0.15
+
+  - when_state: "host is macOS AND unified log not yet parsed"
+    call: parse_unified_log
+    confidence_gain: 0.15
+
+  - when_state: "host is macOS AND launchd plists not yet checked"
+    call: parse_launchd_plist
+    confidence_gain: 0.15
+
+  - when_state: "timeline built AND no correlation run"
+    call: correlate_events
+    confidence_gain: 0.20
+
+  - when_state: "execution evidence found AND credential access not yet checked"
+    call: detect_credential_access
+    confidence_gain: 0.20
+
+  - when_state: "credential access confirmed AND lateral movement not yet checked"
+    call: detect_lateral_movement
+    confidence_gain: 0.20
+    magma_uc: AP-002
+
+  - when_state: "AD environment AND Kerberos events not analyzed"
+    call: analyze_kerberos_events
+    confidence_gain: 0.15
+    magma_uc: AP-003
+
+  - when_state: "case_class includes physical access AND USB not yet checked"
+    call: analyze_usb_history
+    confidence_gain: 0.15
+    magma_uc: AP-008
+
+  - when_state: "ransomware suspected AND defense evasion not yet checked"
+    call: detect_defense_evasion
+    confidence_gain: 0.20
+
+  - when_state: "ransomware suspected AND ransomware behavior not yet detected"
+    call: detect_ransomware_behavior
+    confidence_gain: 0.25
+    magma_uc: AP-001
+
+  - when_state: "lateral movement confirmed AND discovery not yet checked"
+    call: detect_discovery
+    confidence_gain: 0.10
+
+  - when_state: "exfiltration suspected AND exfiltration not yet checked"
+    call: detect_exfiltration
+    confidence_gain: 0.20
+
+  - when_state: "browser activity may be relevant AND not yet checked"
+    call: parse_browser_history
+    confidence_gain: 0.10
+
+
+# ---------------------------------------------------------------------------
+# Contradiction triggers — same 7 from v2, each now annotated with the
+# corresponding ADS template summary for cross-reference.
+# ---------------------------------------------------------------------------
+contradiction_triggers:
+
+  - id: timestomp_predates_alert
+    source_a: mft_si_fn_mismatch
+    source_b: alert_timestamp
+    rule: "If $SI < $FN AND mismatch_ts < alert_ts, persistence pre-existed"
+    threshold_seconds: 1
+    pivot: hunt_earlier_in_timeline
+    severity: critical
+    mitre: T1070.006
+    ads_summary:
+      goal: "Detect anti-forensic timestomping that hides earlier persistence"
+      validation: "Atomic Red Team T1070.006-1"
+      response: "Hunt for persistence in T-30d window; this is not a fresh case"
+
+  - id: vpn_kvm_session_overlap_violation
+    source_a: vpn_logoff
+    source_b: ipkvm_session_end
+    rule: "If VPN logoff < IP-KVM end, credentials used after legitimate user left"
+    threshold_seconds: 60
+    pivot: account_takeover_or_handoff
+    severity: critical
+    mitre: T1078
+    ads_summary:
+      goal: "Detect credential reuse after legitimate user disconnect"
+      validation: "Custom — synthesize VPN + IP-KVM session pairing"
+      response: "Rotate user credentials; investigate handoff between attackers"
+
+  - id: process_in_memory_no_evtx_creation
+    source_a: memory_process_tree
+    source_b: evtx_4688_process_creation
+    rule: "Process in memory but no creation event ±60s = injection or log clear"
+    threshold_seconds: 60
+    pivot: T1055_or_T1070.001
+    severity: high
+    mitre: T1055
+    ads_summary:
+      goal: "Detect process injection or selective EVTX log clearing"
+      validation: "Atomic Red Team T1055-1 (process hollowing)"
+      response: "Memory dump + Sysmon hunt; assume EVTX is unreliable"
+
+  - id: admin_privilege_no_escalation_path
+    source_a: evtx_4672_admin_logon
+    source_b: credential_access_evidence
+    rule: "Admin privileges granted with no preceding T1003/T1558/T1068"
+    threshold_seconds: 86400
+    pivot: T1558.001_golden_ticket
+    severity: critical
+    mitre: T1558.001
+    ads_summary:
+      goal: "Detect Golden Ticket / pre-existing credential compromise"
+      validation: "Mimikatz golden ticket forge + import"
+      response: "Force krbtgt password rotation; full AD reset assessment"
+
+  - id: ssh_auth_success_no_keys_no_password_log
+    source_a: linux_auth_log_ssh_accept
+    source_b: known_keys_or_password_change
+    rule: "SSH accepted but no key-add and no password change in window"
+    threshold_seconds: 604800
+    pivot: T1098.004_authorized_keys_modify
+    severity: high
+    mitre: T1098.004
+    ads_summary:
+      goal: "Detect SSH authorized_keys persistence backdoor"
+      validation: "Atomic Red Team T1098.004"
+      response: "Audit ~/.ssh/authorized_keys; rotate keys; review sudoers"
+
+  - id: launchd_user_writable_runatload
+    source_a: launchd_plist_location
+    source_b: launchd_plist_runatload_flag
+    rule: "RunAtLoad=true in user-writable LaunchAgent path"
+    pivot: T1543.004_persistence
+    severity: high
+    mitre: T1543.004
+    ads_summary:
+      goal: "Detect macOS LaunchAgent persistence in user-writable paths"
+      validation: "Wardle 'Art of Mac Malware' Vol 1 — persistence catalog"
+      response: "Audit ~/Library/LaunchAgents; remove unauthorized plists"
+
+  - id: ransomware_without_recovery_denial_evidence
+    source_a: ransomware_behavior_detected
+    source_b: shadow_copy_or_backup_evidence
+    rule: |
+      Encryption observed but no shadow-copy delete / backup access seen.
+      Either evidence is missing, OR this is wiper / staging, not full ransomware.
+    pivot: hunt_pre_encryption_recovery_targeting
+    severity: high
+    mitre: T1490
+    ads_summary:
+      goal: "Distinguish full ransomware from wipers / staging encryption"
+      validation: "BlackSuit case study (DFIR Report) — vssadmin pattern"
+      response: "Hunt earlier; backup compromise may have happened days prior"
+
+
+# ---------------------------------------------------------------------------
+# Stop conditions — same as v2 + hunt mode exit
+# ---------------------------------------------------------------------------
+stop_conditions:
+  - condition: confidence >= 0.92
+    action: emit_findings
+
+  - condition: iterations >= 30
+    action: emit_with_warning_low_confidence
+
+  - condition: all_phases_closed AND no_unresolved_contradictions
+    action: emit_findings
+
+  - condition: unresolved_contradictions > 0 AND iterations >= 25
+    action: emit_with_unresolved_section
+    note: |
+      Senior analysts NEVER bury contradictions. If we cannot resolve
+      them in iteration budget, surface them honestly.
+
+  - condition: hypothesis_revision_count >= 5
+    action: declare_complex_case_request_human
+    note: |
+      A case that has revised the hypothesis 5+ times is beyond what
+      automated reasoning should commit to. Hand off to a human.
+
+  - condition: hunt_mode_active AND H3_finalize_complete
+    action: emit_with_hunt_findings
+
+
+# ---------------------------------------------------------------------------
+# References — v2 references PRESERVED + v3 framework references ADDED
+# ---------------------------------------------------------------------------
+references:
+
+  industrialization_frameworks_v3:
+    - title: "Alerting and Detection Strategy (ADS) Framework"
+      org: "Palantir"
+      url: "https://github.com/palantir/alerting-detection-strategy-framework"
+      cited_for: [ads_template, finding_schema]
+
+    - title: "Alerting and Detection Strategy Framework (blog)"
+      org: "Palantir Engineering"
+      url: "https://blog.palantir.com/alerting-and-detection-strategy-framework-52dc33722df2"
+      cited_for: [ads_template_rationale]
+
+    - title: "MaGMa Use Case Framework"
+      authors: ["Rob van Os"]
+      org: "FI-ISAC NL"
+      url: "https://www.betaalvereniging.nl/wp-content/uploads/FI-ISAC-Use-Case-Framework-Full-Documentation.pdf"
+      cited_for: [magma_ucf, l1_business_drivers, l2_attack_patterns, maturity_levels]
+
+    - title: "TaHiTI — Targeted Hunting integrating Threat Intelligence"
+      authors: ["Rob van Os"]
+      org: "FI-ISAC NL"
+      cited_for: [hunt_cycle, H1_initiate, H2_hunt, H3_finalize]
+
+    - title: "SOC-CMM — SOC Capability Maturity Model"
+      author: "Rob van Os"
+      url: "https://www.soc-cmm.com/"
+      cited_for: [maturity_levels, self_classification]
+
+    - title: "Hunting Maturity Model"
+      author: "David Bianco"
+      url: "https://www.sans.org/tools/hunting-maturity-model"
+      cited_for: [hunting_maturity_model, agentic_dart_self_classification]
+
+    - title: "MITRE 11 Strategies of a World-Class SOC"
+      org: "MITRE"
+      url: "https://www.mitre.org/news-insights/publication/11-strategies-world-class-cybersecurity-operations-center"
+      cited_for: [posture, attacker_speed_assumption]
+
+    - title: "awesome-soc — curated knowledge base for SOC/CSIRT"
+      author: "cyb3rxp"
+      url: "https://github.com/cyb3rxp/awesome-soc"
+      cited_for: [detection_engineering_principles, sop_management]
+
+    - title: "awesome-incident-response — curated DFIR tool list"
+      author: "meirwah"
+      url: "https://github.com/meirwah/awesome-incident-response"
+      cited_for: [tool_corpus]
+
+    - title: "awesome-threat-detection"
+      author: "0x4D31"
+      url: "https://github.com/0x4D31/awesome-threat-detection"
+      cited_for: [threat_hunting_resources, sigma_corpus]
+
+    - title: "ThreatHunter-Playbook"
+      org: "Open Threat Research Forge (OTRF)"
+      url: "https://github.com/OTRF/ThreatHunter-Playbook"
+      cited_for: [hunt_cycle_examples, procedural_hunts]
+
+    - title: "Detection Engineering Cheat Sheet"
+      author: "Florian Roth"
+      cited_for: [sigma_authoring, detection_quality]
+
+    - title: "Crafting the InfoSec Playbook"
+      authors: ["Bollinger", "Enright", "Valites"]
+      org: "Cisco / O'Reilly"
+      year: 2015
+      cited_for: [playbook_authoring, soc_operations]
+
+    - title: "Atomic Red Team — TTP test corpus"
+      org: "Red Canary"
+      url: "https://github.com/redcanaryco/atomic-red-team"
+      cited_for: [ads_template_validation_section]
+
+    - title: "Sigma rule schema"
+      org: "SigmaHQ"
+      url: "https://github.com/SigmaHQ/sigma"
+      cited_for: [detection_as_code_standard]
+
+  primary_methodology:
+    - title: "M-Trends 2026"
+      author: "Mandiant / Google Cloud"
+      url: "https://cloud.google.com/security/resources/m-trends"
+      year: 2026
+      cited_for: [dwell_time, attacker_speed, recovery_denial, vishing_rise]
+
+    - title: "Targeted Attack Lifecycle"
+      author: "Mandiant Consulting"
+      url: "https://cloud.google.com/security/resources/insights/targeted-attack-lifecycle"
+      cited_for: [phase_sequence]
+
+    - title: "Pyramid of Pain"
+      author: "David Bianco"
+      url: "https://www.sans.org/tools/the-pyramid-of-pain"
+      year: 2013
+      cited_for: [bianco_priority_targets, ttps_over_iocs]
+
+    - title: "Diamond Model of Intrusion Analysis"
+      authors: ["Caltagirone", "Pendergast", "Betz"]
+      year: 2013
+      cited_for: [P7_attribution_and_diamond_model]
+
+    - title: "Intelligence-Driven Computer Network Defense"
+      authors: ["Hutchins", "Cloppert", "Amin"]
+      org: "Lockheed Martin"
+      year: 2011
+      cited_for: [kill_chain_methodology]
+
+    - title: "F3EAD framework"
+      origin: "U.S. military targeting cycle"
+      cited_for: [P9_finding_emission]
+
+  case_studies_2025:
+    - title: "Navigating Through The Fog"
+      org: "The DFIR Report"
+      year: 2025
+    - title: "BlackSuit Ransomware"
+      org: "The DFIR Report"
+      year: 2024
+    - title: "Akira Ransomware joint advisory AA24-109A"
+      orgs: [CISA, FBI, DC3, HHS, Europol]
+      date: 2025-11-13
+    - title: "Lynx Ransomware (Cat's Got Your Files)"
+      org: "The DFIR Report"
+      year: 2025
+
+  vendor_research:
+    - author: "Sean Metcalf"
+      url: "https://adsecurity.org"
+    - author: "Sarah Edwards"
+      url: "https://www.mac4n6.com"
+    - author: "Patrick Wardle"
+      title: "The Art of Mac Malware vol 1: Persistence"
+    - author: "Hal Pomeranz"
+    - author: "Eric Zimmerman"
+      url: "https://ericzimmerman.github.io/"
+    - author: "Andrew Case"
+      org: "Volatility Foundation"
+    - author: "Florian Roth"
+      url: "https://github.com/Neo23x0/signature-base"
+    - author: "Roberto Rodriguez"
+      url: "https://github.com/Cyb3rWard0g"
+      cited_for: [otrf_threathunter_playbook]
+    - author: "JPCERT/CC"
+      title: "Detecting Lateral Movement through Tracking Event Logs"
+
+  standards:
+    - title: "MITRE ATT&CK Enterprise v16"
+      url: "https://attack.mitre.org/"
+    - title: "NIST SP 800-61 — Computer Security Incident Handling Guide"
+    - title: "NIST SP 800-86 — Guide to Integrating Forensic Techniques"
+    - title: "NIST SP 800-150 — Guide to Cyber Threat Information Sharing"
+    - title: "Verizon DBIR 2025 + 2026"
+
+
+# ---------------------------------------------------------------------------
+# Operator notes — v3 — what changed and why it matters
+# ---------------------------------------------------------------------------
+operator_notes: |
+  v3 is the industrialization release. v2 encoded a senior analyst's
+  reasoning. v3 encodes a *mature SOC's* operating model around that
+  reasoning.
+
+  The four big additions:
+
+  1. **Palantir ADS template** — every detection now has a documentation
+     contract: goal, categorization, strategy, technical context, blind
+     spots, false positives, validation, priority, response. This is
+     what separates a hobby detection from one a $billion company will
+     run on its production network.
+
+  2. **MaGMa Use Case Framework** — three-tier (business / attack / detection)
+     traceability with CMMI maturity scoring. Every case class now maps
+     to an L2 attack pattern that maps to an L1 business driver. When a
+     CISO asks "what does Agentic-DART defend against, in business
+     terms?", the answer is structured.
+
+  3. **TaHiTI hunt cycle** — when the deterministic playbook plateaus,
+     the agent shifts into structured hunt mode (initiate / hunt /
+     finalize) instead of looping forever or giving up. This is the
+     missing piece between "automated investigation" and "automated
+     hunting".
+
+  4. **HMM self-classification** — every run reports its hunting
+     maturity level (HMM 0–4). v3 ships at HMM3 (innovative). HMM4
+     (leading — automated hypothesis generation) is the Phase 2 target.
+
+  Everything from v2 is preserved. The architectural-first guarantees
+  (read-only MCP, audit chain, contradiction enforcement) apply
+  unchanged. The 35 functions are unchanged. Only the methodology
+  surrounding them has matured.
+
+  Forking this playbook for your case class:
+    1. Copy this file to dart_playbook/<your-name>-v1.yaml
+    2. Update target_case_classes with your MaGMa L2 mappings
+    3. Tune next_call_decisions for your priorities
+    4. Add environment-specific contradiction_triggers
+    5. Add ADS templates for your custom detections
+    6. Run with --playbook <your-name>-v1.yaml
+
+  The architectural guarantees apply to every playbook. You cannot
+  loosen them by forking.

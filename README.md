@@ -239,7 +239,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 2. **Every claim is auditable.** A reviewer can replay any finding in our report back to the exact MCP call that produced it via `audit_id`. The serializer refuses to emit findings without one. This is courtroom-grade traceability — and it's the *only* way an AI-produced DFIR report should ever be defensible.
 
-3. **The senior-analyst loop is encoded methodology, not vibes.** [Playbook v2](https://github.com/Juwon1405/agentic-dart/blob/main/dart_playbook/senior-analyst-v2.yaml) (845 lines, 10 phases) synthesizes Mandiant M-Trends 2026, David Bianco's Pyramid of Pain, the Diamond Model, MITRE ATT&CK v16, F3EAD, NIST SP 800-61/86/150, and field practice from Eric Zimmerman, Sarah Edwards, Sean Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth, and JPCERT/CC. **25 references, all cited.**
+3. **The senior-analyst loop is encoded methodology, not vibes.** [Playbook v3](https://github.com/Juwon1405/agentic-dart/blob/main/dart_playbook/senior-analyst-v3.yaml) (1135 lines, 10 phases) synthesizes Mandiant M-Trends 2026, David Bianco's Pyramid of Pain + Hunting Maturity Model, the Diamond Model, MITRE ATT&CK v16, F3EAD, NIST SP 800-61/86/150, **Palantir's ADS Framework, the MaGMa Use Case Framework (FI-ISAC NL), and the TaHiTI threat hunting methodology** — and field practice from Eric Zimmerman, Sarah Edwards, Sean Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth, Roberto Rodriguez (OTRF), and JPCERT/CC. **39 references, all cited.**
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
@@ -402,7 +402,7 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 | `dart_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` cap |
 | `dart_audit` (CLI) | SHA-256-chained JSONL logger + `verify / lookup / trace / summary` subcommands |
 | `dart_mcp.server` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart python3 -m dart_mcp.server` |
-| `dart_playbook/senior-analyst-v2.yaml` (recommended) or `senior-analyst-v1.yaml` | Sequencing rules for insider-threat / remote-hands class |
+| `dart_playbook/senior-analyst-v3.yaml` (recommended), `v2.yaml` (methodology baseline), or `v1.yaml` | Sequencing rules for insider-threat / remote-hands class |
 
 ### Remaining roadmap (honest)
 

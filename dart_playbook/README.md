@@ -6,10 +6,72 @@ YAML sequencing rules for the senior-analyst loop. Operator-tunable; lives outsi
 
 | Playbook | Lines | Phases | Case classes | Recommended for |
 |---|---:|---:|---:|---|
-| `senior-analyst-v1.yaml` | 128 | 4 | 3 | Quick demos, simple insider-threat scenarios |
-| **`senior-analyst-v2.yaml`** ⭐ | 845 | 10 | 10 | **All real cases in 2026.** Default. |
+| `senior-analyst-v1.yaml` | 128 | 4 | 3 | Quick demos, simple scenarios |
+| `senior-analyst-v2.yaml` | 845 | 10 | 10 | Methodology baseline (Mandiant + Bianco + Diamond) |
+| **`senior-analyst-v3.yaml`** ⭐ | **1135** | **10** | **10 + UC IDs** | **Default. Industrialized — adds ADS + MaGMa + TaHiTI + HMM** |
 
-## senior-analyst-v2 — what's inside
+## senior-analyst-v3 — what v3 adds (industrialization release) ⭐
+
+v3 is the **industrialization release**. v2 encoded a senior analyst's *reasoning*. v3 encodes a *mature SOC's operating model* around that reasoning. Four new framework blocks layer on top of v2:
+
+### 1. Palantir ADS template ([github.com/palantir/alerting-detection-strategy-framework](https://github.com/palantir/alerting-detection-strategy-framework))
+
+Every detection now has a 9-section documentation contract:
+1. **Goal** — one-sentence plaintext description
+2. **Categorization** — MITRE ATT&CK tactic + technique
+3. **Strategy abstract** — high-level detection logic
+4. **Technical context** — data source, field, expected shape
+5. **Blind spots and assumptions** — honest catalog of failure modes
+6. **False positives** — known legitimate triggers + whitelist guidance
+7. **Validation** — Atomic Red Team test ID or reproducible scenario
+8. **Priority** — critical / high / medium / low (tied to MaGMa risk score)
+9. **Response** — SOAR runbook reference or manual steps
+
+This is what separates a hobby detection from one a $billion company runs in production.
+
+### 2. MaGMa Use Case Framework (FI-ISAC NL, [Rob van Os](https://www.soc-cmm.com/))
+
+Three-tier traceability with CMMI maturity scoring:
+- **L1 — Business drivers** (4 entries): "Protect data integrity", "Detect ransomware before recovery denial", etc.
+- **L2 — Attack patterns** (8 entries, MITRE-mapped): AP-001 through AP-008
+- **L3 — Detection rules** (mapped to MCP functions): coverage matrix per L2
+
+**CMMI 5-level maturity self-classification** per case run:
+- L1 Initial (ad-hoc) → L2 Managed (documented) → L3 Defined (ADS-templated) → L4 Quantitatively Managed (FP/TP measured) → L5 Optimizing (TI-feedback-loop active)
+
+v3 ships at **L3 Defined** by default. L4 is a Phase 2 target.
+
+### 3. TaHiTI Threat Hunt Cycle (Rob van Os et al.)
+
+When the deterministic playbook plateaus (`confidence < 0.6 AND iterations >= 8`), the agent shifts into structured hunt mode:
+- **H1 Initiate** — document hypothesis, attach TI context
+- **H2 Hunt** — execute targeted MCP calls, pivot through Pyramid of Pain
+- **H3 Finalize** — emit findings + new ADS, OR document negative result, OR hand off
+
+This is the missing piece between "automated investigation" and "automated hunting".
+
+### 4. Bianco Hunting Maturity Model (HMM 0–4) — operationalized
+
+Every run self-classifies its hunting maturity:
+- **HMM0** Initial — no hunt
+- **HMM1** Minimal — TI-driven (IOC-based)
+- **HMM2** Procedural — published procedures (e.g. ThreatHunter-Playbook)
+- **HMM3** Innovative — analyst-formed hypotheses ⭐ **v3 default**
+- **HMM4** Leading — automated hypothesis generation (Phase 2 target)
+
+### Reference corpus
+
+39 published references organized into 5 categories. v3 adds 14 new references vs v2:
+
+- **industrialization_frameworks_v3** (15) — Palantir ADS, MaGMa, TaHiTI, SOC-CMM, MITRE 11 Strategies, awesome-soc, awesome-incident-response, awesome-threat-detection, ThreatHunter-Playbook, Florian Roth Detection Engineering Cheat Sheet, *Crafting the InfoSec Playbook*, Atomic Red Team, Sigma schema
+- **primary_methodology** (6) — Mandiant M-Trends 2026, Targeted Attack Lifecycle, Bianco Pyramid of Pain, Diamond Model, Lockheed Kill Chain, F3EAD
+- **case_studies_2025** (4) — DFIR Report (Fog, BlackSuit, Lynx), CISA AA24-109A
+- **vendor_research** (9) — Metcalf, Edwards, Wardle, Pomeranz, Zimmerman, Case, Roth, Rodriguez (OTRF), JPCERT/CC
+- **standards** (5) — MITRE ATT&CK v16, NIST 800-61/86/150, Verizon DBIR
+
+---
+
+
 
 A comprehensive senior-analyst methodology synthesizing every authoritative source on modern DFIR practice:
 
