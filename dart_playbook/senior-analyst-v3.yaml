@@ -1010,6 +1010,32 @@ references:
       url: "https://github.com/SigmaHQ/sigma"
       cited_for: [detection_as_code_standard]
 
+  # Related open-source DFIR tools whose corpus / methodology informs our
+  # detection thinking. We do NOT bundle, fork, or wrap any of these — they
+  # are independent third-party projects credited as inspiration only.
+  related_tools_for_inspiration:
+    - title: "Hayabusa (隼)"
+      org: "Yamato Security (Tokyo)"
+      url: "https://github.com/Yamato-Security/hayabusa"
+      relationship: "third-party tool we credit as inspiration"
+      what_we_learned: |
+        How to ship 4000+ Sigma-based detections at production speed
+        with full Sigma v2 spec. Reinforces our case for treating
+        detection corpus as a first-class artifact.
+      what_we_DID_NOT_do: |
+        Did not import, bundle, fork, or wrap any Hayabusa code or
+        rules. Agentic-DART has no Rust dependency and no Sigma
+        runtime. We only cite the project as a reference point.
+
+    - title: "EnableWindowsLogSettings"
+      org: "Yamato Security (Tokyo)"
+      url: "https://github.com/Yamato-Security/EnableWindowsLogSettings"
+      relationship: "third-party reference"
+      what_we_learned: |
+        Audit-policy baseline that yields ~75% Sigma rule coverage on
+        Windows hosts. Useful field calibration for any ADS technical
+        context section that targets EVTX channels.
+
   primary_methodology:
     - title: "M-Trends 2026"
       author: "Mandiant / Google Cloud"
