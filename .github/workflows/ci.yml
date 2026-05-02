@@ -8,8 +8,10 @@ on:
 
 jobs:
   test:
+    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
@@ -19,28 +21,82 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip wheel
+          # Install dart_mcp via pip (verifies pyproject.toml is sane,
+          # including that the sift_adapters subpackage is discovered)
+          python3 -m pip install -e ./dart_mcp/
+
       - name: Audit chain tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}/dart_audit/src
         run: python3 tests/test_audit_chain.py
 
       - name: MCP surface tests
-        run: python3 tests/test_mcp_surface.py
         env:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
+        run: python3 tests/test_mcp_surface.py
 
       - name: MCP bypass tests (adversarial)
-        run: python3 tests/test_mcp_bypass.py
         env:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
+        run: python3 tests/test_mcp_bypass.py
+
+      - name: SIFT adapter tests (v0.5)
+        env:
+          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
+        run: python3 tests/test_sift_adapters.py
+
+      - name: Concurrency + edge cases
+        env:
+          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
+        run: python3 tests/test_concurrency_and_edge_cases.py
 
       - name: Agent end-to-end self-correction
-        run: python3 tests/test_agent_self_correction.py
         env:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src
+        run: python3 tests/test_agent_self_correction.py
 
-      - name: Demo run
+      - name: Demo run (offline native tools)
         run: bash examples/demo-run.sh
 
+      - name: SIFT adapter demo (graceful no-binary path)
+        run: bash examples/sift-adapter-demo.sh
+
       - name: Accuracy measurement
-        run: python3 scripts/measure_accuracy.py
         env:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src
+        run: python3 scripts/measure_accuracy.py
+
+  packaging:
+    name: Packaging — verify pip install yields full 60-tool surface
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pip install
+        run: |
+          python3 -m pip install --upgrade pip wheel
+          python3 -m pip install -e ./dart_mcp/
+
+      - name: Verify tool surface from installed package (not sys.path)
+        run: |
+          python3 - <<'PY'
+          import os
+          os.environ.setdefault('DART_EVIDENCE_ROOT', '/tmp/dart-ci-evidence')
+          os.makedirs('/tmp/dart-ci-evidence', exist_ok=True)
+          from dart_mcp import list_tools
+          tools = list_tools()
+          native = [t for t in tools if not t['name'].startswith('sift_')]
+          sift = [t for t in tools if t['name'].startswith('sift_')]
+          print(f"Total: {len(tools)}, native: {len(native)}, sift: {len(sift)}")
+          assert len(tools) == 60, f"expected 60 tools, got {len(tools)}"
+          assert len(native) == 35, f"expected 35 native, got {len(native)}"
+          assert len(sift) == 25, f"expected 25 sift, got {len(sift)}"
+          print("\u2713 packaging surface verified")
+          PY
