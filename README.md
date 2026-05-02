@@ -65,7 +65,7 @@ This project is developed by [Juwon Bang](https://github.com/Juwon1405) with ext
 
 - **Human-driven**: architectural decisions, security model, threat coverage taxonomy, MITRE ATT&CK mapping, evidence-integrity invariants, and final code review.
 - **AI-accelerated**: implementation, sample-evidence generation, test scaffolding, documentation drafting.
-- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 20-test suite must pass on a clean clone before any commit lands on `main`.
+- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 22-test suite must pass on a clean clone before any commit lands on `main`.
 
 This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
@@ -214,12 +214,12 @@ python3 tests/test_agent_self_correction.py             #  1 — end-to-end self
 python3 tests/test_live_mcp.py                          #  4 — JSON-RPC stdio wire tests
 python3 tests/test_concurrency_and_edge_cases.py        #  3 — concurrent audit writes + path safety
                                              # ──
-                                             # 20 tests
+                                             # 22 tests
 ```
 
-All 20 pass on a clean checkout. The repo also contains
+All 22 pass on a clean checkout. The repo also contains
 `tests/_pending/` — tests for Phase 2 functions not yet on the
-MCP surface. Those are intentionally not part of the 20/20 count.
+MCP surface. Those are intentionally not part of the 22/22 count.
 
 ## Target case class
 

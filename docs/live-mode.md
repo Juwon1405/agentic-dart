@@ -32,7 +32,7 @@ The agent:
 5. Enters a loop: ask Claude → receive tool_use blocks → route each via MCP
    session → feed results back → repeat until Claude stops or max-iter hits
 
-Claude can NOT see anything beyond the 35 functions. Not because we told
+Claude can NOT see anything beyond the 60 functions on the typed MCP surface. Not because we told
 it not to — because the MCP server does not expose anything else.
 
 ## Running it

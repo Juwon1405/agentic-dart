@@ -1,5 +1,87 @@
 # Changelog
 
+## [v0.5.1] — 2026-05-03 — Evergreen visuals + full-surface QA pass
+
+### Changed (visual identity now metric-free)
+
+- **`agentic-dart-hero.png` regenerated.** Removed embedded numeric stats
+  (35 / 11-12 / 20-20 / 0) which had silently gone stale after the v0.5
+  SIFT adapter expansion. Replaced with permanent design-principle
+  words at the same visual rhythm:
+
+      Before                          After
+      ─────────────────────────────  ──────────────────────────────────
+      35    MCP forensic functions   READ-ONLY      MCP boundary
+      11/12 MITRE ATT&CK tactics     ARCHITECTURAL  guardrails, not prompts
+      20/20 tests passing            VERIFIABLE     SHA-256 audit chain
+      0     destructive ops          ZERO           destructive ops on the wire
+
+  Original archived to `docs/agentic-dart-hero-v0.4.png` for history.
+
+- **README badges** rewritten to evergreen semantics:
+
+      Before (drifted with each release)         After (permanent)
+      ─────────────────────────────────────────  ───────────────────────
+      MITRE ATT&CK-11/12 tactics                 MITRE ATT&CK aligned
+      MCP tools-35 native + 25 SIFT              MCP read-only
+      tests-20/20 passing                        audit SHA-256 chained
+
+### Added
+
+- **`scripts/regenerate_hero.py`** — reproducible PIL-based hero image
+  generator. Reads the archived original as design-source, paints a
+  vertical gradient over the stat-block region (sampled to match the
+  original color palette exactly), then writes the four evergreen
+  entries on top. Run again only if the design intent changes.
+
+### Fixed (full-surface QA pass)
+
+After the v0.5 SIFT adapter layer landed, several surfaces still cited
+older counts. This pass synchronizes every surface to v0.5 reality:
+
+- **README.md** — 4 stale references to `20-test suite` / `20 tests` /
+  `All 20 pass` / `20/20 count` updated to `22-test suite` /
+  `22 tests` / `All 22 pass` / `22/22 count`.
+
+- **docs/live-mode.md** — `the 35 functions` → `the 60 functions on
+  the typed MCP surface (35 native + 25 SIFT adapters)`.
+
+- **docs/accuracy-report.md** — section heading `MCP surface — 35
+  functions` → `MCP surface — 60 functions (35 native + 25 SIFT
+  Workstation adapters)`.
+
+- **docs/case-pth-timestomp.md** — both references to `dart-mcp, 35
+  typed functions` and `enumerated to **35 typed forensic
+  functions**` updated to include the SIFT adapter layer.
+
+- **Wiki — 13 pages updated** (separate commit on .wiki repo):
+  About-the-name, Architecture-deep-dive, Architecture-first-vs-prompt-first,
+  Case-PtH-Timestomp, FAQ, Glossary, Home, Live-mode,
+  MCP-function-catalog (page title), Operator-guide, Phase-1
+  (added v0.5 timeline entry), Roadmap, Running-on-macOS,
+  The-Memex-Bet, _Sidebar, dart-mcp.
+
+### Operating principle going forward
+
+  - Counts belong in README text, CHANGELOG, test output, and
+    GitHub Actions badges — surfaces that update automatically or
+    are expected to be edited per release.
+  - Counts do NOT belong in PNG images, icon assets, or hard-coded
+    visual identity — surfaces that are touched manually and drift
+    silently.
+  - Hero images encode IDENTITY (architecture-first, read-only,
+    audit-chained, zero destructive ops), not METRICS.
+
+### Verified
+
+- All 22 test files pass on fresh clone
+- `python3 -c 'from dart_mcp import list_tools; print(len(list_tools()))'`
+  returns 60
+- `bash examples/sift-adapter-demo.sh` exits 0
+- `bash scripts/install.sh` (dry-run mode) reports 60 / 35 / 25
+- `grep -nE "20/20|exposes 35|exactly 35"` returns no stale hits
+  outside historic CHANGELOG entries
+
 ## [v0.5.0] — 2026-05-02 — SIFT Workstation tool adapter layer
 
 ### Added (Custom MCP Server pattern alignment for SANS FIND EVIL! 2026)
