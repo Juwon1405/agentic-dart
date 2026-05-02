@@ -136,6 +136,51 @@ def test_surface_is_exact_positive_and_negative_set():
     assert not overlap, f"NEGATIVE surface breach: {overlap}"
 
 
+def test_correlate_timeline_rejects_sql_injection_attempts():
+    """REGRESSION (QA 2026-05-02): the user-supplied `rules` parameter on
+    correlate_timeline is interpolated into a DuckDB JOIN ON clause.
+    The previous filter only blocked ';' and '--', leaving comments,
+    UNION SELECT, and DuckDB metafunctions like read_csv_auto() and
+    PRAGMA reachable. The hardened guard rejects on a strict allow-list
+    of characters AND a forbidden-keyword block. Every payload below
+    must come back as a structured 'rule rejected' entry, not a hit."""
+    payloads = [
+        # Comment-based bypass of the old filter
+        "1=1 /* */ UNION SELECT 1,2,3,4,5,6",
+        # DuckDB metafunctions: filesystem read pivot
+        "1=1 OR (SELECT 1 FROM read_csv_auto('/etc/passwd')) IS NULL",
+        "1=1 AND read_parquet('/tmp/x.parquet') IS NOT NULL",
+        # PRAGMA / DDL / extension load
+        "1=1; PRAGMA database_list",
+        "1=1 OR (ATTACH '/tmp/x.db' AS x)",
+        "1=1 AND INSTALL httpfs",
+        # Backtick / dollar / shell-style attempts
+        "1=1 AND `os` = 'linux'",
+        "1=1 AND $$evil$$ = ''",
+    ]
+    for p in payloads:
+        out = call_tool("correlate_timeline", {
+            "events": [
+                {"ts": "2026-03-15 14:00:00", "source": "x",
+                 "actor": "a", "type": "logon"},
+                {"ts": "2026-03-15 14:01:00", "source": "y",
+                 "actor": "a", "type": "logon"},
+            ],
+            "rules": [p],
+            "window_seconds": 600,
+        })
+        matches = out.get("user_rule_matches") or []
+        assert matches, f"no match record returned for payload: {p}"
+        m = matches[0]
+        assert "error" in m and "rejected" in m["error"].lower(), (
+            f"SECURITY: SQL injection payload was NOT rejected:\n"
+            f"  payload={p!r}\n  result={m!r}"
+        )
+        # Critical: verify nothing got executed — there must be no `hits` key
+        assert "hits" not in m, \
+            f"SECURITY: payload executed despite rejection record: {p!r} -> {m!r}"
+
+
 def test_handler_does_not_write_outside_root(tmp_path=None):
     """Sanity: none of the registered handlers should create files anywhere
     outside the evidence tree. This is a smoke test — the real guarantee
@@ -167,5 +212,7 @@ if __name__ == "__main__":
     print("test_null_byte_truncation_is_blocked OK")
     test_surface_is_exact_positive_and_negative_set()
     print("test_surface_is_exact_positive_and_negative_set OK")
+    test_correlate_timeline_rejects_sql_injection_attempts()
+    print("test_correlate_timeline_rejects_sql_injection_attempts OK")
     test_handler_does_not_write_outside_root()
     print("test_handler_does_not_write_outside_root OK")

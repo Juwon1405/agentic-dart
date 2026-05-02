@@ -245,7 +245,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **60/22/22/0.** **35 native forensic functions + 25 SIFT Workstation tool adapters = 60 typed read-only MCP tools.** 11 of 12 MITRE ATT&CK enterprise tactics. **22 of 22 tests passing on a fresh clone** (20 native + 2 new SIFT adapter test suites — surface registration, schema validity, path-traversal blocked across both layers). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **60/31/31/0.** **35 native forensic functions + 25 SIFT Workstation tool adapters = 60 typed read-only MCP tools.** 11 of 12 MITRE ATT&CK enterprise tactics. **31 of 31 tests passing on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|

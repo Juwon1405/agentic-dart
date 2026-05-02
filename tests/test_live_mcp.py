@@ -6,7 +6,8 @@ over real MCP stdio JSON-RPC. This exercises:
 
   1. Subprocess spawn of `python -m dart_mcp.server_stdio`
   2. MCP initialize() handshake
-  3. list_tools() over the wire — verifies all 35 functions are advertised
+  3. list_tools() over the wire — verifies all 60 functions are advertised
+     (35 native + 25 SIFT Workstation adapters)
   4. call_tool() over the wire — verifies a real tool returns real data
   5. The ToolNotFound guardrail survives the wire (adversarial path)
   6. Agent writes live_transcript.txt, live_tool_calls.jsonl, live_summary.json
@@ -46,8 +47,8 @@ def test_live_mode_subprocess_dryrun():
         # Check stderr for handshake banner
         assert "MCP handshake OK" in result.stderr, \
             f"MCP handshake banner missing:\n{result.stderr}"
-        assert "35 tools visible" in result.stderr, \
-            f"Expected 35 tools over the wire:\n{result.stderr}"
+        assert "60 tools visible" in result.stderr, \
+            f"Expected 60 tools over the wire (35 native + 25 SIFT):\n{result.stderr}"
 
         # Outputs exist
         out = Path(td)

@@ -291,9 +291,15 @@ class DeterministicAnalyst:
         ))
 
     def _report(self) -> dict:
+        # Guard: when --max-iterations is small enough that
+        # _phase_hypothesis() never ran, self._primary / self._alt are
+        # unset. _forced_exit_closeout() already uses getattr defaults;
+        # mirror that here so the deterministic path is also crash-safe.
+        primary = getattr(self, "_primary", None)
+        alt = getattr(self, "_alt", None)
         return {
-            "primary_hypothesis": asdict(self._primary),
-            "alternative_hypothesis": asdict(self._alt),
+            "primary_hypothesis": asdict(primary) if primary else None,
+            "alternative_hypothesis": asdict(alt) if alt else None,
             "findings": [asdict(f) for f in self.findings],
             "unresolved": self.unresolved,
             "iterations": self.iteration,

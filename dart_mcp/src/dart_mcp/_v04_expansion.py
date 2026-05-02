@@ -269,12 +269,13 @@ _SUSPICIOUS_PATTERNS = [
     ),
     schema={"type": "object", "properties": {
         "history_path": {"type": "string"},
-        "format": {"type": "string", "enum": ["auto", "bash", "zsh"], "default": "auto"},
+        "log_format": {"type": "string", "enum": ["auto", "bash", "zsh"], "default": "auto"},
         "command_contains": {"type": "string"},
         "limit": {"type": "integer", "default": 500, "maximum": 5000},
     }, "required": ["history_path"]},
 )
-def parse_bash_history(history_path, format="auto", command_contains=None, limit=500):
+def parse_bash_history(history_path, log_format="auto", command_contains=None, limit=500):
+    # Renamed from `format=` (Python builtin shadow). Behavior unchanged.
     p = _safe_resolve(history_path)
     if not p.exists():
         return {"error": "file_not_found", "path": str(p),
@@ -283,12 +284,12 @@ def parse_bash_history(history_path, format="auto", command_contains=None, limit
     text = p.read_text(encoding="utf-8", errors="replace")
     lines = text.splitlines()
 
-    if format == "auto":
-        format = "zsh" if any(l.startswith(": ") and ";" in l for l in lines[:50]) else "bash"
+    if log_format == "auto":
+        log_format = "zsh" if any(l.startswith(": ") and ";" in l for l in lines[:50]) else "bash"
 
     commands, pending_ts = [], None
     for line in lines:
-        if format == "bash":
+        if log_format == "bash":
             if line.startswith("#") and line[1:].strip().isdigit():
                 try:
                     pending_ts = datetime.fromtimestamp(int(line[1:].strip())).isoformat()
@@ -326,7 +327,7 @@ def parse_bash_history(history_path, format="auto", command_contains=None, limit
                 break
 
     return {
-        "format_detected": format,
+        "format_detected": log_format,
         "total_commands": len(commands),
         "suspicious_count": len(suspicious_hits),
         "suspicious": suspicious_hits[:limit],

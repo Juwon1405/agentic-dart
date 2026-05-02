@@ -44,9 +44,15 @@ class AuditEntry:
     entry_hash: str = ""            # SHA-256 of (prev_hash + canonical body); filled in by logger
 
     def canonical_body(self) -> str:
-        """Everything except entry_hash, in canonical JSON form."""
+        """Everything except entry_hash, in canonical JSON form.
+
+        `default=str` MUST match what AuditLogger.verify() uses below,
+        otherwise hash recomputation drifts when inputs contain a
+        non-JSON-native type (Path, datetime, etc.). Also matches the
+        log-time output_digest serialization for consistency.
+        """
         body = {k: v for k, v in asdict(self).items() if k != "entry_hash"}
-        return json.dumps(body, sort_keys=True, separators=(",", ":"))
+        return json.dumps(body, sort_keys=True, separators=(",", ":"), default=str)
 
 
 class AuditLogger:
@@ -108,9 +114,12 @@ class AuditLogger:
             # Chain: hash(prev_hash || canonical_body)
             entry.entry_hash = hashlib.sha256(entry.canonical_body().encode()).hexdigest()
 
-            # Append atomically with O_APPEND semantics
+            # Append atomically with O_APPEND semantics.
+            # `default=str` MUST match canonical_body() and verify()
+            # so a non-JSON-native value in inputs/finding_ids does
+            # not crash log() and does not desync the chain hash.
             with self.path.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(asdict(entry), sort_keys=True) + "\n")
+                f.write(json.dumps(asdict(entry), sort_keys=True, default=str) + "\n")
                 f.flush()
                 os.fsync(f.fileno())
 
@@ -135,7 +144,10 @@ class AuditLogger:
                 if obj["prev_hash"] != prev:
                     return False, f"line {lineno}: prev_hash mismatch (expected {prev[:10]}..., got {obj['prev_hash'][:10]}...)"
                 body = {k: v for k, v in obj.items() if k != "entry_hash"}
-                canonical = json.dumps(body, sort_keys=True, separators=(",", ":"))
+                # `default=str` MUST match canonical_body() / log()
+                # so verify reproduces the same canonical bytes when
+                # inputs originally contained Path/datetime/etc.
+                canonical = json.dumps(body, sort_keys=True, separators=(",", ":"), default=str)
                 recomputed = hashlib.sha256(canonical.encode()).hexdigest()
                 if recomputed != obj["entry_hash"]:
                     return False, f"line {lineno}: entry_hash mismatch (audit_id={obj['audit_id']})"

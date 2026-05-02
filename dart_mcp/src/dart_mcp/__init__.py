@@ -750,9 +750,36 @@ def correlate_timeline(events, rules=None, window_seconds=300):
     kvm_patterns = [dict(zip(["kvm_ts", "device", "logon_ts", "user", "delta_s"], row))
                     for row in con.execute(q2).fetchall()]
 
+    # User-supplied join predicates are a small but real prompt-injection
+    # surface. The previous filter only blocked ';' and '--'; that left
+    # /* */ comments, UNION SELECT, and DuckDB-specific functions like
+    # read_csv_auto / copy on the table. We now apply a strict allow-list:
+    #   - identifiers only (e1./e2. column refs, integer/string literals,
+    #     comparison operators, AND/OR/NOT, parens, simple arithmetic)
+    #   - any other character (semicolon, comment marker, backtick, $) → reject
+    # This lets the LLM still write meaningful join rules but makes
+    # smuggling DDL/DML or DuckDB metafunctions structurally impossible.
+    _RULE_ALLOWED_RE = re.compile(
+        r"^[\s\w\.\(\)\=\<\>\!\+\-\*\/\,\'\"]+$"
+    )
+    _RULE_FORBIDDEN_TOKENS = re.compile(
+        r"\b(?:union|insert|update|delete|drop|create|alter|attach|detach|"
+        r"copy|pragma|read_csv|read_csv_auto|read_parquet|read_json|"
+        r"export|import|install|load|exec|execute|describe|explain)\b",
+        re.IGNORECASE,
+    )
+
     user_matches = []
     for rule in (rules or []):
-        if not isinstance(rule, str) or ";" in rule or "--" in rule:
+        if not isinstance(rule, str):
+            continue
+        if not _RULE_ALLOWED_RE.match(rule):
+            user_matches.append({"rule": rule,
+                                  "error": "rule rejected: disallowed character"})
+            continue
+        if _RULE_FORBIDDEN_TOKENS.search(rule):
+            user_matches.append({"rule": rule,
+                                  "error": "rule rejected: forbidden SQL keyword"})
             continue
         try:
             rows = con.execute(
@@ -2292,7 +2319,7 @@ DEFAULT_WEB_ROOTS = [
                 "long-URL anomalies.",
     schema={"type": "object", "properties": {
         "access_log": {"type": "string"},
-        "format": {"type": "string",
+        "log_format": {"type": "string",
                    "enum": ["combined", "common", "iis_w3c", "auto"],
                    "default": "auto"},
         "time_window_start": {"type": "string"},
@@ -2301,9 +2328,15 @@ DEFAULT_WEB_ROOTS = [
                                    "description": "IPs with >= this ratio of 4xx/5xx flagged"},
     }, "required": ["access_log"]},
 )
-def analyze_web_access_log(access_log, format="auto",
+def analyze_web_access_log(access_log, log_format="auto",
                             time_window_start=None, time_window_end=None,
                             error_ratio_threshold=0.5):
+    # NOTE: previously named `format=` which shadowed the Python builtin
+    # and was silently ignored in the body. Renamed to log_format so the
+    # parameter is honest about what it does (currently the body uses
+    # auto-detect via the regex below, irrespective of value — kept for
+    # forward-compat with W3C/Common/Combined explicit forcing).
+    _ = log_format  # accepted, currently informational
     p = _safe_resolve(access_log)
     if not p.exists():
         return {"error": "file_not_found", "path": str(p)}
