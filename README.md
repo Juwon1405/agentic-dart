@@ -66,7 +66,7 @@ This project is developed by [Juwon Bang](https://github.com/Juwon1405) with ext
 
 - **Human-driven**: architectural decisions, security model, threat coverage taxonomy, MITRE ATT&CK mapping, evidence-integrity invariants, and final code review.
 - **AI-accelerated**: implementation, sample-evidence generation, test scaffolding, documentation drafting.
-- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 22-test suite must pass on a clean clone before any commit lands on `main`.
+- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 31-test suite must pass on a clean clone before any commit lands on `main`.
 
 This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
@@ -140,9 +140,17 @@ Evidence is mounted **read-only at the OS level** before the agent is ever start
 
 ```text
 agentic-dart/
-├── dart_audit/      # Tamper-evident JSONL logger with SHA-256 chain
-├── dart_mcp/        # Custom MCP server: typed, read-only forensic functions
-├── dart_agent/      # Iteration controller + self-correction loop
+├── dart_audit/       # Tamper-evident JSONL logger with SHA-256 chain
+├── dart_mcp/         # Custom MCP server: typed, read-only forensic functions
+│                     #   (35 native + 25 SIFT adapters = 60 tools)
+├── dart_agent/       # Iteration controller + self-correction loop
+├── dart_playbook/    # Senior-analyst YAML playbooks (v1 / v2 / v3)
+├── dart_corr/        # Cross-artifact correlation engine — SCAFFOLDING ONLY.
+│                     #   Contradiction-flag policy lives here as a doc
+│                     #   contract; the JOIN engine itself targets mid-2026.
+│                     #   The contradiction-handling behavior demoed in the
+│                     #   v0.5 run is currently implemented inline in
+│                     #   dart_agent and dart_mcp.correlate_timeline.
 ├── examples/
 │   ├── sample-evidence/  # Reproducible test fixtures (triggers IP-KVM finding)
 │   ├── demo-run.sh       # One-command demo — exactly what the video records
@@ -215,12 +223,12 @@ python3 tests/test_agent_self_correction.py             #  1 — end-to-end self
 python3 tests/test_live_mcp.py                          #  4 — JSON-RPC stdio wire tests
 python3 tests/test_concurrency_and_edge_cases.py        #  3 — concurrent audit writes + path safety
                                              # ──
-                                             # 22 tests
+                                             # 31 tests
 ```
 
 All 22 pass on a clean checkout. The repo also contains
 `tests/_pending/` — tests for Phase 2 functions not yet on the
-MCP surface. Those are intentionally not part of the 22/22 count.
+MCP surface. Those are intentionally not part of the 31/31 count.
 
 ## Target case class
 
