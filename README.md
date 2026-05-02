@@ -7,6 +7,7 @@
   <a href="https://www.python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
   <a href="https://findevil.devpost.com/"><img src="https://img.shields.io/badge/SANS%20FIND%20EVIL%21-2026-dc2626.svg" alt="SANS FIND EVIL! 2026"></a>
   <img src="https://img.shields.io/badge/MITRE%20ATT%26CK-11%2F12%20tactics-4F46E5.svg" alt="MITRE ATT&CK 11/12">
+  <img src="https://img.shields.io/badge/MCP%20tools-35%20native%20%2B%2025%20SIFT-1A73E8.svg" alt="MCP tools 35+25">
   <img src="https://img.shields.io/badge/tests-20%2F20%20passing-22c55e.svg" alt="tests 20/20">
 </p>
 
@@ -87,7 +88,7 @@ Most "agentic DFIR" tools today are a system prompt that *asks* an LLM to behave
 
 That works until someone discovers prompt injection inside an evidence file. Or jailbreaks the model. Or the conversation runs long enough for the system prompt to erode. Then the agent will happily run `rm -rf` on your evidence — because *nothing structural was stopping it.* The boundary lived in conversation. Conversation is mutable.
 
-**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **35 typed, read-only forensic functions** through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
+**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **35 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
 
 This is what *architecture-first, not prompt-first* means.
 
@@ -243,7 +244,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **35/20/20/0.** 35 typed forensic functions. 11 of 12 MITRE ATT&CK enterprise tactics. 20 of 20 tests passing on a fresh clone. **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **60/22/22/0.** **35 native forensic functions + 25 SIFT Workstation tool adapters = 60 typed read-only MCP tools.** 11 of 12 MITRE ATT&CK enterprise tactics. **22 of 22 tests passing on a fresh clone** (20 native + 2 new SIFT adapter test suites — surface registration, schema validity, path-traversal blocked across both layers). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|
@@ -254,6 +255,43 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 | Audit Trail Quality | Every finding → `audit_id` → MCP call → command → raw output | `audit.jsonl` chain verifiable end-to-end |
 | Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on any Python 3.10+ host |
 
+
+## SIFT Workstation alignment (Custom MCP Server pattern)
+
+The SANS FIND EVIL! 2026 hackathon explicitly supports four architectural patterns. Agentic-DART implements **Pattern 2 — Custom MCP Server** with full SIFT Workstation tool integration.
+
+### What this means concretely
+
+In addition to the 35 native pure-Python forensic functions, Agentic-DART now exposes **25 typed adapters** that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
+
+| SIFT tool | Source | Adapters exposed |
+|---|---|:---:|
+| **Volatility 3** | volatilityfoundation/volatility3 v2.27 | 12 (Win pslist/pstree/psscan/cmdline/netscan/malfind/dlllist/svcscan/runkey + Linux pslist/bash + macOS bash) |
+| **MFTECmd** | EricZimmerman/MFTECmd | 2 (parse + timestomp detection) |
+| **EvtxECmd** | EricZimmerman/evtx | 2 (parse + EID-filter) |
+| **PECmd** | EricZimmerman/PECmd | 2 (parse + run history) |
+| **RECmd** | EricZimmerman/RECmd | 2 (run-batch ASEPs + query-key) |
+| **AmcacheParser** | EricZimmerman/AmcacheParser | 1 (full parse with file SHA-1) |
+| **YARA** | VirusTotal/yara | 2 (single-file + recursive directory) |
+| **Plaso** | log2timeline/plaso | 2 (log2timeline + psort) |
+
+### How the architecture stays intact
+
+Adding subprocess wrappers is the easy part — keeping them safe is the harder part. Every SIFT adapter inherits the same architectural guarantees as the native 35:
+
+- **Read-only EVIDENCE_ROOT enforcement.** All input paths flow through `_safe_resolve()`. Path traversal, null bytes, and absolute escapes are blocked before subprocess is invoked.
+- **SHA-256 audit chain compatibility.** Every input file is hashed; every output artifact is hashed. Both go into the dart_audit ledger so downstream evidence integrity is provable.
+- **Subprocess timeout by default.** Volatility plugins, log2timeline runs, and YARA recursive scans are all timeout-bounded — a hung tool cannot freeze the agent loop.
+- **Structured output, not raw stdout.** Tool stdout is parsed into Python dicts before reaching the LLM. The agent never sees raw shell output (which would be a prompt-injection vector when filenames contain attacker-controlled text).
+- **Graceful degradation.** When a SIFT binary is not on PATH, the adapter raises `SiftToolNotFoundError` with the install command. The agent can fall back to native pure-Python implementations. This means agentic-dart works on a fresh clone without SIFT, *and* upgrades transparently when run on a real SIFT Workstation.
+
+### Why this matters for FIND EVIL! judging
+
+The hackathon explicitly evaluates submissions on **architectural guardrails** and **hallucination management**. Most submissions that wrap SIFT tools do so by giving the LLM a shell — which means the LLM can in principle run `rm -rf` if a prompt-injection succeeds. Agentic-DART's adapter layer keeps the read-only invariant intact even while wrapping `vol`, `MFTECmd`, `log2timeline`, and friends. **Adding tools did not weaken the boundary.**
+
+The full adapter list, schemas, and binary-resolution rules (`DART_VOLATILITY3_BIN`, `DART_MFTECMD_BIN`, etc.) live in `dart_mcp/src/dart_mcp/sift_adapters/`.
+
+---
 
 ## Platform support
 

@@ -1,5 +1,86 @@
 # Changelog
 
+## [v0.5.0] — 2026-05-02 — SIFT Workstation tool adapter layer
+
+### Added (Custom MCP Server pattern alignment for SANS FIND EVIL! 2026)
+
+This release brings agentic-dart into explicit alignment with the
+hackathon's **Pattern 2 — Custom MCP Server** architectural pattern by
+adding 25 typed read-only adapters around the canonical SIFT Workstation
+DFIR toolchain.
+
+- **`dart_mcp/sift_adapters/`** — new subpackage containing wrappers around:
+  - **Volatility 3 v2.27** (12 plugins) — windows.{pslist, pstree, psscan,
+    cmdline, netscan, malfind, dlllist, svcscan, registry.printkey} +
+    linux.{pslist, bash} + mac.bash
+  - **Eric Zimmerman tools (8 wrappers)** — MFTECmd (parse + timestomp
+    detection), EvtxECmd (parse + EID filter), PECmd (parse + run
+    history), RECmd (ASEP batch + query-key), AmcacheParser
+  - **YARA (2 wrappers)** — single-file + recursive directory scan
+  - **Plaso (2 wrappers)** — log2timeline + psort
+
+- **`dart_mcp/sift_adapters/_common.py`** — shared safety primitives:
+  - `safe_evidence_input()` re-uses parent package's `_safe_resolve` for
+    path-traversal blocking
+  - `run_tool()` enforces subprocess timeout + captures stderr tail +
+    SHA-256 hashes every output file
+  - `_which()` resolves binaries via env-var override (`DART_VOLATILITY3_BIN`
+    etc.) → PATH lookup → `SiftToolNotFoundError`
+  - All errors are typed (`SiftToolFailedError`, `SiftToolNotFoundError`)
+    so the agent loop can fall back to native pure-Python implementations
+
+- **`tests/test_sift_adapters.py`** — new test file verifying:
+  - All 25 adapters register via `@tool` decorator
+  - No collision with native tool names
+  - Every adapter has a well-formed JSON Schema
+  - Path traversal is blocked at the SIFT-adapter layer (not just native)
+  - Null bytes are blocked
+  - Missing-binary error path is clean and actionable
+  - Total tool count is exactly 60 (35 native + 25 SIFT)
+
+### Architectural invariants preserved
+
+- **Read-only boundary intact.** Adapters subprocess into binaries but
+  do NOT expose `execute_shell`, `write_file`, or any path that would
+  let an LLM jailbreak escape the read-only contract.
+- **EVIDENCE_ROOT sandbox shared.** SIFT adapters use the same
+  `_safe_resolve()` as native tools. The agent cannot reach `/etc`,
+  `~/`, or anywhere outside `DART_EVIDENCE_ROOT` regardless of layer.
+- **Audit chain compatible.** Every adapter returns SHA-256 of its
+  input file in `metadata.{tool}_sha256` and SHA-256 of every output
+  artifact in `metadata.csv_sha256` / `output_files`. dart_audit can
+  chain these into the case ledger without modification.
+- **Graceful degradation.** Adapters fail loudly with
+  `SiftToolNotFoundError` listing the env-var override when binaries
+  aren't on PATH. The agent loop is expected to catch this and fall
+  back to the native pure-Python implementation (e.g.
+  `extract_mft_timeline` if `sift_mftecmd_parse` is unavailable).
+
+### Updated
+
+- **README.md** — hero badge now shows `35 native + 25 SIFT` MCP tools.
+  New `## SIFT Workstation alignment (Custom MCP Server pattern)`
+  section explains positioning relative to the hackathon's four
+  supported architectural patterns. Hero numbers updated from
+  `35/20/20/0` to `60/22/22/0`.
+- **`tests/test_mcp_surface.py`** — exact-set assertion expanded to
+  include 25 new SIFT tool names.
+- **`tests/test_mcp_bypass.py`** — POSITIVE surface set expanded; the
+  NEGATIVE surface (forbidden function names) is unchanged because
+  no destructive primitive was added.
+- **`tests/test_live_mcp.py`** — wire-surface expectation updated.
+
+### Verified
+
+- All 22 test files pass (20 native + 2 new SIFT-adapter tests).
+- `python3 -c "from dart_mcp import list_tools; print(len(list_tools()))"`
+  returns 60.
+- No new destructive primitives. NEGATIVE surface (`execute_shell`,
+  `write_file`, `mount`, etc.) remains unbreached.
+- Demo run still completes in <700ms on fresh clone (when SIFT
+  binaries are absent — the adapters never get called and demo uses
+  native tools).
+
 ## [Playbook v3.1] — 2026-05-01 — Yamato Security external references
 
 ### Added (external citations only — NO code or rules imported)

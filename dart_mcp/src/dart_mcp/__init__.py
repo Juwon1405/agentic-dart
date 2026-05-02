@@ -3429,3 +3429,12 @@ def __forbidden_never_registered():
 
 # v0.4 expansion: Linux + macOS coverage (4 functions)
 from dart_mcp import _v04_expansion as _v04  # noqa: E402, F401
+
+# v0.5 expansion: SIFT Workstation tool adapters — Custom MCP Server (Pattern 2)
+# alignment for SANS FIND EVIL! 2026. Adapters subprocess into Volatility 3,
+# MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, and Plaso. Wrapped in
+# read-only EVIDENCE_ROOT sandbox + SHA-256 audit + timeout guards. Adapters
+# fail loudly via SiftToolNotFoundError when their tool isn't on PATH; the
+# agent is expected to fall back to native dart_mcp implementations in that
+# case. Importing the subpackage triggers @tool registration for ~22 wrappers.
+from dart_mcp import sift_adapters as _sift  # noqa: E402, F401

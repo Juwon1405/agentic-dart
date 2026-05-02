@@ -113,6 +113,20 @@ def test_live_mcp_server_advertises_correct_surface():
         "detect_defense_evasion", "detect_discovery",
         # v0.4 Linux + macOS expansion
         "parse_auditd_log", "parse_systemd_journal", "parse_bash_history", "parse_launchd_plist",
+        # v0.5 SIFT Workstation tool adapters (Custom MCP Server pattern)
+        "sift_vol3_windows_pslist", "sift_vol3_windows_pstree",
+        "sift_vol3_windows_psscan", "sift_vol3_windows_cmdline",
+        "sift_vol3_windows_netscan", "sift_vol3_windows_malfind",
+        "sift_vol3_windows_dlllist", "sift_vol3_windows_svcscan",
+        "sift_vol3_windows_runkey", "sift_vol3_linux_pslist",
+        "sift_vol3_linux_bash", "sift_vol3_mac_bash",
+        "sift_mftecmd_parse", "sift_mftecmd_timestomp",
+        "sift_evtxecmd_parse", "sift_evtxecmd_filter_eids",
+        "sift_pecmd_parse", "sift_pecmd_run_history",
+        "sift_recmd_run_batch", "sift_recmd_query_key",
+        "sift_amcacheparser_parse",
+        "sift_yara_scan_file", "sift_yara_scan_dir",
+        "sift_plaso_log2timeline", "sift_plaso_psort",
     }
     assert advertised == expected, \
         f"wire surface drift:\n" \
