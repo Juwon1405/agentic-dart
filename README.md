@@ -250,7 +250,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 |---|---|---|
 | Autonomous Execution Quality | Hypothesis tracker + persistent learning loop + self-correction | `progress.jsonl` shows iteration 4 contradiction + auto-widened retry |
 | IR Accuracy | Cross-artifact correlation; contradictions flagged, not smoothed | F-013 replaces F-001 hypothesis when USB contradicts logon |
-| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp/__init__.py` exposes 35 typed functions |
+| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp/__init__.py` exposes 35 typed native functions; `dart_mcp/sift_adapters/` adds 25 wrappers around Volatility 3 / MFTECmd / EvtxECmd / PECmd / RECmd / AmcacheParser / YARA / Plaso = **60 total typed read-only MCP tools** |
 | Constraint Implementation | **Architectural** — no `execute_shell` function exists in the registry | `test_mcp_surface.py::test_calling_unregistered_function_raises` |
 | Audit Trail Quality | Every finding → `audit_id` → MCP call → command → raw output | `audit.jsonl` chain verifiable end-to-end |
 | Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on any Python 3.10+ host |
@@ -325,6 +325,23 @@ The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; 
 | **Cross-platform** | `get_process_tree`, `parse_browser_history`, `analyze_downloads`, `correlate_download_to_execution`, `detect_exfiltration`, `detect_credential_access`, `detect_ransomware_behavior`, `detect_defense_evasion`, `detect_discovery`, `detect_privilege_escalation`, `analyze_web_access_log`, `detect_webshell`, `correlate_events`, `correlate_timeline` | 14 |
 | **Total** | | **35** |
 
+### 25 SIFT Workstation tool adapters — by tool family
+
+The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **60**.
+
+| Tool family | Adapters | Count |
+|---|---|:---:|
+| **Volatility 3 v2.27** | `sift_vol3_windows_pslist`, `sift_vol3_windows_pstree`, `sift_vol3_windows_psscan`, `sift_vol3_windows_cmdline`, `sift_vol3_windows_netscan`, `sift_vol3_windows_malfind`, `sift_vol3_windows_dlllist`, `sift_vol3_windows_svcscan`, `sift_vol3_windows_runkey`, `sift_vol3_linux_pslist`, `sift_vol3_linux_bash`, `sift_vol3_mac_bash` | 12 |
+| **Eric Zimmerman MFTECmd** | `sift_mftecmd_parse`, `sift_mftecmd_timestomp` | 2 |
+| **Eric Zimmerman EvtxECmd** | `sift_evtxecmd_parse`, `sift_evtxecmd_filter_eids` | 2 |
+| **Eric Zimmerman PECmd** | `sift_pecmd_parse`, `sift_pecmd_run_history` | 2 |
+| **Eric Zimmerman RECmd** | `sift_recmd_run_batch` (ASEPs default), `sift_recmd_query_key` | 2 |
+| **Eric Zimmerman AmcacheParser** | `sift_amcacheparser_parse` | 1 |
+| **YARA** | `sift_yara_scan_file`, `sift_yara_scan_dir` | 2 |
+| **Plaso (log2timeline + psort)** | `sift_plaso_log2timeline`, `sift_plaso_psort` | 2 |
+| **Total SIFT adapters** | | **25** |
+| **Total MCP surface (native + SIFT)** | | **60** |
+
 ### How the surface was built — references and provenance
 
 The 35 functions are not invented from scratch. Each one is grounded in a published reference. The full mapping with hyperlinks lives in the wiki ([MCP function catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)). High-level sources:
@@ -398,7 +415,7 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end — 35 MCP functions, all callable from Claude Code live mode
+### Implemented end-to-end — 35 native MCP functions + 25 SIFT adapters (60 total), all callable from Claude Code live mode
 
 **Windows artifacts**
 
