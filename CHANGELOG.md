@@ -1,5 +1,78 @@
 # Changelog
 
+## [v0.5.2] — 2026-05-03 — Defensive runtime guards + regression coverage
+
+Defensive fixes and regression coverage discovered during a full repo QA
+sweep. Behavior unchanged for happy-path callers; failure modes now produce
+structured errors instead of crashes or silent SQL execution.
+
+### Fixed
+
+- **`dart_audit`** — `AuditLogger.log()` and `AuditLogger.verify()` were
+  inconsistent about `default=str` in `json.dumps()`. The output digest
+  used it; the entry serialization and the verify-time canonical recompute
+  did not. A single non-JSON-native value in `inputs` (e.g. `pathlib.Path`,
+  `datetime`) would either crash log() with `TypeError` or, if it survived,
+  desync the chain hash so verify() reported a false tamper. All three
+  serialization sites now share `default=str`. Regression test:
+  `tests/test_audit_chain.py::test_chain_handles_non_json_native_inputs`.
+
+- **`dart_agent`** — `DeterministicAnalyst._report()` accessed
+  `self._primary` / `self._alt` directly. With `--max-iterations` set
+  small enough that `_phase_hypothesis()` never ran, those attributes
+  were unset and the report path crashed with `AttributeError` — even
+  though `_forced_exit_closeout()` already used `getattr(..., None)`
+  defensively. Mirrored that pattern in `_report()` so the early-exit
+  path is also crash-safe and emits a partial report.
+
+- **`dart_mcp.correlate_timeline`** — the `rules` parameter is
+  interpolated into a DuckDB JOIN ON clause. The previous filter only
+  blocked `;` and `--`. That left `/* */` comments, `UNION SELECT`,
+  `ATTACH`, `PRAGMA`, and DuckDB metafunctions like `read_csv_auto()`,
+  `read_parquet()`, `INSTALL httpfs` — any of which is a structurally
+  valid path from a prompt-injected agent rule to filesystem read or
+  extension load. Replaced with a strict allow-list regex (column
+  references + comparison operators + AND/OR/NOT + parens + arithmetic)
+  AND a forbidden-keyword regex covering `union/insert/update/delete/
+  drop/create/alter/attach/detach/copy/pragma/read_csv*/read_parquet/
+  read_json/install/load/exec/execute/describe/explain`. Regression
+  test: `tests/test_mcp_bypass.py::test_correlate_timeline_rejects_sql_injection_attempts`
+  validates 8 representative payloads.
+
+- **`dart_mcp.analyze_web_access_log`** and **`dart_mcp._v04_expansion.parse_bash_history`**
+  — both functions had a parameter named `format` which shadowed Python's
+  builtin `format()`. The schemas exposed it as `"format"` too. Renamed
+  to `log_format` everywhere (function signature, JSON schema, body refs,
+  output field). Behavior unchanged.
+
+- **`tests/test_live_mcp.py`** — `test_live_mode_subprocess_dryrun` had
+  `assert "35 tools visible" in result.stderr`, which started failing
+  in v0.5 when 25 SIFT adapters joined the surface. Updated to 60.
+
+### Added
+
+- **`pytest.ini`** — pins `testpaths = tests` and excludes the
+  `tests/_pending/` directory from auto-collection. Without this, a
+  fresh clone hit `tests/_pending/test_extended_mcp.py` (which
+  references Phase-2-only `parse_evtx`) and pytest reported a failure
+  on the very first run despite the directory's README explicitly
+  marking those tests as out-of-scope.
+
+- **2 regression tests** wired into the standard pytest run:
+  - `test_chain_handles_non_json_native_inputs` (audit-chain default=str)
+  - `test_correlate_timeline_rejects_sql_injection_attempts` (rule guard)
+
+### Verification
+
+```text
+$ python -m pytest tests/
+============================== 31 passed in 7.08s ==============================
+```
+
+All previously-passing tests remain green; the 2 new regressions
+verify the fixes do what the diff says they do.
+
+---
 ## [v0.5.1] — 2026-05-03 — Evergreen visuals + full-surface QA pass
 
 ### Changed (visual identity now metric-free)
@@ -81,6 +154,7 @@ older counts. This pass synchronizes every surface to v0.5 reality:
 - `bash scripts/install.sh` (dry-run mode) reports 60 / 35 / 25
 - `grep -nE "20/20|exposes 35|exactly 35"` returns no stale hits
   outside historic CHANGELOG entries
+(docs(qa): document v0.5.1 QA hardening pass in CHANGELOG, refresh README test/package counts)
 
 ## [v0.5.0] — 2026-05-02 — SIFT Workstation tool adapter layer
 
