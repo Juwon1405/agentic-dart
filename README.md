@@ -6,9 +6,9 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://www.python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
   <a href="https://findevil.devpost.com/"><img src="https://img.shields.io/badge/SANS%20FIND%20EVIL%21-2026-dc2626.svg" alt="SANS FIND EVIL! 2026"></a>
-  <img src="https://img.shields.io/badge/MITRE%20ATT%26CK-11%2F12%20tactics-4F46E5.svg" alt="MITRE ATT&CK 11/12">
-  <img src="https://img.shields.io/badge/MCP%20tools-35%20native%20%2B%2025%20SIFT-1A73E8.svg" alt="MCP tools 35+25">
-  <img src="https://img.shields.io/badge/tests-20%2F20%20passing-22c55e.svg" alt="tests 20/20">
+  <img src="https://img.shields.io/badge/MITRE%20ATT%26CK-aligned-4F46E5.svg" alt="MITRE ATT&CK aligned">
+  <img src="https://img.shields.io/badge/MCP-read--only-1A73E8.svg" alt="MCP read-only">
+  <img src="https://img.shields.io/badge/audit-SHA--256%20chained-22c55e.svg" alt="audit SHA-256 chained">
 </p>
 
 # Agentic-DART — Autonomous DFIR Agent on SANS SIFT Workstation
