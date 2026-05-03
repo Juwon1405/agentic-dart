@@ -250,7 +250,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 2. **Every claim is auditable.** A reviewer can replay any finding in our report back to the exact MCP call that produced it via `audit_id`. The serializer refuses to emit findings without one. This is courtroom-grade traceability — and it's the *only* way an AI-produced DFIR report should ever be defensible.
 
-3. **The senior-analyst loop is encoded methodology, not vibes.** [Playbook v3](https://github.com/Juwon1405/agentic-dart/blob/main/dart_playbook/senior-analyst-v3.yaml) (1135 lines, 10 phases) synthesizes Mandiant M-Trends 2026, David Bianco's Pyramid of Pain + Hunting Maturity Model, the Diamond Model, MITRE ATT&CK v16, F3EAD, NIST SP 800-61/86/150, **Palantir's ADS Framework, the MaGMa Use Case Framework (FI-ISAC NL), and the TaHiTI threat hunting methodology** — and field practice from Eric Zimmerman, Sarah Edwards, Sean Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth, Roberto Rodriguez (OTRF), and JPCERT/CC. **39 references, all cited.**
+3. **The senior-analyst loop is encoded methodology, not vibes.** [Playbook v3](https://github.com/Juwon1405/agentic-dart/blob/main/dart_playbook/senior-analyst-v3.yaml) (1182 lines, 10 phases) synthesizes Mandiant M-Trends 2026, David Bianco's Pyramid of Pain + Hunting Maturity Model, the Diamond Model, MITRE ATT&CK v16, F3EAD, NIST SP 800-61/86/150, **Palantir's ADS Framework, the MaGMa Use Case Framework (FI-ISAC NL), and the TaHiTI threat hunting methodology** — and field practice from Eric Zimmerman, Sarah Edwards, Sean Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth, Roberto Rodriguez (OTRF), and JPCERT/CC. **39 references, all cited.**
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
@@ -515,7 +515,7 @@ All 25 share the same architectural guarantees as the native layer — read-only
 | `dart_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` hard cap, `deterministic` and `live` modes |
 | `dart_audit` (CLI) | SHA-256-chained JSONL logger; `verify / lookup / trace / summary` subcommands; thread-safe under concurrent writers |
 | `dart_mcp.server_stdio` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart -- python3 -m dart_mcp.server_stdio` |
-| `dart_playbook/senior-analyst-v3.yaml` | **Recommended** — 1135 lines / 10 phases / ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
+| `dart_playbook/senior-analyst-v3.yaml` | **Recommended** — 1182 lines / 10 phases / ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
 | `dart_corr/` (scaffolding) | Standalone cross-artifact JOIN engine — currently a documented design contract; the contradiction-handling behavior demoed in the v0.5 run lives inline in `dart_agent` and `dart_mcp.correlate_timeline`. Mid-2026 target for the standalone engine. |
 
 ### Remaining roadmap (honest)

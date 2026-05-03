@@ -3,31 +3,40 @@
 #
 #  v3 builds on v2's 10-phase Mandiant + Bianco + Diamond methodology by
 #  adding three layered frameworks that mature SOCs use to industrialize
-#  detection and hunting:
+#  detection and hunting. These frameworks are encoded here as YAML data
+#  scaffolds; the v2 runtime path (sequence + next_call_decisions +
+#  contradiction_triggers + stop_conditions) is what the agent actually
+#  executes today. Runtime activation of the scaffolds in dart_agent /
+#  dart_corr is a post-SANS work item (tracked at issue #44 on GitHub) —
+#  activating any of them mid-window would shift the baseline measured
+#  by scripts/measure_accuracy.py.
 #
 #    +  Palantir ADS (Alerting & Detection Strategy) Framework
 #       — every detection rule must have: Goal, Categorization, Strategy
 #         Abstract, Technical Context, Blind Spots & Assumptions,
 #         False Positives, Validation, Priority, Response.
-#       → encoded as `ads_template` and applied to every contradiction
-#         trigger, every detection function, every finding emission.
+#       → encoded as `ads_template` data structure. Per-finding lint
+#         enforcement is post-SANS.
 #
 #    +  MaGMa Use Case Framework (FI-ISAC NL, Rob van Os)
 #       — three-tier use case model (L1 business / L2 attack / L3 detection)
 #         with CMMI 5-level maturity scoring per use case.
-#       → encoded as `usecase_tiers` and `maturity_levels`. Every case
-#         class in this playbook now has a MaGMa-compatible UC ID and
-#         is mapped to an L2 attack pattern.
+#       → encoded as `usecase_tiers` and `maturity_levels` data structures.
+#         Every case class in this playbook is annotated with a MaGMa-
+#         compatible UC ID and mapped to an L2 attack pattern. Per-run
+#         CMMI scoring is post-SANS.
 #
 #    +  TaHiTI (Targeted Hunting integrating Threat Intelligence)
 #       — 3-phase hunt cycle (Initiate / Hunt / Finalize) with hypothesis
 #         tracking from threat intel through to detection deployment.
-#       → encoded as `hunt_cycle` and triggered when any phase exits
-#         with `confidence < 0.6` after iterations >= 8.
+#       → encoded as `hunt_cycle` data structure with the designed trigger
+#         condition (any phase exiting with `confidence < 0.6` after
+#         iterations >= 8). Runtime entry into hunt mode from the agent
+#         loop is post-SANS.
 #
-#  Plus: David Bianco's Hunting Maturity Model (HMM) is now operational
-#  in the agent, not just cited. Each playbook execution self-classifies
-#  to HMM 0–4 based on data sources used and hypothesis source.
+#  Plus: David Bianco's Hunting Maturity Model (HMM) is encoded as a
+#  data structure in this playbook; the yaml self-declares HMM3 Innovative
+#  as the target level. Per-run runtime self-classification is post-SANS.
 #
 #  Methodology lineage (cumulative — v2 + v3 additions):
 #

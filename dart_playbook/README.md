@@ -8,7 +8,7 @@ YAML sequencing rules for the senior-analyst loop. Operator-tunable; lives outsi
 |---|---:|---:|---:|---|
 | `senior-analyst-v1.yaml` | 133 | 4 | 3 | Quick demos, simple scenarios |
 | `senior-analyst-v2.yaml` | 845 | 10 | 10 | Methodology baseline (Mandiant + Bianco + Diamond) |
-| **`senior-analyst-v3.yaml`** ⭐ | **1135** | **10** | **10 + UC IDs** | **Default. Industrialized — adds ADS + MaGMa + TaHiTI + HMM** |
+| **`senior-analyst-v3.yaml`** ⭐ | **1182** | **10** | **10 + UC IDs** | **Default. Industrialized — adds ADS + MaGMa + TaHiTI + HMM** |
 
 ## senior-analyst-v3 — what v3 adds (industrialization release) ⭐
 
@@ -129,14 +129,24 @@ P9  Finding emission                     audit_id citation enforced by serialize
 
 ## Schema
 
-See `senior-analyst-v2.yaml` for the canonical shape. Top-level keys:
+`senior-analyst-v3.yaml` is the canonical shape (v3 is the default; v2 retained for reproducibility of pre-industrialization runs). Top-level keys in v3:
 
 ```yaml
-version: 2
-name: senior-analyst-v2
-target_case_classes: [...]
-methodology_lineage: [...]
+version: 3
+name: senior-analyst-v3
+created: 2026-05-01
+supersedes: senior-analyst-v2
 
+methodology_lineage: [...]        # 13 cumulative methodology citations
+
+# v3 industrialization additions
+ads_template: {...}               # Palantir 9-section detection contract
+magma_ucf: {...}                  # FI-ISAC NL three-tier use case model
+hunt_cycle: {...}                 # TaHiTI H1 / H2 / H3 phases
+hunting_maturity_model: {...}     # Bianco HMM 0-4 self-classification
+
+# v2 carry-over (still authoritative)
+target_case_classes: [...]        # 10 case classes
 posture:                          # M-Trends priors
   dwell_time_assumption_days: 14
   initial_access_priors: [...]
@@ -153,21 +163,17 @@ sequence:                         # 10 phases, P0-P9
       ...
     exit_criteria: {...}
 
-next_call_decisions: [...]        # 25 state -> tool routing rules
+next_call_decisions: [...]        # 24 state -> tool routing rules
 contradiction_triggers: [...]     # 7 architectural contradictions
 stop_conditions: [...]            # confidence >=0.92, max_iter, etc.
-references:                       # 25 citations
-  primary_methodology: [...]
-  case_studies_2025: [...]
-  vendor_research: [...]
-  standards: [...]
-operator_notes: |                 # 6 senior-analyst principles
+references: {...}                 # 6 categories of cited references
+operator_notes: |                 # senior-analyst principles
   ...
 ```
 
 ## Forking for your case class
 
-1. Copy `senior-analyst-v2.yaml` to `dart_playbook/<your-name>-v1.yaml`
+1. Copy `senior-analyst-v3.yaml` to `dart_playbook/<your-name>-v1.yaml`
 2. Update `target_case_classes` to your scope
 3. Tune `next_call_decisions` for your environment's priorities
 4. Add environment-specific `contradiction_triggers`
