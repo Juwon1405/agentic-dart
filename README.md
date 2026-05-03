@@ -532,6 +532,16 @@ All 25 share the same architectural guarantees as the native layer — read-only
 
 
 
+## Acknowledgments
+
+This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405) for the SANS FIND EVIL! 2026 hackathon. All architectural design, the 60 MCP tools (35 native + 25 SIFT adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
+
+**Community contributions accepted:**
+
+- [@Monibee-Fudgekins](https://github.com/Monibee-Fudgekins) — [PR #42](https://github.com/Juwon1405/agentic-dart/pull/42), 1-line CI matrix expansion (added Python 3.13). Resolved good-first-issue [#7](https://github.com/Juwon1405/agentic-dart/issues/7). Thank you for the clean PR and the link back to the issue.
+
+For the contribution policy during the hackathon window (through 2026-06-15) and after, see [CONTRIBUTING.md](./CONTRIBUTING.md#competition-period-contribution-policy-through-2026-06-15).
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
