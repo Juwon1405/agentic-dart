@@ -79,7 +79,7 @@ Subprocess wrappers around the canonical SIFT toolchain:
 - YARA (single-file + recursive directory scan)
 - Plaso (log2timeline + psort)
 
-The agent runs a 10-phase senior-analyst playbook (1135 lines of YAML
+The agent runs a 10-phase senior-analyst playbook (1182 lines of YAML
 synthesizing M-Trends 2026, MITRE ATT&CK v16, the Diamond Model,
 F3EAD, NIST SP 800-61/86/150, the Pyramid of Pain, the Hunting Maturity
 Model, Palantir's ADS Framework, and TaHiTI). Every tool call is
@@ -133,7 +133,7 @@ the hackathon judges on.
 the chain. Verified by `tests/test_audit_chain.py`.
 
 **dart_playbook** is a 10-phase senior-analyst sequencing rule set
-(1135 lines of YAML). Phase order: triage → hypothesis formation →
+(1182 lines of YAML). Phase order: triage → hypothesis formation →
 artifact collection → corroboration → contradiction check → MITRE
 mapping → confidence scoring → reporting → audit-chain verification →
 final review. The playbook tells the agent *which tool to call next*
@@ -264,8 +264,8 @@ GitHub's Contributors graph is automatic and counts any commit author by name re
   column names from each tool's current build.
 
 - **Add Hayabusa as a Sigma-rule fast-path adapter** for EVTX
-  triage at scale (Yamato Security, Tokyo). Already cited in the
-  playbook v3.1; an adapter would close the loop.
+  triage at scale (Yamato Security, Tokyo). Already cited as
+  external reference in playbook v3; an adapter would close the loop.
 
 - **MaGMa Use Case Framework integration.** Currently referenced in
   the playbook; the next step is a structured detection-engineering

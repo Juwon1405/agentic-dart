@@ -239,6 +239,8 @@ DFIR toolchain.
 
 ## [Playbook v3.1] — 2026-05-01 — Yamato Security external references
 
+> **Note on naming.** "v3.1" is a CHANGELOG-only patch label for tracking purposes. There is **no separate `senior-analyst-v3.1.yaml` file** — the changes below were applied directly to `senior-analyst-v3.yaml`, raising its line count from the v3.0 baseline to its current 1182 lines. The shipping artifact is and remains `senior-analyst-v3.yaml`.
+
 ### Added (external citations only — NO code or rules imported)
 
 - `related_tools_for_inspiration` (NEW reference category):
@@ -286,40 +288,66 @@ any third-party detection tool we cite as inspiration.
 - 2 entries in new `related_tools_for_inspiration` category
 - 10 entries in `vendor_research` (was 9, +1: Zach Mathis)
 
-## [Playbook v3] — 2026-05-01 — Industrialization release
+## [Playbook v3] — 2026-05-01 — Industrialization release (data scaffold)
+
+### Scope of this release
+
+> **Honest framing.** v3 adds **data scaffolds** for four mature-SOC frameworks
+> on top of v2's runtime methodology. The frameworks are **encoded as
+> structured YAML** (so they're inspectable, forkable, and citable), but
+> their **runtime activation** in `dart_agent` / `dart_corr` is a
+> post-SANS work item tracked in issue #44. v2's 10-phase sequence,
+> next_call_decisions, contradiction_triggers, and stop_conditions
+> remain the runtime path in v3. Anyone reading the v3 yaml will find
+> `ads_template`, `magma_ucf`, `hunt_cycle`, and `hunting_maturity_model`
+> as data; anyone reading `dart_agent/__init__.py` will find that those
+> keys are not yet referenced from the iteration controller. This was
+> deliberate — see "Why deferred" below.
 
 ### Added
 
-- **`dart_playbook/senior-analyst-v3.yaml`** (1135 lines) —
+- **`dart_playbook/senior-analyst-v3.yaml`** (1182 lines) —
   industrialization release. Builds on v2's 10-phase Mandiant + Bianco
   + Diamond methodology by adding four framework blocks that mature
   SOCs use to ship detection at scale:
 
-  1. **Palantir ADS Framework** — every detection now carries a 9-section
+  1. **Palantir ADS Framework** — encoded as `ads_template` data
+     structure. Every detection is *intended* to carry a 9-section
      documentation contract (goal, categorization, strategy abstract,
      technical context, blind spots, false positives, validation,
-     priority, response). Lint mode `warn` (default) → `strict` (v3.1).
+     priority, response). Lint mode field present (`permissive` →
+     `warn` → `strict`); the lint pass itself is post-SANS work.
 
-  2. **MaGMa Use Case Framework** (FI-ISAC NL, Rob van Os) — three-tier
-     traceability:
+  2. **MaGMa Use Case Framework** (FI-ISAC NL, Rob van Os) — encoded
+     as `magma_ucf` data structure. Three-tier traceability:
        L1 business drivers (4 entries): protect data integrity,
                                          detect ransomware before recovery
                                          denial, etc.
        L2 attack patterns (8 entries, MITRE-mapped): AP-001 .. AP-008
        L3 detection coverage: MCP function mapping per L2.
-     Plus CMMI 5-level maturity self-classification (v3 ships at L3
-     Defined; L4 Quantitatively Managed is Phase 2 target).
+     CMMI 5-level maturity scale documented; the v3 yaml self-declares
+     L3 Defined as the current state. Runtime CMMI scoring is post-SANS.
 
-  3. **TaHiTI threat hunt cycle** (Rob van Os et al.) — when the
-     deterministic playbook plateaus (`confidence < 0.6 AND iter >= 8`),
-     the agent enters structured hunt mode: H1 Initiate → H2 Hunt →
-     H3 Finalize. New stop condition `hunt_mode_active AND
-     H3_finalize_complete → emit_with_hunt_findings`.
+  3. **TaHiTI threat hunt cycle** (Rob van Os et al.) — encoded as
+     `hunt_cycle` data structure with H1 Initiate → H2 Hunt →
+     H3 Finalize phases and a designed trigger condition
+     (`confidence < 0.6 AND iter >= 8`). Runtime entry into hunt mode
+     from the agent loop is post-SANS work (issue #44).
 
-  4. **Bianco Hunting Maturity Model (HMM 0–4)** — operationalized.
-     Every run self-classifies its hunting maturity. v3 ships at HMM3
-     Innovative (analyst-formed hypotheses). HMM4 Leading (automated
-     hypothesis generation) is the Phase 2 target.
+  4. **Bianco Hunting Maturity Model (HMM 0–4)** — encoded as
+     `hunting_maturity_model` data structure. Levels 0–4 documented
+     with what each implies. v3 yaml self-declares HMM3 Innovative
+     (analyst-formed hypotheses) as the target. Per-run self-classification
+     by the agent is post-SANS work.
+
+### Why deferred
+
+Activating these frameworks at runtime would shift the baseline measured
+by `scripts/measure_accuracy.py` (more findings → either spurious
+"improvement" or new false positives that read as regressions). The
+hackathon submission ships with a stable, reproducible baseline.
+Post-SANS, all four runtime activations land together with a single
+re-baseline. Tracked at issue #44.
 
 ### Reference corpus expansion
 
