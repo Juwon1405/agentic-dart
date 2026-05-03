@@ -14,8 +14,9 @@ Agentic-DART runs in two modes:
 ```
 ┌────────────────────────┐                  ┌──────────────────────────┐
 │   dart_agent         │  MCP over stdio  │ dart_mcp.server_stdio  │
-│   (Anthropic API       │ ◄───────────────►│ (subprocess; 15 typed    │
-│    tool-use loop)      │  JSON-RPC        │  forensic functions)     │
+│   (Anthropic API       │ ◄───────────────►│ (subprocess; 60 typed    │
+│    tool-use loop)      │  JSON-RPC        │  forensic functions —    │
+│                        │                  │  35 native + 25 SIFT)    │
 └──────────┬─────────────┘                  └────────────┬─────────────┘
            │                                             │
            │ HTTPS                                       │ file read
@@ -27,7 +28,7 @@ The agent:
 
 1. Spawns `python -m dart_mcp.server_stdio` as a subprocess
 2. Completes the MCP initialize handshake
-3. Calls `list_tools()` — sees exactly the 15 registered forensic functions
+3. Calls `list_tools()` — sees exactly the 60 registered forensic functions (35 native + 25 SIFT adapters)
 4. Hands that tool list (converted to Anthropic's tool-use schema) to Claude
 5. Enters a loop: ask Claude → receive tool_use blocks → route each via MCP
    session → feed results back → repeat until Claude stops or max-iter hits

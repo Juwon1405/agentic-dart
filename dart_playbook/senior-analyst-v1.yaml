@@ -18,9 +18,14 @@ sequence:
     rationale: |
       Memory disappears. Network sockets disappear. Anything that
       evaporates on reboot is examined before anything that persists.
+      When a memory image is available, prefer the SIFT volatility3
+      adapters; when only disk + Sysmon CSV is available (the default
+      sample-evidence path), get_process_tree gives the parent-child
+      chain without a full memory dump.
     mcp_calls:
-      - analyze_memory_process_tree
-      - analyze_memory_network_sockets
+      - sift_vol3_windows_pstree    # process tree (memory image)
+      - sift_vol3_windows_netscan   # active sockets (memory image)
+      - get_process_tree             # CSV-based fallback (no memory image needed)
     exit_criteria:
       - memory_artifacts_enumerated: true
       - suspicious_processes_listed: true

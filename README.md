@@ -145,12 +145,11 @@ agentic-dart/
 │                     #   (35 native + 25 SIFT adapters = 60 tools)
 ├── dart_agent/       # Iteration controller + self-correction loop
 ├── dart_playbook/    # Senior-analyst YAML playbooks (v1 / v2 / v3)
-├── dart_corr/        # Cross-artifact correlation engine — SCAFFOLDING ONLY.
-│                     #   Contradiction-flag policy lives here as a doc
-│                     #   contract; the JOIN engine itself targets mid-2026.
-│                     #   The contradiction-handling behavior demoed in the
-│                     #   v0.5 run is currently implemented inline in
-│                     #   dart_agent and dart_mcp.correlate_timeline.
+├── dart_corr/        # Cross-artifact correlation engine — design contract +
+│                     #   reserved package boundary. The contradiction-handling
+│                     #   behavior demoed in v0.5 currently lives inline in
+│                     #   dart_agent and dart_mcp.correlate_timeline; the
+│                     #   standalone JOIN engine is the mid-2026 target.
 ├── examples/
 │   ├── sample-evidence/  # Reproducible test fixtures (triggers IP-KVM finding)
 │   ├── demo-run.sh       # One-command demo — exactly what the video records
@@ -424,60 +423,110 @@ Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end — 35 native MCP functions + 25 SIFT adapters (60 total), all callable from Claude Code live mode
+### Implemented end-to-end — 60 typed read-only MCP tools (35 native + 25 SIFT adapters), all callable from Claude Code live mode
 
-**Windows artifacts**
-
-| Function | What it does |
-|---|---|
-| `get_amcache` | Amcache.hve reader, paginated output |
-| `extract_mft_timeline` | MFTECmd-CSV reader with `[start, end]` window |
-| `parse_prefetch` | Native + PECmd-sidecar reader |
-| `list_scheduled_tasks` | Evidence tree enumeration with per-file SHA-256 |
-| `analyze_usb_history` | setupapi.dev.log parser + IP-KVM VID/PID signature detection |
-| `parse_evtx` | EVTX event log reader (EvtxECmd CSV sidecar) with event_id + time window filters |
-
-**Memory forensics**
+**Native — Windows execution & user activity** *(`dart_mcp/__init__.py`)*
 
 | Function | What it does |
 |---|---|
-| `volatility_summary` | Volatility 3 sidecar reader — surfaces injected processes + candidate C2 IPs |
+| `get_amcache` | Amcache.hve reader (CSV sidecar), paginated output |
+| `parse_prefetch` | Native .pf header + PECmd JSON sidecar fallback |
+| `parse_shimcache` | AppCompatCache from SYSTEM hive — survives binary deletion |
+| `get_process_tree` | Sysmon/EDR CSV → parent-child chain + LotL flags |
+| `analyze_usb_history` | setupapi.dev.log + SYSTEM hive USB; IP-KVM VID/PID signature detection |
+| `parse_shellbags` | NTUSER.DAT folder-access (network shares + removable) |
+| `extract_mft_timeline` | MFTECmd CSV with `[start, end]` window |
 
-**macOS artifacts**
-
-| Function | What it does |
-|---|---|
-| `parse_knowledgec` | KnowledgeC.db SQLite reader with Cocoa-epoch → ISO 8601 decoding |
-| `parse_fsevents` | FSEvents CSV reader with flag filter (ItemCreated / ItemRenamed / …) |
-| `parse_unified_log` | UnifiedLog `log show --style csv` reader with subsystem + process filters |
-
-**Reasoning layer**
+**Native — Windows system state & event analysis**
 
 | Function | What it does |
 |---|---|
-| `correlate_events` | Python cross-artifact timeline join, contradiction flagging |
-| `duckdb_timeline_correlate` | **Real DuckDB-backed cross-source join at scale** — accepts N named sources, joins on time proximity, returns paired events |
-| `match_sigma_rules` | YAML Sigma matcher (`equals`, `contains`, `startswith` modifiers) |
+| `list_scheduled_tasks` | Evidence-tree enumeration with per-file SHA-256 |
+| `detect_persistence` | Run keys + Services + Tasks (3 mechanisms, severity-scored) |
+| `analyze_event_logs` | Windows Event Log JSON rule-pack (LSASS access, PS download-exec, WMI persistence, …) |
+
+**Native — Authentication, lateral movement, web/RDP attacks**
+
+| Function | What it does |
+|---|---|
+| `analyze_windows_logons` | 4624 / 4625 / 4648 + brute-force survivor + after-hours interactive |
+| `detect_lateral_movement` | PsExec/WMIExec/WinRS/PS-remoting joined with type-3/4648 logons |
+| `analyze_kerberos_events` | Kerberoasting (RC4 TGS), AS-REP roast, scattered TGT, ticket failures |
+| `analyze_unix_auth` | SSH accept/fail, sudo, su; brute-force survivor; dangerous sudo |
+| `detect_privilege_escalation` | Cross-platform low→high privilege transitions |
+| `analyze_web_access_log` | Apache/Nginx/IIS — SQLi/XSS/LFI/RCE/SSRF/Log4Shell/Spring4Shell + scanner UAs |
+| `detect_webshell` | Webroot scan: extension + filename + content sigs + age anomaly |
+| `detect_brute_force_rdp` | Type-10 4625 grouped per-IP: brute / credential-stuffing / password-spray + survivors |
+
+**Native — MITRE ATT&CK gap-fillers**
+
+| Function | What it does |
+|---|---|
+| `detect_credential_access` | T1003 — Mimikatz/procdump/comsvcs/SAM/NTDS/DPAPI + Sysmon Event 10 mask check |
+| `detect_ransomware_behavior` | T1486/T1489/T1490 — vssadmin shadow delete, mass taskkill, ransom notes, mass rename |
+| `detect_defense_evasion` | T1070 — log clearing (1102/104/wevtutil), MFT $SI vs $FN timestomp anomalies |
+| `detect_discovery` | T1087/T1069/T1018/T1082 — AD enum, PowerView/BloodHound, recon bursts |
+
+**Native — Browser, downloads, exfiltration**
+
+| Function | What it does |
+|---|---|
+| `parse_browser_history` | Chrome/Edge/Firefox/Safari (SQLite read-only or CSV sidecar) + URL suspicion ranking |
+| `analyze_downloads` | Chromium downloads table + Zone.Identifier ADS / MOTW propagation check |
+| `correlate_download_to_execution` | URL → file → first execution → child process chain |
+| `detect_exfiltration` | Archive create + suspicious-domain upload + browser drop-site visit chains |
+
+**Native — macOS & Linux** *(`dart_mcp/_v04_expansion.py`)*
+
+| Function | What it does |
+|---|---|
+| `parse_unified_log` | UnifiedLog NDJSON — TCC bypass, gatekeeper, XProtect, launchd-from-tmp |
+| `parse_knowledgec` | KnowledgeC.db (Cocoa epoch decoded; sqlite3 read-only URI mode) |
+| `parse_fsevents` | FSEvents CSV with flag filter + suspicious-path heuristics |
+| `parse_auditd_log` | Linux auditd kernel-syscall audit log |
+| `parse_systemd_journal` | systemd journal NDJSON export |
+| `parse_bash_history` | bash/zsh history + 13 attacker-pattern signatures (T1059.004, T1098.004, …) |
+| `parse_launchd_plist` | macOS LaunchAgent/Daemon persistence (T1543.001/.004) |
+
+**Native — cross-artifact reasoning**
+
+| Function | What it does |
+|---|---|
+| `correlate_events` | Python proximity join — USB ↔ logon, contradiction flagging |
+| `correlate_timeline` | **DuckDB-backed cross-source join at scale** — N event sources, time-proximity join, KVM-precedes-logon pattern, hardened user-rule ON-clause |
+
+**SIFT Workstation adapters (25)** *(`dart_mcp/sift_adapters/`)*
+
+| Family | Adapters | Wraps |
+|---|---|---|
+| Volatility 3 | `sift_vol3_windows_{pslist,pstree,psscan,cmdline,netscan,malfind,dlllist,svcscan,runkey}` + `sift_vol3_linux_{pslist,bash}` + `sift_vol3_mac_bash` (12) | Volatility Foundation v2.27 |
+| Eric Zimmerman | `sift_mftecmd_{parse,timestomp}`, `sift_evtxecmd_{parse,filter_eids}`, `sift_pecmd_{parse,run_history}`, `sift_recmd_{run_batch,query_key}`, `sift_amcacheparser_parse` (9) | EZ tools — MFTECmd / EvtxECmd / PECmd / RECmd / AmcacheParser |
+| YARA | `sift_yara_{scan_file,scan_dir}` (2) | yara |
+| Plaso | `sift_plaso_{log2timeline,psort}` (2) | log2timeline.py / psort.py |
+
+All 25 share the same architectural guarantees as the native layer — read-only `EVIDENCE_ROOT` sandbox, subprocess timeout, SHA-256 of inputs and outputs to the audit chain, typed `SiftToolNotFoundError` graceful fallback when a binary is absent.
 
 **Infrastructure**
 
 | Component | What it does |
 |---|---|
-| `dart_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` cap |
-| `dart_audit` (CLI) | SHA-256-chained JSONL logger + `verify / lookup / trace / summary` subcommands |
-| `dart_mcp.server` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart python3 -m dart_mcp.server` |
-| `dart_playbook/senior-analyst-v3.yaml` (recommended), `v2.yaml` (methodology baseline), or `v1.yaml` | Sequencing rules for insider-threat / remote-hands class |
+| `dart_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` hard cap, `deterministic` and `live` modes |
+| `dart_audit` (CLI) | SHA-256-chained JSONL logger; `verify / lookup / trace / summary` subcommands; thread-safe under concurrent writers |
+| `dart_mcp.server_stdio` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart -- python3 -m dart_mcp.server_stdio` |
+| `dart_playbook/senior-analyst-v3.yaml` | **Recommended** — 1135 lines / 10 phases / ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
+| `dart_corr/` (scaffolding) | Standalone cross-artifact JOIN engine — currently a documented design contract; the contradiction-handling behavior demoed in the v0.5 run lives inline in `dart_agent` and `dart_mcp.correlate_timeline`. Mid-2026 target for the standalone engine. |
 
 ### Remaining roadmap (honest)
 
-| Item | Target |
+| Item | Status / target |
 |---|---|
-| Native EVTX binary parser (drop EvtxECmd CSV dependency) | W3 |
-| Native Volatility 3 subprocess wiring (drop info.json sidecar) | W3 |
-| Baseline Protocol SIFT agent head-to-head accuracy runs on 2 external datasets | W4 |
-| Ali Hadi Challenge #1 + NIST CFReDS Hacking Case measured accuracy | W4–W5 |
+| Standalone `dart_corr` cross-artifact JOIN engine (MFT ↔ memory process tree) | Mid-2026 (contract documented in `dart_corr/README.md`) |
+| Sigma rule matcher (`match_sigma_rules`) | Phase 2 — scaffolded under `tests/_pending/` |
+| Native EVTX binary parser (drop EvtxECmd CSV sidecar requirement) | Phase 2 — currently `analyze_event_logs` consumes JSON exports; SIFT adapter `sift_evtxecmd_parse` covers the binary path |
+| External-dataset accuracy runs (Ali Hadi Challenge #1, NIST CFReDS Hacking Case) | Post-submission |
 | Multi-agent decomposition (Memory / Disk / Network / Synthesizer specialists) | Post-submission |
 | TimeSketch export format | Post-submission |
+| Cloud DFIR (CloudTrail / GuardDuty) | Phase 2 |
 
 
 
