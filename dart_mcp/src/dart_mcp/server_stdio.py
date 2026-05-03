@@ -16,13 +16,12 @@ from __future__ import annotations
 
 import asyncio
 import json
-import sys
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
-from . import _REGISTRY, call_tool, list_tools
+from . import call_tool, list_tools
 
 
 # MCP Server instance. Name is what shows up to clients.

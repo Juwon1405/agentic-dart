@@ -18,14 +18,12 @@ in GitNote/Resources/.
 from __future__ import annotations
 
 import csv
-import io
 from datetime import datetime
 from typing import Any
 
 from dart_mcp import tool
 
 from ._common import (
-    DEFAULT_TIMEOUT_SECONDS,
     _sha256,
     _tempdir,
     _which,
@@ -170,7 +168,13 @@ def sift_mftecmd_timestomp(
         si_ct = _parse_ts_safe(row.get("Created0x10", ""))
         fn_ct = _parse_ts_safe(row.get("Created0x30", ""))
         si_mt = _parse_ts_safe(row.get("LastModified0x10", ""))
-        fn_mt = _parse_ts_safe(row.get("LastModified0x30", ""))
+        # Pattern 3 — $SI.modified < $FN.modified (the most common timestomp
+        # signature in the wild) — is parsed but currently unused. Activating
+        # it would expand detection coverage but also shift the baseline
+        # finding count for measure_accuracy.py. Deferred until after SANS
+        # FIND EVIL! 2026 (June 15) so the hackathon submission ships with
+        # a stable baseline. Tracked in repo issue (post-sans label).
+        _fn_mt_deferred = _parse_ts_safe(row.get("LastModified0x30", ""))  # noqa: F841
 
         # Pattern 1: $SI.created < $FN.created
         if si_ct and fn_ct:

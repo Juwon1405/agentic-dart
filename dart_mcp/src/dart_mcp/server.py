@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json
 import sys
-from typing import Any
 
 from . import list_tools, call_tool
 

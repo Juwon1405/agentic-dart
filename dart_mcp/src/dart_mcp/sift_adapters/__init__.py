@@ -36,7 +36,7 @@ from __future__ import annotations
 # Importing each adapter module triggers @tool decorator registration
 # in the parent dart_mcp registry. Order doesn't matter; all live in the
 # same _REGISTRY dict.
-from . import volatility3      # noqa: F401 -- side-effect import
+from . import volatility3      # noqa: F401 — side-effect: registers @tool adapters
 from . import mftecmd          # noqa: F401
 from . import evtxecmd         # noqa: F401
 from . import pecmd            # noqa: F401

@@ -20,18 +20,13 @@ For the MVP, the "agent" runs in two modes:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import os
-import secrets
-import sys
 import time
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
-from typing import Any
 
 from dart_audit import AuditLogger
-from dart_mcp import call_tool, EVIDENCE_ROOT
+from dart_mcp import call_tool
 
 
 # =============================================================================

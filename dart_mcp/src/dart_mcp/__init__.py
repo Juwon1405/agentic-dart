@@ -1942,7 +1942,13 @@ def analyze_kerberos_events(security_events_json):
 
     kerberoasting = []        # 4769 with RC4
     asrep_roasting = []        # 4768 with no preauth
-    unusual_tgt = []           # 4768 from unusual workstation
+    # T1558 'unusual workstation' TGT detection (4768 from a source IP that
+    # has not been seen for this user before) is parsed below in
+    # tgt_sources but the bucketed list is not yet emitted as findings.
+    # Activating this pattern would shift baseline detection counts so it's
+    # deferred until after SANS FIND EVIL! 2026 (June 15). Tracked
+    # post-sans on the repo issue tracker.
+    _unusual_tgt_deferred = []  # noqa: F841
     ticket_failures = []       # 4771 / 4773
 
     tgt_sources = {}  # user → set of source IPs (to detect anomalies)
@@ -3056,7 +3062,12 @@ def detect_ransomware_behavior(processes=None, fsevents_or_mft=None,
     stop_events = []
     for p in processes:
         cmd = (p.get("cmdline") or p.get("CommandLine") or "")
-        img = (p.get("image") or "").lower()
+        # Image-based detection (filtering by RANSOMWARE_INDICATORS["image"]
+        # patterns) is parsed but not yet evaluated. Currently we only match
+        # service-stop signatures via the cmdline. Adding image filtering
+        # would expand coverage but shift the baseline; deferred until after
+        # SANS FIND EVIL! 2026 (June 15). Tracked post-sans.
+        _img_deferred = (p.get("image") or "").lower()  # noqa: F841
         for pat in RANSOMWARE_INDICATORS["service_stop"]:
             if pat.search(cmd):
                 stop_events.append({

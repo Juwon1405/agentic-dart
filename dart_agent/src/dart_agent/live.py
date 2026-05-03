@@ -27,7 +27,6 @@ import sys
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 # Lazy imports for anthropic + mcp so dry-run can work even without them
 _ANTHROPIC_AVAILABLE = False

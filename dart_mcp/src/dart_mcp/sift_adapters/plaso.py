@@ -89,7 +89,6 @@ def sift_plaso_log2timeline(
     out_path = safe_evidence_input(output_storage_path) if "/" in output_storage_path else None
     if out_path is None:
         # Allow specifying just a filename — resolve under EVIDENCE_ROOT
-        from . import _common
         from dart_mcp import EVIDENCE_ROOT
         out_path = EVIDENCE_ROOT / output_storage_path
 

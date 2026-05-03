@@ -12,7 +12,6 @@ finding_id — this is the "3 clicks from finding to raw evidence" path.
 """
 import json
 import sys
-from pathlib import Path
 from . import AuditLogger
 
 
