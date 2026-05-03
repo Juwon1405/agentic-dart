@@ -62,3 +62,20 @@ where appropriate, and architectural PRs will be reviewed on
 merit. If you opened a `post-sans` issue comment in good faith
 during this window, thank you for your patience — please come
 back in mid-June and ping the same issue.
+
+### Maintainer post-window checklist (2026-06-19)
+
+For the maintainer's reference — actions to run on the day the
+judging window opens (submission frozen; contribution restrictions
+can lift):
+
+- [ ] Re-add `good-first-issue` to issues #4, #30, #35, #38, #40
+- [ ] Ping `@Tanayqq` on issue #40 inviting the wiki PR
+- [ ] Drop `post-sans` label on completed issues (#43 detection
+      patterns, #44 v3 framework runtime activation)
+- [ ] Update this `CONTRIBUTING.md` section — replace the dated
+      policy with standard OSS contribution flow
+- [ ] Update README's "Acknowledgments" section as new
+      contributors land
+- [ ] Re-run `scripts/measure_accuracy.py` after issues #43
+      and #44 land, update Phase-1 release-history baseline
