@@ -351,7 +351,7 @@ re-baseline. Tracked at issue #44.
 
 ### Reference corpus expansion
 
-- 39 published references (was 25 in v2 — +14 new):
+- 42 published references (was 25 in v2 — +17 net: +15 industrialization frameworks + 2 inspiration tools + 2 vendor research; v2's primary_methodology consolidated 8 → 6):
   - **industrialization_frameworks_v3** (15 NEW) — Palantir ADS, MaGMa,
     TaHiTI, SOC-CMM, MITRE 11 Strategies, awesome-soc (cyb3rxp),
     awesome-incident-response (meirwah), awesome-threat-detection
@@ -425,6 +425,10 @@ re-baseline. Tracked at issue #44.
 
 - `dart-playbook.md` page rewritten to reflect v2 as default, with
   full methodology citations and the case-class table.
+  *(Later corrected in QA round 5/6 — v3 became default with the
+  Playbook v3 release; v2 retained as methodology baseline. The wording
+  here is preserved as a historical record of how the wiki looked at
+  the v0.4.2 ship date.)*
 
 ## [v0.4.2] — 2026-04-30 — Senior-analyst playbook v2
 

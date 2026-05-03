@@ -61,13 +61,14 @@ Every run self-classifies its hunting maturity:
 
 ### Reference corpus
 
-39 published references organized into 5 categories. v3 adds 14 new references vs v2:
+42 published references organized into **6 categories**. v3 adds **+17 net items vs v2's 25** (15 industrialization frameworks + 2 inspiration tools + 2 new vendor research entries; v2's `primary_methodology` consolidated 8 → 6):
 
-- **industrialization_frameworks_v3** (15) — Palantir ADS, MaGMa, TaHiTI, SOC-CMM, MITRE 11 Strategies, awesome-soc, awesome-incident-response, awesome-threat-detection, ThreatHunter-Playbook, Florian Roth Detection Engineering Cheat Sheet, *Crafting the InfoSec Playbook*, Atomic Red Team, Sigma schema
-- **primary_methodology** (6) — Mandiant M-Trends 2026, Targeted Attack Lifecycle, Bianco Pyramid of Pain, Diamond Model, Lockheed Kill Chain, F3EAD
-- **case_studies_2025** (4) — DFIR Report (Fog, BlackSuit, Lynx), CISA AA24-109A
-- **vendor_research** (9) — Metcalf, Edwards, Wardle, Pomeranz, Zimmerman, Case, Roth, Rodriguez (OTRF), JPCERT/CC
-- **standards** (5) — MITRE ATT&CK v16, NIST 800-61/86/150, Verizon DBIR
+- **industrialization_frameworks_v3** (15, NEW in v3) — Palantir ADS, MaGMa, TaHiTI, SOC-CMM, MITRE 11 Strategies, awesome-soc, awesome-incident-response, awesome-threat-detection, ThreatHunter-Playbook, Florian Roth Detection Engineering Cheat Sheet, *Crafting the InfoSec Playbook*, Atomic Red Team, Sigma schema
+- **related_tools_for_inspiration** (2, NEW in v3) — Hayabusa, EnableWindowsLogSettings (both Yamato Security, Tokyo) cited as third-party prior art
+- **primary_methodology** (6, consolidated from v2's 8) — Mandiant Targeted Attack Lifecycle, Lockheed Kill Chain, MITRE ATT&CK v16, Bianco Pyramid of Pain, Diamond Model, F3EAD
+- **case_studies_2025** (4, carried from v2) — DFIR Report (Fog, BlackSuit, Lynx), CISA AA24-109A
+- **vendor_research** (10, +2 vs v2: Roberto Rodriguez OTRF, Zach Mathis Yamato Security Tokyo) — Metcalf, Edwards, Wardle, Pomeranz, Zimmerman, Case, Roth, JPCERT/CC, Rodriguez, Mathis
+- **standards** (5, carried from v2) — NIST SP 800-61/86/150, Verizon DBIR, ISO 27035
 
 ---
 

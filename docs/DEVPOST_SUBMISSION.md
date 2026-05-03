@@ -104,7 +104,7 @@ registered) and NEGATIVE (what must never be) surfaces.
 **The 35 native functions came first.** Each one has a published
 DFIR reference attached (Eric Zimmerman, Sarah Edwards, Sean
 Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth,
-Roberto Rodriguez/OTRF, JPCERT/CC). 39 references total, all cited
+Roberto Rodriguez/OTRF, JPCERT/CC). 42 references total, all cited
 in the wiki's MCP function catalog.
 
 **The 25 SIFT adapters came in v0.5** to align with the hackathon's
@@ -202,7 +202,7 @@ exists.
   tests, audit chain tampering tests, concurrency tests, the v0.5
   SIFT adapter test suite, and the v0.5.2 QA-pass regression guard.
 
-- **Senior-analyst playbook with 39 cited references.** Not vibes —
+- **Senior-analyst playbook with 42 cited references.** Not vibes —
   encoded methodology synthesizing M-Trends 2026, ATT&CK v16, the
   Diamond Model, F3EAD, NIST SP 800-61/86/150, the Pyramid of Pain,
   the Hunting Maturity Model, Palantir's ADS Framework, MaGMa Use
