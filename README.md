@@ -215,17 +215,19 @@ This is the architecture-first claim made concrete: when artifacts disagree, `da
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 
-python3 tests/test_audit_chain.py                       #  3 — chain integrity + tamper detection
+python3 tests/test_audit_chain.py                       #  4 — chain integrity + tamper detection
 python3 tests/test_mcp_surface.py                       #  3 — surface is the exact positive set
-python3 tests/test_mcp_bypass.py                        #  6 — destructive ops are blocked
+python3 tests/test_mcp_bypass.py                        #  7 — destructive ops are blocked
+python3 tests/test_sift_adapters.py                     #  8 — v0.5 SIFT adapter layer guarantees
 python3 tests/test_agent_self_correction.py             #  1 — end-to-end self-correction
 python3 tests/test_live_mcp.py                          #  4 — JSON-RPC stdio wire tests
 python3 tests/test_concurrency_and_edge_cases.py        #  3 — concurrent audit writes + path safety
+python3 tests/test_qa_pass_regressions.py               #  1 — v0.5.1 QA-pass regression guard
                                              # ──
                                              # 31 tests
 ```
 
-All 22 pass on a clean checkout. The repo also contains
+All 31 pass on a clean checkout. The repo also contains
 `tests/_pending/` — tests for Phase 2 functions not yet on the
 MCP surface. Those are intentionally not part of the 31/31 count.
 

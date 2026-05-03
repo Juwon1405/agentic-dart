@@ -38,8 +38,8 @@ body:
     attributes:
       label: Before / after numbers
       render: text
-      placeholder: |
-                                      before    after
+      placeholder: |2
+                                       before    after
         Recall                         1.000    0.833
         FP rate                        0.000    0.012
         Hallucination count            0        2

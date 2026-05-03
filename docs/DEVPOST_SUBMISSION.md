@@ -198,9 +198,9 @@ exists.
   into a chain. Tampering at any step breaks the chain. The audit
   output is courtroom-traceable.
 
-- **22/22 tests pass on a fresh clone.** Includes adversarial bypass
-  tests, audit chain tampering tests, concurrency tests, and the new
-  v0.5 SIFT adapter test suite.
+- **31/31 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12). Includes adversarial bypass
+  tests, audit chain tampering tests, concurrency tests, the v0.5
+  SIFT adapter test suite, and the v0.5.2 QA-pass regression guard.
 
 - **Senior-analyst playbook with 39 cited references.** Not vibes —
   encoded methodology synthesizing M-Trends 2026, ATT&CK v16, the
