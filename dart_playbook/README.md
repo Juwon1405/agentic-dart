@@ -6,7 +6,7 @@ YAML sequencing rules for the senior-analyst loop. Operator-tunable; lives outsi
 
 | Playbook | Lines | Phases | Case classes | Recommended for |
 |---|---:|---:|---:|---|
-| `senior-analyst-v1.yaml` | 128 | 4 | 3 | Quick demos, simple scenarios |
+| `senior-analyst-v1.yaml` | 133 | 4 | 3 | Quick demos, simple scenarios |
 | `senior-analyst-v2.yaml` | 845 | 10 | 10 | Methodology baseline (Mandiant + Bianco + Diamond) |
 | **`senior-analyst-v3.yaml`** ⭐ | **1135** | **10** | **10 + UC IDs** | **Default. Industrialized — adds ADS + MaGMa + TaHiTI + HMM** |
 
