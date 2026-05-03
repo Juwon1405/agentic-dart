@@ -36,3 +36,29 @@ welcomed.
 - [ ] If you touched the agent loop,
       `tests/test_agent_self_correction.py` still passes
 - [ ] `python3 scripts/measure_accuracy.py` still produces recall ≥ prior
+
+## Competition-period contribution policy (through 2026-06-15)
+
+This repo is an active submission to the
+[SANS FIND EVIL! 2026 hackathon](https://findevil.devpost.com/)
+through **2026-06-15**. To keep authorship attribution clean for
+the judging panel during this window, contribution acceptance is
+narrower than usual:
+
+- ✅ **Accepted**: small, focused PRs against issues that carry
+  the `good-first-issue` label *without* `post-sans` (typically
+  CI / packaging / typo / documentation drift fixes).
+- ⏸️ **Deferred**: any issue carrying the `post-sans` label.
+  These are intentionally held until after the deadline. If you
+  comment offering to work on a `post-sans` issue, expect a
+  polite decline and a re-invitation in mid-June.
+- ❌ **Not accepted during this window**: new MCP functions,
+  playbook YAML changes, dart_agent loop modifications, dart_mcp
+  surface expansions. These are core IP areas.
+
+After 2026-06-15 the policy reverts to standard OSS — `post-sans`
+labels will be dropped, `good-first-issue` will be re-applied
+where appropriate, and architectural PRs will be reviewed on
+merit. If you opened a `post-sans` issue comment in good faith
+during this window, thank you for your patience — please come
+back in mid-June and ping the same issue.
