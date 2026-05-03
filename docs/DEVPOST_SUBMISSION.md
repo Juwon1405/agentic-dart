@@ -240,6 +240,20 @@ between agent and tool — not the docstring, not the README.
 
 ---
 
+## [Devpost: Acknowledgments / IP disclosure]
+
+```markdown
+This submission is the original work product of **Bang Juwon (@Juwon1405)** as a single-person Entrant. All architectural design, MCP function implementation (35 native + 25 SIFT adapters), playbook YAML, audit chain, contradiction handler, agent loop, test suite, and documentation are sole-authored.
+
+**External community contributions accepted to date:**
+
+- **PR #42 by @Monibee-Fudgekins** — a 1-line addition to the CI matrix (`"3.13"` appended to `.github/workflows/ci.yml::strategy.matrix.python-version`). The PR was a direct response to Issue #7 (a `good-first-issue` opened by the maintainer requesting exactly this change). No architectural component, no MCP function, no playbook content, no test logic, no documentation was contributed externally. The change is below the originality threshold for copyright protection (de minimis under 17 U.S.C. § 102) and is integrated under the repository's MIT license (inbound = outbound).
+
+GitHub's Contributors graph is automatic and counts any commit author by name regardless of contribution size, which is why @Monibee-Fudgekins appears next to @Juwon1405 on the repository sidebar. This is a Git authorship record, not a co-ownership statement — IP rights for this submission remain solely with @Juwon1405 per Hackathon Rule §8 (a)(b)(c).
+```
+
+---
+
 ## [Devpost: What's next for Agentic-DART]
 
 ```markdown
