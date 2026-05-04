@@ -9,6 +9,13 @@ Agentic-DART runs in two modes:
 
 `live` mode is what you use when a real case comes in.
 
+## Configuration
+
+| Env Var | Description | Default |
+|---|---|---|
+| `LOG_LEVEL` | Logging verbosity (DEBUG, INFO, WARN, ERROR) | `INFO` |
+| `ANTHROPIC_API_KEY` | API key for live Claude access | (unset) |
+
 ## What `live` mode actually does
 
 ```

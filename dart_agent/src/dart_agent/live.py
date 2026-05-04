@@ -19,6 +19,7 @@ sequence. This lets CI exercise the live plumbing without an API key.
 """
 from __future__ import annotations
 
+import logging
 import argparse
 import asyncio
 import json
@@ -225,6 +226,17 @@ async def _run_with_mock_claude(prompt: str, state: LiveRunState,
     })
 
 
+
+def _setup_logging():
+    level_str = os.environ.get("LOG_LEVEL", "INFO").upper()
+    level = getattr(logging, level_str, logging.INFO)
+    logging.basicConfig(
+        level=level,
+        format="%(message)s",
+        stream=sys.stderr
+    )
+    return logging.getLogger("dart_agent.live")
+
 async def live_run(case: str, out_dir: str, prompt: str,
                    model: str, max_iter: int, dry_run: bool) -> int:
     state = LiveRunState(
@@ -233,17 +245,18 @@ async def live_run(case: str, out_dir: str, prompt: str,
     state.out_dir.mkdir(parents=True, exist_ok=True)
 
     if not _MCP_AVAILABLE:
-        print("ERROR: mcp package not installed. pip install mcp", file=sys.stderr)
+        print("ERROR: mcp package not installed. pip install mcp")
         return 2
 
     # Decide mode early so we can print a banner
     use_real = bool(os.environ.get("ANTHROPIC_API_KEY")) and not dry_run
     if use_real and not _ANTHROPIC_AVAILABLE:
         print("WARNING: ANTHROPIC_API_KEY set but anthropic SDK not installed; "
-              "falling back to dry-run.", file=sys.stderr)
+              "falling back to dry-run.")
         use_real = False
-    print(f"[live] case={case}  mode={'REAL-CLAUDE' if use_real else 'DRY-RUN'}  "
-          f"max_iter={max_iter}", file=sys.stderr)
+    logger = _setup_logging()
+    logger.info(f"[live] case={case}  mode={'REAL-CLAUDE' if use_real else 'DRY-RUN'}  "
+          f"max_iter={max_iter}")
 
     # Launch dart-mcp as a stdio subprocess
     server_params = StdioServerParameters(
@@ -261,9 +274,8 @@ async def live_run(case: str, out_dir: str, prompt: str,
         # Discover tools via MCP protocol (verifies the wire works)
         tools_resp = await session.list_tools()
         mcp_tool_names = [t.name for t in tools_resp.tools]
-        print(f"[live] MCP handshake OK — {len(mcp_tool_names)} tools visible",
-              file=sys.stderr)
-        print(f"[live] tools: {', '.join(mcp_tool_names)}", file=sys.stderr)
+        logger.info(f"[live] MCP handshake OK — {len(mcp_tool_names)} tools visible")
+        logger.debug(f"[live] tools: {', '.join(mcp_tool_names)}")
 
         if use_real:
             # Convert MCP tool schemas to Anthropic tool-use format
@@ -291,9 +303,9 @@ async def live_run(case: str, out_dir: str, prompt: str,
         "findings": state.findings,
     }, indent=2))
 
-    print(f"[live] done — {state.iteration} iterations, "
-          f"{len(state.tool_call_log)} tool calls", file=sys.stderr)
-    print(f"[live] outputs in: {state.out_dir}", file=sys.stderr)
+    logger.info(f"[live] done — {state.iteration} iterations, "
+          f"{len(state.tool_call_log)} tool calls")
+    logger.info(f"[live] outputs in: {state.out_dir}")
     return 0
 
 
