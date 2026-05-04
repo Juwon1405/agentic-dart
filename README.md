@@ -553,7 +553,7 @@ MIT — see [LICENSE](./LICENSE).
 DFIR practitioner & detection engineer based in Tokyo. Goes by **yushin** in shells, terminals, and most places that aren't legal documents.
 
 - 🐙 GitHub &nbsp; &mdash; &nbsp; [github.com/Juwon1405](https://github.com/Juwon1405)
-- ✉️ Email &nbsp; &mdash; &nbsp; juwon1405.jp@doubles1405.com
+- ✉️ Email &nbsp; &mdash; &nbsp; juwon1405.jp@gmail.com
 - 🎯 Hackathon &nbsp; &mdash; &nbsp; [SANS FIND EVIL! 2026](https://findevil.devpost.com/)
 
 This project is a **personal/independent submission**. Built outside any
