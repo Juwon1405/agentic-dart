@@ -1948,7 +1948,7 @@ def analyze_kerberos_events(security_events_json):
     # Activating this pattern would shift baseline detection counts so it's
     # deferred until after SANS FIND EVIL! 2026 (June 15). Tracked
     # post-sans on the repo issue tracker.
-    _unusual_tgt_deferred = []  # noqa: F841
+    unusual_tgt_findings = []
     ticket_failures = []       # 4771 / 4773
 
     tgt_sources = {}  # user → set of source IPs (to detect anomalies)
@@ -1980,6 +1980,9 @@ def analyze_kerberos_events(security_events_json):
                 })
 
         elif eid == 4768:  # TGT (AS_REQ)
+            if user and source_ip:
+                if user not in tgt_sources: tgt_sources[user] = set()
+                tgt_sources[user].add(source_ip)
             if str(preauth) in ("0", "0x0"):
                 asrep_roasting.append({
                     "ts": ev.get("TimeCreated"),
@@ -3067,7 +3070,7 @@ def detect_ransomware_behavior(processes=None, fsevents_or_mft=None,
         # service-stop signatures via the cmdline. Adding image filtering
         # would expand coverage but shift the baseline; deferred until after
         # SANS FIND EVIL! 2026 (June 15). Tracked post-sans.
-        _img_deferred = (p.get("image") or "").lower()  # noqa: F841
+        img = (p.get("image") or "").lower(); [stop_events.append({"ts": p.get("start_ts") or p.get("ts"), "cmdline": f"IMAGE_MATCH: {img}"}) for pat in RANSOMWARE_INDICATORS.get("image", []) if pat.search(img)]
         for pat in RANSOMWARE_INDICATORS["service_stop"]:
             if pat.search(cmd):
                 stop_events.append({

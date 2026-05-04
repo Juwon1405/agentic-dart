@@ -174,7 +174,15 @@ def sift_mftecmd_timestomp(
         # finding count for measure_accuracy.py. Deferred until after SANS
         # FIND EVIL! 2026 (June 15) so the hackathon submission ships with
         # a stable baseline. Tracked in repo issue (post-sans label).
-        _fn_mt_deferred = _parse_ts_safe(row.get("LastModified0x30", ""))  # noqa: F841
+        fn_mt = _parse_ts_safe(row.get('LastModified0x30', ''))
+        if si_mt and fn_mt:
+            if fn_mt > si_mt:
+                findings.append({
+                    'pattern': 'SI_MODIFIED_PREDATES_FN_MODIFIED',
+                    'path': path,
+                    'si_modified': si_mt.isoformat(),
+                    'fn_modified': fn_mt.isoformat(),
+                })
 
         # Pattern 1: $SI.created < $FN.created
         if si_ct and fn_ct:
