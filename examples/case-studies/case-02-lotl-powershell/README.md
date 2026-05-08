@@ -102,15 +102,15 @@ export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 python3 - <<'PY'
 from dart_mcp import call_tool
 
-result = call_tool('get_process_tree', {'process_csv': 'disk/creds-processes.csv'})
-print('get_process_tree', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('get_process_tree', {'process_csv': 'disk/creds-processes.csv'})
+print('get_process_tree:', r['process_count'], 'processes,', len(r['flags']), 'LOTL flags')
 
-result = call_tool('analyze_event_logs', {'events_json': 'disk/security-events.json'})
-print('analyze_event_logs', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('analyze_event_logs', {'events_json': 'disk/security-events.json'})
+print('analyze_event_logs:', r['events_examined'], 'events,', len(r['alerts']), 'alerts')
 
-result = call_tool('detect_persistence', {})
-print('detect_persistence', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('detect_persistence', {})
+print('detect_persistence:', r['total_mechanisms'], 'mechanisms,', len(r['high_severity']), 'high-severity')
 PY
 ```
 
-Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

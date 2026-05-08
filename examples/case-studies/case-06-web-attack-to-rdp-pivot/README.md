@@ -181,12 +181,12 @@ export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 python3 - <<'PY'
 from dart_mcp import call_tool
 
-result = call_tool('analyze_web_access_log', {'access_log': 'web/logs/access.log'})
-print('analyze_web_access_log', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('analyze_web_access_log', {'access_log': 'web/logs/access.log'})
+print('analyze_web_access_log:', r['lines_examined'], 'lines,', r['attack_count'], 'attacks,', r['scanner_ua_count'], 'scanner UAs')
 
-result = call_tool('detect_brute_force_rdp', {'security_events_json': 'disk/security-events.json'})
-print('detect_brute_force_rdp', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('detect_brute_force_rdp', {'security_events_json': 'disk/security-events.json'})
+print('detect_brute_force_rdp:', r['rdp_failure_count'], 'failures,', len(r['brute_force_ips']), 'brute-force IPs')
 PY
 ```
 
-Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

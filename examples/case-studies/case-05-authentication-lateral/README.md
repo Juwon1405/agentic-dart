@@ -183,15 +183,15 @@ export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 python3 - <<'PY'
 from dart_mcp import call_tool
 
-result = call_tool('analyze_windows_logons', {'security_events_json': 'disk/security-events.json'})
-print('analyze_windows_logons', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('analyze_windows_logons', {'security_events_json': 'disk/security-events.json'})
+print('analyze_windows_logons:', r['events_examined'], 'events,', r['failure_count'], 'failures,', r['explicit_cred_count'], 'explicit-cred')
 
-result = call_tool('detect_lateral_movement', {})
-print('detect_lateral_movement', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('detect_lateral_movement', {})
+print('detect_lateral_movement:', r['network_logon_count'], 'network logons,', len(r['suspicious_pairs']), 'suspicious pairs')
 
-result = call_tool('analyze_kerberos_events', {'security_events_json': 'disk/security-events.json'})
-print('analyze_kerberos_events', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('analyze_kerberos_events', {'security_events_json': 'disk/security-events.json'})
+print('analyze_kerberos_events:', r['events_examined'], 'events,', len(r['kerberoasting_candidates']), 'kerberoast,', len(r['asrep_roasting_candidates']), 'asrep')
 PY
 ```
 
-Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

@@ -121,12 +121,12 @@ export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 python3 - <<'PY'
 from dart_mcp import call_tool
 
-result = call_tool('parse_unified_log', {'unifiedlog_json': 'mac/private/var/db/diagnostics/unifiedlog.ndjson'})
-print('parse_unified_log', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('parse_unified_log', {'unifiedlog_json': 'mac/private/var/db/diagnostics/unifiedlog.ndjson'})
+print('parse_unified_log:', r['events_examined'], 'events,', len(r['alerts']), 'alerts')
 
-result = call_tool('parse_fsevents', {'fsevents_csv': 'mac/fsevents.csv'})
-print('parse_fsevents', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('parse_fsevents', {'fsevents_csv': 'mac/fsevents.csv'})
+print('parse_fsevents:', r['total_rows'], 'rows,', r['suspicious_path_count'], 'suspicious paths')
 PY
 ```
 
-Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

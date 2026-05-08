@@ -167,9 +167,9 @@ export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 python3 - <<'PY'
 from dart_mcp import call_tool
 
-result = call_tool('parse_browser_history', {'history_db': 'disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History'})
-print('parse_browser_history', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+r = call_tool('parse_browser_history', {'history_db': 'disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History'})
+print('parse_browser_history:', r['total'], 'urls,', r['suspicious_url_count'], 'suspicious')
 PY
 ```
 
-Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
