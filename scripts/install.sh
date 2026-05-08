@@ -185,7 +185,7 @@ Next steps:
 
   # Live mode against Anthropic API
   export ANTHROPIC_API_KEY=sk-ant-...
-  python3 -m dart_agent --case examples/sample-case --live
+  python3 -m dart_agent --case my-case --out ./out/my-case --mode live
 
 Documentation:
   README          architecture + judging-criteria alignment

@@ -116,7 +116,7 @@ when artifacts disagree, the agent is forced to revise.
 A single follow-up call tells us why:
 
 ```
-list_scheduled_tasks(host="FILE-SRV-01")
+list_scheduled_tasks()
   → rogue task: \Microsoft\Windows\System\WindowsUpdate
     created: 2024-10-29 03:14:17 UTC  (5 days earlier)
 ```

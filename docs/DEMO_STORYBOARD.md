@@ -141,7 +141,7 @@ and you have time. If skipped, extend Scene 4 narration.
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-python3 -m dart_agent --case examples/sample-case --live --max-iter 8
+python3 -m dart_agent --case examples/sample-case --mode live --max-iterations 8 --out /tmp/sample-case-out
 ```
 
 **Camera:** Show the agent's iterations stream by. The agent will:
