@@ -5,7 +5,8 @@
 > rendered for documentation purposes; the live screencast in the
 > June 2026 hackathon submission video will replace them.*
 
-This case study walks through a full `dart-agent --hunt` invocation
+This case study walks through a full `dart-agent` invocation
+(`python3 -m dart_agent --case <case-id> --out <output-dir> --mode deterministic`)
 against a representative breach scenario. It is intended for two
 audiences:
 
@@ -52,8 +53,8 @@ gather facts:
 
 | Tool | Result |
 |---|---|
-| `get_process_tree(host="DESKTOP-7K2L")` | 142 procs, audit_id `a7d4…c19f` |
-| `analyze_windows_logons(host="DESKTOP-7K2L")` | 38 logon events, audit_id `b2e1…8f44` |
+| `get_process_tree(process_csv=...)` | 142 procs, audit_id `a7d4…c19f` |
+| `analyze_windows_logons(security_events_json=...)` | 38 logon events, audit_id `b2e1…8f44` |
 
 Every call is recorded in the audit chain — inputs, outputs, audit_id,
 token count, timestamp, and a SHA-256 hash linked to the previous entry.
@@ -70,7 +71,7 @@ The agent issues three more calls in quick succession:
 | Tool | Finding | MITRE |
 |---|---|---|
 | `detect_credential_access()` | `comsvcs.dll` LOLBin LSASS dump in PowerShell event 4104 | **T1003.001** |
-| `parse_prefetch(target="powershell.exe")` | First run 14:17:51 UTC, parent chain `explorer → cmd → powershell` | **T1059.001** |
+| `parse_prefetch(prefetch_path=...)` | First run 14:17:51 UTC, parent chain `explorer → cmd → powershell` | **T1059.001** |
 | `detect_lateral_movement()` | PsExec service install on FILE-SRV-01 at 14:23:09 UTC | **T1021.002** |
 
 The agent now has a coherent partial chain:
