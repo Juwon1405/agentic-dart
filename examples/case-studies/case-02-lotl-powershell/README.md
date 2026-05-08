@@ -102,10 +102,10 @@ export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 python3 - <<'PY'
 from dart_mcp import call_tool
 
-r = call_tool('get_process_tree', {'process_csv': 'disk/creds-processes.csv'})
+r = call_tool('get_process_tree', {'process_csv': 'disk/processes.csv'})
 print('get_process_tree:', r['process_count'], 'processes,', len(r['flags']), 'LOTL flags')
 
-r = call_tool('analyze_event_logs', {'events_json': 'disk/security-events.json'})
+r = call_tool('analyze_event_logs', {'events_json': 'disk/events.json'})
 print('analyze_event_logs:', r['events_examined'], 'events,', len(r['alerts']), 'alerts')
 
 r = call_tool('detect_persistence', {})

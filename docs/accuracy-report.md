@@ -164,7 +164,7 @@ escalation.
 | `analyze_windows_logons` | 16 events → 5 success + 4 fail + 2 explicit; 1 brute-force survivor (analyst@203.0.113.42 after 4 fails); 1 after-hours RDP at 02:17 |
 | `detect_lateral_movement` | 2 remote-admin hits (psexec + wmiexec), 5 suspicious pairs, all HIGH |
 | `analyze_kerberos_events` | **3 Kerberoasting** (RC4 TGS to MSSQL/Exchange/LDAP), **1 AS-REP Roast** (alice no-preauth) |
-| `analyze_unix_auth` | 10-failure brute force from 203.0.113.42 → 1 survivor (analyst publickey); 3 dangerous sudo commands (shadow read, curl\|bash) |
+| `analyze_unix_auth` | 10-failure brute force from 203.0.113.42 (6 ssh_failure + 4 invalid_user) → 1 survivor (analyst publickey); 2 dangerous sudo commands (shadow read, curl-pipe attempt) |
 | `detect_privilege_escalation` | 2 CRITICAL transitions: SSH → root in 85s and 100s |
 
 ## Coverage map — full DFIR dimensions
