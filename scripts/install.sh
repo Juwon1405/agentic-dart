@@ -5,7 +5,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/Juwon1405/agentic-dart/main/scripts/install.sh | bash
 #
 # What this script does (v0.5):
-#   1. Verifies prerequisites (Python 3.11+, git, curl, RAM, disk)
+#   1. Verifies prerequisites (Python 3.10+, git, curl, RAM, disk)
 #   2. Clones agentic-dart into ~/agentic-dart
 #   3. Creates an isolated Python venv
 #   4. Installs the dart_mcp package (60 typed read-only tools)
@@ -39,7 +39,7 @@ ok "git / python3 / curl present"
 
 PYV=$(python3 -c 'import sys; print(f"{sys.version_info[0]}.{sys.version_info[1]}")')
 log "Python ${PYV} detected"
-[[ "${PYV}" =~ ^3\.(1[1-9]|[2-9][0-9])$ ]] || warn "Python 3.11+ recommended; continuing with ${PYV}"
+[[ "${PYV}" =~ ^3\.(1[0-9]|[2-9][0-9])$ ]] || warn "Python 3.10+ required; continuing with ${PYV}"
 
 if command -v free >/dev/null; then
   RAM_GB=$(free -g | awk '/^Mem:/ {print $2}')

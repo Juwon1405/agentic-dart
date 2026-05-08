@@ -3,6 +3,7 @@
 **Scenario class:** LOTL attack using signed Windows binaries to evade AV
 **Evidence:** bundled in `examples/sample-evidence/` alongside Case 01
 **Detection path:** process tree → event logs → persistence → correlate
+**Reproduce:** Case 01 ships in the bundled demo (`bash examples/demo-run.sh`); Case 02 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
 
 ## The attack pattern
 
@@ -88,3 +89,28 @@ python3 -c "from dart_mcp import call_tool; import json; \
 ```
 
 All return real data from the bundled evidence tree in <1 second.
+
+---
+
+## How to invoke this case directly
+
+```bash
+# From the repo root
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+
+python3 - <<'PY'
+from dart_mcp import call_tool
+
+result = call_tool('get_process_tree', {'process_csv': 'disk/creds-processes.csv'})
+print('get_process_tree', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+
+result = call_tool('analyze_event_logs', {'events_json': 'disk/security-events.json'})
+print('analyze_event_logs', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+
+result = call_tool('detect_persistence', {})
+print('detect_persistence', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+PY
+```
+
+Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.

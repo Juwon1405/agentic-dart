@@ -4,6 +4,7 @@
 **Evidence:** bundled at `examples/sample-evidence/disk/Users/analyst/`
 **Functions used:** `parse_browser_history`, `analyze_downloads`,
   `correlate_download_to_execution`, `detect_exfiltration`
+**Reproduce:** the bundled `bash examples/demo-run.sh` covers Case 01; Case 04 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
 
 ## Why this case matters
 
@@ -152,3 +153,23 @@ motw = call_tool('analyze_downloads', {
 print(f'MOTW: {motw[\"total_downloads\"]} Internet-zone files')
 "
 ```
+
+
+---
+
+## How to invoke this case directly
+
+```bash
+# From the repo root
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+
+python3 - <<'PY'
+from dart_mcp import call_tool
+
+result = call_tool('parse_browser_history', {'history_db': 'disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History'})
+print('parse_browser_history', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+PY
+```
+
+Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.

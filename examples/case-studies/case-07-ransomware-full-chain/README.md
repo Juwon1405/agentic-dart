@@ -1,8 +1,10 @@
 # Case Study 07 — Full Ransomware Chain (MITRE ATT&CK Coverage)
 
 **Scenario class:** Post-foothold ransomware deployment with full MITRE
+**Evidence:** bundled at `examples/sample-evidence/disk/` (creds-processes, discovery-processes, security-events, log-clearing-events)
 **Functions used:** `detect_credential_access`, `detect_discovery`,
   `detect_defense_evasion`, `detect_ransomware_behavior`
+**Reproduce:** Case 01 ships in the bundled demo; Case 07 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
 
 ## Why this case matters
 
@@ -190,3 +192,29 @@ print(f"Discovery: {disc['hit_count']} hits, {disc['ad_recon_count']} AD recon, 
       f"{len(disc['recon_bursts'])} bursts")
 PY
 ```
+
+
+---
+
+## How to invoke this case directly
+
+```bash
+# From the repo root
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+
+python3 - <<'PY'
+from dart_mcp import call_tool
+
+result = call_tool('detect_credential_access', {})
+print('detect_credential_access', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+
+result = call_tool('detect_discovery', {})
+print('detect_discovery', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+
+result = call_tool('detect_defense_evasion', {})
+print('detect_defense_evasion', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+PY
+```
+
+Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.

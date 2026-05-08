@@ -1,8 +1,10 @@
 # Case Study 05 — Authentication, AD, and Lateral Movement
 
 **Scenario class:** The "WHO" investigation — stolen cred + AD attack chain
+**Evidence:** bundled across `examples/sample-evidence/disk/` (Windows logons, Kerberos events) and `examples/sample-evidence/linux/` (auth.log)
 **Functions used:** `analyze_windows_logons`, `detect_lateral_movement`,
   `analyze_kerberos_events`, `analyze_unix_auth`, `detect_privilege_escalation`
+**Reproduce:** Case 01 ships in the bundled demo; Case 05 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
 
 ## Why this case matters
 
@@ -167,3 +169,29 @@ Windows (AD), Linux (auth.log), and macOS.
 This is the missing DFIR dimension the user explicitly flagged:
 **"AD로 로그인 했거나, 로컬로 로그인 했거나, 리모트로 로그인해서 명령
 실행한 것"** — now fully covered.
+
+
+---
+
+## How to invoke this case directly
+
+```bash
+# From the repo root
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+
+python3 - <<'PY'
+from dart_mcp import call_tool
+
+result = call_tool('analyze_windows_logons', {'security_events_json': 'disk/security-events.json'})
+print('analyze_windows_logons', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+
+result = call_tool('detect_lateral_movement', {})
+print('detect_lateral_movement', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+
+result = call_tool('analyze_kerberos_events', {'security_events_json': 'disk/security-events.json'})
+print('analyze_kerberos_events', '→', len(result.get('findings', [])), 'findings,', result.get('audit_id', 'no-audit-id')[:24])
+PY
+```
+
+Each call returns a typed dict with `findings` (list of MITRE-tagged signals), `audit_id` (SHA-256-chained), and source-file metadata. See [accuracy-report.md](../../docs/accuracy-report.md) for measured recall/FPR numbers.
