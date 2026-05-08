@@ -198,6 +198,8 @@ PY
 
 ## How to invoke this case directly
 
+The detection functions in this case (`detect_credential_access`, `detect_discovery`, `detect_defense_evasion`, `detect_ransomware_behavior`) are designed to be **chained** off the output of `get_process_tree` — they consume process dicts produced by an earlier MCP call rather than reading evidence paths themselves. This is the same chaining pattern `dart_agent` uses internally.
+
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
@@ -206,15 +208,42 @@ export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 python3 - <<'PY'
 from dart_mcp import call_tool
 
-r = call_tool('detect_credential_access', {})
-print('detect_credential_access:', r['finding_count'], 'findings, max severity:', r['max_severity'])
+# Step 1: pull process tree from creds-processes.csv (mimikatz / procdump / reg save chain)
+tree = call_tool('get_process_tree', {'process_csv': 'disk/creds-processes.csv'})
 
-r = call_tool('detect_discovery', {})
-print('detect_discovery:', r['hit_count'], 'hits,', r['ad_recon_count'], 'AD recon,', len(r['recon_bursts']), 'bursts')
+# Step 2: flatten the tree into a list of process dicts (depth-first)
+def flatten(nodes):
+    out = []
+    for n in nodes:
+        out.append({'image': n['image'], 'cmdline': n['cmdline'],
+                    'start_ts': n.get('start_ts'), 'pid': n['pid']})
+        if n.get('children'):
+            out.extend(flatten(n['children']))
+    return out
+procs = flatten(tree['tree'])
 
-r = call_tool('detect_defense_evasion', {})
-print('detect_defense_evasion:', r['finding_count'], 'findings, max severity:', r['max_severity'])
+# Step 3: feed the flattened processes into the detection functions
+cred = call_tool('detect_credential_access', {'processes': procs})
+print('detect_credential_access:', cred['finding_count'], 'findings, max severity:', cred['max_severity'])
+
+# Discovery uses a different process CSV (whoami / net / nltest / quser etc.)
+disc_tree = call_tool('get_process_tree', {'process_csv': 'disk/discovery-processes.csv'})
+disc_procs = flatten(disc_tree['tree'])
+disc = call_tool('detect_discovery', {'processes': disc_procs})
+print('detect_discovery:', disc['hit_count'], 'hits,', disc['ad_recon_count'], 'AD recon,', len(disc['recon_bursts']), 'bursts')
+
+# Defense evasion reads log-clearing events directly
+de = call_tool('detect_defense_evasion', {'events_json': 'disk/log-clearing-events.json'})
+print('detect_defense_evasion:', de['finding_count'], 'findings, max severity:', de['max_severity'])
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Expected output on the bundled evidence:
+
+```
+detect_credential_access: 7 findings, max severity: critical
+detect_discovery: 11 hits, 6 AD recon, 1 bursts
+detect_defense_evasion: 2 findings, max severity: critical
+```
+
+The chaining pattern is what makes the architectural-first claim concrete: each detection function consumes typed data, not raw paths, and `dart_agent`'s loop is what drives the chaining in the live case. See [docs/accuracy-report.md](../../docs/accuracy-report.md) for the full schema and measured numbers.
