@@ -198,7 +198,7 @@ exists.
   into a chain. Tampering at any step breaks the chain. The audit
   output is courtroom-traceable.
 
-- **31/31 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12). Includes adversarial bypass
+- **31/31 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12/3.13). Includes adversarial bypass
   tests, audit chain tampering tests, concurrency tests, the v0.5
   SIFT adapter test suite, and the v0.5.2 QA-pass regression guard.
 
@@ -314,7 +314,7 @@ sigma
 GitHub repository:        https://github.com/Juwon1405/agentic-dart
 Wiki:                     https://github.com/Juwon1405/agentic-dart/wiki
 SIFT adapter layer docs:  https://github.com/Juwon1405/agentic-dart/wiki/SIFT-adapter-layer
-CHANGELOG (v0.5.0):       https://github.com/Juwon1405/agentic-dart/blob/main/CHANGELOG.md
+CHANGELOG (v0.5.2):       https://github.com/Juwon1405/agentic-dart/blob/main/CHANGELOG.md
 Demo run:                 bash examples/demo-run.sh
 SIFT adapter demo:        bash examples/sift-adapter-demo.sh
 1-liner install on SIFT:  curl -fsSL https://raw.githubusercontent.com/Juwon1405/agentic-dart/main/scripts/install.sh | bash

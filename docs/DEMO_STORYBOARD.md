@@ -141,8 +141,12 @@ and you have time. If skipped, extend Scene 4 narration.
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-python3 -m dart_agent --case examples/sample-case --mode live --max-iterations 8 --out /tmp/sample-case-out
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
+python3 -m dart_agent --case find-evil-live-demo --mode live --max-iterations 8 --out /tmp/live-demo-out
 ```
+
+(`--case` takes a case-ID string, not a path. Evidence is mounted via the `DART_EVIDENCE_ROOT` env var, identical to how `examples/demo-run.sh` works.)
 
 **Camera:** Show the agent's iterations stream by. The agent will:
 - Call typed forensic tools
@@ -154,7 +158,7 @@ python3 -m dart_agent --case examples/sample-case --mode live --max-iterations 8
 **Voiceover:**
 
 > "Live mode against the Anthropic API. The agent runs the
-> senior-analyst playbook — eleven-hundred-and-thirty-five lines of
+> senior-analyst playbook — eleven-hundred-and-eighty-two lines of
 > YAML synthesizing M-Trends 2026, MITRE ATT&CK v16, the Diamond
 > Model, F3EAD, and the Pyramid of Pain. It builds a timeline,
 > hits a contradiction, refines its hypothesis, and produces a
