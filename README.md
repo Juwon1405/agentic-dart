@@ -321,9 +321,9 @@ Agentic-DART runs on **Linux**, **macOS**, and **Windows** as the host (Python 3
 > require live agent installation on the target host. This is what
 > makes it work on disk images and offline triage.
 
-### 35 typed forensic functions — by platform
+### 35 typed forensic functions (native layer) — by platform
 
-The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`.
+The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"` (returns 60 — 35 native + 25 SIFT adapters).
 
 | Platform | Functions | Count |
 |---|---|:---:|
