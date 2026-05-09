@@ -96,7 +96,7 @@ jobs:
           sift = [t for t in tools if t['name'].startswith('sift_')]
           print(f"Total: {len(tools)}, native: {len(native)}, sift: {len(sift)}")
           assert len(tools) == 61, f"expected 61 tools, got {len(tools)}"
-          assert len(native) == 35, f"expected 35 native, got {len(native)}"
+          assert len(native) == 36, f"expected 36 native, got {len(native)}"
           assert len(sift) == 25, f"expected 25 sift, got {len(sift)}"
           print("\u2713 packaging surface verified")
           PY
