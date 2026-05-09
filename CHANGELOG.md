@@ -1,5 +1,51 @@
 # Changelog
 
+## [v0.5.3] — 2026-05-09 — Evidence variants + methodology disclosure
+
+Two-tier evidence methodology to address a fair reviewer concern: that
+`recall=1.0` measured on a 30-line file is not strong evidence of
+production-shape detection capability.
+
+### Added
+
+- `examples/sample-evidence-realistic/` — noise-injected variant of the
+  bundled evidence. Same IOCs (`F-001`, `F-013`) mixed with synthetic
+  benign traffic at ~1:30 ratios:
+  - Web access log: 27 IOC + 1000 benign = 1027 lines (1:37)
+  - Security events JSON: 16 IOC + 500 benign = 516 events (1:31)
+  - Unix auth.log: 17 IOC + 500 benign = 517 lines (1:29)
+- `scripts/generate_realistic_evidence.py` — deterministic generator
+  (seed = 20260508). Re-running produces byte-identical output. Process
+  trees are not noise-injected (would collide PIDs with IOC entries and
+  break `get_process_tree`'s recursive walk; the realistic-noise signal
+  is demonstrated through the three log surfaces above).
+- `scripts/measure_accuracy.py --variant {reference,realistic}` — score
+  the agent on either variant. Both variants score the same ground
+  truth and currently produce **identical recall=1.0 / FPR=0.0 /
+  hallucination=0**, ruling out the "small-input over-fit" failure mode.
+
+### Documented
+
+- `docs/accuracy-report.md` — explicit "Methodology and limitations"
+  section. Calls out what is not measured (detection breadth on novel
+  IOCs, performance under adversarial evidence, live-mode accuracy,
+  generalization to production data) and what would make the numbers
+  stronger (third-party benchmarking, Sigma synthesis, native EVTX/PCAP).
+- Issue #47 — Phase 2 public dataset integration (NIST CFReDS, Ali Hadi,
+  DFRWS, Splunk BOTS) tracked with workstream split and acceptance criteria.
+
+### Fixed
+
+- `docs/accuracy-report.md` — '11 of 12 enterprise tactics' updated to
+  '10 of 12 actively covered' (TA0009 Collection has parsers but no
+  scoped detection rules; TA0011 C2 requires Phase 2 PCAP primitives).
+  Aligns with the round-12 wiki/profile fixes.
+- `README.md` — '8 files' SHA-256 evidence-integrity claim corrected to
+  '61 files' (the actual measured count). Same fix in
+  `docs/accuracy-report.md` and `wiki/Accuracy.md`.
+- `wiki/Accuracy.md` — '12/12 ground-truth findings' corrected to '2/2'
+  (the two findings are F-001 and F-013, not 12 of 12).
+
 ## [v0.5.2] — 2026-05-03 — Defensive runtime guards + regression coverage
 
 Defensive fixes and regression coverage discovered during a full repo QA

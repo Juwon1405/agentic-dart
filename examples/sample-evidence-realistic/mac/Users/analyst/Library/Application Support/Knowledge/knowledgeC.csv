@@ -1,0 +1,10 @@
+stream,bundle_id,start_time,end_time,value
+/app/usage,com.apple.Terminal,2026-03-15 14:22:00,2026-03-15 14:35:00,
+/app/usage,com.googlecode.iterm2,2026-03-15 14:23:00,2026-03-15 14:34:00,
+/app/usage,com.microsoft.VSCode,2026-03-15 14:24:00,2026-03-15 14:30:00,
+/app/inFocus,com.apple.Terminal,2026-03-15 14:22:00,2026-03-15 14:25:00,
+/app/inFocus,com.apple.Terminal,2026-03-15 14:28:00,2026-03-15 14:33:00,
+/device/isLocked,,2026-03-15 13:00:00,2026-03-15 14:22:00,locked
+/device/isLocked,,2026-03-15 14:22:00,2026-03-15 14:35:00,unlocked
+/app/usage,com.apple.Safari,2026-03-15 14:25:00,2026-03-15 14:28:00,
+/app/usage,com.apple.Finder,2026-03-15 14:30:00,2026-03-15 14:32:00,

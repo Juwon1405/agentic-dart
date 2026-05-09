@@ -25,7 +25,36 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+
+# Evidence variant selection. Two variants ship:
+#
+#   examples/sample-evidence/             — the deterministic reference set.
+#                                           Small (≤30 lines/file), fully
+#                                           IOC-loaded, used for byte-stable
+#                                           regression / CI assertions.
+#
+#   examples/sample-evidence-realistic/   — the same IOCs mixed with
+#                                           synthetic benign noise at
+#                                           ~1:30 IOC:benign ratios.
+#                                           Demonstrates needle-in-haystack
+#                                           recall on production-shaped data.
+#
+# Pass --variant realistic to score the agent against the noise-injected set;
+# the default (--variant reference) preserves CI determinism.
+_variant = "reference"
+if "--variant" in sys.argv:
+    idx = sys.argv.index("--variant")
+    if idx + 1 < len(sys.argv):
+        _variant = sys.argv[idx + 1]
+        del sys.argv[idx : idx + 2]
+if _variant not in ("reference", "realistic"):
+    print(f"unknown variant {_variant!r}; expected 'reference' or 'realistic'",
+          file=sys.stderr)
+    sys.exit(2)
+_evidence_dir = (
+    "sample-evidence-realistic" if _variant == "realistic" else "sample-evidence"
+)
+os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / _evidence_dir)
 sys.path.insert(0, str(REPO / "dart_audit" / "src"))
 sys.path.insert(0, str(REPO / "dart_mcp"   / "src"))
 sys.path.insert(0, str(REPO / "dart_agent" / "src"))

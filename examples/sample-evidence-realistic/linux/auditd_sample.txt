@@ -1,0 +1,3 @@
+type=SYSCALL msg=audit(1764000000.123:1001): arch=c000003e syscall=59 success=yes exit=0 a0=7ffe0123 a1=7ffe0234 a2=7ffe0345 a3=0 items=2 ppid=1234 pid=5678 auid=1001 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts0 ses=2 comm="bash" exe="/bin/bash" key="suspicious_exec"
+type=USER_LOGIN msg=audit(1764000010.456:1002): pid=2222 uid=0 auid=1001 ses=2 msg='op=login id=1001 exe="/usr/sbin/sshd" hostname=evil.example.com addr=192.168.1.100 terminal=ssh res=success' key="auth_log"
+type=SYSCALL msg=audit(1764000020.789:1003): syscall=257 success=yes exe="/bin/cat" comm="cat" auid=1001 uid=0 key="sensitive_file_read"

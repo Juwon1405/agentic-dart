@@ -1,0 +1,4651 @@
+[
+  {
+    "EventID": 4625,
+    "TimeCreated": "2026-03-15 14:10:00",
+    "TargetUserName": "analyst",
+    "TargetDomainName": "CORP",
+    "LogonType": 3,
+    "IpAddress": "203.0.113.42",
+    "WorkstationName": "-",
+    "FailureReason": "Unknown user name or bad password"
+  },
+  {
+    "EventID": 4625,
+    "TimeCreated": "2026-03-15 14:10:20",
+    "TargetUserName": "analyst",
+    "TargetDomainName": "CORP",
+    "LogonType": 3,
+    "IpAddress": "203.0.113.42",
+    "WorkstationName": "-",
+    "FailureReason": "Unknown user name or bad password"
+  },
+  {
+    "EventID": 4625,
+    "TimeCreated": "2026-03-15 14:10:45",
+    "TargetUserName": "analyst",
+    "TargetDomainName": "CORP",
+    "LogonType": 3,
+    "IpAddress": "203.0.113.42",
+    "WorkstationName": "-",
+    "FailureReason": "Unknown user name or bad password"
+  },
+  {
+    "EventID": 4625,
+    "TimeCreated": "2026-03-15 14:11:05",
+    "TargetUserName": "analyst",
+    "TargetDomainName": "CORP",
+    "LogonType": 3,
+    "IpAddress": "203.0.113.42",
+    "WorkstationName": "-",
+    "FailureReason": "Unknown user name or bad password"
+  },
+  {
+    "EventID": 4624,
+    "TimeCreated": "2026-03-15 14:11:30",
+    "TargetUserName": "analyst",
+    "TargetDomainName": "CORP",
+    "LogonType": 3,
+    "IpAddress": "203.0.113.42",
+    "WorkstationName": "ATTACKER-HOST",
+    "AuthenticationPackageName": "NTLM",
+    "LogonProcessName": "NtLmSsp"
+  },
+  {
+    "EventID": 4624,
+    "TimeCreated": "2026-03-15 08:30:00",
+    "TargetUserName": "analyst",
+    "TargetDomainName": "CORP",
+    "LogonType": 2,
+    "IpAddress": "-",
+    "WorkstationName": "WKS-ANALYST",
+    "AuthenticationPackageName": "Negotiate",
+    "LogonProcessName": "User32"
+  },
+  {
+    "EventID": 4624,
+    "TimeCreated": "2026-03-15 14:22:00",
+    "TargetUserName": "analyst",
+    "TargetDomainName": "CORP",
+    "LogonType": 10,
+    "IpAddress": "203.0.113.42",
+    "WorkstationName": "ATTACKER-HOST",
+    "AuthenticationPackageName": "Negotiate",
+    "LogonProcessName": "User32"
+  },
+  {
+    "EventID": 4624,
+    "TimeCreated": "2026-03-15 23:45:00",
+    "TargetUserName": "svc_backup",
+    "TargetDomainName": "CORP",
+    "LogonType": 5,
+    "IpAddress": "-",
+    "AuthenticationPackageName": "Negotiate"
+  },
+  {
+    "EventID": 4624,
+    "TimeCreated": "2026-03-15 02:17:00",
+    "TargetUserName": "analyst",
+    "TargetDomainName": "CORP",
+    "LogonType": 10,
+    "IpAddress": "198.51.100.77",
+    "WorkstationName": "UNKNOWN"
+  },
+  {
+    "EventID": 4648,
+    "TimeCreated": "2026-03-15 14:23:30",
+    "TargetUserName": "Administrator",
+    "TargetDomainName": "CORP",
+    "IpAddress": "10.0.0.50",
+    "TargetServerName": "DC01.corp.local",
+    "ProcessName": "C:\\Windows\\System32\\psexec.exe"
+  },
+  {
+    "EventID": 4648,
+    "TimeCreated": "2026-03-15 14:24:15",
+    "TargetUserName": "svc_sql",
+    "TargetDomainName": "CORP",
+    "IpAddress": "10.0.0.50",
+    "TargetServerName": "SQL01.corp.local",
+    "ProcessName": "C:\\Users\\analyst\\Downloads\\wmiexec.py"
+  },
+  {
+    "EventID": 4768,
+    "TimeCreated": "2026-03-15 14:23:00",
+    "TargetUserName": "analyst",
+    "IpAddress": "203.0.113.42",
+    "PreAuthType": "2",
+    "TicketEncryptionType": "0x12"
+  },
+  {
+    "EventID": 4769,
+    "TimeCreated": "2026-03-15 14:24:00",
+    "TargetUserName": "analyst",
+    "ServiceName": "MSSQLSvc/SQL01.corp.local",
+    "IpAddress": "203.0.113.42",
+    "TicketEncryptionType": "0x17"
+  },
+  {
+    "EventID": 4769,
+    "TimeCreated": "2026-03-15 14:24:10",
+    "TargetUserName": "analyst",
+    "ServiceName": "HTTP/exchange.corp.local",
+    "IpAddress": "203.0.113.42",
+    "TicketEncryptionType": "0x17"
+  },
+  {
+    "EventID": 4769,
+    "TimeCreated": "2026-03-15 14:24:20",
+    "TargetUserName": "analyst",
+    "ServiceName": "LDAP/DC01.corp.local",
+    "IpAddress": "203.0.113.42",
+    "TicketEncryptionType": "0x17"
+  },
+  {
+    "EventID": 4768,
+    "TimeCreated": "2026-03-15 14:24:50",
+    "TargetUserName": "alice",
+    "IpAddress": "203.0.113.42",
+    "PreAuthType": "0",
+    "TicketEncryptionType": "0x12"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T08:06:34",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.15",
+    "workstation": "WS-6348"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T08:07:30",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.33",
+    "workstation": "WS-5047"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:08:38",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.41",
+    "workstation": "WS-9764"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:12:39",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.24",
+    "workstation": "WS-5815"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:16:12",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.42",
+    "workstation": "WS-5517"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T08:16:44",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.44",
+    "workstation": "WS-1594"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:16:58",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.8",
+    "workstation": "WS-7880"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:18:49",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.43",
+    "workstation": "WS-3284"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:20:41",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.32",
+    "workstation": "WS-8914"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:21:52",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.47",
+    "workstation": "WS-1994"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:22:38",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.12",
+    "workstation": "WS-5047"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:28:50",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.40",
+    "workstation": "WS-1432"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T08:35:04",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.38",
+    "workstation": "WS-8054"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:35:08",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.41",
+    "workstation": "WS-2425"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:36:15",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.40",
+    "workstation": "WS-5498"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T08:37:54",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.8",
+    "workstation": "WS-3867"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:38:43",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.39",
+    "workstation": "WS-5027"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:41:13",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.6",
+    "workstation": "WS-3773"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:42:23",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.19",
+    "workstation": "WS-7076"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:42:39",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.47",
+    "workstation": "WS-2663"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:45:34",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.31",
+    "workstation": "WS-4729"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:49:04",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.16",
+    "workstation": "WS-2678"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:49:36",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.25",
+    "workstation": "WS-9008"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:53:15",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.31",
+    "workstation": "WS-8694"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:57:29",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.28",
+    "workstation": "WS-2022"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T08:58:39",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.20",
+    "workstation": "WS-5537"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T08:59:54",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.5",
+    "workstation": "WS-1535"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:00:14",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.36",
+    "workstation": "WS-4129"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T09:00:48",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.36",
+    "workstation": "WS-6670"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:01:55",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.11",
+    "workstation": "WS-3900"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:02:35",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.27",
+    "workstation": "WS-2450"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:02:40",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.35",
+    "workstation": "WS-1464"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:07:35",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.42",
+    "workstation": "WS-2834"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:08:10",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.36",
+    "workstation": "WS-4833"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:08:13",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.17",
+    "workstation": "WS-6757"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:11:45",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.47",
+    "workstation": "WS-6224"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:11:57",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.25",
+    "workstation": "WS-5427"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:14:24",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.41",
+    "workstation": "WS-8014"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T09:16:14",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.45",
+    "workstation": "WS-7319"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T09:17:01",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.28",
+    "workstation": "WS-4511"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:17:33",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.40",
+    "workstation": "WS-3061"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:18:46",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.20",
+    "workstation": "WS-9369"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:20:54",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.13",
+    "workstation": "WS-9427"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:21:43",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.16",
+    "workstation": "WS-5308"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:22:30",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.49",
+    "workstation": "WS-4498"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:25:00",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.45",
+    "workstation": "WS-9972"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:27:49",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.48",
+    "workstation": "WS-8067"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:33:28",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.13",
+    "workstation": "WS-8485"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:36:18",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.44",
+    "workstation": "WS-2616"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:36:43",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.43",
+    "workstation": "WS-2863"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:38:12",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.7",
+    "workstation": "WS-3621"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:39:48",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.12",
+    "workstation": "WS-3176"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:39:49",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.30",
+    "workstation": "WS-7994"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:40:07",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.2",
+    "workstation": "WS-1470"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:40:13",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.2",
+    "workstation": "WS-4508"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:42:31",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.36",
+    "workstation": "WS-9812"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:42:40",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.15",
+    "workstation": "WS-1173"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:47:02",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.1",
+    "workstation": "WS-6089"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:53:59",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.41",
+    "workstation": "WS-3002"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:54:16",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.38",
+    "workstation": "WS-9981"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:55:01",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.28",
+    "workstation": "WS-8042"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:56:14",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.2",
+    "workstation": "WS-5746"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:57:12",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.40",
+    "workstation": "WS-8485"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:57:12",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.38",
+    "workstation": "WS-2617"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T09:58:22",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.41",
+    "workstation": "WS-6165"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:58:50",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.47",
+    "workstation": "WS-4192"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T09:59:08",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.34",
+    "workstation": "WS-7356"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:00:16",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.1",
+    "workstation": "WS-5565"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:01:09",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.45",
+    "workstation": "WS-2201"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:03:27",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.46",
+    "workstation": "WS-8642"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T10:05:47",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.19",
+    "workstation": "WS-1678"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:13:10",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.19",
+    "workstation": "WS-8567"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T10:13:38",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.33",
+    "workstation": "WS-3789"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:13:51",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.27",
+    "workstation": "WS-3866"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T10:16:23",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.37",
+    "workstation": "WS-4326"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T10:16:40",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.18",
+    "workstation": "WS-6356"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:18:47",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.47",
+    "workstation": "WS-5228"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:21:08",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.40",
+    "workstation": "WS-8513"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T10:22:05",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.49",
+    "workstation": "WS-7614"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:22:18",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.13",
+    "workstation": "WS-3106"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T10:23:44",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.23",
+    "workstation": "WS-2814"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:24:02",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.28",
+    "workstation": "WS-4729"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:27:15",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.15",
+    "workstation": "WS-8732"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T10:28:43",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.48",
+    "workstation": "WS-1351"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:28:43",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.26",
+    "workstation": "WS-4444"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:30:17",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.25",
+    "workstation": "WS-8772"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T10:33:46",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.20",
+    "workstation": "WS-3964"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:37:03",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.46",
+    "workstation": "WS-2909"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:38:02",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.5",
+    "workstation": "WS-1284"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T10:39:44",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.28",
+    "workstation": "WS-6653"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:42:45",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.21",
+    "workstation": "WS-3033"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:49:12",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.30",
+    "workstation": "WS-7701"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:49:59",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.15",
+    "workstation": "WS-6070"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:56:02",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.13",
+    "workstation": "WS-1819"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T10:58:56",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.29",
+    "workstation": "WS-3649"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T10:59:05",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.46",
+    "workstation": "WS-2867"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T11:02:40",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.26",
+    "workstation": "WS-7668"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:04:45",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.35",
+    "workstation": "WS-3894"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:04:57",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.45",
+    "workstation": "WS-6174"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T11:06:53",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.17",
+    "workstation": "WS-9419"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:08:34",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.32",
+    "workstation": "WS-2082"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:08:45",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.47",
+    "workstation": "WS-7450"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:09:47",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.24",
+    "workstation": "WS-9322"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T11:13:35",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.48",
+    "workstation": "WS-3805"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T11:15:17",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.37",
+    "workstation": "WS-1249"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T11:17:44",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.41",
+    "workstation": "WS-2567"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T11:17:54",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.16",
+    "workstation": "WS-7293"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T11:20:09",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.49",
+    "workstation": "WS-2755"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T11:23:26",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.11",
+    "workstation": "WS-7161"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:24:02",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.33",
+    "workstation": "WS-4868"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:24:50",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.46",
+    "workstation": "WS-3933"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T11:33:32",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.2",
+    "workstation": "WS-1152"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:38:05",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.32",
+    "workstation": "WS-7090"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T11:39:34",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.23",
+    "workstation": "WS-5725"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T11:39:57",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.23",
+    "workstation": "WS-7923"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T11:48:16",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.13",
+    "workstation": "WS-5569"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T11:50:47",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.2",
+    "workstation": "WS-1765"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T11:52:26",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.37",
+    "workstation": "WS-4309"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:53:02",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.31",
+    "workstation": "WS-5039"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:56:07",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.22",
+    "workstation": "WS-7969"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:57:06",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.6",
+    "workstation": "WS-1152"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:57:23",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.27",
+    "workstation": "WS-3801"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:57:35",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.10",
+    "workstation": "WS-2052"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:57:40",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.42",
+    "workstation": "WS-4606"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T11:59:27",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.31",
+    "workstation": "WS-8615"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T12:02:32",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.15",
+    "workstation": "WS-7232"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T12:03:28",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.43",
+    "workstation": "WS-1582"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:07:39",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.12",
+    "workstation": "WS-9198"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T12:09:07",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.27",
+    "workstation": "WS-9522"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:09:17",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.45",
+    "workstation": "WS-7426"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T12:09:22",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.3",
+    "workstation": "WS-8001"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T12:09:24",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.2",
+    "workstation": "WS-8660"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:09:29",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.32",
+    "workstation": "WS-6192"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:09:39",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.12",
+    "workstation": "WS-4175"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:10:48",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.5",
+    "workstation": "WS-3608"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T12:19:21",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.42",
+    "workstation": "WS-8707"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:21:24",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.27",
+    "workstation": "WS-1155"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T12:23:11",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.36",
+    "workstation": "WS-7896"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:25:50",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.19",
+    "workstation": "WS-4573"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:31:14",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.33",
+    "workstation": "WS-4282"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:32:36",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.48",
+    "workstation": "WS-8803"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:35:04",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.33",
+    "workstation": "WS-9145"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:35:04",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.49",
+    "workstation": "WS-1953"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:39:42",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.21",
+    "workstation": "WS-2034"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T12:41:30",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.40",
+    "workstation": "WS-4420"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:42:57",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.12",
+    "workstation": "WS-8546"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:45:13",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.9",
+    "workstation": "WS-5795"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:45:30",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.8",
+    "workstation": "WS-7668"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T12:47:19",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.49",
+    "workstation": "WS-3957"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T12:48:47",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.28",
+    "workstation": "WS-8903"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:50:47",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.38",
+    "workstation": "WS-9620"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:52:58",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.5",
+    "workstation": "WS-5555"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:54:54",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.32",
+    "workstation": "WS-4116"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T12:58:53",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.18",
+    "workstation": "WS-4077"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:00:08",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.21",
+    "workstation": "WS-4608"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:03:01",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.48",
+    "workstation": "WS-6004"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:03:45",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.23",
+    "workstation": "WS-5011"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:05:54",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.23",
+    "workstation": "WS-9322"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:09:03",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.42",
+    "workstation": "WS-6731"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:09:13",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.23",
+    "workstation": "WS-2981"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:13:52",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.43",
+    "workstation": "WS-8478"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:15:01",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.20",
+    "workstation": "WS-4493"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T13:16:47",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.30",
+    "workstation": "WS-7369"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:17:05",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.30",
+    "workstation": "WS-2890"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:20:50",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.44",
+    "workstation": "WS-7359"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:21:58",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.36",
+    "workstation": "WS-8060"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:23:01",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.44",
+    "workstation": "WS-3432"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:29:10",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.8",
+    "workstation": "WS-9117"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:29:22",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.10",
+    "workstation": "WS-9921"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T13:34:17",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.27",
+    "workstation": "WS-9702"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:34:38",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.10",
+    "workstation": "WS-4781"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T13:36:22",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.34",
+    "workstation": "WS-7743"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:37:34",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.45",
+    "workstation": "WS-6543"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:41:30",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.29",
+    "workstation": "WS-4055"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:41:55",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.11",
+    "workstation": "WS-2366"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:45:24",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.7",
+    "workstation": "WS-7355"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T13:47:06",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.18",
+    "workstation": "WS-4587"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T13:53:30",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.37",
+    "workstation": "WS-4612"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T13:57:08",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.6",
+    "workstation": "WS-4421"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:05:40",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.10",
+    "workstation": "WS-7802"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:13:22",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.29",
+    "workstation": "WS-2621"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:14:54",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.47",
+    "workstation": "WS-3386"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:20:32",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.13",
+    "workstation": "WS-6877"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:20:50",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.37",
+    "workstation": "WS-4063"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:21:14",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.30",
+    "workstation": "WS-9519"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:21:40",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.28",
+    "workstation": "WS-9360"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:26:26",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.45",
+    "workstation": "WS-1204"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:26:31",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.37",
+    "workstation": "WS-1426"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:27:31",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.19",
+    "workstation": "WS-9003"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T14:28:04",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.31",
+    "workstation": "WS-1030"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:28:46",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.9",
+    "workstation": "WS-9269"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:30:34",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.20",
+    "workstation": "WS-5705"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:30:38",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.13",
+    "workstation": "WS-4980"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:30:46",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.27",
+    "workstation": "WS-7396"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T14:30:51",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.49",
+    "workstation": "WS-6261"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:31:32",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.41",
+    "workstation": "WS-8766"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T14:37:23",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.48",
+    "workstation": "WS-3478"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:39:40",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.25",
+    "workstation": "WS-9294"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:40:57",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.3",
+    "workstation": "WS-5599"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:43:05",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.14",
+    "workstation": "WS-8993"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T14:43:17",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.32",
+    "workstation": "WS-5681"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:44:34",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.43",
+    "workstation": "WS-7944"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:46:31",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.39",
+    "workstation": "WS-6062"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:48:28",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.7",
+    "workstation": "WS-4603"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:50:48",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.25",
+    "workstation": "WS-9683"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:51:04",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.30",
+    "workstation": "WS-2610"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T14:53:55",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.21",
+    "workstation": "WS-9700"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:55:46",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.23",
+    "workstation": "WS-3678"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:55:52",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.21",
+    "workstation": "WS-8955"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:58:02",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.5",
+    "workstation": "WS-8781"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T14:58:59",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.35",
+    "workstation": "WS-9516"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:59:03",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.24",
+    "workstation": "WS-1129"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T14:59:40",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.29",
+    "workstation": "WS-9747"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:00:14",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.8",
+    "workstation": "WS-7724"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:00:41",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.4",
+    "workstation": "WS-6545"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:05:37",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.4",
+    "workstation": "WS-5006"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T15:05:56",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.36",
+    "workstation": "WS-1032"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T15:07:37",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.47",
+    "workstation": "WS-2908"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:07:50",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.46",
+    "workstation": "WS-3576"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:09:54",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.19",
+    "workstation": "WS-1251"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T15:10:44",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.34",
+    "workstation": "WS-3584"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:10:47",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.38",
+    "workstation": "WS-2416"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:10:51",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.48",
+    "workstation": "WS-4647"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:12:42",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.11",
+    "workstation": "WS-5855"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:14:15",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.23",
+    "workstation": "WS-5082"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:19:55",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.24",
+    "workstation": "WS-6149"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:20:47",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.20",
+    "workstation": "WS-2227"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T15:24:30",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.33",
+    "workstation": "WS-8002"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:24:52",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.45",
+    "workstation": "WS-3609"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:26:08",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.30",
+    "workstation": "WS-2638"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:26:57",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.44",
+    "workstation": "WS-5227"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:27:10",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.38",
+    "workstation": "WS-3267"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:28:25",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.34",
+    "workstation": "WS-7228"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T15:30:01",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.42",
+    "workstation": "WS-6108"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:30:17",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.45",
+    "workstation": "WS-6684"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:36:40",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.41",
+    "workstation": "WS-5268"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:37:34",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.40",
+    "workstation": "WS-1348"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:39:20",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.35",
+    "workstation": "WS-1306"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T15:41:50",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.33",
+    "workstation": "WS-3420"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:52:45",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.29",
+    "workstation": "WS-4426"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:53:23",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.32",
+    "workstation": "WS-7077"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:57:22",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.15",
+    "workstation": "WS-3302"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T15:57:29",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.17",
+    "workstation": "WS-5221"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T15:57:51",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.31",
+    "workstation": "WS-6584"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T15:59:47",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.4",
+    "workstation": "WS-5220"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:00:42",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.27",
+    "workstation": "WS-3222"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T16:00:42",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.12",
+    "workstation": "WS-3907"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T16:01:51",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.45",
+    "workstation": "WS-3044"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:03:50",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.21",
+    "workstation": "WS-7336"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:03:52",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.42",
+    "workstation": "WS-5448"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:08:06",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.28",
+    "workstation": "WS-8593"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:08:32",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.31",
+    "workstation": "WS-8559"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:11:31",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.27",
+    "workstation": "WS-8334"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:13:33",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.27",
+    "workstation": "WS-6350"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:15:36",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.38",
+    "workstation": "WS-1182"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:17:07",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.21",
+    "workstation": "WS-7222"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:17:45",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.45",
+    "workstation": "WS-9798"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:18:29",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.21",
+    "workstation": "WS-2023"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:19:38",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.16",
+    "workstation": "WS-8226"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:20:50",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.48",
+    "workstation": "WS-2802"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:21:45",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.14",
+    "workstation": "WS-8960"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:29:35",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.4",
+    "workstation": "WS-3806"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:30:23",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.45",
+    "workstation": "WS-2445"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:31:09",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.21",
+    "workstation": "WS-1807"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:32:26",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.29",
+    "workstation": "WS-1632"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:34:03",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.32",
+    "workstation": "WS-8435"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:34:44",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.26",
+    "workstation": "WS-6988"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:35:10",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.48",
+    "workstation": "WS-4582"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:37:57",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.26",
+    "workstation": "WS-7540"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:40:13",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.33",
+    "workstation": "WS-4066"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:40:45",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.16",
+    "workstation": "WS-8163"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T16:43:19",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.15",
+    "workstation": "WS-7719"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T16:48:26",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.13",
+    "workstation": "WS-8789"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T16:51:38",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.7",
+    "workstation": "WS-3004"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T16:57:45",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.9",
+    "workstation": "WS-7284"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:01:03",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.6",
+    "workstation": "WS-3757"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T17:01:32",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.40",
+    "workstation": "WS-4651"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:01:44",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.9",
+    "workstation": "WS-4102"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:14:41",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.39",
+    "workstation": "WS-1358"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T17:15:37",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.7",
+    "workstation": "WS-2667"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:17:25",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.8",
+    "workstation": "WS-5881"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:19:07",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.41",
+    "workstation": "WS-2361"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:23:34",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.35",
+    "workstation": "WS-4378"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T17:28:53",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.29",
+    "workstation": "WS-9650"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:29:01",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.24",
+    "workstation": "WS-4946"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:29:33",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.32",
+    "workstation": "WS-9123"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:29:45",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.39",
+    "workstation": "WS-4767"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:32:17",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.11",
+    "workstation": "WS-9802"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T17:33:30",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.9",
+    "workstation": "WS-7593"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T17:33:42",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.17",
+    "workstation": "WS-1378"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T17:35:01",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.17",
+    "workstation": "WS-7255"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:37:12",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.1",
+    "workstation": "WS-2948"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:38:45",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.15",
+    "workstation": "WS-4873"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:43:47",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.46",
+    "workstation": "WS-2231"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T17:46:39",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.21",
+    "workstation": "WS-9232"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T17:55:00",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.19",
+    "workstation": "WS-9773"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T17:55:15",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.33",
+    "workstation": "WS-7641"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T17:57:04",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.15",
+    "workstation": "WS-8067"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:00:18",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.47",
+    "workstation": "WS-8037"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:02:32",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.30",
+    "workstation": "WS-7316"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:03:33",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.39",
+    "workstation": "WS-6586"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T18:04:24",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.45",
+    "workstation": "WS-9183"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:05:22",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.9",
+    "workstation": "WS-3099"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T18:06:26",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.37",
+    "workstation": "WS-8315"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T18:06:52",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.43",
+    "workstation": "WS-6981"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T18:09:15",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.8",
+    "workstation": "WS-4395"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:10:03",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.2",
+    "workstation": "WS-2417"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T18:13:32",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.3",
+    "workstation": "WS-9907"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:15:50",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.20",
+    "workstation": "WS-2192"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T18:17:39",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.47",
+    "workstation": "WS-7553"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T18:20:51",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.11",
+    "workstation": "WS-3449"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:23:13",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.1",
+    "workstation": "WS-6925"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:23:34",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.42",
+    "workstation": "WS-9934"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:23:53",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.22",
+    "workstation": "WS-8960"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:28:09",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.12",
+    "workstation": "WS-2667"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T18:28:24",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.2",
+    "workstation": "WS-1530"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:28:51",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.28",
+    "workstation": "WS-7905"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T18:29:51",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.45",
+    "workstation": "WS-6965"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:30:25",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.20",
+    "workstation": "WS-7129"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T18:32:32",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.29",
+    "workstation": "WS-3520"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T18:33:10",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.49",
+    "workstation": "WS-1793"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:33:17",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.18",
+    "workstation": "WS-8204"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:35:33",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.36",
+    "workstation": "WS-5359"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:35:40",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.40",
+    "workstation": "WS-1708"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:36:09",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.32",
+    "workstation": "WS-1677"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:36:31",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.38",
+    "workstation": "WS-6646"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:36:35",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.2",
+    "workstation": "WS-2220"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:37:08",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.12",
+    "workstation": "WS-3562"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:38:25",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.12",
+    "workstation": "WS-1797"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:42:44",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.48",
+    "workstation": "WS-4275"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:45:08",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.7",
+    "workstation": "WS-5111"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:45:50",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.37",
+    "workstation": "WS-8949"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:47:27",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.20",
+    "workstation": "WS-1706"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T18:48:13",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.17",
+    "workstation": "WS-1634"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T18:49:25",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.26",
+    "workstation": "WS-7094"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:51:18",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.44",
+    "workstation": "WS-9529"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T18:52:31",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.37",
+    "workstation": "WS-2582"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:58:37",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.14",
+    "workstation": "WS-3288"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T18:58:42",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.19",
+    "workstation": "WS-2278"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:59:25",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.16",
+    "workstation": "WS-6170"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T18:59:53",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.41",
+    "workstation": "WS-5812"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:01:44",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.40",
+    "workstation": "WS-6609"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:02:31",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.46",
+    "workstation": "WS-1367"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:02:54",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.31",
+    "workstation": "WS-3587"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:02:56",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.1",
+    "workstation": "WS-8178"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:05:31",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.19",
+    "workstation": "WS-8401"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:05:34",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.17",
+    "workstation": "WS-3416"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:11:30",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.8",
+    "workstation": "WS-6264"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:12:21",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.2",
+    "workstation": "WS-8991"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:15:16",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.35",
+    "workstation": "WS-2819"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:16:24",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.42",
+    "workstation": "WS-1252"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T19:17:02",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.41",
+    "workstation": "WS-3863"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:18:09",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.12",
+    "workstation": "WS-8293"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:18:30",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.25",
+    "workstation": "WS-1663"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:19:31",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.18",
+    "workstation": "WS-3329"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T19:22:39",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.24",
+    "workstation": "WS-4741"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:23:06",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.3",
+    "workstation": "WS-7965"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:23:12",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.45",
+    "workstation": "WS-9352"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:28:03",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.31",
+    "workstation": "WS-4020"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T19:28:23",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.25",
+    "workstation": "WS-8228"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:32:36",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.12",
+    "workstation": "WS-2089"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:34:37",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.22",
+    "workstation": "WS-1498"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:35:03",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.5",
+    "workstation": "WS-1191"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:35:32",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.40",
+    "workstation": "WS-1220"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T19:38:01",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.26",
+    "workstation": "WS-5190"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:38:14",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.38",
+    "workstation": "WS-3313"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:43:07",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.38",
+    "workstation": "WS-2537"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:45:53",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.13",
+    "workstation": "WS-1929"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:46:27",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.43",
+    "workstation": "WS-6987"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:46:39",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.42",
+    "workstation": "WS-1667"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T19:48:01",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.16",
+    "workstation": "WS-7001"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T19:49:13",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.17",
+    "workstation": "WS-2980"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:49:43",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.5",
+    "workstation": "WS-2493"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:55:57",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.48",
+    "workstation": "WS-2299"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:57:51",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.32",
+    "workstation": "WS-9980"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:58:14",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.21",
+    "workstation": "WS-6946"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T19:58:18",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.47",
+    "workstation": "WS-6959"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:00:47",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.19",
+    "workstation": "WS-3582"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:00:50",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.24",
+    "workstation": "WS-7917"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:02:14",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.25",
+    "workstation": "WS-5908"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T20:06:43",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.35",
+    "workstation": "WS-2019"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:06:56",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.4",
+    "workstation": "WS-1535"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:09:17",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.23",
+    "workstation": "WS-5179"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:15:46",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.36",
+    "workstation": "WS-7863"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:16:11",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.38",
+    "workstation": "WS-4333"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:18:17",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.19",
+    "workstation": "WS-6047"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T20:20:19",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.15",
+    "workstation": "WS-7646"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:21:30",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.28",
+    "workstation": "WS-4598"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:30:16",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.20",
+    "workstation": "WS-2815"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:32:07",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.37",
+    "workstation": "WS-2358"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:33:56",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.38",
+    "workstation": "WS-5534"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:34:12",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.48",
+    "workstation": "WS-3691"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:40:41",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.31",
+    "workstation": "WS-4472"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:41:54",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.27",
+    "workstation": "WS-6477"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:44:16",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.40",
+    "workstation": "WS-1667"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:44:29",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.16",
+    "workstation": "WS-9679"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:44:46",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.13",
+    "workstation": "WS-5744"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:45:38",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.24",
+    "workstation": "WS-9036"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:46:32",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.41",
+    "workstation": "WS-9100"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:47:09",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.37",
+    "workstation": "WS-4327"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:51:20",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.2",
+    "workstation": "WS-4975"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:52:34",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.9",
+    "workstation": "WS-9779"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T20:54:39",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.25",
+    "workstation": "WS-7282"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T20:56:11",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.45",
+    "workstation": "WS-2302"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T20:57:58",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.48",
+    "workstation": "WS-7315"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:04:47",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.26",
+    "workstation": "WS-3299"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T21:05:26",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.27",
+    "workstation": "WS-5595"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:05:51",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.40",
+    "workstation": "WS-8015"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T21:06:17",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.37",
+    "workstation": "WS-4402"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T21:12:01",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.15",
+    "workstation": "WS-5128"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T21:12:43",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.32",
+    "workstation": "WS-2257"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T21:13:13",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.7",
+    "workstation": "WS-7255"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T21:16:59",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.8",
+    "workstation": "WS-2880"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T21:18:49",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.38",
+    "workstation": "WS-1739"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:19:30",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.24",
+    "workstation": "WS-7566"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T21:22:49",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.16",
+    "workstation": "WS-9932"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:23:37",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.41",
+    "workstation": "WS-8067"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:26:26",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.47",
+    "workstation": "WS-4518"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:33:39",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.30",
+    "workstation": "WS-8532"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:37:51",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.46",
+    "workstation": "WS-4324"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:37:52",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.28",
+    "workstation": "WS-4714"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:39:16",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.48",
+    "workstation": "WS-1999"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:39:45",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.38",
+    "workstation": "WS-5660"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:40:26",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.38",
+    "workstation": "WS-9769"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:48:08",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.45",
+    "workstation": "WS-3294"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T21:48:11",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.48",
+    "workstation": "WS-4228"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:50:23",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.24",
+    "workstation": "WS-5411"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:50:25",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.25",
+    "workstation": "WS-2709"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T21:51:50",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.28",
+    "workstation": "WS-5957"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T21:51:58",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.18",
+    "workstation": "WS-9768"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:00:45",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.25",
+    "workstation": "WS-9577"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:00:45",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.47",
+    "workstation": "WS-5568"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:01:56",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.26",
+    "workstation": "WS-5474"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:02:12",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.28",
+    "workstation": "WS-8589"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:04:47",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.48",
+    "workstation": "WS-2769"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:09:21",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.7",
+    "workstation": "WS-4068"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:09:37",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.45",
+    "workstation": "WS-7521"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T22:11:36",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.12",
+    "workstation": "WS-7076"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T22:13:24",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.33",
+    "workstation": "WS-4164"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:13:55",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.3",
+    "workstation": "WS-1264"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:19:55",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.49",
+    "workstation": "WS-6753"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T22:23:52",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.13",
+    "workstation": "WS-8960"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:25:25",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.6",
+    "workstation": "WS-5513"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:25:25",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.3",
+    "workstation": "WS-5046"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T22:25:45",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.39",
+    "workstation": "WS-4530"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:26:02",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.24",
+    "workstation": "WS-2967"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:27:02",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.2",
+    "workstation": "WS-4459"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:37:19",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.21",
+    "workstation": "WS-1738"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:38:04",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.7",
+    "workstation": "WS-7777"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T22:38:12",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.10",
+    "workstation": "WS-7404"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:38:27",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.33",
+    "workstation": "WS-5982"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:41:04",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.4",
+    "workstation": "WS-9090"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:43:33",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.22",
+    "workstation": "WS-3695"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:45:27",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.28",
+    "workstation": "WS-5326"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:47:06",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.49",
+    "workstation": "WS-5574"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:47:16",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.21",
+    "workstation": "WS-9152"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:48:41",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.16",
+    "workstation": "WS-7828"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:50:32",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.13",
+    "workstation": "WS-2131"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:50:32",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.37",
+    "workstation": "WS-2681"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T22:52:17",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.34",
+    "workstation": "WS-1679"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:53:27",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.9",
+    "workstation": "WS-4444"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:53:32",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.20",
+    "workstation": "WS-8450"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T22:56:12",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.25",
+    "workstation": "WS-1945"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T22:57:14",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.29",
+    "workstation": "WS-5185"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:00:15",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.10",
+    "workstation": "WS-3201"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:00:48",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.31",
+    "workstation": "WS-7915"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:00:57",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.41",
+    "workstation": "WS-7866"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:02:49",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.1.14",
+    "workstation": "WS-9643"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:05:16",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.13",
+    "workstation": "WS-5824"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:06:04",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.38",
+    "workstation": "WS-6836"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:07:24",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.2.3",
+    "workstation": "WS-7699"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:07:32",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.1.43",
+    "workstation": "WS-3277"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:10:18",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.23",
+    "workstation": "WS-8140"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:10:54",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.2",
+    "workstation": "WS-9349"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:11:45",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.45",
+    "workstation": "WS-2647"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:15:09",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.37",
+    "workstation": "WS-5902"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:17:45",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.32",
+    "workstation": "WS-2557"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:20:38",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.34",
+    "workstation": "WS-6063"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:24:30",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.29",
+    "workstation": "WS-8220"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:26:44",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.23",
+    "workstation": "WS-4878"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:26:49",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.33",
+    "workstation": "WS-8547"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:29:19",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.1.43",
+    "workstation": "WS-2139"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:30:21",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.17",
+    "workstation": "WS-1888"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:30:26",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.3.23",
+    "workstation": "WS-9906"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:37:11",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.4.40",
+    "workstation": "WS-2646"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:38:56",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.4.23",
+    "workstation": "WS-7927"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:40:12",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.4.32",
+    "workstation": "WS-8710"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:43:06",
+    "user": "intern1",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.4.34",
+    "workstation": "WS-2639"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:43:07",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.30",
+    "workstation": "WS-9024"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:43:51",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.2.12",
+    "workstation": "WS-4020"
+  },
+  {
+    "event_id": 4672,
+    "ts": "2026-03-15T23:46:46",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.19",
+    "workstation": "WS-9355"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:48:14",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.37",
+    "workstation": "WS-6762"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:52:10",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.3.20",
+    "workstation": "WS-3496"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:53:04",
+    "user": "manager",
+    "domain": "CORP",
+    "logon_type": 3,
+    "source_ip": "10.0.3.3",
+    "workstation": "WS-1550"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:55:58",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.48",
+    "workstation": "WS-9393"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:56:25",
+    "user": "admin",
+    "domain": "CORP",
+    "logon_type": 7,
+    "source_ip": "10.0.2.14",
+    "workstation": "WS-2687"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:57:00",
+    "user": "intern2",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.5",
+    "workstation": "WS-9923"
+  },
+  {
+    "event_id": 4634,
+    "ts": "2026-03-15T23:57:41",
+    "user": "guest",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.3.23",
+    "workstation": "WS-1795"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:58:00",
+    "user": "analyst",
+    "domain": "CORP",
+    "logon_type": 2,
+    "source_ip": "10.0.1.45",
+    "workstation": "WS-9320"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-03-15T23:58:51",
+    "user": "developer",
+    "domain": "CORP",
+    "logon_type": 10,
+    "source_ip": "10.0.2.41",
+    "workstation": "WS-6986"
+  }
+]

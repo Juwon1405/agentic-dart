@@ -416,11 +416,11 @@ Two case studies are bundled:
 Recall:                    1.000
 False positive rate:       0.000
 Hallucination count:       0
-Evidence integrity:        preserved (8 files, all SHA-256 hashes match pre/post)
+Evidence integrity:        preserved (61 files, all SHA-256 hashes match pre/post)
 Self-correction observed:  true
 ```
 
-Produced by `python3 scripts/measure_accuracy.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for the full methodology, ground truth, honest limitations, and the measured bypass test table (6/6 passing).
+Produced by `python3 scripts/measure_accuracy.py`. The same numbers hold on the noise-injected variant — `python3 scripts/measure_accuracy.py --variant realistic` runs the same detection functions against the same IOCs mixed with synthetic benign traffic at ~1:30 ratios (web log 1027 lines, security events 516, unix auth 517) and produces identical recall=1.0 / FPR=0.0 / hallucination=0. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, both variants' results, ground truth, and explicit limitations (including third-party dataset benchmarking deferred to Phase 2 — issue #47).
 
 
 ## Status — what is implemented vs. what is roadmap
