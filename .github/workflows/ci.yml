@@ -70,7 +70,7 @@ jobs:
         run: python3 scripts/measure_accuracy.py
 
   packaging:
-    name: Packaging — verify pip install yields full 60-tool surface
+    name: Packaging — verify pip install yields full 61-tool surface
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -95,7 +95,7 @@ jobs:
           native = [t for t in tools if not t['name'].startswith('sift_')]
           sift = [t for t in tools if t['name'].startswith('sift_')]
           print(f"Total: {len(tools)}, native: {len(native)}, sift: {len(sift)}")
-          assert len(tools) == 60, f"expected 60 tools, got {len(tools)}"
+          assert len(tools) == 61, f"expected 61 tools, got {len(tools)}"
           assert len(native) == 35, f"expected 35 native, got {len(native)}"
           assert len(sift) == 25, f"expected 25 sift, got {len(sift)}"
           print("\u2713 packaging surface verified")

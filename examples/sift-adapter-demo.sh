@@ -4,7 +4,7 @@
 # This script proves that the v0.5 SIFT adapter layer is correctly wired
 # up by exercising it from end to end:
 #
-#   1. Confirms 60 MCP tools are registered (35 native + 25 SIFT)
+#   1. Confirms 61 MCP tools are registered (36 native + 25 SIFT)
 #   2. Lists every adapter and its binary-resolution status
 #   3. Calls each available adapter against the sample evidence
 #      (or skips with a clear reason if the binary is missing)
@@ -49,8 +49,8 @@ print(f"  Total registered tools: {len(tools)}")
 print(f"    Native (pure Python): {len(native)}")
 print(f"    SIFT adapters:        {len(sift)}")
 print()
-assert len(tools) == 60, f"expected 60, got {len(tools)}"
-assert len(native) == 35
+assert len(tools) == 61, f"expected 61, got {len(tools)}"
+assert len(native) == 36
 assert len(sift) == 25
 print("  \033[1;32m✓ MCP surface verified\033[0m")
 PY
@@ -253,7 +253,7 @@ echo ""
 
 echo -e "${C}╔══════════════════════════════════════════════════════════════════╗${N}"
 echo -e "${C}║   Demo complete.                                                  ║${N}"
-echo -e "${C}║   - 60 MCP tools registered (35 native + 25 SIFT)                ║${N}"
+echo -e "${C}║   - 61 MCP tools registered (36 native + 25 SIFT)                ║${N}"
 echo -e "${C}║   - All adapters either invoke OK or fail gracefully              ║${N}"
 echo -e "${C}║   - Path traversal blocked at SIFT layer                          ║${N}"
 echo -e "${C}║   - NEGATIVE surface unbreached                                   ║${N}"
