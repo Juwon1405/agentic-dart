@@ -106,6 +106,8 @@ def test_surface_is_exact_positive_and_negative_set():
         "detect_defense_evasion", "detect_discovery",
         # v0.4 Linux + macOS expansion
         "parse_auditd_log", "parse_systemd_journal", "parse_bash_history", "parse_launchd_plist",
+        # v0.5.4 generic registry hive parsing (closes CFReDS gap G-001 / issue #52)
+        "parse_registry_hive",
         # v0.5 SIFT Workstation tool adapters (Custom MCP Server pattern)
         # All 25 wrappers run subprocess into SIFT-bundled binaries with
         # read-only EVIDENCE_ROOT enforcement, timeout guards, and SHA-256

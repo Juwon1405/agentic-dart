@@ -3464,6 +3464,174 @@ def detect_discovery(processes=None, burst_threshold=5, burst_seconds=60):
             "max_severity": max_sev}
 
 
+# =============================================================================
+# REGISTRY HIVE VALUE EXTRACTION (v0.5.4 — closes CFReDS gap G-001 / issue #52)
+# =============================================================================
+#
+# Why this primitive exists. AmCache, ShimCache, ShellBags, USB history all
+# parse SPECIFIC registry locations into typed structures. But forensic
+# investigators routinely need to read OTHER registry keys/values that
+# don't justify their own dedicated primitive — last-shutdown timestamp,
+# registered owner, network card inventory, time zone settings, etc.
+#
+# Without parse_registry_hive, those readings require either (a) shelling
+# out (forbidden) or (b) one new specialized primitive per key (an
+# unbounded surface). This primitive offers a bounded, read-only,
+# generic value extraction primitive instead.
+#
+# Driven by the NIST CFReDS Hacking Case integration (case-08): 4 of 10
+# sampled findings (F-CFR-001 RegisteredOwner, F-CFR-004 NetworkCards,
+# F-CFR-007 SAM\Domains\Users\Names, F-CFR-010 ShutdownTime) all require
+# generic hive value reading.
+#
+# Read-only: python-registry is a parser library. The primitive opens hives
+# read-only and never calls any write API. Path canonicalization via
+# _safe_resolve as for every other primitive.
+
+@tool(
+    name="parse_registry_hive",
+    description="Read-only registry hive value extraction. Opens a registry "
+                "hive (SOFTWARE, SYSTEM, SAM, NTUSER.DAT, etc.) via the "
+                "python-registry parser and extracts either a single value "
+                "or all values under a given key. Never writes. Path "
+                "canonicalized via _safe_resolve.",
+    schema={"type": "object", "properties": {
+        "hive_path": {"type": "string",
+                      "description": "Relative path within DART_EVIDENCE_ROOT "
+                                     "to the hive file."},
+        "key": {"type": "string",
+                "description": "Registry key path. Both forward and "
+                               "backslash separators accepted. Leading "
+                               "backslash optional. Example: "
+                               r"'Microsoft\\Windows NT\\CurrentVersion' or "
+                               "'Microsoft/Windows NT/CurrentVersion'."},
+        "value_name": {"type": "string",
+                       "description": "Optional — specific value name to "
+                                      "extract. If omitted, all values "
+                                      "under the key are returned."},
+        "limit": {"type": "integer", "default": 100, "maximum": 1000,
+                  "description": "Max values returned when value_name is "
+                                 "omitted."},
+    }, "required": ["hive_path", "key"]},
+)
+def parse_registry_hive(hive_path, key, value_name=None, limit=100):
+    p = _safe_resolve(hive_path)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+
+    # python-registry is the read-only parser. Import lazily so dart_mcp
+    # is importable in environments where the user hasn't installed it
+    # (the function will return a clear error in that case).
+    try:
+        from Registry import Registry as _Reg
+    except ImportError:
+        return {"error": "registry_parser_missing",
+                "hint": "pip install python-registry",
+                "source": {"path": str(p), "sha256": _sha256(p)}}
+
+    # Normalize key path — accept both / and \, leading separator optional.
+    # Empty key means "read the root node" — supported, not an error.
+    norm_key = key.replace("/", "\\").lstrip("\\")
+
+    try:
+        reg = _Reg.Registry(str(p))
+    except Exception as e:
+        # python-registry raises various exceptions on malformed hives;
+        # surface a typed error rather than letting it propagate.
+        return {"error": "hive_open_failed",
+                "exception_type": type(e).__name__,
+                "detail": str(e)[:200],
+                "source": {"path": str(p), "sha256": _sha256(p)}}
+
+    # Root-key access semantics. python-registry's Registry.open(key) walks
+    # SUBKEYS under the root; root itself is reached via Registry.root().
+    # Normalize: if caller passes empty key, the root's own path, or "/",
+    # serve the root node directly.
+    root = reg.root()
+    root_path = root.path()  # e.g. "$$$PROTO.HIV" or "TimeZoneInformation"
+    if (not norm_key) or norm_key == root_path or norm_key == root_path.replace("\\", ""):
+        node = root
+    else:
+        # If the caller's key starts with the root's own name (common when
+        # they're working from a SOFTWARE / SYSTEM hive and write the path
+        # in fully-qualified form), strip it before calling .open().
+        rel_key = norm_key
+        if rel_key.startswith(root_path + "\\"):
+            rel_key = rel_key[len(root_path) + 1:]
+        try:
+            node = reg.open(rel_key)
+        except _Reg.RegistryKeyNotFoundException:
+            return {"error": "key_not_found",
+                    "key": norm_key,
+                    "root_key_in_hive": root_path,
+                    "hint": "key path is relative to the hive's root, "
+                            "or pass the empty string to read the root.",
+                    "source": {"path": str(p), "sha256": _sha256(p)}}
+        except Exception as e:
+            return {"error": "key_open_failed",
+                    "exception_type": type(e).__name__,
+                    "detail": str(e)[:200],
+                    "key": norm_key,
+                    "source": {"path": str(p), "sha256": _sha256(p)}}
+
+    def _serialize_value(v):
+        """Convert python-registry value to a JSON-friendly dict.
+        Binary data is base64-encoded with explicit type marker; numeric
+        types pass through; strings are kept as-is.
+        """
+        try:
+            vtype = v.value_type_str()
+        except Exception:
+            vtype = "REG_UNKNOWN"
+        try:
+            raw = v.value()
+        except Exception as e:
+            return {"name": v.name(), "type": vtype, "error": str(e)[:100]}
+        if isinstance(raw, bytes):
+            import base64
+            return {"name": v.name(), "type": vtype,
+                    "data_base64": base64.b64encode(raw).decode("ascii"),
+                    "data_size": len(raw)}
+        if isinstance(raw, (int, float, str, bool)) or raw is None:
+            return {"name": v.name(), "type": vtype, "data": raw}
+        if isinstance(raw, list):
+            return {"name": v.name(), "type": vtype,
+                    "data": [str(x) for x in raw]}
+        return {"name": v.name(), "type": vtype, "data": str(raw)}
+
+    # Specific value requested
+    if value_name is not None:
+        try:
+            v = node.value(value_name)
+        except _Reg.RegistryValueNotFoundException:
+            return {"error": "value_not_found",
+                    "key": norm_key, "value_name": value_name,
+                    "source": {"path": str(p), "sha256": _sha256(p)}}
+        return {"source": {"path": str(p), "sha256": _sha256(p)},
+                "key": norm_key,
+                "key_last_write": node.timestamp().isoformat() if node.timestamp() else None,
+                "value": _serialize_value(v)}
+
+    # Dump all values under key (up to limit)
+    values_out = []
+    total = 0
+    for v in node.values():
+        total += 1
+        if len(values_out) < limit:
+            values_out.append(_serialize_value(v))
+
+    # Subkey enumeration (just names, no recursion — bounded surface)
+    subkeys = [s.name() for s in node.subkeys()][:limit]
+
+    return {"source": {"path": str(p), "sha256": _sha256(p)},
+            "key": norm_key,
+            "key_last_write": node.timestamp().isoformat() if node.timestamp() else None,
+            "values_total": total,
+            "values": values_out,
+            "subkeys": subkeys,
+            "subkey_count": len(node.subkeys() if hasattr(node.subkeys(), '__len__') else list(node.subkeys()))}
+
+
 def __forbidden_never_registered():
     """Intentionally NOT registered: execute_shell, write_file, mount,
     delete_file, network_egress, spawn_process, kill_process. See

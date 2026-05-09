@@ -35,6 +35,8 @@ def test_registered_tools_are_exact_set():
         "detect_defense_evasion", "detect_discovery",
         # v0.4 Linux + macOS expansion
         "parse_auditd_log", "parse_systemd_journal", "parse_bash_history", "parse_launchd_plist",
+        # v0.5.4 generic registry hive parsing (closes CFReDS gap G-001 / issue #52)
+        "parse_registry_hive",
         # v0.5 SIFT Workstation tool adapters (Custom MCP Server pattern)
         # volatility3 (12)
         "sift_vol3_windows_pslist", "sift_vol3_windows_pstree",

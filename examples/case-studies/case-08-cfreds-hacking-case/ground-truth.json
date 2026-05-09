@@ -1,0 +1,184 @@
+{
+  "case_metadata": {
+    "case_id": "cfreds-hacking-case-2004",
+    "source": "NIST CFReDS (Computer Forensic Reference Data Sets)",
+    "url": "https://cfreds-archive.nist.gov/Hacking_Case.html",
+    "official_answers_url": "https://cfreds-archive.nist.gov/images/TestAnswers.pdf",
+    "image_md5": "AEE4FCD9301C03B3B054623CA261959A",
+    "subject": "Greg Schardt aka 'Mr. Evil' \u2014 wireless traffic interception case",
+    "operating_system": "Windows XP Professional (Build 2600)",
+    "install_date_utc": "2004-08-19T22:48:27Z",
+    "timezone": "Central Daylight Time (UTC-05:00)",
+    "abandoned_date": "2004-09-20",
+    "computer_name": "N-1A9ODN6ZXK4LQ",
+    "primary_domain": "Evil",
+    "image_format": [
+      "DD (split: SCHARDT.001-008)",
+      "EnCase E01"
+    ],
+    "ground_truth_provenance": "NIST official TestAnswers.pdf \u2014 community-verified, peer-reviewed reference dataset"
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-CFR-001",
+      "nist_question": 5,
+      "category": "host_attribution",
+      "claim": "Registered owner of system is 'Greg Schardt'",
+      "evidence_path": "Windows/system32/config/software \u2192 Microsoft\\Windows NT\\CurrentVersion\\RegisteredOwner",
+      "expected_dart_mcp_function": "(registry hive parsing \u2014 partially covered by sift_amcacheparser_parse for AmCache; full SOFTWARE hive parsing is roadmap)",
+      "directly_detectable_v053": false,
+      "rationale": "dart-mcp Phase 1 has read-only AmCache + SHIMCache + ShellBags adapters but not generic SOFTWARE hive value extraction. Phase 2 deliverable."
+    },
+    {
+      "finding_id": "F-CFR-002",
+      "nist_question": 10,
+      "category": "user_attribution",
+      "claim": "Account 'Mr. Evil' is the primary user account",
+      "evidence_path": "Windows/system32/config/SAM \u2192 Domains\\Users\\Names",
+      "expected_dart_mcp_function": "analyze_windows_logons (SAM-derived account enumeration is adjacent capability)",
+      "directly_detectable_v053": false,
+      "rationale": "Current analyze_windows_logons consumes pre-extracted Security event JSON. Native SAM hive parsing not yet covered. Phase 2."
+    },
+    {
+      "finding_id": "F-CFR-003",
+      "nist_question": 16,
+      "category": "installed_hacking_software",
+      "claim": "6+ hacking tools installed",
+      "expected_tools": [
+        "Cain & Abel v2.5 beta45",
+        "Ethereal (now Wireshark)",
+        "123 Write All Stored Passwords",
+        "Anonymizer",
+        "CuteFTP",
+        "Look@LAN 1.0",
+        "NetStumbler"
+      ],
+      "evidence_path": "Windows/AppCompat/Programs/Amcache.hve + Prefetch/*.pf",
+      "expected_dart_mcp_function": "get_amcache + parse_prefetch + sift_amcacheparser_parse",
+      "directly_detectable_v053": true,
+      "rationale": "AmCache records every executed binary with InstallDate + path. Prefetch confirms execution. dart-mcp v0.5.3 has both adapters."
+    },
+    {
+      "finding_id": "F-CFR-004",
+      "nist_question": 13,
+      "category": "network_inventory",
+      "claim": "Two network cards: Xircom CardBus + Compaq WL110 Wireless",
+      "evidence_path": "Windows/system32/config/software \u2192 Microsoft\\Windows NT\\CurrentVersion\\NetworkCards",
+      "expected_dart_mcp_function": "(SOFTWARE hive NetworkCards key \u2014 Phase 2)",
+      "directly_detectable_v053": false,
+      "rationale": "Same as F-CFR-001 \u2014 generic SOFTWARE hive value extraction is roadmap."
+    },
+    {
+      "finding_id": "F-CFR-005",
+      "nist_question": 23,
+      "category": "data_exfiltration_artifact",
+      "claim": "Ethereal capture file 'Interception' in My Documents \u2014 intercepted wireless traffic",
+      "evidence_path": "Documents and Settings/Mr. Evil/My Documents/Interception",
+      "expected_dart_mcp_function": "parse_browser_history is adjacent (Documents folder enumeration); detect_exfiltration could flag if filesize unusual",
+      "directly_detectable_v053": "partial",
+      "rationale": "MFT walk + size anomaly possible, but specific filename detection requires file-content YARA rule. Phase 2 dart-synth can synthesize this rule from known evidence."
+    },
+    {
+      "finding_id": "F-CFR-006",
+      "nist_question": 26,
+      "category": "user_attribution",
+      "claim": "Web-based email: mrevilrulez@yahoo.com",
+      "evidence_path": "Documents and Settings/Mr. Evil/Local Settings/Application Data/Identities/{...}/Microsoft/Outlook Express",
+      "expected_dart_mcp_function": "parse_browser_history (yahoo cache hits)",
+      "directly_detectable_v053": "partial",
+      "rationale": "Browser history extraction works for Chrome/Edge schemas; IE6/Outlook Express on XP uses different schema (index.dat) \u2014 Phase 2."
+    },
+    {
+      "finding_id": "F-CFR-007",
+      "nist_question": 11,
+      "category": "logon_activity",
+      "claim": "Last user to logon was 'Mr. Evil' (logged on 15 times total)",
+      "evidence_path": "SAM hive + Security event log",
+      "expected_dart_mcp_function": "analyze_windows_logons",
+      "directly_detectable_v053": "partial",
+      "rationale": "Function works on Security event JSON. CFReDS has live registry \u2014 extraction step needed. Phase 1 can verify if pre-extracted."
+    },
+    {
+      "finding_id": "F-CFR-008",
+      "nist_question": 28,
+      "category": "deleted_artifacts",
+      "claim": "4 executable files in recycle bin",
+      "evidence_path": "RECYCLER/...",
+      "expected_dart_mcp_function": "(recycle bin parsing \u2014 not in v0.5.3)",
+      "directly_detectable_v053": false,
+      "rationale": "Recycle bin INFO2/$I$R parsing is candidate Phase 2 primitive."
+    },
+    {
+      "finding_id": "F-CFR-009",
+      "nist_question": 31,
+      "category": "malware_artifact",
+      "claim": "Anti-virus check positive \u2014 viruses present on disk",
+      "evidence_path": "Multiple file paths \u2014 community AV scan result",
+      "expected_dart_mcp_function": "(YARA rule scan \u2014 Phase 2 with sift_yara adapter)",
+      "directly_detectable_v053": false,
+      "rationale": "YARA adapter exists but no rules bundled; needs Sigma/YARA rule library."
+    },
+    {
+      "finding_id": "F-CFR-010",
+      "nist_question": 8,
+      "category": "system_state",
+      "claim": "Last shutdown: 2004-08-27 10:46:33 AM",
+      "evidence_path": "Windows/system32/config/system \u2192 CurrentControlSet001\\Control\\Windows\\ShutdownTime",
+      "expected_dart_mcp_function": "(SYSTEM hive timestamp extraction \u2014 Phase 2)",
+      "directly_detectable_v053": false,
+      "rationale": "Generic SYSTEM hive key reading is roadmap."
+    }
+  ],
+  "directly_detectable_findings_summary": {
+    "total_ground_truth": 10,
+    "directly_detectable_v053": 1,
+    "partially_detectable_v053": 3,
+    "not_detectable_v053_phase2_roadmap": 6,
+    "honest_recall_v053": "1/10 = 0.10 (full) | 4/10 = 0.40 (full + partial)",
+    "explanation": "This is a deliberately honest disclosure. CFReDS Hacking Case is a 2004 Windows XP image with content-centric ground truth (what was inside specific files). dart-mcp v0.5.3 is artifact-centric (timeline, persistence mechanisms, lateral movement signals). The two paradigms partially overlap. The recall=0.10 here is NOT a bug \u2014 it correctly indicates that 9 of 10 sampled findings need either (a) generic registry hive value extraction (Phase 2 #45) or (b) file content YARA scanning (Phase 2 #10) which are tracked roadmap items, not currently shipped. Reference variant recall=1.0 measures dart-mcp's ability to detect IOCs it CLAIMS to detect; CFReDS recall measures expansion potential."
+  },
+  "phase_2_gap_analysis": {
+    "gaps_identified_by_cfreds_integration": [
+      {
+        "gap_id": "G-001",
+        "description": "Generic SOFTWARE/SYSTEM/SAM hive value extraction (not just AmCache)",
+        "blocks_findings": [
+          "F-CFR-001",
+          "F-CFR-004",
+          "F-CFR-007",
+          "F-CFR-010"
+        ],
+        "tracking_issue": "https://github.com/Juwon1405/agentic-dart/issues/52",
+        "implementation_estimate": "1-2 weeks (python-registry already in deps)"
+      },
+      {
+        "gap_id": "G-002",
+        "description": "IE6/Outlook Express index.dat parser (legacy browser artifacts)",
+        "blocks_findings": [
+          "F-CFR-006"
+        ],
+        "tracking_issue": "https://github.com/Juwon1405/agentic-dart/issues/53",
+        "implementation_estimate": "2-3 days"
+      },
+      {
+        "gap_id": "G-003",
+        "description": "Recycle Bin INFO2/$I$R metadata parser",
+        "blocks_findings": [
+          "F-CFR-008"
+        ],
+        "tracking_issue": "https://github.com/Juwon1405/agentic-dart/issues/54",
+        "implementation_estimate": "1-2 days"
+      },
+      {
+        "gap_id": "G-004",
+        "description": "YARA rule library + scan primitive (sift_yara adapter exists; rules don't)",
+        "blocks_findings": [
+          "F-CFR-009"
+        ],
+        "tracking_issue": "https://github.com/Juwon1405/agentic-dart/issues/55",
+        "implementation_estimate": "Phase 2"
+      }
+    ],
+    "value_of_cfreds_integration": "CFReDS gave us a community-verified roadmap for what dart-mcp's NEXT 4 primitives must be. Without this benchmark, we'd ship Phase 2 prioritizing developer intuition; with it, we ship Phase 2 prioritizing measured gaps."
+  }
+}

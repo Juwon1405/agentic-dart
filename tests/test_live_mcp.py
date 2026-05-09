@@ -47,8 +47,8 @@ def test_live_mode_subprocess_dryrun():
         # Check stderr for handshake banner
         assert "MCP handshake OK" in result.stderr, \
             f"MCP handshake banner missing:\n{result.stderr}"
-        assert "60 tools visible" in result.stderr, \
-            f"Expected 60 tools over the wire (35 native + 25 SIFT):\n{result.stderr}"
+        assert "61 tools visible" in result.stderr, \
+            f"Expected 61 tools over the wire (36 native + 25 SIFT):\n{result.stderr}"
 
         # Outputs exist
         out = Path(td)
@@ -114,6 +114,8 @@ def test_live_mcp_server_advertises_correct_surface():
         "detect_defense_evasion", "detect_discovery",
         # v0.4 Linux + macOS expansion
         "parse_auditd_log", "parse_systemd_journal", "parse_bash_history", "parse_launchd_plist",
+        # v0.5.4 generic registry hive parsing (closes CFReDS gap G-001 / issue #52)
+        "parse_registry_hive",
         # v0.5 SIFT Workstation tool adapters (Custom MCP Server pattern)
         "sift_vol3_windows_pslist", "sift_vol3_windows_pstree",
         "sift_vol3_windows_psscan", "sift_vol3_windows_cmdline",

@@ -142,7 +142,7 @@ Evidence is mounted **read-only at the OS level** before the agent is ever start
 agentic-dart/
 ├── dart_audit/       # Tamper-evident JSONL logger with SHA-256 chain
 ├── dart_mcp/         # Custom MCP server: typed, read-only forensic functions
-│                     #   (35 native + 25 SIFT adapters = 60 tools)
+│                     #   (36 native + 25 SIFT adapters = 61 tools)
 ├── dart_agent/       # Iteration controller + self-correction loop
 ├── dart_playbook/    # Senior-analyst YAML playbooks (v1 / v2 / v3)
 ├── dart_corr/        # Cross-artifact correlation engine — design contract +
@@ -254,7 +254,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **60/31/31/0.** **35 native forensic functions + 25 SIFT Workstation tool adapters = 60 typed read-only MCP tools.** 11 of 12 MITRE ATT&CK enterprise tactics. **31 of 31 tests passing on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **61/43/43/0.** **36 native forensic functions + 25 SIFT Workstation tool adapters = 61 typed read-only MCP tools.** 10 of 12 MITRE ATT&CK enterprise tactics (TA0009 Collection, TA0011 C2 are Phase 2). **43 of 43 tests passing on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|
@@ -272,7 +272,7 @@ The SANS FIND EVIL! 2026 hackathon explicitly supports four architectural patter
 
 ### What this means concretely
 
-In addition to the 35 native pure-Python forensic functions, Agentic-DART now exposes **25 typed adapters** that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
+In addition to the 36 native pure-Python forensic functions, Agentic-DART now exposes **25 typed adapters** that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
 
 | SIFT tool | Source | Adapters exposed |
 |---|---|:---:|
@@ -323,7 +323,7 @@ Agentic-DART runs on **Linux**, **macOS**, and **Windows** as the host (Python 3
 
 ### 35 typed forensic functions (native layer) — by platform
 
-The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"` (returns 60 — 35 native + 25 SIFT adapters).
+The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"` (returns 61 — 36 native + 25 SIFT adapters).
 
 | Platform | Functions | Count |
 |---|---|:---:|
@@ -364,7 +364,7 @@ The 35 functions are not invented from scratch. Each one is grounded in a publis
 | **Cross-platform / TTPs** | MITRE ATT&CK Enterprise (every detection function is mapped to a tactic + technique), Sigma rules (community detection corpus), Florian Roth's signature-base, Atomic Red Team |
 | **Architecture** | MITRE Cyber Resiliency Engineering Framework, Anthropic's Model Context Protocol spec, "Threat Hunting in the Real World" (NIST SP 800-150), the AuditChain pattern from RFC 6234 (SHA-256) + RFC 5246 (chained MAC) |
 
-### MITRE ATT&CK coverage — 11 of 12 enterprise tactics
+### MITRE ATT&CK coverage — 10 of 12 enterprise tactics
 
 | # | Tactic | Covered by |
 |:---:|---|---|
@@ -422,10 +422,21 @@ Self-correction observed:  true
 
 Produced by `python3 scripts/measure_accuracy.py`. The same numbers hold on the noise-injected variant — `python3 scripts/measure_accuracy.py --variant realistic` runs the same detection functions against the same IOCs mixed with synthetic benign traffic at ~1:30 ratios (web log 1027 lines, security events 516, unix auth 517) and produces identical recall=1.0 / FPR=0.0 / hallucination=0. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, both variants' results, ground truth, and explicit limitations (including third-party dataset benchmarking deferred to Phase 2 — issue #47).
 
+### External-benchmark accuracy — NIST CFReDS Hacking Case (v0.5.4)
+
+For a community-trusted, third-party benchmark, see [`examples/case-studies/case-08-cfreds-hacking-case/`](./examples/case-studies/case-08-cfreds-hacking-case/) — first integration with the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil", image MD5 `AEE4FCD9301C03B3B054623CA261959A`). Of 10 sampled NIST ground-truth findings:
+
+| Version | Strict recall | Lenient recall | What changed |
+|---|---:|---:|---|
+| v0.5.3 | **0.10** (1/10) | **0.40** (4/10) | Synthetic-evidence detection only — lacked generic registry hive parsing |
+| **v0.5.4** | **0.50** (5/10) | **0.80** (8/10) | **`parse_registry_hive` ([#52](https://github.com/Juwon1405/agentic-dart/issues/52)) unlocks F-CFR-001/004/007/010** |
+
+Reproduce with `python3 scripts/measure_cfreds.py`. Remaining gaps (F-CFR-006 IE6 index.dat, F-CFR-008 Recycle Bin, F-CFR-009 YARA bundling) are tracked as Phase 2 issues [#53](https://github.com/Juwon1405/agentic-dart/issues/53), [#54](https://github.com/Juwon1405/agentic-dart/issues/54), [#55](https://github.com/Juwon1405/agentic-dart/issues/55). The drop from `1.0` (synthetic) to `0.50/0.80` (CFReDS) is **not a regression** — it is a paradigm gap honestly disclosed and now actively closing. v0.5.4 is the first measurable progress against an external dataset, and the gap analysis directly drove which Phase 2 primitive to ship first.
+
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end — 60 typed read-only MCP tools (35 native + 25 SIFT adapters), all callable from Claude Code live mode
+### Implemented end-to-end — 61 typed read-only MCP tools (36 native + 25 SIFT adapters), all callable from Claude Code live mode
 
 **Native — Windows execution & user activity** *(`dart_mcp/__init__.py`)*
 
@@ -534,7 +545,7 @@ All 25 share the same architectural guarantees as the native layer — read-only
 
 ## Acknowledgments
 
-This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405) for the SANS FIND EVIL! 2026 hackathon. All architectural design, the 60 MCP tools (35 native + 25 SIFT adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
+This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405) for the SANS FIND EVIL! 2026 hackathon. All architectural design, the 61 MCP tools (36 native + 25 SIFT adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
 
 **Community contributions accepted:**
 
