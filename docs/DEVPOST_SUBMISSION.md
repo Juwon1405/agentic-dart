@@ -1,4 +1,4 @@
-# Devpost Submission Content — Agentic-DART v0.5
+# Devpost Submission Content — Agentic-DART v0.5.4
 
 This file contains the exact text to paste into each section of the
 [FIND EVIL! Devpost submission form](https://findevil.devpost.com/). Each
@@ -17,7 +17,7 @@ Agentic-DART
 ## [Devpost: Tagline] (max 200 chars)
 
 ```
-Architecture-first autonomous DFIR agent. 60 typed read-only MCP tools (35 native + 25 SIFT adapters). Evidence integrity is a property of the wire surface, not a prompt.
+Architecture-first autonomous DFIR agent. 61 read-only MCP tools, 43/43 tests, NIST CFReDS recall 0.80. Evidence integrity is a wire-surface property, not a prompt.
 ```
 
 ---
@@ -56,10 +56,10 @@ jailbreak is.
 
 ```markdown
 Agentic-DART is an autonomous DFIR agent that runs on top of the SANS
-SIFT Workstation. It exposes **60 typed, read-only forensic functions**
+SIFT Workstation. It exposes **61 typed, read-only forensic functions**
 to Claude Code through a custom MCP server, in two layers:
 
-**Layer 1 — Native (35 functions)**
+**Layer 1 — Native (36 functions)**
 Pure-Python implementations covering Windows execution evidence (Amcache,
 Prefetch, Shimcache, MFT timeline, scheduled tasks, persistence
 detection), user activity (USB, shellbags), authentication and lateral
@@ -101,7 +101,7 @@ outbound network — we kept off the wire entirely. This is verified by
 `tests/test_mcp_bypass.py` which asserts both POSITIVE (what's
 registered) and NEGATIVE (what must never be) surfaces.
 
-**The 35 native functions came first.** Each one has a published
+**The 36 native functions came first.** Each one has a published
 DFIR reference attached (Eric Zimmerman, Sarah Edwards, Sean
 Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth,
 Roberto Rodriguez/OTRF, JPCERT/CC). 42 references total, all cited
@@ -190,7 +190,7 @@ exists.
   traffic — not because we asked it not to, but because those functions
   are not on the wire. Verified by adversarial bypass tests.
 
-- **60 typed read-only MCP tools.** 35 native + 25 SIFT adapters,
+- **61 typed read-only MCP tools.** 36 native + 25 SIFT adapters,
   all behind the same architectural contract. The SIFT layer added
   capability without weakening the boundary.
 
@@ -198,9 +198,19 @@ exists.
   into a chain. Tampering at any step breaks the chain. The audit
   output is courtroom-traceable.
 
-- **31/31 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12/3.13). Includes adversarial bypass
+- **43/43 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12/3.13). Includes adversarial bypass
   tests, audit chain tampering tests, concurrency tests, the v0.5
-  SIFT adapter test suite, and the v0.5.2 QA-pass regression guard.
+  SIFT adapter test suite, the v0.5.2 QA-pass regression guard, and
+  the v0.5.4 NIST CFReDS integration suite.
+
+- **External benchmark on NIST CFReDS Hacking Case.** v0.5.4 ships
+  with a 3-tier evaluation: synthetic reference (recall=1.000),
+  noise-injected realistic at ~1:30 IOC-to-benign ratio (recall=1.000),
+  and the community-trusted NIST CFReDS dataset (recall=0.50 strict /
+  0.80 lenient). The CFReDS recall jumped 5x from v0.5.3 (0.10 / 0.40)
+  after shipping a general `parse_registry_hive` primitive — turning
+  an external benchmark from a marketing line into a quantitative
+  ship-priority driver.
 
 - **Senior-analyst playbook with 42 cited references.** Not vibes —
   encoded methodology synthesizing M-Trends 2026, ATT&CK v16, the
@@ -223,7 +233,7 @@ integrity. Every prompt is one jailbreak away from failure; an
 architectural boundary is an algebraic guarantee.
 
 Wrapping existing tools is more conservative than reinventing them.
-The native 35 functions were the v0.1 — v0.4 work. v0.5's contribution
+The native 36 functions were the v0.1 — v0.4 work plus the v0.5.4 parse_registry_hive. v0.5's contribution
 was recognizing that wrapping the SIFT toolchain (Volatility 3,
 Eric Zimmerman tools, YARA, Plaso) was the right alignment with
 the hackathon and the broader DFIR community, not a rewrite of those
@@ -243,7 +253,7 @@ between agent and tool — not the docstring, not the README.
 ## [Devpost: Acknowledgments / IP disclosure]
 
 ```markdown
-This submission is the original work product of **Bang Juwon (@Juwon1405)** as a single-person Entrant. All architectural design, MCP function implementation (35 native + 25 SIFT adapters), playbook YAML, audit chain, contradiction handler, agent loop, test suite, and documentation are sole-authored.
+This submission is the original work product of **Bang Juwon (@Juwon1405)** as a single-person Entrant. All architectural design, MCP function implementation (36 native + 25 SIFT adapters), playbook YAML, audit chain, contradiction handler, agent loop, test suite, and documentation are sole-authored.
 
 **External community contributions accepted to date:**
 
