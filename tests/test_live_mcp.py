@@ -47,8 +47,8 @@ def test_live_mode_subprocess_dryrun():
         # Check stderr for handshake banner
         assert "MCP handshake OK" in result.stderr, \
             f"MCP handshake banner missing:\n{result.stderr}"
-        assert "61 tools visible" in result.stderr, \
-            f"Expected 61 tools over the wire (36 native + 25 SIFT):\n{result.stderr}"
+        assert "67 tools visible" in result.stderr, \
+            f"Expected 67 tools over the wire (42 native + 25 SIFT):\n{result.stderr}"
 
         # Outputs exist
         out = Path(td)
@@ -130,6 +130,13 @@ def test_live_mcp_server_advertises_correct_surface():
         "sift_amcacheparser_parse",
         "sift_yara_scan_file", "sift_yara_scan_dir",
         "sift_plaso_log2timeline", "sift_plaso_psort",
+        # v0.5 supply-chain attack IOC sweeps
+        "scan_pth_files_for_supply_chain_iocs",
+        "detect_pypi_typosquatting",
+        "detect_nodejs_install_hooks",
+        "detect_python_backdoor_persistence",
+        "detect_credential_file_access",
+        "grep_shell_history_for_c2",
     }
     assert advertised == expected, \
         f"wire surface drift:\n" \

@@ -51,8 +51,8 @@
 
 **Agentic-DART** starts as an *agentic DFIR* assistant (the focus of this hackathon submission), but is named with deliberate room to grow:
 
-- **Phase 1 (current)** &mdash; agentic DFIR: senior-analyst reasoning encoded as architecture across forensic artifacts.
-- **Phase 2** &mdash; agentic detection engineering: detection-as-code generation, Sigma rule synthesis, coverage-gap reasoning.
+- **Phase 1 (current)** &mdash; agentic DFIR: senior-analyst reasoning encoded as architecture across forensic artifacts. Includes the [agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter) which converts Velociraptor offline-collector output into the `evidence_root` layout that Agentic-DART reads.
+- **Phase 2** &mdash; agentic detection engineering: detection-as-code generation, Sigma rule synthesis, coverage-gap reasoning. Includes the supply-chain IOC sweep functions ported from [yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector) and generalized to cross-platform (litellm PyPI attack pattern, npm typosquat detection, install-hook abuse).
 - **Phase 3** &mdash; agentic SOC: triage, enrichment, and supervised response orchestration.
 - **Phase 4** &mdash; broader agentic security workflows beyond traditional D&R boundaries.
 
@@ -142,7 +142,7 @@ Evidence is mounted **read-only at the OS level** before the agent is ever start
 agentic-dart/
 ├── dart_audit/       # Tamper-evident JSONL logger with SHA-256 chain
 ├── dart_mcp/         # Custom MCP server: typed, read-only forensic functions
-│                     #   (36 native + 25 SIFT adapters = 61 tools)
+│                     #   (42 native + 25 SIFT adapters = 67 tools)
 ├── dart_agent/       # Iteration controller + self-correction loop
 ├── dart_playbook/    # Senior-analyst YAML playbooks (v1 / v2 / v3)
 ├── dart_corr/        # Cross-artifact correlation engine — design contract +
@@ -254,7 +254,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **61/43/43/0.** **36 native forensic functions + 25 SIFT Workstation tool adapters = 61 typed read-only MCP tools.** 10 of 12 MITRE ATT&CK enterprise tactics (TA0009 Collection, TA0011 C2 are Phase 2). **43 of 43 tests passing on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **67/55/55/0.** **42 native forensic functions + 25 SIFT Workstation tool adapters = 67 typed read-only MCP tools.** 10 of 12 MITRE ATT&CK enterprise tactics (TA0009 Collection, TA0011 C2 are Phase 2). **55 of 55 tests passing on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|
@@ -272,7 +272,7 @@ The SANS FIND EVIL! 2026 hackathon explicitly supports four architectural patter
 
 ### What this means concretely
 
-In addition to the 36 native pure-Python forensic functions, Agentic-DART now exposes **25 typed adapters** that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
+In addition to the 42 native pure-Python forensic functions, Agentic-DART now exposes **25 typed adapters** that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
 
 | SIFT tool | Source | Adapters exposed |
 |---|---|:---:|
@@ -323,7 +323,7 @@ Agentic-DART runs on **Linux**, **macOS**, and **Windows** as the host (Python 3
 
 ### 35 typed forensic functions (native layer) — by platform
 
-The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"` (returns 61 — 36 native + 25 SIFT adapters).
+The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"` (returns 67 — 42 native + 25 SIFT adapters).
 
 | Platform | Functions | Count |
 |---|---|:---:|
@@ -436,7 +436,7 @@ Reproduce with `python3 scripts/measure_cfreds.py`. Remaining gaps (F-CFR-006 IE
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end — 61 typed read-only MCP tools (36 native + 25 SIFT adapters), all callable from Claude Code live mode
+### Implemented end-to-end — 67 typed read-only MCP tools (36 native + 25 SIFT adapters), all callable from Claude Code live mode
 
 **Native — Windows execution & user activity** *(`dart_mcp/__init__.py`)*
 
@@ -545,7 +545,7 @@ All 25 share the same architectural guarantees as the native layer — read-only
 
 ## Acknowledgments
 
-This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405) for the SANS FIND EVIL! 2026 hackathon. All architectural design, the 61 MCP tools (36 native + 25 SIFT adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
+This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405) for the SANS FIND EVIL! 2026 hackathon. All architectural design, the 67 MCP tools (42 native + 25 SIFT adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
 
 **Community contributions accepted:**
 

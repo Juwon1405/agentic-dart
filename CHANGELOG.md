@@ -1,5 +1,52 @@
 # Changelog
 
+## [v0.6.0] — 2026-05-13 — Supply-chain IOC sweeps + Velociraptor adapter
+
+Two cross-cutting additions that broaden Phase 1 coverage *and* seed Phase 2.
+
+### Added — supply-chain attack IOC sweeps (6 new native functions)
+
+Cross-platform port of the macOS-only `supply_chain` module from
+[yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector),
+generalized to operate on collected evidence directories on Linux / macOS /
+Windows. Built in response to the litellm PyPI supply-chain attack pattern
+(2026-03) but designed for *generic* supply-chain triage.
+
+| Function                                       | Purpose                                                          |
+|------------------------------------------------|------------------------------------------------------------------|
+| `scan_pth_files_for_supply_chain_iocs`         | `.pth` file scan with known-malicious basenames + content patterns |
+| `detect_pypi_typosquatting`                    | Levenshtein-distance check against high-value PyPI targets       |
+| `detect_nodejs_install_hooks`                  | package.json preinstall/postinstall script extraction            |
+| `detect_python_backdoor_persistence`           | `~/.config/sysmon`, systemd user services, LaunchAgents, crons   |
+| `detect_credential_file_access`                | SSH/AWS/GCP/Azure/kubeconfig/.env atime/mtime exposure           |
+| `grep_shell_history_for_c2`                    | Shell history search for C2 patterns (litellm.cloud, pastebin, etc.) |
+
+Surface count: 61 → 67 (42 native + 25 SIFT). MITRE ATT&CK coverage now
+includes T1195.002 (Compromise Software Supply Chain), T1547 (Boot/Logon
+Autostart), T1552 (Unsecured Credentials), and T1059.006 (Python).
+
+12 new unit tests; all pass on a clean clone via `pytest tests/test_v05_supply_chain.py`.
+
+### Added — Velociraptor collector adapter (separate companion repo)
+
+[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)
+is a standalone Apache-2.0 Python package that turns a Velociraptor
+offline-collector ZIP into the `evidence_root` layout expected by
+Agentic-DART. Stdlib-only, 27 tests, CI on Linux/macOS × Python 3.10/3.11/3.12.
+
+This decouples *collection* (Velociraptor, upstream releases) from
+*normalization* (this adapter) from *analysis* (Agentic-DART). Responders
+fetch Velociraptor agent binaries via `install.sh` and ship the matching
+binary to each incident host without leaving the analysis server.
+
+### Updated counters
+
+- Surface: 61 → **67** typed read-only MCP tools (42 native + 25 SIFT)
+- Tests:   43 → **55** passing on a fresh clone
+- MITRE ATT&CK tactics: 10/12 → 10/12 (broader sub-technique coverage in TA0001 / TA0003 / TA0006)
+
+---
+
 ## [v0.5.4] — 2026-05-09 — CFReDS Hacking Case integration + parse_registry_hive
 
 Closes a real reviewer concern raised about v0.5.3: "synthetic data — even

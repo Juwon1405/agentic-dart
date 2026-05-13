@@ -3650,3 +3650,11 @@ from dart_mcp import _v04_expansion as _v04  # noqa: E402, F401
 # agent is expected to fall back to native dart_mcp implementations in that
 # case. Importing the subpackage triggers @tool registration for ~22 wrappers.
 from dart_mcp import sift_adapters as _sift  # noqa: E402, F401
+
+# v0.5 expansion: supply-chain attack IOC sweeps (6 functions).
+# Cross-platform port of the macOS-only supply_chain module from
+# yushin-mac-artifact-collector. Targets .pth file persistence (litellm 2026-03),
+# PyPI typosquatting, Node.js install hooks, backdoor persistence locations,
+# credential file access timing, and shell-history C2 patterns.
+# MITRE ATT&CK: T1195.002, T1547, T1552, T1059.006.
+from dart_mcp import _v05_supply_chain as _v05_sc  # noqa: E402, F401

@@ -28,7 +28,7 @@
 cat << 'EOF'
 Agentic-DART
 Architecture-first autonomous DFIR.
-61 read-only MCP tools. Zero destructive operations possible.
+67 read-only MCP tools. Zero destructive operations possible.
 EOF
 ```
 
@@ -66,7 +66,7 @@ each print colored headers — that's the show.
 **Pause point:** When the script prints
 
 ```
-[ok] MCP surface verified: 36 native + 25 SIFT adapters = 61 tools
+[ok] MCP surface verified: 42 native + 25 SIFT adapters = 67 tools
 ```
 
 freeze the cursor for 1 second so the viewer reads it.
@@ -200,7 +200,7 @@ clear
 echo "Agentic-DART"
 echo "github.com/Juwon1405/agentic-dart"
 echo ""
-echo "  61 read-only MCP tools  (36 native + 25 SIFT adapters)"
+echo "  67 read-only MCP tools  (42 native + 25 SIFT adapters)"
 echo "  SHA-256 audit chain"
 echo "  Custom MCP Server pattern (Pattern 2)"
 echo "  Submission for SANS FIND EVIL! 2026"

@@ -55,6 +55,16 @@ def test_registered_tools_are_exact_set():
         "sift_yara_scan_file", "sift_yara_scan_dir",
         # Plaso (2)
         "sift_plaso_log2timeline", "sift_plaso_psort",
+        # v0.5 supply-chain attack IOC sweeps (6 functions, cross-platform).
+        # Ported and generalized from yushin-mac-artifact-collector. Covers the
+        # litellm PyPI supply-chain attack (2026-03) pattern and generalizes
+        # to npm typosquat / preinstall hook abuse / credential exfiltration.
+        "scan_pth_files_for_supply_chain_iocs",
+        "detect_pypi_typosquatting",
+        "detect_nodejs_install_hooks",
+        "detect_python_backdoor_persistence",
+        "detect_credential_file_access",
+        "grep_shell_history_for_c2",
     }
     assert names == expected, f"surface drift: {names ^ expected}"
 

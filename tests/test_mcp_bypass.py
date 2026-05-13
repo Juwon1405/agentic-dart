@@ -125,6 +125,13 @@ def test_surface_is_exact_positive_and_negative_set():
         "sift_amcacheparser_parse",
         "sift_yara_scan_file", "sift_yara_scan_dir",
         "sift_plaso_log2timeline", "sift_plaso_psort",
+        # v0.5 supply-chain attack IOC sweeps (6 functions, cross-platform).
+        "scan_pth_files_for_supply_chain_iocs",
+        "detect_pypi_typosquatting",
+        "detect_nodejs_install_hooks",
+        "detect_python_backdoor_persistence",
+        "detect_credential_file_access",
+        "grep_shell_history_for_c2",
     }
     negative = {"execute_shell", "write_file", "mount", "umount", "eval",
                 "exec_python", "network_egress", "delete_file", "system",
