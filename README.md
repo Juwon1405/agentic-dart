@@ -553,6 +553,18 @@ This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405)
 
 For the contribution policy during the hackathon window (through 2026-06-15) and after, see [CONTRIBUTING.md](./CONTRIBUTING.md#competition-period-contribution-policy-through-2026-06-15).
 
+## Companion projects
+
+The Agentic-DART ecosystem is intentionally small. Each repo owns one job.
+
+| Repo                                                                                                    | Role                                                                                              | License    |
+|---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|------------|
+| **[agentic-dart](https://github.com/Juwon1405/agentic-dart)** *(this repo)*                             | Autonomous DFIR analysis engine. Reads an `evidence_root/` and emits findings + audit chain.       | MIT        |
+| **[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)**        | Converts Velociraptor offline-collector ZIPs into the `evidence_root` layout this engine reads. Seeds the chain-of-custody (`manifest.json` + SHA-256 index). | Apache-2.0 |
+| **[yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector)**          | Single-file bash collector for macOS hosts that cannot run Velociraptor. Source of the supply-chain IOC patterns now ported into `dart_mcp._v05_supply_chain`. | MIT        |
+
+**Collection layer is intentionally not part of this repo.** Velociraptor (Win / Linux / Mac, [docs](https://docs.velociraptor.app/)) is the recommended collector; the adapter above handles the layout glue.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
