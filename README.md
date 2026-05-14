@@ -52,7 +52,7 @@
 **Agentic-DART** starts as an *agentic DFIR* assistant (the focus of this hackathon submission), but is named with deliberate room to grow:
 
 - **Phase 1 (current)** &mdash; agentic DFIR: senior-analyst reasoning encoded as architecture across forensic artifacts. Includes the [agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter) which converts Velociraptor offline-collector output into the `evidence_root` layout that Agentic-DART reads.
-- **Phase 2** &mdash; agentic detection engineering: detection-as-code generation, Sigma rule synthesis, coverage-gap reasoning. Includes the supply-chain IOC sweep functions ported from [yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector) and generalized to cross-platform (litellm PyPI attack pattern, npm typosquat detection, install-hook abuse).
+- **Phase 2** &mdash; agentic detection engineering: detection-as-code generation, Sigma rule synthesis, coverage-gap reasoning. Includes the supply-chain IOC sweep functions ported from [yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector) *(archived)* and generalized to cross-platform (litellm PyPI attack pattern, npm typosquat detection, install-hook abuse).
 - **Phase 3** &mdash; agentic SOC: triage, enrichment, and supervised response orchestration.
 - **Phase 4** &mdash; broader agentic security workflows beyond traditional D&R boundaries.
 
@@ -561,7 +561,7 @@ The Agentic-DART ecosystem is intentionally small. Each repo owns one job.
 |---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|------------|
 | **[agentic-dart](https://github.com/Juwon1405/agentic-dart)** *(this repo)*                             | Autonomous DFIR analysis engine. Reads an `evidence_root/` and emits findings + audit chain.       | MIT        |
 | **[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)**        | *Phase 1.3 — current.* Converts Velociraptor offline-collector ZIPs into the `evidence_root` layout this engine reads. Seeds the chain-of-custody (`manifest.json` + SHA-256 index). | Apache-2.0 |
-| **[yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector)**          | Single-file bash collector for macOS hosts that cannot run Velociraptor. Source of the supply-chain IOC patterns now ported into `dart_mcp._v05_supply_chain`. | MIT        |
+| **[yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector)** *(archived)*  | Single-file bash collector for macOS hosts that cannot run Velociraptor. Supply-chain IOC patterns ported into `dart_mcp._v05_supply_chain`. | MIT        |
 
 **Collection layer is intentionally not part of this repo.** Velociraptor (Win / Linux / Mac, [docs](https://docs.velociraptor.app/)) is the recommended collector; the adapter above handles the layout glue.
 
