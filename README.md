@@ -66,7 +66,7 @@ This project is developed by [Juwon Bang](https://github.com/Juwon1405) with ext
 
 - **Human-driven**: architectural decisions, security model, threat coverage taxonomy, MITRE ATT&CK mapping, evidence-integrity invariants, and final code review.
 - **AI-accelerated**: implementation, sample-evidence generation, test scaffolding, documentation drafting.
-- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 31-test suite must pass on a clean clone before any commit lands on `main`.
+- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 55-test suite must pass on a clean clone before any commit lands on `main`.
 
 This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
@@ -89,7 +89,7 @@ Most "agentic DFIR" tools today are a system prompt that *asks* an LLM to behave
 
 That works until someone discovers prompt injection inside an evidence file. Or jailbreaks the model. Or the conversation runs long enough for the system prompt to erode. Then the agent will happily run `rm -rf` on your evidence — because *nothing structural was stopping it.* The boundary lived in conversation. Conversation is mutable.
 
-**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **35 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
+**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **42 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
 
 This is what *architecture-first, not prompt-first* means.
 
@@ -223,13 +223,15 @@ python3 tests/test_agent_self_correction.py             #  1 — end-to-end self
 python3 tests/test_live_mcp.py                          #  4 — JSON-RPC stdio wire tests
 python3 tests/test_concurrency_and_edge_cases.py        #  3 — concurrent audit writes + path safety
 python3 tests/test_qa_pass_regressions.py               #  1 — v0.5.1 QA-pass regression guard
+python3 tests/test_parse_registry_hive.py               # 12 — registry hive parsing (v0.5.4 CFReDS gap closure)
+python3 tests/test_v05_supply_chain.py                  # 12 — cross-platform supply-chain IOC sweeps (v0.6.0)
                                              # ──
-                                             # 31 tests
+                                             # 55 tests
 ```
 
-All 31 pass on a clean checkout. The repo also contains
+All 55 pass on a clean checkout. The repo also contains
 `tests/_pending/` — tests for Phase 2 functions not yet on the
-MCP surface. Those are intentionally not part of the 31/31 count.
+MCP surface. Those are intentionally not part of the 55/55 count.
 
 ## Target case class
 
