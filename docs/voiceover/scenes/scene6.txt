@@ -1,0 +1,1 @@
+Agentic-DART. Sole-authored entry for SANS FIND EVIL! 2026. Code, tests, playbook, and audit chain all on GitHub. Thanks for watching.
