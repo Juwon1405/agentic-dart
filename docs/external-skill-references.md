@@ -80,7 +80,7 @@ The community-maintained [Anthropic-Cybersecurity-Skills](https://github.com/muk
 | Skill | Status | Notes |
 |---|:-:|---|
 | `building-threat-hunt-hypothesis-framework` | **covered** | Native to `dart_agent` (Hypothesis state machine). |
-| `building-incident-response-playbook` | **covered** | `senior-analyst-v3.yaml` itself (1182 LOC). |
+| `building-incident-response-playbook` | **covered** | `senior-analyst-v3.yaml` itself (the senior-analyst playbook). |
 
 ## P7 — attribution_and_diamond_model
 

@@ -142,7 +142,7 @@ Evidence is mounted **read-only at the OS level** before the agent is ever start
 agentic-dart/
 ├── dart_audit/       # Tamper-evident JSONL logger with SHA-256 chain
 ├── dart_mcp/         # Custom MCP server: typed, read-only forensic functions
-│                     #   (42 native + 25 SIFT adapters = 67 tools)
+│                     #   (native pure-Python + SIFT Workstation adapters)
 ├── dart_agent/       # Iteration controller + self-correction loop
 ├── dart_playbook/    # Senior-analyst YAML playbooks (v1 / v2 / v3)
 ├── dart_corr/        # Cross-artifact correlation engine — design contract +
@@ -226,12 +226,12 @@ python3 tests/test_qa_pass_regressions.py               #  1 — v0.5.1 QA-pass 
 python3 tests/test_parse_registry_hive.py               # 12 — registry hive parsing (v0.5.4 CFReDS gap closure)
 python3 tests/test_v05_supply_chain.py                  # 12 — cross-platform supply-chain IOC sweeps (v0.6.0)
                                              # ──
-                                             # 55 tests
+                                             # full suite
 ```
 
-All 55 pass on a clean checkout. The repo also contains
+The full suite passes on a clean checkout. The repo also contains
 `tests/_pending/` — tests for Phase 2 functions not yet on the
-MCP surface. Those are intentionally not part of the 55/55 count.
+MCP surface. Those are intentionally not part of the shipping suite.
 
 ## Target case class
 
@@ -252,7 +252,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 2. **Every claim is auditable.** A reviewer can replay any finding in our report back to the exact MCP call that produced it via `audit_id`. The serializer refuses to emit findings without one. This is courtroom-grade traceability — and it's the *only* way an AI-produced DFIR report should ever be defensible.
 
-3. **The senior-analyst loop is encoded methodology, not vibes.** [Playbook v3](https://github.com/Juwon1405/agentic-dart/blob/main/dart_playbook/senior-analyst-v3.yaml) (1182 lines, 10 phases) synthesizes Mandiant M-Trends 2026, David Bianco's Pyramid of Pain + Hunting Maturity Model, the Diamond Model, MITRE ATT&CK v16, F3EAD, NIST SP 800-61/86/150, **Palantir's ADS Framework, the MaGMa Use Case Framework (FI-ISAC NL), and the TaHiTI threat hunting methodology** — and field practice from Eric Zimmerman, Sarah Edwards, Sean Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth, Roberto Rodriguez (OTRF), and JPCERT/CC. **42 references, all cited.**
+3. **The senior-analyst loop is encoded methodology, not vibes.** [Playbook v3](https://github.com/Juwon1405/agentic-dart/blob/main/dart_playbook/senior-analyst-v3.yaml) is a ten-phase YAML methodology synthesizing Mandiant M-Trends 2026, David Bianco's Pyramid of Pain + Hunting Maturity Model, the Diamond Model, MITRE ATT&CK v16, F3EAD, NIST SP 800-61/86/150, **Palantir's ADS Framework, the MaGMa Use Case Framework (FI-ISAC NL), and the TaHiTI threat hunting methodology** — and field practice from Eric Zimmerman, Sarah Edwards, Sean Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth, Roberto Rodriguez (OTRF), and JPCERT/CC. Every framework block cites its source.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
@@ -262,7 +262,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 |---|---|---|
 | Autonomous Execution Quality | Hypothesis tracker + persistent learning loop + self-correction | `progress.jsonl` shows iteration 4 contradiction + auto-widened retry |
 | IR Accuracy | Cross-artifact correlation; contradictions flagged, not smoothed | F-013 replaces F-001 hypothesis when USB contradicts logon |
-| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp/__init__.py` + `_v04_expansion.py` + `_v05_supply_chain.py` expose 42 typed native functions; `dart_mcp/sift_adapters/` adds 25 wrappers around Volatility 3 / MFTECmd / EvtxECmd / PECmd / RECmd / AmcacheParser / YARA / Plaso = **67 total typed read-only MCP tools** |
+| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp` exposes typed native forensic functions across `__init__.py`, `_v04_expansion.py`, and `_v05_supply_chain.py`; `dart_mcp/sift_adapters/` adds wrappers around Volatility 3 / MFTECmd / EvtxECmd / PECmd / RECmd / AmcacheParser / YARA / Plaso. **The full typed read-only MCP surface is enumerated at runtime via `list_tools()`.** |
 | Constraint Implementation | **Architectural** — no `execute_shell` function exists in the registry | `test_mcp_surface.py::test_calling_unregistered_function_raises` |
 | Audit Trail Quality | Every finding → `audit_id` → MCP call → command → raw output | `audit.jsonl` chain verifiable end-to-end |
 | Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on any Python 3.10+ host |
@@ -274,7 +274,7 @@ The SANS FIND EVIL! 2026 hackathon explicitly supports four architectural patter
 
 ### What this means concretely
 
-In addition to the 42 native pure-Python forensic functions, Agentic-DART now exposes **25 typed adapters** that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
+In addition to the native pure-Python forensic functions, Agentic-DART now exposes typed adapters that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
 
 | SIFT tool | Source | Adapters exposed |
 |---|---|:---:|
@@ -323,19 +323,19 @@ Agentic-DART runs on **Linux**, **macOS**, and **Windows** as the host (Python 3
 > require live agent installation on the target host. This is what
 > makes it work on disk images and offline triage.
 
-### 42 typed forensic functions (native layer) — by platform
+### Typed forensic functions (native layer) — by platform
 
-The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"` (returns 67 — 42 native + 25 SIFT adapters).
+The full surface is enumerated at runtime via `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. The native layer is summarized by platform below; the SIFT adapter layer follows.
 
-| Platform | Functions | Count |
-|---|---|:---:|
-| **Windows** | `get_amcache`, `parse_prefetch`, `parse_shimcache`, `parse_shellbags`, `extract_mft_timeline`, `list_scheduled_tasks`, `analyze_usb_history`, `analyze_event_logs`, `analyze_windows_logons`, `detect_lateral_movement`, `detect_brute_force_rdp`, `detect_persistence` | 12 |
-| **Windows AD** | `analyze_kerberos_events` (4768 / 4769 / 4770 / 4771) | 1 |
-| **macOS** | `parse_unified_log`, `parse_knowledgec`, `parse_fsevents`, `parse_launchd_plist` | 4 |
-| **Linux** | `parse_auditd_log`, `parse_systemd_journal`, `analyze_unix_auth` | 3 |
-| **Linux + macOS** | `parse_bash_history` (with attacker-pattern detection: T1059.004, T1098.004, T1070.003, T1105, T1548.001, etc.) | 1 |
-| **Cross-platform** | `get_process_tree`, `parse_browser_history`, `analyze_downloads`, `correlate_download_to_execution`, `detect_exfiltration`, `detect_credential_access`, `detect_ransomware_behavior`, `detect_defense_evasion`, `detect_discovery`, `detect_privilege_escalation`, `analyze_web_access_log`, `detect_webshell`, `correlate_events`, `correlate_timeline` | 14 |
-| **Total** | | **35** |
+| Platform | Functions |
+|---|---|
+| **Windows** | `get_amcache`, `parse_prefetch`, `parse_shimcache`, `parse_shellbags`, `extract_mft_timeline`, `list_scheduled_tasks`, `analyze_usb_history`, `analyze_event_logs`, `analyze_windows_logons`, `detect_lateral_movement`, `detect_brute_force_rdp`, `detect_persistence`, `parse_registry_hive` |
+| **Windows AD** | `analyze_kerberos_events` (4768 / 4769 / 4770 / 4771) |
+| **macOS** | `parse_unified_log`, `parse_knowledgec`, `parse_fsevents`, `parse_launchd_plist` |
+| **Linux** | `parse_auditd_log`, `parse_systemd_journal`, `analyze_unix_auth` |
+| **Linux + macOS** | `parse_bash_history` (with attacker-pattern detection: T1059.004, T1098.004, T1070.003, T1105, T1548.001, etc.) |
+| **Cross-platform** | `get_process_tree`, `parse_browser_history`, `analyze_downloads`, `correlate_download_to_execution`, `detect_exfiltration`, `detect_credential_access`, `detect_ransomware_behavior`, `detect_defense_evasion`, `detect_discovery`, `detect_privilege_escalation`, `analyze_web_access_log`, `detect_webshell`, `correlate_events`, `correlate_timeline` |
+| **Supply-chain IOC sweeps** | `scan_pth_files_for_supply_chain_iocs`, `detect_pypi_typosquatting`, `detect_nodejs_install_hooks`, `detect_python_backdoor_persistence`, `detect_credential_file_access`, `grep_shell_history_for_c2` |
 
 ### 25 SIFT Workstation tool adapters — by tool family
 
@@ -352,11 +352,9 @@ The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp imp
 | **YARA** | `sift_yara_scan_file`, `sift_yara_scan_dir` | 2 |
 | **Plaso (log2timeline + psort)** | `sift_plaso_log2timeline`, `sift_plaso_psort` | 2 |
 | **Total SIFT adapters** | | **25** |
-| **Total MCP surface (native + SIFT)** | | **67** |
-
 ### How the surface was built — references and provenance
 
-The 42 native functions are not invented from scratch. Each one is grounded in a published reference. The full mapping with hyperlinks lives in the wiki ([MCP function catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)). High-level sources:
+The native functions are not invented from scratch. Each one is grounded in a published reference. The full mapping with hyperlinks lives in the wiki ([MCP function catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)). High-level sources:
 
 | Domain | Primary references |
 |---|---|
@@ -366,7 +364,7 @@ The 42 native functions are not invented from scratch. Each one is grounded in a
 | **Cross-platform / TTPs** | MITRE ATT&CK Enterprise (every detection function is mapped to a tactic + technique), Sigma rules (community detection corpus), Florian Roth's signature-base, Atomic Red Team |
 | **Architecture** | MITRE Cyber Resiliency Engineering Framework, Anthropic's Model Context Protocol spec, "Threat Hunting in the Real World" (NIST SP 800-150), the AuditChain pattern from RFC 6234 (SHA-256) + RFC 5246 (chained MAC) |
 
-### MITRE ATT&CK coverage — 10 of 12 enterprise tactics
+### MITRE ATT&CK coverage — broad enterprise tactic coverage
 
 | # | Tactic | Covered by |
 |:---:|---|---|
@@ -438,7 +436,7 @@ Reproduce with `python3 scripts/measure_cfreds.py`. Remaining gaps (F-CFR-006 IE
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end — 67 typed read-only MCP tools (42 native + 25 SIFT adapters), all callable from Claude Code live mode
+### Implemented end-to-end — the full typed read-only MCP surface, all callable from Claude Code live mode
 
 **Native — Windows execution & user activity** *(`dart_mcp/__init__.py`)*
 
@@ -528,7 +526,7 @@ All 25 share the same architectural guarantees as the native layer — read-only
 | `dart_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` hard cap, `deterministic` and `live` modes |
 | `dart_audit` (CLI) | SHA-256-chained JSONL logger; `verify / lookup / trace / summary` subcommands; thread-safe under concurrent writers |
 | `dart_mcp.server_stdio` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart -- python3 -m dart_mcp.server_stdio` |
-| `dart_playbook/senior-analyst-v3.yaml` | **Recommended** — 1182 lines / 10 phases / ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
+| `dart_playbook/senior-analyst-v3.yaml` | **Recommended** — ten-phase senior-analyst methodology with ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
 | `dart_corr/` (scaffolding) | Standalone cross-artifact JOIN engine — currently a documented design contract; the contradiction-handling behavior demoed in the v0.5 run lives inline in `dart_agent` and `dart_mcp.correlate_timeline`. Mid-2026 target for the standalone engine. |
 
 ### Remaining roadmap (honest)
@@ -547,7 +545,7 @@ All 25 share the same architectural guarantees as the native layer — read-only
 
 ## Acknowledgments
 
-This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405) for the SANS FIND EVIL! 2026 hackathon. All architectural design, the 67 MCP tools (42 native + 25 SIFT adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
+This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405) for the SANS FIND EVIL! 2026 hackathon. All architectural design, the typed MCP tool surface (native pure-Python + SIFT Workstation adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
 
 **Community contributions accepted:**
 

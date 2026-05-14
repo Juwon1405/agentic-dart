@@ -21,11 +21,11 @@ Windows. Built in response to the litellm PyPI supply-chain attack pattern
 | `detect_credential_file_access`                | SSH/AWS/GCP/Azure/kubeconfig/.env atime/mtime exposure           |
 | `grep_shell_history_for_c2`                    | Shell history search for C2 patterns (litellm.cloud, pastebin, etc.) |
 
-Surface count: 61 → 67 (42 native + 25 SIFT). MITRE ATT&CK coverage now
+These six native functions extend the typed MCP surface. MITRE ATT&CK coverage now
 includes T1195.002 (Compromise Software Supply Chain), T1547 (Boot/Logon
 Autostart), T1552 (Unsecured Credentials), and T1059.006 (Python).
 
-12 new unit tests; all pass on a clean clone via `pytest tests/test_v05_supply_chain.py`.
+Twelve new unit tests ship with this module; all pass on a clean clone via `pytest tests/test_v05_supply_chain.py`.
 
 ### Added — Velociraptor collector adapter (separate companion repo)
 
@@ -41,9 +41,9 @@ binary to each incident host without leaving the analysis server.
 
 ### Updated counters
 
-- Surface: 61 → **67** typed read-only MCP tools (42 native + 25 SIFT)
-- Tests:   43 → **55** passing on a fresh clone
-- MITRE ATT&CK tactics: 10/12 → 10/12 (broader sub-technique coverage in TA0001 / TA0003 / TA0006)
+- Surface: expanded with six new native supply-chain IOC sweep functions, bringing the typed MCP surface to its current shipping size (native pure-Python + SIFT Workstation adapters)
+- Tests: twelve new tests for the supply-chain module, all passing on a fresh clone
+- MITRE ATT&CK tactics: enterprise tactic coverage unchanged at the existing breadth, with deeper sub-technique coverage in TA0001 / TA0003 / TA0006
 
 ---
 
@@ -57,7 +57,7 @@ noise-injected — is still synthetic. Where's the third-party benchmark?"
 - **`parse_registry_hive`** — generic SOFTWARE/SYSTEM/SAM/NTUSER.DAT hive
   value extraction primitive. Read-only, path-canonicalized, audit-chained
   like every other dart-mcp function. Closes CFReDS gap G-001 ([issue #52](https://github.com/Juwon1405/agentic-dart/issues/52)).
-  Surface count: 60 → 61 (36 native + 25 SIFT). Built on `python-registry`
+  Extends the typed MCP surface with `parse_registry_hive`, built on `python-registry`
   (already in deps).
 - **`examples/case-studies/case-08-cfreds-hacking-case/`** — first case
   study using a community-trusted, third-party dataset (NIST CFReDS
@@ -95,7 +95,7 @@ noise-injected — is still synthetic. Where's the third-party benchmark?"
 
 ### Verified
 
-- 43/43 tests passing (Python 3.10/3.11/3.12/3.13 matrix)
+- The full test suite passes on a clean clone (Python 3.10/3.11/3.12/3.13 matrix)
 - `python3 scripts/measure_cfreds.py` demonstrates 4/4 gap categories
   unlocked
 - `parse_registry_hive` correctly handles: empty key (root access), full
@@ -245,7 +245,7 @@ verify the fixes do what the diff says they do.
       ─────────────────────────────  ──────────────────────────────────
       35    MCP forensic functions   READ-ONLY      MCP boundary
       11/12 MITRE ATT&CK tactics     ARCHITECTURAL  guardrails, not prompts
-      20/20 tests passing            VERIFIABLE     SHA-256 audit chain
+      tests passing                  VERIFIABLE     SHA-256 audit chain
       0     destructive ops          ZERO           destructive ops on the wire
 
   Original archived to `docs/agentic-dart-hero-v0.4.png` for history.
@@ -398,7 +398,7 @@ DFIR toolchain.
 
 ## [Playbook v3.1] — 2026-05-01 — Yamato Security external references
 
-> **Note on naming.** "v3.1" is a CHANGELOG-only patch label for tracking purposes. There is **no separate `senior-analyst-v3.1.yaml` file** — the changes below were applied directly to `senior-analyst-v3.yaml`, raising its line count from the v3.0 baseline to its current 1182 lines. The shipping artifact is and remains `senior-analyst-v3.yaml`.
+> **Note on naming.** "v3.1" is a CHANGELOG-only patch label for tracking purposes. There is **no separate `senior-analyst-v3.1.yaml` file** — the changes below were applied directly to `senior-analyst-v3.yaml`, updating the shipping `senior-analyst-v3.yaml` in place. The shipping artifact is and remains `senior-analyst-v3.yaml`.
 
 ### Added (external citations only — NO code or rules imported)
 
@@ -465,7 +465,7 @@ any third-party detection tool we cite as inspiration.
 
 ### Added
 
-- **`dart_playbook/senior-analyst-v3.yaml`** (1182 lines) —
+- **`dart_playbook/senior-analyst-v3.yaml`** (the default playbook) —
   industrialization release. Builds on v2's 10-phase Mandiant + Bianco
   + Diamond methodology by adding four framework blocks that mature
   SOCs use to ship detection at scale:
@@ -539,7 +539,7 @@ re-baseline. Tracked at issue #44.
 
 ### Added
 
-- **`dart_playbook/senior-analyst-v2.yaml`** (845 lines, 10 phases) —
+- **`dart_playbook/senior-analyst-v2.yaml`** (the methodology-baseline playbook) —
   comprehensive senior-analyst playbook synthesizing Mandiant M-Trends
   2026 + Targeted Attack Lifecycle, SANS PICERL, Lockheed Cyber Kill
   Chain, David Bianco's Pyramid of Pain + Hunting Maturity Model,
@@ -577,7 +577,7 @@ re-baseline. Tracked at issue #44.
 ### Changed
 
 - **`dart_playbook/README.md`** — comprehensive rewrite documenting
-  v2 methodology lineage, the 10 phases, schema, and the six
+  v2 methodology lineage, phase sequence, schema, and the six
   senior-analyst principles encoded in `operator_notes`.
 
 ### Wiki
@@ -594,7 +594,7 @@ re-baseline. Tracked at issue #44.
 ### Added
 
 - **`dart_playbook/senior-analyst-v2.yaml`** — comprehensive playbook
-  synthesizing frontline DFIR methodology (845 lines, 10 phases, 7
+  synthesizing frontline DFIR methodology (the methodology-baseline playbook, 7
   contradiction triggers, 25 grounded references). Sources:
   Mandiant M-Trends 2026, Targeted Attack Lifecycle, SANS PICERL,
   Cyber Kill Chain, MITRE ATT&CK v16, David Bianco's Pyramid of

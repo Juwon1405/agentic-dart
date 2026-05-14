@@ -28,7 +28,7 @@ recall=1.000, FPR=0.000, hallucination=0 — confirming that the
 detection functions discriminate IOC from benign and don't simply
 match-anything in the small-input case.
 
-## MCP surface — 67 functions (42 native + 25 SIFT Workstation adapters), all implemented end-to-end
+## MCP surface — the typed MCP surface (native pure-Python + SIFT Workstation adapters), all implemented end-to-end
 
 ### Windows
 
@@ -268,7 +268,7 @@ Agentic-DART now covers these TA0001–TA0040 tactics:
 | TA0011 Command & Control | *(roadmap; PCAP primitives in Phase 2 — see issue #47)* |
 | TA0040 Impact | **detect_ransomware_behavior** (shadow delete, taskkill spree, mass rename, ransom notes) |
 
-**10 of 12 enterprise tactics actively covered** by scoped detection rules.
+**broad enterprise tactic coverage actively covered** by scoped detection rules.
 TA0009 Collection has the necessary parsers (MFT, FSEvents) but no scoped
 detection rules yet; TA0011 C2 requires PCAP primitives. Both are tracked
 for Phase 2 (issue #47 for external-dataset benchmarking, issue #30 for
