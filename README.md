@@ -262,7 +262,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 |---|---|---|
 | Autonomous Execution Quality | Hypothesis tracker + persistent learning loop + self-correction | `progress.jsonl` shows iteration 4 contradiction + auto-widened retry |
 | IR Accuracy | Cross-artifact correlation; contradictions flagged, not smoothed | F-013 replaces F-001 hypothesis when USB contradicts logon |
-| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp/__init__.py` exposes 35 typed native functions; `dart_mcp/sift_adapters/` adds 25 wrappers around Volatility 3 / MFTECmd / EvtxECmd / PECmd / RECmd / AmcacheParser / YARA / Plaso = **60 total typed read-only MCP tools** |
+| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp/__init__.py` + `_v04_expansion.py` + `_v05_supply_chain.py` expose 42 typed native functions; `dart_mcp/sift_adapters/` adds 25 wrappers around Volatility 3 / MFTECmd / EvtxECmd / PECmd / RECmd / AmcacheParser / YARA / Plaso = **67 total typed read-only MCP tools** |
 | Constraint Implementation | **Architectural** — no `execute_shell` function exists in the registry | `test_mcp_surface.py::test_calling_unregistered_function_raises` |
 | Audit Trail Quality | Every finding → `audit_id` → MCP call → command → raw output | `audit.jsonl` chain verifiable end-to-end |
 | Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on any Python 3.10+ host |
@@ -323,7 +323,7 @@ Agentic-DART runs on **Linux**, **macOS**, and **Windows** as the host (Python 3
 > require live agent installation on the target host. This is what
 > makes it work on disk images and offline triage.
 
-### 35 typed forensic functions (native layer) — by platform
+### 42 typed forensic functions (native layer) — by platform
 
 The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"` (returns 67 — 42 native + 25 SIFT adapters).
 
@@ -339,7 +339,7 @@ The full surface is enumerated by `python3 -c "from dart_mcp import list_tools; 
 
 ### 25 SIFT Workstation tool adapters — by tool family
 
-The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **60**.
+The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **67**.
 
 | Tool family | Adapters | Count |
 |---|---|:---:|
@@ -352,11 +352,11 @@ The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp imp
 | **YARA** | `sift_yara_scan_file`, `sift_yara_scan_dir` | 2 |
 | **Plaso (log2timeline + psort)** | `sift_plaso_log2timeline`, `sift_plaso_psort` | 2 |
 | **Total SIFT adapters** | | **25** |
-| **Total MCP surface (native + SIFT)** | | **60** |
+| **Total MCP surface (native + SIFT)** | | **67** |
 
 ### How the surface was built — references and provenance
 
-The 35 functions are not invented from scratch. Each one is grounded in a published reference. The full mapping with hyperlinks lives in the wiki ([MCP function catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)). High-level sources:
+The 42 native functions are not invented from scratch. Each one is grounded in a published reference. The full mapping with hyperlinks lives in the wiki ([MCP function catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)). High-level sources:
 
 | Domain | Primary references |
 |---|---|
@@ -438,7 +438,7 @@ Reproduce with `python3 scripts/measure_cfreds.py`. Remaining gaps (F-CFR-006 IE
 
 ## Status — what is implemented vs. what is roadmap
 
-### Implemented end-to-end — 67 typed read-only MCP tools (36 native + 25 SIFT adapters), all callable from Claude Code live mode
+### Implemented end-to-end — 67 typed read-only MCP tools (42 native + 25 SIFT adapters), all callable from Claude Code live mode
 
 **Native — Windows execution & user activity** *(`dart_mcp/__init__.py`)*
 

@@ -14,9 +14,9 @@ Agentic-DART runs in two modes:
 ```
 ┌────────────────────────┐                  ┌──────────────────────────┐
 │   dart_agent         │  MCP over stdio  │ dart_mcp.server_stdio  │
-│   (Anthropic API       │ ◄───────────────►│ (subprocess; 60 typed    │
+│   (Anthropic API       │ ◄───────────────►│ (subprocess; 67 typed    │
 │    tool-use loop)      │  JSON-RPC        │  forensic functions —    │
-│                        │                  │  35 native + 25 SIFT)    │
+│                        │                  │  42 native + 25 SIFT)    │
 └──────────┬─────────────┘                  └────────────┬─────────────┘
            │                                             │
            │ HTTPS                                       │ file read
@@ -28,12 +28,12 @@ The agent:
 
 1. Spawns `python -m dart_mcp.server_stdio` as a subprocess
 2. Completes the MCP initialize handshake
-3. Calls `list_tools()` — sees exactly the 60 registered forensic functions (35 native + 25 SIFT adapters)
+3. Calls `list_tools()` — sees exactly the 67 registered forensic functions (42 native + 25 SIFT adapters)
 4. Hands that tool list (converted to Anthropic's tool-use schema) to Claude
 5. Enters a loop: ask Claude → receive tool_use blocks → route each via MCP
    session → feed results back → repeat until Claude stops or max-iter hits
 
-Claude can NOT see anything beyond the 60 functions on the typed MCP surface. Not because we told
+Claude can NOT see anything beyond the 67 functions on the typed MCP surface. Not because we told
 it not to — because the MCP server does not expose anything else.
 
 ## Running it

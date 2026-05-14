@@ -30,7 +30,7 @@ Autostart), T1552 (Unsecured Credentials), and T1059.006 (Python).
 ### Added — Velociraptor collector adapter (separate companion repo)
 
 [agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)
-is a standalone Apache-2.0 Python package that turns a Velociraptor
+is a standalone MIT-licensed Python package that turns a Velociraptor
 offline-collector ZIP into the `evidence_root` layout expected by
 Agentic-DART. Stdlib-only, 27 tests, CI on Linux/macOS × Python 3.10/3.11/3.12.
 

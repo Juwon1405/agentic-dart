@@ -28,7 +28,7 @@ recall=1.000, FPR=0.000, hallucination=0 — confirming that the
 detection functions discriminate IOC from benign and don't simply
 match-anything in the small-input case.
 
-## MCP surface — 60 functions (35 native + 25 SIFT Workstation adapters), all implemented end-to-end
+## MCP surface — 67 functions (42 native + 25 SIFT Workstation adapters), all implemented end-to-end
 
 ### Windows
 
