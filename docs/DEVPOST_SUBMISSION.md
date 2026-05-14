@@ -17,7 +17,7 @@ Agentic-DART
 ## [Devpost: Tagline] (max 200 chars)
 
 ```
-Architecture-first autonomous DFIR agent. 67 read-only MCP tools, 55/55 tests, NIST CFReDS recall 0.80. Evidence integrity is a wire-surface property, not a prompt.
+Architecture-first autonomous DFIR agent. 70 read-only MCP tools, full test suite green, NIST CFReDS recall 0.80. Evidence integrity is a wire-surface property, not a prompt.
 ```
 
 ---
@@ -56,7 +56,7 @@ jailbreak is.
 
 ```markdown
 Agentic-DART is an autonomous DFIR agent that runs on top of the SANS
-SIFT Workstation. It exposes **67 typed, read-only forensic functions**
+SIFT Workstation. It exposes **70 typed, read-only forensic functions**
 to Claude Code through a custom MCP server, in two layers:
 
 **Layer 1 — Native (36 functions)**
@@ -79,7 +79,7 @@ Subprocess wrappers around the canonical SIFT toolchain:
 - YARA (single-file + recursive directory scan)
 - Plaso (log2timeline + psort)
 
-The agent runs a 10-phase senior-analyst playbook (1182 lines of YAML
+The agent runs a ten-phase senior-analyst playbook (a multi-section YAML
 synthesizing M-Trends 2026, MITRE ATT&CK v16, the Diamond Model,
 F3EAD, NIST SP 800-61/86/150, the Pyramid of Pain, the Hunting Maturity
 Model, Palantir's ADS Framework, and TaHiTI). Every tool call is
@@ -101,7 +101,7 @@ outbound network — we kept off the wire entirely. This is verified by
 `tests/test_mcp_bypass.py` which asserts both POSITIVE (what's
 registered) and NEGATIVE (what must never be) surfaces.
 
-**The 42 native functions came first.** Each one has a published
+**The native functions came first.** Each one has a published
 DFIR reference attached (Eric Zimmerman, Sarah Edwards, Sean
 Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth,
 Roberto Rodriguez/OTRF, JPCERT/CC). 42 references total, all cited
@@ -132,8 +132,8 @@ the hackathon judges on.
 + tool name + arguments + output hash). Tampering at any step breaks
 the chain. Verified by `tests/test_audit_chain.py`.
 
-**dart_playbook** is a 10-phase senior-analyst sequencing rule set
-(1182 lines of YAML). Phase order: triage → hypothesis formation →
+**dart_playbook** is a ten-phase senior-analyst sequencing rule set
+(a multi-section YAML methodology). Phase order: triage → hypothesis formation →
 artifact collection → corroboration → contradiction check → MITRE
 mapping → confidence scoring → reporting → audit-chain verification →
 final review. The playbook tells the agent *which tool to call next*
@@ -190,7 +190,7 @@ exists.
   traffic — not because we asked it not to, but because those functions
   are not on the wire. Verified by adversarial bypass tests.
 
-- **67 typed read-only MCP tools.** 42 native + 25 SIFT adapters,
+- **70 typed read-only MCP tools.** 45 native + 25 SIFT adapters,
   all behind the same architectural contract. The SIFT layer added
   capability without weakening the boundary.
 
@@ -198,7 +198,7 @@ exists.
   into a chain. Tampering at any step breaks the chain. The audit
   output is courtroom-traceable.
 
-- **55/55 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12/3.13). Includes adversarial bypass
+- **72/72 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12/3.13). Includes adversarial bypass
   tests, audit chain tampering tests, concurrency tests, the v0.5
   SIFT adapter test suite, the v0.5.2 QA-pass regression guard, and
   the v0.5.4 NIST CFReDS integration suite.
@@ -253,7 +253,7 @@ between agent and tool — not the docstring, not the README.
 ## [Devpost: Acknowledgments / IP disclosure]
 
 ```markdown
-This submission is the original work product of **Bang Juwon (@Juwon1405)** as a single-person Entrant. All architectural design, MCP function implementation (42 native + 25 SIFT adapters), playbook YAML, audit chain, contradiction handler, agent loop, test suite, and documentation are sole-authored.
+This submission is the original work product of **Bang Juwon (@Juwon1405)** as a single-person Entrant. All architectural design, MCP function implementation (45 native + 25 SIFT adapters), playbook YAML, audit chain, contradiction handler, agent loop, test suite, and documentation are sole-authored.
 
 **External community contributions accepted to date:**
 
