@@ -1,5 +1,68 @@
 # Changelog
 
+## [v0.6.1] — 2026-05-14 — macOS quarantine + Linux cron + DNS tunneling
+
+Three new native functions plus the Single-Source-of-Truth cleanup of
+hardcoded counts that had been drifting across README, docs, wiki, and CI.
+
+### Added — three new native MCP functions (`dart_mcp/_v06_macos_linux.py`)
+
+| Function | Purpose |
+|---|---|
+| `parse_macos_quarantine` | macOS `LSQuarantineEvent` SQLite reader — download provenance, non-browser downloader flagging, pastesite / raw-IP / darknet origin URL detection. Schema source: Sarah Edwards QuarantineV2 research (mac4n6.com), Apple Launch Services Reference. |
+| `parse_linux_cron_jobs` | Enumerates `/etc/crontab`, `/etc/cron.d/`, `cron.{hourly,daily,weekly,monthly}/`, `/var/spool/cron/`, `/etc/anacrontab` — flags curl-pipe-shell, base64 decode, `@reboot` triggers, `/tmp/*.sh`, netcat listeners, bash `/dev/tcp` redirects, raw-IP URLs. |
+| `detect_dns_tunneling` | DNS query log analysis (BIND9 / dnsmasq / generic FQDN-extraction fallback) — Shannon-entropy on subdomain labels, long-label heuristic (>50 chars), rare query-type detection (TXT/NULL/CNAME), per-parent-domain volume analysis in sliding window, and tool-signature checks for Iodine and dnscat2. **Opens TA0011 Command-and-Control coverage** that earlier releases deferred to Phase 2. |
+
+MITRE ATT&CK additions: T1204 (User Execution), T1053.003 (Cron), T1071.004
+(DNS), T1568.002 (DGA), T1572 (Protocol Tunneling), TA0011 (Command and
+Control).
+
+17 new unit tests; all pass on a clean clone.
+
+### Changed — Single Source of Truth for tool/test/playbook counts
+
+Hardcoded counts (`67 / 55 / 35 / 1182 / 10 of 12`) were duplicated across
+README, docs, CHANGELOG, wiki, profile README, GitHub Pages, CI workflow,
+demo scripts, and install scripts — meaning every release that touched any
+of these required hand-editing ~25 locations. The 2026-05-13 v0.6.0 release
+proved the brittleness: CI went red for ten consecutive pushes because
+hardcoded assertions and stale counts drifted.
+
+Numbers now live in exactly five places:
+
+- README L92 + L259 (Hero slogan, judge first-impression impact)
+- `docs/DEVPOST_SUBMISSION.md` (judge-facing)
+- `docs/DEMO_STORYBOARD.md` (video script quoting real screen output)
+- `tests/test_mcp_surface.py` (canonical name set — code-level invariant)
+- `CHANGELOG.md` historical entries (period-specific facts)
+
+Every other surface uses natural-language phrasing (`the typed MCP
+surface`, `native pure-Python + SIFT Workstation adapters`, `broad MITRE
+ATT&CK enterprise coverage`).
+
+### Fixed — CI workflow + demo script + install script hardcoded assertions
+
+- `.github/workflows/ci.yml`: removed `assert len(native) == 36`, replaced
+  with invariant checks (count > 0, native + sift == total, no forbidden
+  tool names on wire). Job name no longer references a specific count.
+- `examples/sift-adapter-demo.sh`: removed `assert len(tools) == 61` and
+  related count assertions.
+- `scripts/install.sh`: removed expected-count drift warning trio.
+
+The exact canonical tool name set remains asserted in
+`tests/test_mcp_surface.py::test_registered_tools_are_exact_set`, which is
+the single source updated when adding or removing a tool.
+
+### Changed — collector-adapter companion license alignment
+
+[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)
+flipped from Apache-2.0 to MIT to match this repo's license. MIT is more
+permissive and allows free reuse / repackaging in downstream environments
+without the NOTICE-file or modified-file marking obligations that Apache
+2.0 carries.
+
+---
+
 ## [v0.6.0] — 2026-05-13 — Supply-chain IOC sweeps + Velociraptor adapter
 
 Two cross-cutting additions that broaden Phase 1 coverage *and* seed Phase 2.

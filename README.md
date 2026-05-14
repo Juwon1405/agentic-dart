@@ -501,6 +501,25 @@ Reproduce with `python3 scripts/measure_cfreds.py`. Remaining gaps (F-CFR-006 IE
 | `parse_bash_history` | bash/zsh history + 13 attacker-pattern signatures (T1059.004, T1098.004, …) |
 | `parse_launchd_plist` | macOS LaunchAgent/Daemon persistence (T1543.001/.004) |
 
+**Native — supply-chain IOC sweeps** *(`dart_mcp/_v05_supply_chain.py`)*
+
+| Function | What it does |
+|---|---|
+| `scan_pth_files_for_supply_chain_iocs` | `.pth` files with known-malicious basenames + content patterns (litellm 2026-03 model) |
+| `detect_pypi_typosquatting` | Levenshtein-distance check against high-value PyPI targets |
+| `detect_nodejs_install_hooks` | `package.json` preinstall/postinstall script extraction |
+| `detect_python_backdoor_persistence` | `~/.config/sysmon`, systemd user services, LaunchAgents, crons |
+| `detect_credential_file_access` | SSH/AWS/GCP/Azure/kubeconfig/.env atime/mtime exposure |
+| `grep_shell_history_for_c2` | Shell history search for C2 patterns (litellm.cloud, pastebin, etc.) |
+
+**Native — macOS quarantine + Linux cron + DNS tunneling** *(`dart_mcp/_v06_macos_linux.py`)*
+
+| Function | What it does |
+|---|---|
+| `parse_macos_quarantine` | `LSQuarantineEvent` SQLite — download provenance, non-browser downloader flag, pastesite/raw-IP/darknet URL flags (T1204, T1566.002) |
+| `parse_linux_cron_jobs` | `/etc/crontab`, `cron.d`, `cron.{hourly,daily,weekly,monthly}`, `/var/spool/cron/` — attacker-pattern flagging: curl-pipe-shell, base64 decode, `@reboot` triggers, /tmp/*.sh, raw-IP URLs (T1053.003) |
+| `detect_dns_tunneling` | DNS query log analysis — Shannon-entropy + long-label + rare-qtype + volume + tool-signature (Iodine, dnscat2) heuristics. Opens TA0011 C2 coverage (T1071.004, T1568.002, T1572) |
+
 **Native — cross-artifact reasoning**
 
 | Function | What it does |

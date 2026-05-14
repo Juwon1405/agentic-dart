@@ -65,6 +65,14 @@ def test_registered_tools_are_exact_set():
         "detect_python_backdoor_persistence",
         "detect_credential_file_access",
         "grep_shell_history_for_c2",
+        # v0.6.1 macOS quarantine + Linux cron + DNS tunneling (3 functions).
+        # Adds T1204 download provenance (Sarah Edwards QuarantineV2 schema),
+        # T1053.003 cron enumeration with attacker-pattern flagging, and
+        # TA0011/T1071.004 DNS C2 detection (Iodine/dnscat2 signatures +
+        # entropy + volume heuristics).
+        "parse_macos_quarantine",
+        "parse_linux_cron_jobs",
+        "detect_dns_tunneling",
     }
     assert names == expected, f"surface drift: {names ^ expected}"
 

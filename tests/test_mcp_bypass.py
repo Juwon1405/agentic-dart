@@ -132,6 +132,10 @@ def test_surface_is_exact_positive_and_negative_set():
         "detect_python_backdoor_persistence",
         "detect_credential_file_access",
         "grep_shell_history_for_c2",
+        # v0.6.1 macOS quarantine + Linux cron + DNS tunneling (3 functions).
+        "parse_macos_quarantine",
+        "parse_linux_cron_jobs",
+        "detect_dns_tunneling",
     }
     negative = {"execute_shell", "write_file", "mount", "umount", "eval",
                 "exec_python", "network_egress", "delete_file", "system",

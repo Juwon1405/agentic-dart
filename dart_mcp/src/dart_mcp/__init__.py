@@ -3658,3 +3658,10 @@ from dart_mcp import sift_adapters as _sift  # noqa: E402, F401
 # credential file access timing, and shell-history C2 patterns.
 # MITRE ATT&CK: T1195.002, T1547, T1552, T1059.006.
 from dart_mcp import _v05_supply_chain as _v05_sc  # noqa: E402, F401
+
+# v0.6 expansion: macOS quarantine + Linux cron + DNS tunneling (3 functions).
+# Adds T1204 download provenance (Sarah Edwards QuarantineV2), T1053.003 cron
+# enumeration with attacker-pattern flagging, and TA0011/T1071.004 DNS C2
+# detection (entropy + volume + tool signatures). DNS detection opens
+# Command-and-Control coverage that was Phase 2 in earlier releases.
+from dart_mcp import _v06_macos_linux as _v06  # noqa: E402, F401
