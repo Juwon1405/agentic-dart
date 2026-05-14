@@ -1,0 +1,11 @@
+Most agentic DFIR tools. Are a system prompt. Asking an LLM to behave well.
+
+We removed the ability to misbehave.
+
+The bypass test suite verifies that destructive operations. Execute shell. Write file. Mount. Eval. Are not registered.
+
+And that path-traversal attempts against the evidence root. Are blocked at the MCP boundary itself.
+
+The SIFT adapter test suite verifies the same guarantees. Hold for all twenty-five subprocess wrappers.
+
+Adding tools never weakens the boundary. Because the boundary. Is the canonical name set.

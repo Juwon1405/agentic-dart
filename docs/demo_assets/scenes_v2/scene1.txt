@@ -1,0 +1,7 @@
+Agentic-DART is an autonomous DFIR agent. Built on the SANS SIFT Workstation.
+
+It exposes seventy typed, read-only forensic tools. To Claude Code. Through a custom MCP server.
+
+The agent cannot run shell commands. It cannot write files. It cannot mount partitions.
+
+Not because we asked it not to. Because those functions do not exist on the wire.

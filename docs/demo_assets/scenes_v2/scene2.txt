@@ -1,0 +1,11 @@
+One-line install. On a clean SIFT Workstation.
+
+The script verifies Python. Clones the repository. Installs the dart MCP package.
+
+Then it probes the SIFT toolchain. Volatility 3. MFTECmd. EvtxECmd. PECmd. RECmd. AmcacheParser. YARA. log2timeline. and psort.
+
+Whichever binaries are on the system path. Get wired up automatically.
+
+Missing ones get clear environment-variable override hints.
+
+Then it verifies the full MCP tool surface is registered. Native pure-Python. Plus SIFT Workstation adapters.

@@ -1,0 +1,23 @@
+Phase zero. Scope and volatility.
+
+Phase one. Initial access vector triage.
+
+Phase two. Timeline reconstruction.
+
+Phase three. Anomaly surfacing.
+
+Phase four. Hypothesis formation.
+
+Phase five. Kill-chain assembly.
+
+Phase six. Contradiction handling.
+
+Phase seven. Attribution. And Diamond Model.
+
+Phase eight. Recovery and denial check.
+
+Phase nine. Finding emission.
+
+Each phase emits typed findings into findings dot json. And every MCP call is hashed into audit dot j-s-o-n-l.
+
+A tamper-evident chain of custody. You can verify after the fact.
