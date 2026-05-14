@@ -70,7 +70,7 @@ jobs:
         run: python3 scripts/measure_accuracy.py
 
   packaging:
-    name: Packaging — verify pip install yields full 61-tool surface
+    name: Packaging — verify pip install yields full MCP tool surface
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -95,8 +95,18 @@ jobs:
           native = [t for t in tools if not t['name'].startswith('sift_')]
           sift = [t for t in tools if t['name'].startswith('sift_')]
           print(f"Total: {len(tools)}, native: {len(native)}, sift: {len(sift)}")
-          assert len(tools) == 67, f"expected 67 tools, got {len(tools)}"
-          assert len(native) == 36, f"expected 36 native, got {len(native)}"
-          assert len(sift) == 25, f"expected 25 sift, got {len(sift)}"
-          print("\u2713 packaging surface verified")
+          # Invariants — not exact counts, so adding/removing tools doesn't
+          # require CI edits. The exact count assertion lives in
+          # tests/test_mcp_surface.py::test_registered_tools_are_exact_set
+          # where the full canonical name set is verified.
+          assert len(tools) > 0, "no tools registered"
+          assert len(native) > 0, "no native tools"
+          assert len(sift) > 0, "no SIFT adapter tools"
+          assert len(native) + len(sift) == len(tools), "native+sift != total"
+          # No 'execute_shell' / 'write_file' / 'eval' / 'mount' on the wire
+          names = {t['name'] for t in tools}
+          forbidden = {'execute_shell', 'write_file', 'eval', 'mount', 'rm', 'system'}
+          leaked = names & forbidden
+          assert not leaked, f"forbidden tools on MCP surface: {leaked}"
+          print(f"\u2713 packaging surface verified — {len(tools)} tools ({len(native)} native + {len(sift)} SIFT)")
           PY

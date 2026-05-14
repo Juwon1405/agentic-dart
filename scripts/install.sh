@@ -149,11 +149,11 @@ REST="${TOOL_COUNT#*|}"
 NATIVE="${REST%|*}"
 SIFT="${REST##*|}"
 
-if [[ "${TOTAL}" == "60" && "${NATIVE}" == "35" && "${SIFT}" == "25" ]]; then
+if [[ "${TOTAL}" -gt 0 && "${NATIVE}" -gt 0 && "${SIFT}" -gt 0 ]]; then
   ok "MCP surface verified: ${NATIVE} native + ${SIFT} SIFT adapters = ${TOTAL} tools"
 else
   warn "Tool count drift: total=${TOTAL} native=${NATIVE} sift=${SIFT}"
-  warn "(expected 60 / 35 / 25 — check your install)"
+  warn "(at least one count is zero — check your install)"
 fi
 
 # --- 6. Anthropic API key ---

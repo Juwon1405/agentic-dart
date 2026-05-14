@@ -4,7 +4,7 @@
 # This script proves that the v0.5 SIFT adapter layer is correctly wired
 # up by exercising it from end to end:
 #
-#   1. Confirms 61 MCP tools are registered (36 native + 25 SIFT)
+#   1. Confirms the full MCP tool surface is registered (native + SIFT adapters)
 #   2. Lists every adapter and its binary-resolution status
 #   3. Calls each available adapter against the sample evidence
 #      (or skips with a clear reason if the binary is missing)
@@ -49,9 +49,13 @@ print(f"  Total registered tools: {len(tools)}")
 print(f"    Native (pure Python): {len(native)}")
 print(f"    SIFT adapters:        {len(sift)}")
 print()
-assert len(tools) == 61, f"expected 61, got {len(tools)}"
-assert len(native) == 36
-assert len(sift) == 25
+# Invariants — not exact counts. Adding/removing functions does not require
+# touching this demo. Exact canonical name set is asserted in
+# tests/test_mcp_surface.py.
+assert len(tools) > 0, "no tools registered"
+assert len(native) > 0, "no native tools registered"
+assert len(sift) > 0, "no SIFT adapter tools registered"
+assert len(native) + len(sift) == len(tools), "native + sift counts disagree with total"
 print("  \033[1;32m✓ MCP surface verified\033[0m")
 PY
 echo ""
@@ -253,7 +257,7 @@ echo ""
 
 echo -e "${C}╔══════════════════════════════════════════════════════════════════╗${N}"
 echo -e "${C}║   Demo complete.                                                  ║${N}"
-echo -e "${C}║   - 61 MCP tools registered (36 native + 25 SIFT)                ║${N}"
+echo -e "${C}║   - Full MCP tool surface registered (native + SIFT adapters)    ║${N}"
 echo -e "${C}║   - All adapters either invoke OK or fail gracefully              ║${N}"
 echo -e "${C}║   - Path traversal blocked at SIFT layer                          ║${N}"
 echo -e "${C}║   - NEGATIVE surface unbreached                                   ║${N}"
