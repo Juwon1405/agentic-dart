@@ -560,10 +560,27 @@ The Agentic-DART ecosystem is intentionally small. Each repo owns one job.
 | Repo                                                                                                    | Role                                                                                              | License    |
 |---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|------------|
 | **[agentic-dart](https://github.com/Juwon1405/agentic-dart)** *(this repo)*                             | Autonomous DFIR analysis engine. Reads an `evidence_root/` and emits findings + audit chain.       | MIT        |
-| **[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)**        | Converts Velociraptor offline-collector ZIPs into the `evidence_root` layout this engine reads. Seeds the chain-of-custody (`manifest.json` + SHA-256 index). | Apache-2.0 |
+| **[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)**        | *Phase 1.3 — current.* Converts Velociraptor offline-collector ZIPs into the `evidence_root` layout this engine reads. Seeds the chain-of-custody (`manifest.json` + SHA-256 index). | Apache-2.0 |
 | **[yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector)**          | Single-file bash collector for macOS hosts that cannot run Velociraptor. Source of the supply-chain IOC patterns now ported into `dart_mcp._v05_supply_chain`. | MIT        |
 
 **Collection layer is intentionally not part of this repo.** Velociraptor (Win / Linux / Mac, [docs](https://docs.velociraptor.app/)) is the recommended collector; the adapter above handles the layout glue.
+
+### Phase 1 rollout roadmap
+
+The Agentic-DART Phase 1 deliverables are split across this repo and the companion adapter:
+
+| Step      | Deliverable                                                                                            | Status                                |
+|-----------|--------------------------------------------------------------------------------------------------------|---------------------------------------|
+| **1.0**   | Analysis-PC cold workflow (read disk image → produce report)                                            | ✅ shipped in `dart_agent` + `dart_playbook` |
+| **1.1**   | LLM gateway integration (Anthropic Claude via Bedrock / direct API)                                     | ✅ shipped                            |
+| **1.2**   | Live host workflow scaffolding (SSH-driven `dart_mcp` subprocess on remote)                             | ✅ shipped                            |
+| **1.3**   | Velociraptor → `evidence_root` adapter — [agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter) | ✅ **shipped (current focus)**       |
+| **1.4**   | `dart-mcp` HTTP transport mode for multi-analyst central deployment                                     | 🔜 in progress                        |
+| **1.5**   | Mode selector matrix (cold / live / hybrid) baked into `dart_agent` CLI                                 | 🔜 next                               |
+| **1.6**   | Cross-replay verification (same case, two analysts, identical findings)                                 | 🔜 next                               |
+| **1.7**   | Handover + analyst training pack                                                                        | 🔜 next                               |
+
+Phase 2 and beyond are described in [About the name](#about-the-name).
 
 ## License
 
