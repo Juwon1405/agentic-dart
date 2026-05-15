@@ -1,0 +1,7 @@
+Agentic-DART。
+
+SANS FIND EVIL 2026への。単独エントリーです。
+
+コード。テスト。Playbook。そしてaudit chainまで。すべてGitHubで公開されています。
+
+ご視聴ありがとうございました。

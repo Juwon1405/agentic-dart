@@ -1,0 +1,11 @@
+대부분의 에이전트 기반 DFIR 도구들은. 사실 system prompt에 불과합니다. LLM에게 얌전히 행동해 달라고 부탁하는 것이죠.
+
+저희는 잘못 행동할 수 있는 능력 자체를 제거했습니다.
+
+Bypass 테스트 스위트는 검증합니다. 파괴적인 작업들이. execute shell. write file. mount. eval. 모두 등록되지 않았다는 것을.
+
+그리고 evidence root에 대한 path traversal 시도가. MCP 경계 자체에서 차단된다는 것을.
+
+SIFT 어댑터 테스트 스위트는 동일한 보증이. 25개 모든 subprocess wrapper에 적용된다는 것을 확인합니다.
+
+함수를 추가해도 이 경계는 약해지지 않습니다. 왜냐하면 경계 그 자체가. canonical name set이기 때문입니다.

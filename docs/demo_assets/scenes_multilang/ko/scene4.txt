@@ -1,0 +1,23 @@
+Phase 0. 범위 설정 및 휘발성 평가.
+
+Phase 1. 초기 침투 벡터 분류.
+
+Phase 2. 타임라인 재구성.
+
+Phase 3. 이상 징후 표면화.
+
+Phase 4. 가설 형성.
+
+Phase 5. Kill-chain 조립.
+
+Phase 6. 모순 처리.
+
+Phase 7. 어트리뷰션. 그리고 Diamond 모델 분석.
+
+Phase 8. 복구 및 부정 검증.
+
+Phase 9. 최종 결과 발행.
+
+각 phase는 타입화된 finding들을 findings.json으로 발행합니다. 그리고 모든 MCP 호출은 audit.jsonl에 해시됩니다.
+
+이는 변조 방지 chain of custody입니다. 사후에 검증할 수 있습니다.

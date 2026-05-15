@@ -1,0 +1,9 @@
+バージョン0.6.1。3つの新しいネイティブ関数が追加されました。
+
+parse_macos_quarantine。LSQuarantineEvent SQLiteデータベースを読み取ります。Sarah Edwards氏が確立した、標準的なmacOSダウンロード出所アーティファクトです。
+
+parse_linux_cron_jobs。すべてのcronパスを列挙します。攻撃者パターンのフラグ付けと共に。
+
+curl-pipe-shell。base64デコード。at-rebootトリガー。/tmpシェルスクリプト。
+
+そして、detect_dns_tunneling。ここに表示されているように。MITRE戦術 T-A 0011。Command and Controlをカバーします。Shannonエントロピー。クエリ・ボリューム。およびIodine。dnscat2シグネチャ検出によって。

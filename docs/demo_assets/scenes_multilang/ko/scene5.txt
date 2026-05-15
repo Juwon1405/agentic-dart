@@ -1,0 +1,9 @@
+버전 0.6.1. 세 개의 새로운 네이티브 함수가 추가되었습니다.
+
+parse_macos_quarantine. LSQuarantineEvent SQLite 데이터베이스를 읽습니다. Sarah Edwards가 정립한 표준 macOS 다운로드 출처 아티팩트입니다.
+
+parse_linux_cron_jobs. 모든 cron 경로를 열거합니다. 공격자 패턴 플래깅과 함께.
+
+Curl-pipe-shell. Base64 디코딩. At-reboot 트리거. /tmp 쉘 스크립트.
+
+그리고 detect_dns_tunneling. 여기 보이는 것처럼. MITRE 전술 T-A 0011. Command and Control을 커버합니다. Shannon 엔트로피. 쿼리 볼륨. 그리고 Iodine. dnscat2 시그니처 탐지를 통해.

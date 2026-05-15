@@ -1,0 +1,9 @@
+Version zero point six point one. Ships three new native functions.
+
+parse macOS quarantine. Reads the LSQuarantineEvent SQLite database. Sarah Edwards's standard macOS download-provenance artifact.
+
+parse Linux cron jobs. Enumerates every cron path. With attacker-pattern flagging.
+
+Curl-pipe-shell. Base64 decode. At-reboot triggers. Slash temp shell scripts.
+
+And detect DNS tunneling. Shown here. Opens MITRE tactic T-A zero zero one one. Command and Control. Via Shannon entropy. Query volume. And Iodine. And dnscat2 signature detection.

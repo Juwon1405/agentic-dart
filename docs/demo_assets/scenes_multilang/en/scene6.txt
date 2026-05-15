@@ -1,0 +1,7 @@
+Agentic-DART.
+
+Sole-authored entry. For SANS FIND EVIL twenty twenty-six.
+
+Code. Tests. Playbook. And audit chain. All on GitHub.
+
+Thanks for watching.

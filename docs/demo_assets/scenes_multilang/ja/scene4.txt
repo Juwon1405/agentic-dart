@@ -1,0 +1,23 @@
+Phase 0。スコープと揮発性の評価。
+
+Phase 1。初期アクセスベクトルのトリアージ。
+
+Phase 2。タイムラインの再構築。
+
+Phase 3。異常の浮上。
+
+Phase 4。仮説の形成。
+
+Phase 5。Kill-chainの組み立て。
+
+Phase 6。矛盾の処理。
+
+Phase 7。アトリビューション。およびDiamondモデル分析。
+
+Phase 8。復旧および否定検証。
+
+Phase 9。最終結果の発行。
+
+各phaseは、型付きのfindingをfindings.jsonに発行します。そして、すべてのMCP呼び出しはaudit.jsonlにハッシュ化されます。
+
+これは、改ざん耐性のあるchain of custodyです。事後に検証することができます。

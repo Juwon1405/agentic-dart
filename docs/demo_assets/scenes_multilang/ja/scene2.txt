@@ -1,0 +1,11 @@
+ワンライナーでのインストール。クリーンなSIFT Workstation上で。
+
+スクリプトはPythonを検証します。リポジトリをクローンします。dart MCPパッケージをインストールします。
+
+その後、SIFTツールチェーンを自動探索します。Volatility 3。MFTECmd。EvtxECmd。PECmd。RECmd。AmcacheParser。YARA。log2timeline。そしてpsort。
+
+システムパス上に存在するバイナリは。自動的に接続されます。
+
+存在しないものには、明確な環境変数オーバーライドのヒントが表示されます。
+
+最後に、MCP関数surfaceがすべて登録されたかを検証します。ネイティブPython関数。およびSIFT Workstationアダプターも含めて。

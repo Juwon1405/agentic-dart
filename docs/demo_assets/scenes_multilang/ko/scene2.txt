@@ -1,0 +1,11 @@
+한 줄짜리 설치 명령. 깨끗한 SIFT Workstation 위에서.
+
+스크립트는 Python을 검증합니다. 저장소를 클론합니다. dart MCP 패키지를 설치합니다.
+
+그 다음 SIFT 툴체인을 자동 탐지합니다. Volatility 3. MFTECmd. EvtxECmd. PECmd. RECmd. AmcacheParser. YARA. log2timeline. 그리고 psort.
+
+시스템 경로 위에 존재하는 바이너리들은. 자동으로 연결됩니다.
+
+없는 것들에는 명확한 환경 변수 오버라이드 힌트가 출력됩니다.
+
+마지막으로, MCP 함수 surface가 모두 등록되었는지 검증합니다. 네이티브 Python 함수. 그리고 SIFT Workstation 어댑터까지 포함해서.
