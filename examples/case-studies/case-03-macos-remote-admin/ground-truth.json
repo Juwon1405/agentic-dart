@@ -1,0 +1,108 @@
+{
+  "case_metadata": {
+    "case_id": "case-03-macos-remote-admin",
+    "title": "macOS Remote-Admin Infection + Exfiltration",
+    "scenario_class": "macOS insider threat, unsigned remote-admin app + staged exfiltration",
+    "evidence_path": "examples/sample-evidence-realistic/mac/",
+    "platform": "macOS",
+    "ground_truth_provenance": "Authored alongside the bundled mac fixture; UnifiedLog NDJSON, KnowledgeC SQLite, and FSEvents CSV encode the attack timeline deterministically."
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-MAC-001",
+      "category": "execution",
+      "claim": "XProtect signature match (MACOS.ATTACKWARE.C) on /private/tmp/stage2.bin",
+      "evidence_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
+      "artifact_type": "unified_log",
+      "host_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
+      "expected_dart_mcp_function": "parse_unified_log",
+      "mitre_attack": ["T1204.002"],
+      "severity": "high",
+      "rationale": "macOS built-in antimalware (XProtect) flagged the second-stage binary."
+    },
+    {
+      "finding_id": "F-MAC-002",
+      "category": "defense_evasion",
+      "claim": "TCC bypass attempt — RemoteAdmin requested ScreenCapture, denied",
+      "evidence_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
+      "artifact_type": "unified_log",
+      "host_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
+      "expected_dart_mcp_function": "parse_unified_log",
+      "mitre_attack": ["T1548.006"],
+      "severity": "high",
+      "rationale": "Unauthorized ScreenCapture request is diagnostic of credential-theft / surveillance intent."
+    },
+    {
+      "finding_id": "F-MAC-003",
+      "category": "persistence",
+      "claim": "launchd daemon dropped at ~/Library/LaunchAgents/com.remotehands.helper.plist",
+      "evidence_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
+      "artifact_type": "launchd_plist",
+      "host_path": "~/Library/LaunchAgents/com.remotehands.helper.plist",
+      "expected_dart_mcp_function": "parse_unified_log",
+      "mitre_attack": ["T1543.001"],
+      "severity": "high",
+      "rationale": "User-scope LaunchAgent re-launches the remote-admin app at every login."
+    },
+    {
+      "finding_id": "F-MAC-004",
+      "category": "user_activity",
+      "claim": "Terminal app focused 3 times during attack window (KnowledgeC)",
+      "evidence_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
+      "artifact_type": "knowledgec",
+      "host_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
+      "expected_dart_mcp_function": "parse_knowledgec",
+      "mitre_attack": ["T1059.004"],
+      "severity": "medium",
+      "rationale": "Terminal focus events corroborate hands-on-keyboard activity in attack window."
+    },
+    {
+      "finding_id": "F-MAC-005",
+      "category": "collection",
+      "claim": "Staged exfiltration archive in /var/folders/.../TemporaryItems/",
+      "evidence_path": "mac/fsevents.csv",
+      "artifact_type": "fsevents",
+      "host_path": "mac/fsevents.csv",
+      "expected_dart_mcp_function": "parse_fsevents",
+      "mitre_attack": ["T1074.001"],
+      "severity": "high",
+      "rationale": "Create-then-delete pattern in TemporaryItems is the macOS staging signature."
+    },
+    {
+      "finding_id": "F-MAC-006",
+      "category": "credential_access",
+      "claim": "macOS-targeted credential dumper dropped at /Users/Shared/tools/mimikatz-mac",
+      "evidence_path": "mac/fsevents.csv",
+      "artifact_type": "fsevents",
+      "host_path": "/Users/Shared/tools/mimikatz-mac",
+      "expected_dart_mcp_function": "parse_fsevents",
+      "mitre_attack": ["T1003"],
+      "severity": "high",
+      "rationale": "Filename + Shared folder placement = credential-theft tool staging."
+    },
+    {
+      "finding_id": "F-MAC-007",
+      "category": "initial_access",
+      "claim": "SSH brute-force attempts from external 203.0.113.42",
+      "evidence_path": "mac/var/log/auth.log",
+      "artifact_type": "auth_log",
+      "host_path": "mac/var/log/auth.log",
+      "expected_dart_mcp_function": "analyze_unix_auth",
+      "mitre_attack": ["T1110.001"],
+      "severity": "medium",
+      "rationale": "Auth log shows multiple SSH login failures from same external IP."
+    },
+    {
+      "finding_id": "F-MAC-008",
+      "category": "cross_case_correlation",
+      "claim": "Device unlock at 14:22 matches IP-KVM window from case-01",
+      "evidence_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
+      "artifact_type": "knowledgec",
+      "host_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
+      "expected_dart_mcp_function": "parse_knowledgec",
+      "mitre_attack": [],
+      "severity": "info",
+      "rationale": "Cross-platform attribution link between case-01 (Windows IP-KVM) and case-03 (macOS infection)."
+    }
+  ]
+}

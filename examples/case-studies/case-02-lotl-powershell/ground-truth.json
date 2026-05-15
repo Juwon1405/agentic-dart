@@ -1,0 +1,96 @@
+{
+  "case_metadata": {
+    "case_id": "case-02-lotl-powershell",
+    "title": "Living-Off-the-Land (LOTL) PowerShell Attack",
+    "scenario_class": "LOTL attack using signed Windows binaries to evade AV",
+    "evidence_path": "examples/sample-evidence-realistic/disk/",
+    "platform": "Windows",
+    "ground_truth_provenance": "Authored alongside the bundled sample evidence; the process tree, event log entries, and persistence artefacts are deterministic in the fixture."
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-LOTL-001",
+      "category": "execution",
+      "claim": "powershell.exe spawning cmd.exe and wscript.exe — LOTL parent-child pattern",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "get_process_tree",
+      "mitre_attack": ["T1059.001", "T1059.003"],
+      "severity": "medium",
+      "rationale": "PowerShell PID 4812 spawned cmd.exe 4820 and wscript.exe 4824 — unusual for benign workflows."
+    },
+    {
+      "finding_id": "F-LOTL-002",
+      "category": "credential_access",
+      "claim": "LSASS access with GrantedAccess=0x1FFFFF (credential dumping signature)",
+      "evidence_path": "disk/events.json",
+      "artifact_type": "event_log",
+      "host_path": "disk/events.json",
+      "expected_dart_mcp_function": "analyze_event_logs",
+      "mitre_attack": ["T1003.001"],
+      "severity": "critical",
+      "rationale": "Sysmon EventID 10 with full-access mask = mimikatz-class signature."
+    },
+    {
+      "finding_id": "F-LOTL-003",
+      "category": "execution",
+      "claim": "PowerShell download-and-execute via IEX (New-Object Net.WebClient).DownloadString",
+      "evidence_path": "disk/events.json",
+      "artifact_type": "event_log",
+      "host_path": "disk/events.json",
+      "expected_dart_mcp_function": "analyze_event_logs",
+      "mitre_attack": ["T1059.001", "T1105"],
+      "severity": "high",
+      "rationale": "EventID 4104 PowerShell script block contains classic in-memory loader."
+    },
+    {
+      "finding_id": "F-LOTL-004",
+      "category": "persistence",
+      "claim": "Registry Run key 'SecurityUpdate' with hidden PowerShell DownloadString",
+      "evidence_path": "disk/Windows/System32/config/NTUSER.DAT.runkeys.csv",
+      "artifact_type": "registry_run_key",
+      "host_path": "Windows/System32/config/NTUSER.DAT.runkeys.csv",
+      "expected_dart_mcp_function": "detect_persistence",
+      "mitre_attack": ["T1547.001"],
+      "severity": "high",
+      "rationale": "Run key contains 'powershell -w hidden -c IEX(DownloadString(...))' command."
+    },
+    {
+      "finding_id": "F-LOTL-005",
+      "category": "persistence",
+      "claim": "Service 'RemoteHandsHelper' installed pointing to AppData\\Local\\Temp",
+      "evidence_path": "disk/Windows/System32/config/SYSTEM.services.csv",
+      "artifact_type": "service",
+      "host_path": "Windows/System32/config/SYSTEM.services.csv",
+      "expected_dart_mcp_function": "detect_persistence",
+      "mitre_attack": ["T1543.003"],
+      "severity": "high",
+      "rationale": "Service binary path in user Temp folder — diagnostic of attacker persistence."
+    },
+    {
+      "finding_id": "F-LOTL-006",
+      "category": "correlation",
+      "claim": "PowerShell script block + LSASS access correlated in 2-minute window",
+      "evidence_path": "audit.jsonl",
+      "artifact_type": "correlation_finding",
+      "host_path": "audit.jsonl",
+      "expected_dart_mcp_function": "correlate_timeline",
+      "mitre_attack": ["T1003.001", "T1059.001"],
+      "severity": "high",
+      "rationale": "DuckDB scale engine cross-source correlation links script execution to credential dumping by same actor."
+    },
+    {
+      "finding_id": "F-LOTL-007",
+      "category": "persistence",
+      "claim": "Scheduled task 'RemoteHandsSync' (cross-references case-01)",
+      "evidence_path": "disk/Windows/System32/Tasks/RemoteHandsSync",
+      "artifact_type": "scheduled_task",
+      "host_path": "Windows/System32/Tasks/RemoteHandsSync",
+      "expected_dart_mcp_function": "list_scheduled_tasks",
+      "mitre_attack": ["T1053.005"],
+      "severity": "high",
+      "rationale": "Same persistence artefact as case-01 — demonstrates cross-case attribution."
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "case_metadata": {
+    "case_id": "case-06-web-attack-to-rdp-pivot",
+    "title": "Web Attack + RDP Brute Force (Dual Entry Vectors)",
+    "scenario_class": "Initial access via two most common enterprise paths",
+    "evidence_path": "examples/sample-evidence-realistic/web/",
+    "platform": "Linux (web) + Windows (RDP)",
+    "ground_truth_provenance": "Authored alongside the bundled Apache access.log and uploaded webshell files. The sqlmap session, webshell signatures, and RDP brute force pattern are deterministic in the fixture."
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-WEB-001",
+      "category": "initial_access",
+      "claim": "sqlmap scanner activity from 198.51.100.77 (23 requests, 65% error rate)",
+      "evidence_path": "web/logs/access.log",
+      "artifact_type": "web_access_log",
+      "host_path": "web/logs/access.log",
+      "expected_dart_mcp_function": "analyze_web_access_log",
+      "mitre_attack": ["T1190", "T1595.002"],
+      "severity": "high",
+      "rationale": "sqlmap/1.7.2 User-Agent + 23 requests + 0.652 error ratio + 22 distinct paths = automated scanner signature."
+    },
+    {
+      "finding_id": "F-WEB-002",
+      "category": "initial_access",
+      "claim": "SQL injection — time-based sleep payload (id=1+AND+SLEEP(5)--)",
+      "evidence_path": "web/logs/access.log",
+      "artifact_type": "web_access_log",
+      "host_path": "web/logs/access.log",
+      "expected_dart_mcp_function": "analyze_web_access_log",
+      "mitre_attack": ["T1190"],
+      "severity": "high",
+      "rationale": "Time-based blind SQLi payload diagnostic in URL query string."
+    },
+    {
+      "finding_id": "F-WEB-003",
+      "category": "initial_access",
+      "claim": "LFI traversal — file=../../../../etc/passwd",
+      "evidence_path": "web/logs/access.log",
+      "artifact_type": "web_access_log",
+      "host_path": "web/logs/access.log",
+      "expected_dart_mcp_function": "analyze_web_access_log",
+      "mitre_attack": ["T1083"],
+      "severity": "high",
+      "rationale": "Path traversal sequence with /etc/passwd target = LFI exploitation attempt."
+    },
+    {
+      "finding_id": "F-WEB-004",
+      "category": "initial_access",
+      "claim": "SSRF — request to AWS metadata 169.254.169.254/latest/...",
+      "evidence_path": "web/logs/access.log",
+      "artifact_type": "web_access_log",
+      "host_path": "web/logs/access.log",
+      "expected_dart_mcp_function": "analyze_web_access_log",
+      "mitre_attack": ["T1190"],
+      "severity": "high",
+      "rationale": "SSRF probe of cloud metadata endpoint = attempt to steal IAM role credentials."
+    },
+    {
+      "finding_id": "F-WEB-005",
+      "category": "initial_access",
+      "claim": "RCE payload — cmd=;cat+/etc/passwd",
+      "evidence_path": "web/logs/access.log",
+      "artifact_type": "web_access_log",
+      "host_path": "web/logs/access.log",
+      "expected_dart_mcp_function": "analyze_web_access_log",
+      "mitre_attack": ["T1190"],
+      "severity": "critical",
+      "rationale": "Direct command injection via shell metacharacter in URL parameter."
+    },
+    {
+      "finding_id": "F-WEB-006",
+      "category": "execution",
+      "claim": "China Chopper webshell — uploads/x.php contains @eval($_POST['cmd'])",
+      "evidence_path": "web/var/www/html/uploads/x.php",
+      "artifact_type": "web_shell",
+      "host_path": "web/var/www/html/uploads/x.php",
+      "expected_dart_mcp_function": "detect_webshell",
+      "mitre_attack": ["T1505.003"],
+      "severity": "critical",
+      "rationale": "Classic China Chopper signature — minimal eval + POST parameter cmd."
+    },
+    {
+      "finding_id": "F-WEB-007",
+      "category": "execution",
+      "claim": "Base64 eval webshell — uploads/shell.php contains eval(base64_decode($_REQUEST['c']))",
+      "evidence_path": "web/var/www/html/uploads/shell.php",
+      "artifact_type": "web_shell",
+      "host_path": "web/var/www/html/uploads/shell.php",
+      "expected_dart_mcp_function": "detect_webshell",
+      "mitre_attack": ["T1505.003", "T1027"],
+      "severity": "critical",
+      "rationale": "Encoded payload obfuscation via base64 decode + eval = active webshell."
+    },
+    {
+      "finding_id": "F-WEB-008",
+      "category": "execution",
+      "claim": "system() webshell — uploads/cmd.php contains system($_GET['x'])",
+      "evidence_path": "web/var/www/html/uploads/cmd.php",
+      "artifact_type": "web_shell",
+      "host_path": "web/var/www/html/uploads/cmd.php",
+      "expected_dart_mcp_function": "detect_webshell",
+      "mitre_attack": ["T1505.003"],
+      "severity": "critical",
+      "rationale": "Direct system() call with GET parameter = trivial command execution shell."
+    },
+    {
+      "finding_id": "F-WEB-009",
+      "category": "false_positive_rejection",
+      "claim": "Benign PHP files (index.php, config.php, db.php, about.php, page-1-5.php) correctly excluded",
+      "evidence_path": "web/var/www/html/",
+      "artifact_type": "false_positive_check",
+      "host_path": "web/var/www/html/",
+      "expected_dart_mcp_function": "detect_webshell",
+      "mitre_attack": [],
+      "severity": "info",
+      "rationale": "9 benign PHP files in tree alongside 3 webshells — agent must produce 3 TP and 0 FP. Demonstrates precision."
+    },
+    {
+      "finding_id": "F-WEB-010",
+      "category": "initial_access",
+      "claim": "RDP brute force from 198.51.100.77 — 8 distinct usernames tried",
+      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "artifact_type": "windows_security_log",
+      "host_path": "disk/Windows/.../Security.evtx",
+      "expected_dart_mcp_function": "detect_brute_force_rdp",
+      "mitre_attack": ["T1110.001", "T1078"],
+      "severity": "high",
+      "rationale": "Same external IP performing RDP password spray = parallel entry vector to web compromise."
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "case_metadata": {
+    "case_id": "case-01-ipkvm-insider",
+    "title": "IP-KVM Remote-Hands Insider Pattern",
+    "scenario_class": "Insider threat with remote-hands physical access vector",
+    "evidence_path": "examples/sample-evidence-realistic/",
+    "platform": "Windows",
+    "incident_window": "2026-03-15 14:19 - 14:30 UTC",
+    "ground_truth_provenance": "Authored alongside the bundled sample evidence; the IP-KVM ATEN VID/PID and timeline are encoded directly in setupapi.dev.log and SECURITY.evtx in the sample-evidence fixture."
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-001",
+      "category": "initial_access",
+      "claim": "IP-KVM device (ATEN VID 0557 PID 2419) inserted before operator logon",
+      "evidence_path": "disk/Windows/INF/setupapi.dev.log",
+      "artifact_type": "usb_history",
+      "host_path": "Windows/INF/setupapi.dev.log",
+      "expected_dart_mcp_function": "analyze_usb_history",
+      "mitre_attack": ["T1200"],
+      "severity": "high",
+      "rationale": "USB insertion signature at 14:19:47 precedes logon by ~3 minutes — diagnostic IP-KVM remote-hands pattern."
+    },
+    {
+      "finding_id": "F-002",
+      "category": "execution",
+      "claim": "Unusual binary first-executed shortly after suspicious logon",
+      "evidence_path": "disk/Windows/AppCompat/Programs/Amcache.hve",
+      "artifact_type": "amcache",
+      "host_path": "Windows/AppCompat/Programs/Amcache.hve",
+      "expected_dart_mcp_function": "get_amcache",
+      "mitre_attack": ["T1059"],
+      "severity": "medium",
+      "rationale": "Amcache first-execution timestamp falls within the IP-KVM session window."
+    },
+    {
+      "finding_id": "F-003",
+      "category": "persistence",
+      "claim": "Scheduled task 'RemoteHandsSync' created for persistence",
+      "evidence_path": "disk/Windows/System32/Tasks/RemoteHandsSync",
+      "artifact_type": "scheduled_task",
+      "host_path": "Windows/System32/Tasks/RemoteHandsSync",
+      "expected_dart_mcp_function": "list_scheduled_tasks",
+      "mitre_attack": ["T1053.005"],
+      "severity": "high",
+      "rationale": "Task XML registered during the IP-KVM session window with unusual command line."
+    },
+    {
+      "finding_id": "F-004",
+      "category": "contradiction_handling",
+      "claim": "USB insertion vs. logon ordering is UNRESOLVED until cross-source validation",
+      "evidence_path": "audit.jsonl",
+      "artifact_type": "self_correction_event",
+      "host_path": "audit.jsonl",
+      "expected_dart_mcp_function": "correlate_events",
+      "mitre_attack": [],
+      "severity": "high",
+      "rationale": "Architectural contract requires the agent to surface this contradiction and either resolve or declare unreachable — proves Hallucination Management criterion."
+    },
+    {
+      "finding_id": "F-005",
+      "category": "audit_chain",
+      "claim": "SHA-256 audit chain links every MCP call from F-001 through F-004",
+      "evidence_path": "audit.jsonl",
+      "artifact_type": "audit_chain",
+      "host_path": "audit.jsonl",
+      "expected_dart_mcp_function": null,
+      "mitre_attack": [],
+      "severity": "info",
+      "rationale": "Tamper-evident chain integrity verified by `python3 -m dart_audit verify`."
+    }
+  ]
+}

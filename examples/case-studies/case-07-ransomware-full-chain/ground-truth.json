@@ -1,0 +1,168 @@
+{
+  "case_metadata": {
+    "case_id": "case-07-ransomware-full-chain",
+    "title": "Full Ransomware Chain (MITRE ATT&CK Coverage)",
+    "scenario_class": "Post-foothold ransomware deployment — credential access + discovery + defense evasion + impact",
+    "evidence_path": "examples/sample-evidence-realistic/disk/",
+    "platform": "Windows",
+    "ground_truth_provenance": "Authored alongside the bundled creds-processes, discovery-processes, security-events, and log-clearing-events fixtures. Threat intel basis: The DFIR Report 2025, Red Canary 2025, Mandiant M-Trends 2026 — 80%+ of modern intrusions end in this pattern."
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-RANSOM-001",
+      "category": "credential_access",
+      "claim": "mimikatz.exe sekurlsa::logonpasswords — primary LSASS dumper",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_credential_access",
+      "mitre_attack": ["T1003.001"],
+      "severity": "critical",
+      "rationale": "Canonical mimikatz command line targeting LSASS — credential dumping primary technique."
+    },
+    {
+      "finding_id": "F-RANSOM-002",
+      "category": "credential_access",
+      "claim": "procdump.exe -ma lsass.exe — Sysinternals LSASS dump",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_credential_access",
+      "mitre_attack": ["T1003.001"],
+      "severity": "critical",
+      "rationale": "procdump -ma is the legitimate-tool variant of LSASS dumping — diagnostic LOLBin pattern."
+    },
+    {
+      "finding_id": "F-RANSOM-003",
+      "category": "credential_access",
+      "claim": "reg save HKLM\\SAM and HKLM\\SECURITY and HKLM\\SYSTEM — offline credential extraction",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_credential_access",
+      "mitre_attack": ["T1003.002"],
+      "severity": "critical",
+      "rationale": "Triple-hive save = full local-account credential extraction for offline cracking."
+    },
+    {
+      "finding_id": "F-RANSOM-004",
+      "category": "credential_access",
+      "claim": "ntdsutil ac in ntds ifm create full — Active Directory database dump",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_credential_access",
+      "mitre_attack": ["T1003.003"],
+      "severity": "critical",
+      "rationale": "ntdsutil with 'ifm create full' = entire domain credential database extraction."
+    },
+    {
+      "finding_id": "F-RANSOM-005",
+      "category": "credential_access",
+      "claim": "rundll32 comsvcs.dll MiniDump — LOLBin LSASS dump",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_credential_access",
+      "mitre_attack": ["T1003.001", "T1218.011"],
+      "severity": "high",
+      "rationale": "LOLBin variant using Microsoft-signed comsvcs.dll — evades AV detection by binary signature."
+    },
+    {
+      "finding_id": "F-RANSOM-006",
+      "category": "discovery",
+      "claim": "AD reconnaissance burst — 11 discovery commands in 60 seconds (SCRIPTED RECON)",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_discovery",
+      "mitre_attack": ["T1087.002", "T1069.002", "T1482", "T1018", "T1082", "T1057", "T1016"],
+      "severity": "high",
+      "rationale": "Temporal burst pattern (11 commands / 60s) = automated reconnaissance script, not human."
+    },
+    {
+      "finding_id": "F-RANSOM-007",
+      "category": "discovery",
+      "claim": "SharpHound.exe -c All -d corp.local — BloodHound AD graph collection",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_discovery",
+      "mitre_attack": ["T1069.002", "T1018"],
+      "severity": "high",
+      "rationale": "SharpHound -c All = full AD graph collection for attack-path planning (BloodHound)."
+    },
+    {
+      "finding_id": "F-RANSOM-008",
+      "category": "defense_evasion",
+      "claim": "vssadmin delete shadows /all /quiet — shadow copy deletion (recovery denial)",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_defense_evasion",
+      "mitre_attack": ["T1490"],
+      "severity": "critical",
+      "rationale": "VSS shadow deletion = ransomware standard prep step (blocks file-restore recovery)."
+    },
+    {
+      "finding_id": "F-RANSOM-009",
+      "category": "defense_evasion",
+      "claim": "wbadmin delete catalog -quiet + bcdedit recoveryenabled no — backup catalog + recovery mode disabled",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_defense_evasion",
+      "mitre_attack": ["T1490"],
+      "severity": "critical",
+      "rationale": "Belt-and-suspenders recovery denial — wbadmin clears Windows Backup, bcdedit disables Recovery Environment."
+    },
+    {
+      "finding_id": "F-RANSOM-010",
+      "category": "defense_evasion",
+      "claim": "wevtutil cl Security + System + Application — log clearing",
+      "evidence_path": "disk/processes.csv + disk/events.json",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_defense_evasion",
+      "mitre_attack": ["T1070.001"],
+      "severity": "critical",
+      "rationale": "wevtutil cl on all three core logs + EventID 1102 'Security log cleared' = active log destruction."
+    },
+    {
+      "finding_id": "F-RANSOM-011",
+      "category": "impact",
+      "claim": "15 taskkill commands targeting SQL/backup services in <10 seconds",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_ransomware_behavior",
+      "mitre_attack": ["T1489"],
+      "severity": "critical",
+      "rationale": "Mass-taskkill of databases and backup agents = pre-encryption service stop to maximize file accessibility."
+    },
+    {
+      "finding_id": "F-RANSOM-012",
+      "category": "impact",
+      "claim": "30 files renamed to *.locked extension — encryption signature",
+      "evidence_path": "disk/Users/analyst/ + filesystem events",
+      "artifact_type": "filesystem_artifact",
+      "host_path": "disk/",
+      "expected_dart_mcp_function": "detect_ransomware_behavior",
+      "mitre_attack": ["T1486"],
+      "severity": "critical",
+      "rationale": "Mass file-rename with attacker extension = active encryption phase. 30 files in burst = automated."
+    },
+    {
+      "finding_id": "F-RANSOM-013",
+      "category": "impact",
+      "claim": "README.txt and decrypt_instructions.txt ransom notes dropped",
+      "evidence_path": "disk/Users/analyst/",
+      "artifact_type": "filesystem_artifact",
+      "host_path": "disk/Users/analyst/",
+      "expected_dart_mcp_function": "detect_ransomware_behavior",
+      "mitre_attack": ["T1486"],
+      "severity": "critical",
+      "rationale": "Ransom note files dropped at filesystem root = confirmed ransomware extortion phase."
+    }
+  ]
+}

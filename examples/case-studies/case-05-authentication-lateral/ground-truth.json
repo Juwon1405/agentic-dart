@@ -1,0 +1,108 @@
+{
+  "case_metadata": {
+    "case_id": "case-05-authentication-lateral",
+    "title": "Authentication, AD, and Lateral Movement",
+    "scenario_class": "The 'WHO' investigation — stolen cred + AD attack chain",
+    "evidence_path": "examples/sample-evidence-realistic/disk/ + linux/",
+    "platform": "Windows + Linux",
+    "ground_truth_provenance": "Authored alongside the bundled SECURITY.evtx events, Kerberos TGS/TGT records, and Linux auth.log; the attack timeline is encoded deterministically."
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-AUTH-001",
+      "category": "credential_access",
+      "claim": "Linux SSH brute force from 203.0.113.42 (10 failed attempts across multiple accounts)",
+      "evidence_path": "linux/auth.log",
+      "artifact_type": "auth_log",
+      "host_path": "linux/auth.log",
+      "expected_dart_mcp_function": "analyze_unix_auth",
+      "mitre_attack": ["T1110.001"],
+      "severity": "high",
+      "rationale": "10 failed SSH attempts (admin/root/test/postgres + 2x analyst) followed by publickey accept = brute-force survivor pattern."
+    },
+    {
+      "finding_id": "F-AUTH-002",
+      "category": "privilege_escalation",
+      "claim": "Post-foothold sudo to root with /etc/shadow access + curl|bash",
+      "evidence_path": "linux/auth.log + linux/bash_history",
+      "artifact_type": "auth_log",
+      "host_path": "linux/auth.log",
+      "expected_dart_mcp_function": "detect_privilege_escalation",
+      "mitre_attack": ["T1548.003", "T1003.008"],
+      "severity": "critical",
+      "rationale": "sudo cat /etc/shadow + remote payload pipe to shell = post-compromise priv-esc."
+    },
+    {
+      "finding_id": "F-AUTH-003",
+      "category": "lateral_movement",
+      "claim": "Windows SMB brute force from same 203.0.113.42 (type-3 logons, NTLM)",
+      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "artifact_type": "windows_security_log",
+      "host_path": "disk/Windows/.../Security.evtx",
+      "expected_dart_mcp_function": "analyze_windows_logons",
+      "mitre_attack": ["T1021.002", "T1110.003"],
+      "severity": "high",
+      "rationale": "4 failed type-3 logons followed by success — credential reuse from Linux compromise."
+    },
+    {
+      "finding_id": "F-AUTH-004",
+      "category": "lateral_movement",
+      "claim": "RDP (logon type 10) connection from external 203.0.113.42 to WKS-ANALYST",
+      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "artifact_type": "windows_security_log",
+      "host_path": "disk/Windows/.../Security.evtx",
+      "expected_dart_mcp_function": "analyze_windows_logons",
+      "mitre_attack": ["T1021.001"],
+      "severity": "high",
+      "rationale": "Type-10 RDP from internet IP after SMB foothold = hands-on lateral."
+    },
+    {
+      "finding_id": "F-AUTH-005",
+      "category": "credential_access",
+      "claim": "Kerberoasting — 3 TGS requests with RC4 encryption (MSSQL/SQL01, HTTP/exchange, LDAP/DC01)",
+      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "artifact_type": "kerberos_event",
+      "host_path": "disk/Windows/.../Security.evtx",
+      "expected_dart_mcp_function": "analyze_kerberos_events",
+      "mitre_attack": ["T1558.003"],
+      "severity": "critical",
+      "rationale": "RC4 encryption on TGS requests = classic Kerberoasting signature targeting SPN-bearing accounts."
+    },
+    {
+      "finding_id": "F-AUTH-006",
+      "category": "credential_access",
+      "claim": "AS-REP roasting — TGT request for user 'alice' with no preauth",
+      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "artifact_type": "kerberos_event",
+      "host_path": "disk/Windows/.../Security.evtx",
+      "expected_dart_mcp_function": "analyze_kerberos_events",
+      "mitre_attack": ["T1558.004"],
+      "severity": "high",
+      "rationale": "TGT requested with DONT_REQ_PREAUTH flag = AS-REP roastable account targeted."
+    },
+    {
+      "finding_id": "F-AUTH-007",
+      "category": "lateral_movement",
+      "claim": "Remote-admin tooling — psexec to DC01, wmiexec to SQL01",
+      "evidence_path": "disk/processes.csv",
+      "artifact_type": "process_tree",
+      "host_path": "disk/processes.csv",
+      "expected_dart_mcp_function": "detect_lateral_movement",
+      "mitre_attack": ["T1021.002", "T1047"],
+      "severity": "critical",
+      "rationale": "psexec + wmiexec command lines visible in process tree = remote command execution on DC and SQL hosts."
+    },
+    {
+      "finding_id": "F-AUTH-008",
+      "category": "persistence",
+      "claim": "After-hours RDP (02:17) from different IP 198.51.100.77",
+      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "artifact_type": "windows_security_log",
+      "host_path": "disk/Windows/.../Security.evtx",
+      "expected_dart_mcp_function": "analyze_windows_logons",
+      "mitre_attack": ["T1078"],
+      "severity": "high",
+      "rationale": "Type-10 RDP at 02:17 from different external IP = attacker returning via persistence mechanism."
+    }
+  ]
+}

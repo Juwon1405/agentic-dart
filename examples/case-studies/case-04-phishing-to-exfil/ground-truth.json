@@ -1,0 +1,84 @@
+{
+  "case_metadata": {
+    "case_id": "case-04-phishing-to-exfil",
+    "title": "Phishing → Browser Download → Execution → Exfiltration",
+    "scenario_class": "Classic data-theft chain (the 80% case)",
+    "evidence_path": "examples/sample-evidence-realistic/disk/Users/analyst/",
+    "platform": "Windows",
+    "ground_truth_provenance": "Authored alongside the bundled browser history, downloads database, and network artefacts in the disk/Users/analyst fixture."
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-PHISH-001",
+      "category": "initial_access",
+      "claim": "Phishing URL with suspicious TLD (.tk) accessed via Outlook referrer",
+      "evidence_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
+      "artifact_type": "browser_history",
+      "host_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
+      "expected_dart_mcp_function": "parse_browser_history",
+      "mitre_attack": ["T1566.002"],
+      "severity": "high",
+      "rationale": "URL `finance-update-secure.tk` with referrer from `outlook.office.com/mail` = phishing email entry vector confirmed."
+    },
+    {
+      "finding_id": "F-PHISH-002",
+      "category": "initial_access",
+      "claim": "Raw IPv4 + non-standard port URL (203.0.113.42:8080) accessed via redirect",
+      "evidence_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
+      "artifact_type": "browser_history",
+      "host_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
+      "expected_dart_mcp_function": "parse_browser_history",
+      "mitre_attack": ["T1071.001"],
+      "severity": "high",
+      "rationale": "Raw IP + non-443 port indicates direct payload delivery, not standard HTTPS."
+    },
+    {
+      "finding_id": "F-PHISH-003",
+      "category": "delivery",
+      "claim": "Executable download disguised as PDF (quarterly-report.pdf.exe)",
+      "evidence_path": "disk/Users/analyst/Downloads/",
+      "artifact_type": "download_record",
+      "host_path": "disk/Users/analyst/Downloads/",
+      "expected_dart_mcp_function": "analyze_downloads",
+      "mitre_attack": ["T1204.002"],
+      "severity": "high",
+      "rationale": "Double-extension trick (.pdf.exe) — classic phishing delivery signature."
+    },
+    {
+      "finding_id": "F-PHISH-004",
+      "category": "execution",
+      "claim": "Download → execution chain correlated within 6-minute window",
+      "evidence_path": "audit.jsonl",
+      "artifact_type": "correlation_finding",
+      "host_path": "audit.jsonl",
+      "expected_dart_mcp_function": "correlate_download_to_execution",
+      "mitre_attack": ["T1204.002"],
+      "severity": "high",
+      "rationale": "Browser download record timestamps line up with Amcache/Prefetch execution by 6 min."
+    },
+    {
+      "finding_id": "F-PHISH-005",
+      "category": "exfiltration",
+      "claim": "Compressed archive uploaded to bashupload.com / transfer.sh",
+      "evidence_path": "disk/Users/analyst/Downloads/",
+      "artifact_type": "network_artifact",
+      "host_path": "disk/Users/analyst/",
+      "expected_dart_mcp_function": "detect_exfiltration",
+      "mitre_attack": ["T1567.002"],
+      "severity": "critical",
+      "rationale": "Known file-drop services in browser history during attack window = data leaving the host."
+    },
+    {
+      "finding_id": "F-PHISH-006",
+      "category": "self_correction",
+      "claim": "Initial H1 'OneDriveStartup persistence' retracted after parse_registry_hive shows legitimate Microsoft path",
+      "evidence_path": "audit.jsonl",
+      "artifact_type": "self_correction_event",
+      "host_path": "audit.jsonl",
+      "expected_dart_mcp_function": "parse_registry_hive",
+      "mitre_attack": [],
+      "severity": "info",
+      "rationale": "Hero hallucination-management demonstration: agent retracts a wrong claim, identifies the true HKCU\\...\\Run\\WinUpdate as actual persistence. Confidence 0.62 → 0.91."
+    }
+  ]
+}
