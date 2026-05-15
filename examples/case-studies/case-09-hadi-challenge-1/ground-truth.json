@@ -1,0 +1,124 @@
+{
+  "case_metadata": {
+    "case_id": "hadi-challenge-1-web-server-2014",
+    "source": "Ali Hadi DFIR Challenge #1 — Web Server Case",
+    "url": "https://www.ashemery.com/dfir.html",
+    "subject": "Linux web server (Apache+MySQL+PHP) compromise investigation",
+    "operating_system": "Linux (Ubuntu/Debian variant)",
+    "image_format": ["dd / raw"],
+    "challenge_year": 2014,
+    "ground_truth_provenance": "Ali Hadi official answer key (PDF distributed with the challenge dataset). Cross-checked against multiple public write-ups on aboutdfir.com and forensicfocus.com."
+  },
+  "ground_truth_findings": [
+    {
+      "finding_id": "F-HADI1-001",
+      "category": "initial_access",
+      "claim": "Initial access via Apache web service (port 80/443)",
+      "evidence_path": "/var/log/apache2/access.log",
+      "artifact_type": "web_log",
+      "host_path": "/var/log/apache2/access.log",
+      "expected_dart_mcp_function": "parse_linux_text_log",
+      "mitre_attack": ["T1190"],
+      "rationale": "Apache access log shows the first attacker request as the entry vector."
+    },
+    {
+      "finding_id": "F-HADI1-002",
+      "category": "execution",
+      "claim": "Web shell uploaded to /var/www/html/",
+      "evidence_path": "/var/www/html/*.php",
+      "artifact_type": "web_shell",
+      "host_path": "/var/www/html/",
+      "expected_dart_mcp_function": "detect_web_shell_indicators",
+      "mitre_attack": ["T1505.003"],
+      "rationale": "PHP web shell file dropped in Apache document root, accessible via HTTP."
+    },
+    {
+      "finding_id": "F-HADI1-003",
+      "category": "persistence",
+      "claim": "Cron-based persistence mechanism installed",
+      "evidence_path": "/etc/crontab and /var/spool/cron/crontabs/",
+      "artifact_type": "cron_job",
+      "host_path": "/etc/crontab",
+      "expected_dart_mcp_function": "parse_linux_cron_jobs",
+      "mitre_attack": ["T1053.003"],
+      "rationale": "Attacker-modified cron job re-establishes shell connection at interval."
+    },
+    {
+      "finding_id": "F-HADI1-004",
+      "category": "credential_access",
+      "claim": "Attempted /etc/shadow access logged",
+      "evidence_path": "/var/log/auth.log",
+      "artifact_type": "auth_log",
+      "host_path": "/var/log/auth.log",
+      "expected_dart_mcp_function": "parse_linux_text_log",
+      "mitre_attack": ["T1003.008"],
+      "rationale": "sudo and su authentication events show privilege escalation attempts."
+    },
+    {
+      "finding_id": "F-HADI1-005",
+      "category": "discovery",
+      "claim": "Attacker enumerated system via /root/.bash_history",
+      "evidence_path": "/root/.bash_history",
+      "artifact_type": "shell_history",
+      "host_path": "/root/.bash_history",
+      "expected_dart_mcp_function": "parse_linux_shell_history",
+      "mitre_attack": ["T1083", "T1057", "T1082"],
+      "rationale": "Recovered commands show id, uname, netstat, ps reconnaissance sequence."
+    },
+    {
+      "finding_id": "F-HADI1-006",
+      "category": "lateral_movement",
+      "claim": "Outbound connection initiated to attacker C2",
+      "evidence_path": "/var/log/syslog and netstat",
+      "artifact_type": "network_artifact",
+      "host_path": "/var/log/syslog",
+      "expected_dart_mcp_function": "parse_linux_text_log",
+      "mitre_attack": ["T1071.001"],
+      "rationale": "Reverse-shell connection appears in process listing and syslog."
+    },
+    {
+      "finding_id": "F-HADI1-007",
+      "category": "exfiltration",
+      "claim": "Data staged in /tmp before exfil",
+      "evidence_path": "/tmp/ working directory contents",
+      "artifact_type": "filesystem_artifact",
+      "host_path": "/tmp/",
+      "expected_dart_mcp_function": "enumerate_filesystem_anomalies",
+      "mitre_attack": ["T1074.001"],
+      "rationale": "Archive file created in /tmp containing /etc/passwd, /etc/shadow, web configs."
+    },
+    {
+      "finding_id": "F-HADI1-008",
+      "category": "impact",
+      "claim": "MySQL database accessed without authorization",
+      "evidence_path": "/var/log/mysql/ and binary logs",
+      "artifact_type": "db_log",
+      "host_path": "/var/log/mysql/",
+      "expected_dart_mcp_function": "parse_linux_text_log",
+      "mitre_attack": ["T1213.003"],
+      "rationale": "MySQL general log shows queries from web-shell-injected SQL."
+    },
+    {
+      "finding_id": "F-HADI1-009",
+      "category": "defense_evasion",
+      "claim": "Log tampering attempted",
+      "evidence_path": "/var/log/ (truncation indicators)",
+      "artifact_type": "log_tampering",
+      "host_path": "/var/log/",
+      "expected_dart_mcp_function": "detect_log_tampering_indicators",
+      "mitre_attack": ["T1070.002"],
+      "rationale": "Gap in syslog and Apache log timestamps consistent with log truncation."
+    },
+    {
+      "finding_id": "F-HADI1-010",
+      "category": "host_attribution",
+      "claim": "Web server identifying metadata (hostname, OS version, kernel)",
+      "evidence_path": "/etc/hostname, /etc/os-release, /proc/version",
+      "artifact_type": "host_identity",
+      "host_path": "/etc/os-release",
+      "expected_dart_mcp_function": "parse_linux_text_log",
+      "mitre_attack": ["T1082"],
+      "rationale": "Host identification baseline for case report."
+    }
+  ]
+}
