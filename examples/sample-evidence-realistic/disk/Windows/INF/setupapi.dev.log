@@ -1,0 +1,107 @@
+[Device Install Log]
+     OS Version = 10.0.19045
+     Service Pack = 0.0
+     Suite = 0x0100
+     ProductType = 1
+     Architecture = amd64
+
+[BeginLog]
+
+>>>  [Device Install (Hardware initiated) - USB\VID_8087&PID_0033\6&14a91b22&0&3]
+>>>  Section start 2026/03/15 08:00:42.118
+     dvi: {Build Driver List} 08:00:42.119
+     dvi: Searching for hardware ID(s):
+     dvi:      usb\vid_8087&pid_0033&rev_0001
+     dvi:      usb\vid_8087&pid_0033
+     dvi: Searching for compatible ID(s):
+     dvi:      usb\class_e0&subclass_01&prot_01
+     dvi:      usb\class_e0&subclass_01
+     dvi:      usb\class_e0
+     dvi: Selected driver installs from section [Generic.NTamd64] in 'c:\windows\inf\bth.inf'.
+     dvi: Class GUID of device remains: {e0cbf06c-cd8b-4647-bb8a-263b43f0f974}.
+     dvi: Set selected driver complete.
+<<<  Section end 2026/03/15 08:00:42.241
+<<<  [Exit status: SUCCESS]
+
+>>>  [Device Install (Hardware initiated) - USB\VID_046D&PID_C31C\6&12345678&0&3]
+>>>  Section start 2026/03/15 09:02:11.221
+     dvi: {Build Driver List} 09:02:11.222
+     dvi: Searching for hardware ID(s):
+     dvi:      usb\vid_046d&pid_c31c&rev_6400
+     dvi:      usb\vid_046d&pid_c31c
+     dvi: Searching for compatible ID(s):
+     dvi:      usb\class_03&subclass_01&prot_01
+     dvi:      usb\class_03&subclass_01
+     dvi:      usb\class_03
+     dvi: Selected driver installs from section [HID_Inst.NT] in 'c:\windows\inf\input.inf'.
+     dvi: Class GUID of device remains: {745a17a0-74d3-11d0-b6fe-00a0c90f57da}.
+     dvi: Selected driver: Logitech Cordless USB Keyboard
+     dvi: Set selected driver complete.
+     ndv: Performing driver install...
+     ndv: Performing class installer (DIF_INSTALLDEVICE) action: Install device.
+     ndv: Driver INF: oem18.inf
+     ndv: Hardware Id: USB\VID_046D&PID_C31C
+     ndv: Friendly Name: Logitech Cordless USB Keyboard (HID)
+<<<  Section end 2026/03/15 09:02:11.234
+<<<  [Exit status: SUCCESS]
+
+>>>  [Device Install (Hardware initiated) - USB\VID_0BDA&PID_8153\6&8ac7d22b&0&4]
+>>>  Section start 2026/03/15 11:42:08.882
+     dvi: Searching for hardware ID(s):
+     dvi:      usb\vid_0bda&pid_8153&rev_3000
+     dvi:      usb\vid_0bda&pid_8153
+     dvi: Selected driver: Realtek USB GbE Family Controller
+     ndv: Driver INF: oem27.inf
+     ndv: Friendly Name: Realtek USB GbE Family Controller #2
+<<<  Section end 2026/03/15 11:42:09.118
+<<<  [Exit status: SUCCESS]
+
+>>>  [Device Install (Hardware initiated) - USB\VID_0557&PID_2419\7&abcd1234&0&4]
+>>>  Section start 2026/03/15 14:19:47.018
+     dvi: {Build Driver List} 14:19:47.019
+     dvi: Searching for hardware ID(s):
+     dvi:      usb\vid_0557&pid_2419&rev_0001&mi_00
+     dvi:      usb\vid_0557&pid_2419&rev_0001
+     dvi:      usb\vid_0557&pid_2419
+     dvi: Searching for compatible ID(s):
+     dvi:      usb\class_ef&subclass_02&prot_01
+     dvi:      usb\class_ef&subclass_02
+     dvi:      usb\class_ef
+     dvi: Selected driver installs from section [USB.Composite] in 'c:\windows\inf\usb.inf'.
+     dvi: Class GUID of device remains: {36fc9e60-c465-11cf-8056-444553540000}.
+     dvi: Selected driver: USB Composite Device
+     dvi: Set selected driver complete.
+     ndv: Performing driver install...
+     ndv: Performing class installer (DIF_INSTALLDEVICE) action: Install device.
+     ndv: Driver INF: usb.inf
+     ndv: Hardware Id: USB\VID_0557&PID_2419
+     ndv: Friendly Name: ATEN Composite KVM Device
+     dvi: Manufacturer: ATEN International Co., Ltd.
+     dvi: Composite Device — child interfaces enumerated:
+     dvi:       VID_0557&PID_2419&MI_00 — HID Keyboard Device
+     dvi:       VID_0557&PID_2419&MI_01 — HID Mouse Device
+     dvi:       VID_0557&PID_2419&MI_02 — HID-compliant Consumer Control Device
+<<<  Section end 2026/03/15 14:19:47.042
+<<<  [Exit status: SUCCESS]
+
+>>>  [Device Install (Hardware initiated) - USB\VID_046D&PID_C063\6&333abcde&0&3]
+>>>  Section start 2026/03/15 14:25:33.471
+     dvi: Selected driver: Logitech USB-Compliant Mouse
+     ndv: Driver INF: input.inf
+     ndv: Friendly Name: USB Optical Mouse
+<<<  Section end 2026/03/15 14:25:33.512
+<<<  [Exit status: SUCCESS]
+
+>>>  [Device Install (Hardware initiated) - USB\VID_05AC&PID_024F\7&def56789&0&4]
+>>>  Section start 2026/03/15 14:33:02.001
+     dvi: {Build Driver List} 14:33:02.002
+     dvi: Searching for hardware ID(s):
+     dvi:      usb\vid_05ac&pid_024f&rev_0023
+     dvi:      usb\vid_05ac&pid_024f
+     dvi: Selected driver: USB Input Device
+     ndv: Driver INF: input.inf
+     ndv: Friendly Name: Apple Magic Keyboard (USB)
+<<<  Section end 2026/03/15 14:33:02.019
+<<<  [Exit status: SUCCESS]
+
+[EndLog]

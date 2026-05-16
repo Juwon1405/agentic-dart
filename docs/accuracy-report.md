@@ -28,6 +28,24 @@ recall=1.000, FPR=0.000, hallucination=0 — confirming that the
 detection functions discriminate IOC from benign and don't simply
 match-anything in the small-input case.
 
+### Evidence schema fidelity (commit `de05118`, 2026-05-16)
+
+Every evidence file in `sample-evidence-realistic/` now matches the
+on-disk schema produced by the corresponding real forensic tool:
+**EvtxECmd-shaped EVTX records** with full Channel/Computer/EventRecordID/
+SubjectUserSid/TargetLogonId/LogonGuid/TicketOptions/ServiceSid fields,
+**Zeek conn.log-shaped network flows** with ja3/ja3s/tls_version/
+http_method/user_agent, **MFTECmd-shaped $MFT.csv** with both 0x10 SI
+and 0x30 FN timestamps, **PECmd-shaped Prefetch JSON**, **SBECmd-shaped
+shellbags**, **RECmd-shaped runkeys/services/shimcache**, **Hindsight-
+shaped Chrome History**, **systemd-journald-shaped journal.ndjson** with
+`__REALTIME_TIMESTAMP`/`_BOOT_ID`/`_MACHINE_ID`/`_AUDIT_LOGINUID`, **full
+auditd records** (SYSCALL+EXECVE+CWD+PATH+PROCTITLE+USER_LOGIN+CRED_ACQ),
+**FSEventsParser-shaped fsevents** with id/mask/flags/inode/sha256, and
+**`log show`-shaped unified log** with thread/subsystem/category/sender.
+Schema-level fidelity is byte-stable per re-run; all 68 unit tests and
+all per-case detection counts are preserved across the enrichment.
+
 ## MCP surface — the typed MCP surface (native pure-Python + SIFT Workstation adapters), all implemented end-to-end
 
 ### Windows
@@ -69,9 +87,10 @@ match-anything in the small-input case.
 | Recall | **1.000** |
 | False positive rate | **0.000** |
 | Hallucination count | **0** |
-| Evidence integrity preserved | **true** (30+ files, SHA-256 pre/post match) |
+| Evidence integrity preserved | **true** (49 files, SHA-256 pre/post match; realistic variant) |
 | Self-correction observed | **true** |
 | Audit chain length | 3 entries, SHA-256-linked |
+| True positives | F-001, F-013 |
 
 ### Case 02 — LOTL PowerShell (Windows)
 
@@ -273,6 +292,26 @@ TA0009 Collection has the necessary parsers (MFT, FSEvents) but no scoped
 detection rules yet; TA0011 C2 requires PCAP primitives. Both are tracked
 for Phase 2 (issue #47 for external-dataset benchmarking, issue #30 for
 native parse_evtx, issue #10 for Sigma rule synthesis).
+
+### Per-case ground-truth coverage
+
+| Case | Layer | Findings | Notes |
+|---|---|---:|---|
+| case-01-ipkvm-insider | 1 | 5 | IP-KVM insider, USB indicator, scheduled task |
+| case-02-lotl-powershell | 1 | 7 | Encoded PS, LOLBin, Run key persistence |
+| case-03-macos-remote-admin | 1 | 8 | macOS Gatekeeper bypass, LaunchAgent, FSEvents |
+| case-04-phishing-to-exfil | 1 | 6 | MOTW, double-extension, cloud upload |
+| case-05-authentication-lateral | 1 | 8 | Brute-force survivor, Kerberoasting, Linux pivot |
+| case-06-web-attack-to-rdp-pivot | 1 | 10 | Webshell, SQLi, RDP pivot |
+| case-07-ransomware-full-chain | 1 | 13 | Shadow-copy delete, mass rename, ransom note |
+| case-08-cfreds-hacking-case | 2 | 10 | NIST CFReDS (Greg Schardt / Mr. Evil) |
+| case-09-hadi-challenge-1 | 2 | 10 | Ali Hadi Linux IR challenge |
+| case-10-m57-jean | 2 | 10 | Digital Corpora M57 |
+| **case-11-supplychain-ad-zeroday** | 1 | **12** | **Supply-chain → ESC8 → DCSync → Golden Ticket** |
+| **Total** | | **99** | |
+
+Layer 1 (synthetic, production-noise-injected, 8 cases): **69 findings**.
+Layer 2 (external, community-verified, 3 cases): **30 findings**.
 
 ---
 
