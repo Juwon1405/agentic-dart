@@ -58,7 +58,7 @@ def scene1_cold_open():
     ax.text(50, 30, "Architecture-first autonomous DFIR",
             ha="center", va="center", fontsize=22, color=TEXT_SEC, style="italic")
     # Three pillars
-    ax.text(50, 19, "70 typed read-only MCP tools",
+    ax.text(50, 19, "72 typed read-only MCP tools",
             ha="center", va="center", fontsize=20, color=ACCENT, fontweight="bold")
     ax.text(50, 14, "Architectural boundary at the wire — not the prompt",
             ha="center", va="center", fontsize=16, color=TEXT_SEC)

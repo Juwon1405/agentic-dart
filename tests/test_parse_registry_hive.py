@@ -18,19 +18,24 @@ FIXTURES = REPO / "tests" / "fixtures" / "registry-hives"
 @pytest.fixture(autouse=True)
 def _evidence_root_for_registry_tests(monkeypatch):
     """Point DART_EVIDENCE_ROOT at the registry-hives fixture dir for
-    these tests, then restore. Uses monkeypatch so other test files
-    that share the runner are unaffected."""
+    these tests, then restore.
+
+    Previous implementation used `importlib.reload(dart_mcp)` which
+    rebuilt the module-level _REGISTRY from scratch — but only for the
+    top-level dart_mcp package. Sub-modules that contributed @register
+    decorations during their own import time were NOT re-imported by
+    reload(), so the _REGISTRY came back with 38 functions missing.
+    This was invisible when tests ran in their declared order (the
+    teardown reload happened to fire before any surface-checking test)
+    but caused 47 failures under random-order execution.
+
+    Safer approach: patch dart_mcp.EVIDENCE_ROOT in place. The module
+    state stays intact and EVIDENCE_ROOT reverts on teardown."""
+    import dart_mcp as _dm
     monkeypatch.setenv("DART_EVIDENCE_ROOT", str(FIXTURES))
-    # Reimport dart_mcp's EVIDENCE_ROOT module-level variable to pick up
-    # the new env. Other test modules that already imported with a
-    # different root will see the original after teardown.
-    import importlib
-    import dart_mcp
-    importlib.reload(dart_mcp)
+    monkeypatch.setattr(_dm, "EVIDENCE_ROOT", FIXTURES, raising=False)
     yield
-    # Restore original is handled by monkeypatch's teardown; reimport
-    # so subsequent test modules see the restored env.
-    importlib.reload(dart_mcp)
+    # monkeypatch fixture handles restoration of both env and attribute
 
 
 def _call(name, args):

@@ -66,7 +66,7 @@ each print colored headers — that's the show.
 **Pause point:** When the script prints
 
 ```
-[ok] MCP surface verified: 42 native + 25 SIFT adapters = 67 tools
+[ok] MCP surface verified: 47 native + 25 SIFT adapters = 72 tools
 ```
 
 freeze the cursor for 1 second so the viewer reads it.
@@ -200,7 +200,7 @@ clear
 echo "Agentic-DART"
 echo "github.com/Juwon1405/agentic-dart"
 echo ""
-echo "  67 read-only MCP tools  (42 native + 25 SIFT adapters)"
+echo "  72 read-only MCP tools  (47 native + 25 SIFT adapters)"
 echo "  SHA-256 audit chain"
 echo "  Custom MCP Server pattern (Pattern 2)"
 echo "  Submission for SANS FIND EVIL! 2026"

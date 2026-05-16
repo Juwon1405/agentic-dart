@@ -9,7 +9,7 @@
 
 ## Headline numbers — v0.6.1 (locked at recording time)
 
-- **Typed read-only MCP surface:** 70 tools = 45 native pure-Python forensic functions + 25 SIFT Workstation adapters
+- **Typed read-only MCP surface:** 72 tools = 47 native pure-Python forensic functions + 25 SIFT Workstation adapters
 - **Test suite:** 72 / 72 passing on a fresh clone (CI green on Python 3.10 / 3.11 / 3.12 / 3.13)
 - **MITRE ATT&CK enterprise coverage:** 11 / 12 tactics. TA0011 (Command-and-Control) opened in v0.6.1 via `detect_dns_tunneling`. TA0009 (Collection) is collector-side and intentionally out of scope for the analysis engine.
 - **Playbook:** ten-phase senior-analyst methodology synthesising Mandiant + Bianco + Diamond + Palantir ADS + MaGMa UCF + TaHiTI hunt cycle
@@ -42,7 +42,7 @@ Keep slogan **"70 / 72 / 72 / 0"** consistent with the README Hero L259.
 cat << 'EOF'
   Agentic-DART
   Architecture-first autonomous DFIR.
-  70 typed read-only MCP tools.
+  72 typed read-only MCP tools.
   Zero destructive operations possible.
 EOF
 ```
@@ -80,7 +80,7 @@ curl -fsSL https://raw.githubusercontent.com/Juwon1405/agentic-dart/main/scripts
 **Pause point.** When the script prints:
 
 ```
-[ok] MCP surface verified: 45 native + 25 SIFT adapters = 70 tools
+[ok] MCP surface verified: 47 native + 25 SIFT adapters = 72 tools
 ```
 
 freeze the cursor for one beat so the viewer reads it.

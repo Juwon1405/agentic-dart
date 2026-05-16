@@ -205,7 +205,7 @@ def slide2_install():
         boxstyle="round,pad=0.3,rounding_size=0.4",
         linewidth=0, facecolor=SUCCESS_LIGHT)
     ax.add_patch(callout_rect)
-    ax.text(50, 12, "MCP surface verified  ·  45 native + 25 SIFT adapters = 70 tools",
+    ax.text(50, 12, "MCP surface verified  ·  47 native + 25 SIFT adapters = 72 tools",
             ha="center", va="center", fontsize=15, color=SUCCESS, fontweight="bold")
     ax.text(50, 9.6, "All bypass checks passed  ·  no destructive operations on the wire",
             ha="center", va="center", fontsize=12, color=SUCCESS)
@@ -236,7 +236,7 @@ def slide3_boundary():
     ax.text(left_x + left_w/2, col_y_top - 2, "ON the wire",
             ha="center", va="center", fontsize=18, color=SUCCESS, fontweight="bold")
     ax.text(left_x + left_w/2, col_y_top - 4.2,
-            "70 typed read-only forensic functions",
+            "72 typed read-only forensic functions",
             ha="center", va="center", fontsize=11, color=SUCCESS, style="italic")
     # Items
     on_wire = [

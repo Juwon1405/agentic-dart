@@ -89,7 +89,7 @@ Most "agentic DFIR" tools today are a system prompt that *asks* an LLM to behave
 
 That works until someone discovers prompt injection inside an evidence file. Or jailbreaks the model. Or the conversation runs long enough for the system prompt to erode. Then the agent will happily run `rm -rf` on your evidence — because *nothing structural was stopping it.* The boundary lived in conversation. Conversation is mutable.
 
-**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **45 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
+**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **47 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
 
 This is what *architecture-first, not prompt-first* means.
 

@@ -8,11 +8,11 @@
 #   1. Verifies prerequisites (Python 3.10+, git, curl, RAM, disk)
 #   2. Clones agentic-dart into ~/agentic-dart
 #   3. Creates an isolated Python venv
-#   4. Installs the dart_mcp package (60 typed read-only tools)
+#   4. Installs the dart_mcp package (72 typed read-only tools)
 #   5. Probes for SIFT Workstation tool binaries (Volatility 3, MFTECmd,
 #      EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) and prints
 #      the env-var overrides needed for any binary not found on PATH
-#   6. Runs the tool-registration test to confirm 60 tools are exposed
+#   6. Runs the tool-registration test to confirm 72 tools are exposed
 #   7. Prints next-step commands
 
 set -euo pipefail
@@ -132,7 +132,7 @@ if (( MISSING > 0 )); then
 fi
 
 # --- 5. Tool registration test ---
-sect "5. Verify MCP tool registration (60 tools expected)"
+sect "5. Verify MCP tool registration (72 tools expected)"
 TOOL_COUNT=$(python3 -c "
 import os
 os.environ.setdefault('DART_EVIDENCE_ROOT', '/tmp/dart-bootstrap-evidence')
