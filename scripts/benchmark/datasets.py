@@ -70,87 +70,93 @@ DATASETS = {
 
     # ─────────────────────────────────────────────────────────────────────
     # Ali Hadi (ashemery) — DFIR Challenge #1 'Web Server Case'
-    # https://www.ashemery.com/dfir.html
-    # Single image, ~1.5 GB
-    # Linux web server compromise (2014)
+    # Homepage: https://www.ashemery.com/dfir.html
+    # Mirrored on Internet Archive (stable, no captcha): https://archive.org/details/dfir-case1
+    # Single E01 image, 2.91 GB. Memory dump available separately.
+    # IMPORTANT: this is a WINDOWS server (Apache on Windows Server 2008 + XAMPP),
+    # not Linux as misread from various write-ups.
     # ─────────────────────────────────────────────────────────────────────
     "hadi_challenge_1": {
         "title": "Ali Hadi DFIR Challenge #1 — Web Server Case",
         "short": "hadi1",
         "year": 2014,
-        "filesystem": "ext4 (Linux web server)",
-        "size_gb": 1.5,
-        "license": "CC-BY-4.0 (academic use)",
+        "filesystem": "NTFS (Windows Server 2008 + XAMPP/Apache)",
+        "size_gb": 2.91,
+        "license": "CC-BY-4.0 (academic and personal use)",
         "homepage": "https://www.ashemery.com/dfir.html",
-        "download_base": "https://www.ashemery.com/images/dfir/",
+        "download_base": "https://archive.org/download/dfir-case1",
         "parts": [
-            # Note: actual URL may vary; check the homepage for current locations.
-            # ashemery historically hosts as a single .7z or .zip — script
-            # auto-detects which extension is available.
-            ("Challenge1.7z", "md5", None),  # checksum on homepage
+            ("Case1-Webserver.E01", "sha1", None),  # 2.91 GB main disk image
+            # Optional second part — memory dump for memory forensics
+            # ("memdump.7z", "sha1", None),  # 0.11 GB
         ],
-        "reassemble_cmd": None,  # single archive, just extract
+        "reassemble_cmd": None,  # single E01, no reassembly
         "joined_md5": None,
-        "joined_name": "Challenge1.dd",
+        "joined_name": "Case1-Webserver.E01",
         "ground_truth_path": "examples/case-studies/case-09-hadi-challenge-1/ground-truth.json",
         "scenario": (
-            "Linux web server (Apache+MySQL+PHP) was reported as compromised "
-            "by the security team. Identify the initial access vector, list any "
-            "web shells dropped, reconstruct attacker commands from shell history "
-            "and auth logs, and determine whether sensitive data was exfiltrated."
+            "Windows Server 2008 web server (Apache + MySQL + PHP via XAMPP) "
+            "was reported as compromised. Forensic team arrived in time to take "
+            "both a disk image and a memory dump. Identify the attack vector, "
+            "enumerate user accounts added by the attacker, list dropped tools "
+            "and software, identify the shellcode used (memory forensics), and "
+            "build a complete event timeline."
         ),
         "key_artifacts": [
-            "/var/log/apache2/access.log + error.log",
-            "/var/log/auth.log + syslog",
-            "/root/.bash_history",
-            "/var/www/html/ (web shells)",
-            "/etc/passwd + /etc/shadow",
-            "MySQL binary logs",
-            "/tmp/ and /dev/shm/ (attacker workspace)",
+            "C:\\xampp\\apache\\logs\\access.log + error.log",
+            "C:\\xampp\\htdocs\\ (web shells)",
+            "Windows Security event log (4624/4625 logons, account creation)",
+            "Registry Run keys + Services hive",
+            "Prefetch + Amcache",
+            "Memory dump (httpd.exe, mysqld.exe process spaces)",
+            "MFT timeline reconstruction",
         ],
     },
 
     # ─────────────────────────────────────────────────────────────────────
     # Digital Corpora M57-Patents — 4-person corporate scenario
     # https://digitalcorpora.org/corpora/scenarios/m57-patents-scenario/
-    # 4 PC images + network traffic + USB drives, ~50 GB total
-    # Windows XP/7, 2009-2010
-    # We use the 'jean' subset (~10 GB) as the primary target — smaller and
-    # contains the IP-theft narrative.
+    # 4 PC images over 17 days + network captures + USB, ~50 GB total
+    # We use 'jo' (Joanne) — the IP-theft narrative subject.
+    # IMPORTANT: actual employee names are charlie, jo, pat, terry.
+    # Verified via S3 listing 2026-05.
     # ─────────────────────────────────────────────────────────────────────
-    "m57_jean": {
-        "title": "Digital Corpora M57-Patents — Jean's PC",
+    "m57_jo": {
+        "title": "Digital Corpora M57-Patents — Jo's PC (last day of scenario)",
         "short": "m57",
         "year": 2009,
         "filesystem": "NTFS (Windows XP)",
-        "size_gb": 10.0,
+        "size_gb": 5.16,  # jo-2009-12-10.E01 specifically (last single-file day)
         "license": "CC-BY-3.0 (academic + commercial use)",
         "homepage": "https://digitalcorpora.org/corpora/scenarios/m57-patents-scenario/",
-        "download_base": "https://downloads.digitalcorpora.org/corpora/scenarios/2009-m57-patents/drives-redacted/",
+        "download_base": "https://digitalcorpora.s3.amazonaws.com/corpora/scenarios/2009-m57-patents/drives-redacted",
         "parts": [
-            # M57 ships each PC as an aff or e01 set; we pull jean only.
-            # Exact filenames change; the script will list directory and select
-            # the largest jean-*.E01 family.
-            ("jean.aff", "sha1", None),  # placeholder; verify against homepage
+            # Verified via S3 listing 2026-05.
+            # 12-10 is the last day that exists as a single E01 (5.16 GB).
+            # 12-11 (the very last day) is split into -001 + -002 (~11 GB total).
+            # Picking 12-10 gives full post-exfiltration state in a smaller image.
+            ("jo-2009-12-10.E01", "sha1", None),  # 5.16 GB
         ],
-        "reassemble_cmd": None,
+        "reassemble_cmd": None,  # single E01
         "joined_md5": None,
-        "joined_name": "jean.aff",
+        "joined_name": "jo-2009-12-10.E01",
         "ground_truth_path": "examples/case-studies/case-10-m57-jean/ground-truth.json",
         "scenario": (
-            "M57.biz is a small patent-research company. Four employees use "
-            "company laptops over a 17-day period. Two scenarios run in "
-            "parallel: a corporate IP-theft narrative (whose evidence is on "
-            "Jean's PC) and a background employee-conduct issue. Quantify what "
-            "Jean exfiltrated, when, and to whom."
+            "M57.biz is a small patent-research company. Four employees "
+            "(charlie, jo, pat, terry) use company laptops over a 17-day "
+            "period. The primary forensic narrative centres on data "
+            "exfiltration; the evidence is on jo's workstation. The "
+            "2009-12-11 image is the last-day snapshot containing the "
+            "complete activity history including the exfiltration."
         ),
         "key_artifacts": [
-            "NTUSER.DAT for 'Jean'",
-            "Outlook PST / OST",
-            "Browser history (IE7/IE8)",
-            "USNJrnl + MFT",
-            "Recent files / LNK / Jump Lists",
-            "Pagefile.sys / hiberfil.sys",
+            "Users/jo/NTUSER.DAT (RecentDocs MRU, TypedPaths, MUICache)",
+            "Outlook PST or Outlook Express *.dbx",
+            "Internet Explorer history",
+            "$Recycle.Bin metadata + INFO2",
+            "$Extend/$UsnJrnl:$J",
+            "Windows/Prefetch + Amcache.hve",
+            "pagefile.sys / hiberfil.sys",
         ],
     },
 }
