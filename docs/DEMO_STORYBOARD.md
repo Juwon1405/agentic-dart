@@ -28,7 +28,7 @@
 cat << 'EOF'
 Agentic-DART
 Architecture-first autonomous DFIR.
-67 read-only MCP tools. Zero destructive operations possible.
+72 read-only MCP tools. Zero destructive operations possible.
 EOF
 ```
 
