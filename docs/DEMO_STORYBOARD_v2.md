@@ -152,6 +152,79 @@ python3 -m dart_audit verify /tmp/case-04-out/audit.jsonl
 
 The audit verifier should print `OK — chain intact, N entries, SHA-256 hash X...`
 
+#### Scene 4.5 — Optional second case for breadth: case-11 supply-chain → ESC8 (1 min)
+
+If the demo budget allows for one more case, case-11 is the most striking second pick. It does NOT overlap with case-04: where case-04 is "user clicked a phishing link", case-11 is **"a signed vendor binary entered as a routine update"** — the SolarWinds-era attack class that defeated SOCs of much larger orgs. It also shows agentic-dart's AD chops end to end.
+
+```bash
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence-realistic"
+
+python3 - <<'PY'
+import csv, json
+from pathlib import Path
+from dart_mcp import call_tool
+
+ROOT = Path("examples/sample-evidence-realistic")
+
+procs = [{"pid": r["PID"], "ppid": r["ParentPID"], "Image": r["Image"],
+          "CommandLine": r["CommandLine"], "start_ts": r["StartTime"], "user": r["User"]}
+         for r in csv.DictReader((ROOT / "disk/supplychain-processes.csv").open())]
+events = json.loads((ROOT / "disk/supplychain-security-events.json").read_text())
+logons = [{"event_id": 4624, "user": e.get("TargetUserName"),
+           "logon_type": e.get("LogonType") or 0,
+           "source_ip": e.get("IpAddress"), "ts": e.get("TimeCreated")}
+          for e in events if e.get("EventID") == 4624]
+net = json.loads((ROOT / "disk/supplychain-network.json").read_text())
+
+r = call_tool('get_process_tree', {'process_csv': 'disk/supplychain-processes.csv'})
+print('get_process_tree:           ', r['process_count'], 'procs in tree')
+
+r = call_tool('analyze_kerberos_events',
+              {'security_events_json': 'disk/supplychain-security-events.json'})
+print('analyze_kerberos_events:    ',
+      r['stats']['scattered_tgt_users'], 'scattered_tgts,',
+      r['stats']['asrep_roasting_count'], 'as-rep (golden-ticket side-channel)')
+
+r = call_tool('detect_lateral_movement', {'processes': procs, 'logons': logons})
+print('detect_lateral_movement:    ', len(r['remote_admin_tool_hits']), 'tools,',
+      len(r['suspicious_pairs']), 'suspicious pairs')
+
+r = call_tool('detect_credential_access', {'processes': procs})
+print('detect_credential_access:   ', len(r.get('findings', [])), 'findings ({})'.format(r.get('max_severity')))
+
+r = call_tool('detect_defense_evasion',
+              {'events_json': 'disk/supplychain-security-events.json', 'processes': procs})
+print('detect_defense_evasion:     ', len(r.get('findings', [])), 'findings ({})'.format(r.get('max_severity')))
+
+r = call_tool('detect_exfiltration', {'network_events': net})
+print('detect_exfiltration:        ', len(r.get('signals', [])), 'signals ({})'.format(r.get('max_severity')))
+PY
+```
+
+Expected output (byte-stable, deterministic, no LLM needed):
+
+```
+get_process_tree:           21 procs in tree
+analyze_kerberos_events:    1 scattered_tgts, 1 as-rep (golden-ticket side-channel)
+detect_lateral_movement:    3 tools, 2 suspicious pairs
+detect_credential_access:   3 findings (critical)
+detect_defense_evasion:     4 findings (critical)
+detect_exfiltration:        1 signals (medium)
+```
+
+**Voiceover (during the run):**
+
+> Case eleven — supply chain entry through trojanized signed vendor
+> binary, escalation via Active Directory Certificate Services template
+> misconfig — ESC eight — combined with PetitPotam coercion. The agent
+> reconstructs Rubeus PKINIT TGT request from a non domain-controller
+> source IP, S four U two self impersonation of a domain admin, DCSync
+> extraction of the K R B T G T hash, AdminSDHolder ACL persistence
+> that self-heals every sixty minutes via SD prop, and a forged Golden
+> Ticket the next morning. All twelve ground-truth findings reproduced
+> from the bundled evidence — no LLM involvement, fully deterministic.
+
 ---
 
 ### Scene 5 — The new v0.6.1 capabilities (2:20 → 2:50) — 30 seconds

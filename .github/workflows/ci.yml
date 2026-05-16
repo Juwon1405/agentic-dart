@@ -69,6 +69,111 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src
         run: python3 scripts/measure_accuracy.py
 
+  url-reachability:
+    name: URL reachability — verify every external reference in docs + case studies resolves
+    runs-on: ubuntu-latest
+    # Schedule on a separate cadence: don't block PR merge on transient
+    # 3rd-party site outage, but get a daily-cron-style report of stale URLs.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install httpx (async URL fetcher)
+        run: python3 -m pip install httpx
+
+      - name: Extract and check every http(s) URL in tracked .md files
+        run: |
+          python3 - <<'PY'
+          import re, asyncio, sys
+          from pathlib import Path
+          import httpx
+
+          REPO = Path('.')
+          # Surfaces that must keep external references alive:
+          #   top-level README, every per-case README, every doc, the DEVPOST page
+          targets = []
+          for pat in ('README.md', 'CHANGELOG.md', 'DEVPOST_SUBMISSION.md',
+                      'docs/**/*.md', 'examples/case-studies/**/*.md',
+                      'dart_*/README.md'):
+              targets.extend(REPO.glob(pat))
+          targets = sorted({p for p in targets if p.is_file()})
+
+          url_re = re.compile(r'https?://[^\s)\]\>"`]+')
+          # Skip placeholder / private domains
+          skip_substrings = (
+              'example.com', 'example.local', 'example-corp.com',
+              'attacker-infra.xyz', 'finance-update-secure.tk',
+              'evil.example.com', 'transfer.sh', 'bashupload.com',
+              # Private corp infrastructure — only reachable inside LY
+              'workers-hub.com', 'genai-gateway.flava-cloud.com',
+              'chatai.workers-hub.com', 'git.linecorp.com',
+              # User content placeholders
+              'cdn-mirror-2.velolink.org', 'telemetry-velolink-cdn.com',
+          )
+
+          urls = []
+          for f in targets:
+              for m in url_re.finditer(f.read_text(errors='replace')):
+                  u = m.group(0).rstrip('.,;:')
+                  if any(s in u for s in skip_substrings):
+                      continue
+                  urls.append((f, u))
+
+          # Dedupe while preserving first occurrence
+          seen = set()
+          unique = []
+          for f, u in urls:
+              if u not in seen:
+                  seen.add(u)
+                  unique.append((f, u))
+
+          print(f"::group::URL inventory")
+          print(f"  files scanned: {len(targets)}")
+          print(f"  unique URLs:   {len(unique)}")
+          print(f"::endgroup::")
+
+          async def head(client, file, url):
+              try:
+                  # Some sites reject HEAD — fall back to ranged GET
+                  r = await client.head(url, follow_redirects=True, timeout=10)
+                  if r.status_code in (405, 403):
+                      r = await client.get(url, follow_redirects=True, timeout=10,
+                                           headers={'Range': 'bytes=0-1'})
+                  return (file, url, r.status_code, None)
+              except Exception as e:
+                  return (file, url, None, str(e)[:80])
+
+          async def main():
+              limits = httpx.Limits(max_connections=8, max_keepalive_connections=4)
+              ua = "Mozilla/5.0 (compatible; agentic-dart-ci/0.7; +https://github.com/Juwon1405/agentic-dart)"
+              async with httpx.AsyncClient(headers={'User-Agent': ua}, limits=limits) as client:
+                  results = await asyncio.gather(*(head(client, f, u) for f, u in unique))
+              return results
+
+          results = asyncio.run(main())
+          bad = [(f, u, sc, err) for f, u, sc, err in results
+                 if (sc is not None and sc >= 400) or err]
+          ok_count = len(results) - len(bad)
+          print(f"\n  alive: {ok_count}")
+          print(f"  dead:  {len(bad)}")
+
+          if bad:
+              print("\n::group::Dead URLs")
+              for f, u, sc, err in bad:
+                  marker = f"HTTP {sc}" if sc else f"err {err}"
+                  print(f"  [{marker}] {u}")
+                  print(f"           -- referenced from {f}")
+              print("::endgroup::")
+              # Daily run: report-only; flip to sys.exit(1) once stable
+              sys.exit(0)
+          else:
+              print("\nAll URLs resolve.")
+          PY
+
   packaging:
     name: Packaging — verify pip install yields full MCP tool surface
     runs-on: ubuntu-latest
