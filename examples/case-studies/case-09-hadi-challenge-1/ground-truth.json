@@ -23,7 +23,8 @@
       "mitre_attack": [
         "T1190"
       ],
-      "rationale": "Apache access log shows the first attacker request as the entry vector."
+      "rationale": "Apache access log shows the first attacker request as the entry vector.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-HADI1-002",
@@ -36,7 +37,8 @@
       "mitre_attack": [
         "T1505.003"
       ],
-      "rationale": "PHP web shell file dropped in Apache document root, accessible via HTTP."
+      "rationale": "PHP web shell file dropped in Apache document root, accessible via HTTP.",
+      "severity": "critical"
     },
     {
       "finding_id": "F-HADI1-003",
@@ -49,7 +51,8 @@
       "mitre_attack": [
         "T1053.003"
       ],
-      "rationale": "Attacker-modified cron job re-establishes shell connection at interval."
+      "rationale": "Attacker-modified cron job re-establishes shell connection at interval.",
+      "severity": "high"
     },
     {
       "finding_id": "F-HADI1-004",
@@ -62,7 +65,8 @@
       "mitre_attack": [
         "T1003.008"
       ],
-      "rationale": "sudo and su authentication events show privilege escalation attempts."
+      "rationale": "sudo and su authentication events show privilege escalation attempts.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-HADI1-005",
@@ -77,7 +81,8 @@
         "T1057",
         "T1082"
       ],
-      "rationale": "Recovered commands show id, uname, netstat, ps reconnaissance sequence."
+      "rationale": "Recovered commands show id, uname, netstat, ps reconnaissance sequence.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-HADI1-006",
@@ -90,7 +95,8 @@
       "mitre_attack": [
         "T1071.001"
       ],
-      "rationale": "Reverse-shell connection appears in process listing and syslog."
+      "rationale": "Reverse-shell connection appears in process listing and syslog.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-HADI1-007",
@@ -103,7 +109,8 @@
       "mitre_attack": [
         "T1074.001"
       ],
-      "rationale": "Archive file created in /tmp containing /etc/passwd, /etc/shadow, web configs."
+      "rationale": "Archive file created in /tmp containing /etc/passwd, /etc/shadow, web configs.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-HADI1-008",
@@ -116,7 +123,8 @@
       "mitre_attack": [
         "T1213.003"
       ],
-      "rationale": "MySQL general log shows queries from web-shell-injected SQL."
+      "rationale": "MySQL general log shows queries from web-shell-injected SQL.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-HADI1-009",
@@ -129,7 +137,8 @@
       "mitre_attack": [
         "T1070.002"
       ],
-      "rationale": "Gap in syslog and Apache log timestamps consistent with log truncation."
+      "rationale": "Gap in syslog and Apache log timestamps consistent with log truncation.",
+      "severity": "high"
     },
     {
       "finding_id": "F-HADI1-010",
@@ -142,7 +151,8 @@
       "mitre_attack": [
         "T1082"
       ],
-      "rationale": "Host identification baseline for case report."
+      "rationale": "Host identification baseline for case report.",
+      "severity": "medium"
     }
   ]
 }

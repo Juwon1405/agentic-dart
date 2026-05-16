@@ -286,14 +286,17 @@ DATASETS["dfrws_2022"] = {
     "download_base":   "https://...",
     "parts":           [("file.E01", "sha1", None)],
     "joined_name":     "file.E01",
-    "ground_truth_path": "examples/case-studies/case-11-dfrws-2022/ground-truth.json",
+    "ground_truth_path": "examples/case-studies/case-12-dfrws-2022/ground-truth.json",
     "scenario":        "...",
     "key_artifacts":   [...],
 }
 ```
 
-Then create `examples/case-studies/case-11-dfrws-2022/` with a `README.md`
+Then create `examples/case-studies/case-12-dfrws-2022/` with a `README.md`
 and `ground-truth.json` (schema: see `case-08-cfreds-hacking-case/ground-truth.json`).
+
+> Note: case-11 is already occupied by `case-11-supplychain-ad-zeroday`
+> (Layer 1). The next available external-benchmark slot is case-12.
 
 That's all. `run_all.py --layer 2` will pick it up automatically.
 

@@ -1,4 +1,4 @@
-# Devpost Submission Content — Agentic-DART v0.5.4
+# Devpost Submission Content — Agentic-DART v0.7.1
 
 This file contains the exact text to paste into each section of the
 [FIND EVIL! Devpost submission form](https://findevil.devpost.com/). Each
@@ -56,7 +56,7 @@ jailbreak is.
 
 ```markdown
 Agentic-DART is an autonomous DFIR agent that runs on top of the SANS
-SIFT Workstation. It exposes **70 typed, read-only forensic functions**
+SIFT Workstation. It exposes **72 typed, read-only forensic functions**
 to Claude Code through a custom MCP server, in two layers:
 
 **Layer 1 — Native (36 functions)**
@@ -190,7 +190,7 @@ exists.
   traffic — not because we asked it not to, but because those functions
   are not on the wire. Verified by adversarial bypass tests.
 
-- **70 typed read-only MCP tools.** 45 native + 25 SIFT adapters,
+- **72 typed read-only MCP tools.** 47 native + 25 SIFT adapters,
   all behind the same architectural contract. The SIFT layer added
   capability without weakening the boundary.
 
@@ -198,10 +198,11 @@ exists.
   into a chain. Tampering at any step breaks the chain. The audit
   output is courtroom-traceable.
 
-- **72/72 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12/3.13). Includes adversarial bypass
+- **75/75 tests pass on a fresh clone** (CI-verified on Python 3.10/3.11/3.12/3.13). Includes adversarial bypass
   tests, audit chain tampering tests, concurrency tests, the v0.5
-  SIFT adapter test suite, the v0.5.2 QA-pass regression guard, and
-  the v0.5.4 NIST CFReDS integration suite.
+  SIFT adapter test suite, the v0.5.2 QA-pass regression guard,
+  the v0.5.4 NIST CFReDS integration suite, and the v0.7.1 Linux
+  DFIR triplet test pack.
 
 - **External benchmark on NIST CFReDS Hacking Case.** v0.5.4 ships
   with a 3-tier evaluation: synthetic reference (recall=1.000),
@@ -253,7 +254,7 @@ between agent and tool — not the docstring, not the README.
 ## [Devpost: Acknowledgments / IP disclosure]
 
 ```markdown
-This submission is the original work product of **Bang Juwon (@Juwon1405)** as a single-person Entrant. All architectural design, MCP function implementation (45 native + 25 SIFT adapters), playbook YAML, audit chain, contradiction handler, agent loop, test suite, and documentation are sole-authored.
+This submission is the original work product of **Bang Juwon (@Juwon1405)** as a single-person Entrant. All architectural design, MCP function implementation (47 native + 25 SIFT adapters), playbook YAML, audit chain, contradiction handler, agent loop, test suite, and documentation are sole-authored.
 
 **External community contributions accepted to date:**
 

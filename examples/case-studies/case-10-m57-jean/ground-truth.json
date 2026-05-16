@@ -5,7 +5,10 @@
     "url": "https://digitalcorpora.org/corpora/scenarios/m57-patents-scenario/",
     "subject": "M57.biz IP-theft narrative — Jean exfiltrates patent research data",
     "operating_system": "Windows XP",
-    "image_format": ["AFF", "E01"],
+    "image_format": [
+      "AFF",
+      "E01"
+    ],
     "scenario_year": 2009,
     "scenario_duration_days": 17,
     "ground_truth_provenance": "Digital Corpora official scenario documentation + Garfinkel/Farrell ground-truth set distributed with the scenario. Cross-checked against community write-ups."
@@ -19,8 +22,11 @@
       "artifact_type": "registry_hive",
       "host_path": "Users/Jean/NTUSER.DAT",
       "expected_dart_mcp_function": "parse_registry_hive",
-      "mitre_attack": ["T1087.001"],
-      "rationale": "SAM hive enumerates local user accounts. Jean is the workstation owner."
+      "mitre_attack": [
+        "T1087.001"
+      ],
+      "rationale": "SAM hive enumerates local user accounts. Jean is the workstation owner.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-M57J-002",
@@ -30,8 +36,11 @@
       "artifact_type": "registry_hive",
       "host_path": "Users/Jean/NTUSER.DAT",
       "expected_dart_mcp_function": "parse_registry_hive",
-      "mitre_attack": ["T1083"],
-      "rationale": "RecentDocs MRU list shows .doc/.pdf patent files opened in the days before exfil."
+      "mitre_attack": [
+        "T1083"
+      ],
+      "rationale": "RecentDocs MRU list shows .doc/.pdf patent files opened in the days before exfil.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-M57J-003",
@@ -41,8 +50,11 @@
       "artifact_type": "email_artifact",
       "host_path": "Users/Jean/Local Settings/Application Data/Identities/",
       "expected_dart_mcp_function": "parse_outlook_dbx",
-      "mitre_attack": ["T1114.001"],
-      "rationale": "Outlook Express DBX file contains the exfiltration emails with attachments."
+      "mitre_attack": [
+        "T1114.001"
+      ],
+      "rationale": "Outlook Express DBX file contains the exfiltration emails with attachments.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-M57J-004",
@@ -52,8 +64,11 @@
       "artifact_type": "email_attachment",
       "host_path": "Users/Jean/Local Settings/Application Data/Identities/",
       "expected_dart_mcp_function": "parse_outlook_dbx",
-      "mitre_attack": ["T1048.003"],
-      "rationale": "Sent emails carry .doc/.pdf attachments matching the company's patent research."
+      "mitre_attack": [
+        "T1048.003"
+      ],
+      "rationale": "Sent emails carry .doc/.pdf attachments matching the company's patent research.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-M57J-005",
@@ -63,8 +78,11 @@
       "artifact_type": "browser_history",
       "host_path": "Users/Jean/Local Settings/History/",
       "expected_dart_mcp_function": "parse_ie_history",
-      "mitre_attack": ["T1071.003"],
-      "rationale": "IE history shows webmail logins to non-company services during exfil window."
+      "mitre_attack": [
+        "T1071.003"
+      ],
+      "rationale": "IE history shows webmail logins to non-company services during exfil window.",
+      "severity": "low"
     },
     {
       "finding_id": "F-M57J-006",
@@ -74,8 +92,11 @@
       "artifact_type": "recycle_bin",
       "host_path": "$Recycle.Bin/",
       "expected_dart_mcp_function": "parse_recycle_bin_metadata",
-      "mitre_attack": ["T1070.004"],
-      "rationale": "INFO2 / $I records show patent files moved to Recycle Bin and emptied."
+      "mitre_attack": [
+        "T1070.004"
+      ],
+      "rationale": "INFO2 / $I records show patent files moved to Recycle Bin and emptied.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-M57J-007",
@@ -85,8 +106,11 @@
       "artifact_type": "prefetch",
       "host_path": "Windows/Prefetch/",
       "expected_dart_mcp_function": "parse_prefetch",
-      "mitre_attack": ["T1204.002"],
-      "rationale": "Prefetch entries for WinZip/7-Zip + Outlook Express + browser executions."
+      "mitre_attack": [
+        "T1204.002"
+      ],
+      "rationale": "Prefetch entries for WinZip/7-Zip + Outlook Express + browser executions.",
+      "severity": "low"
     },
     {
       "finding_id": "F-M57J-008",
@@ -97,7 +121,8 @@
       "host_path": "$Extend/$UsnJrnl",
       "expected_dart_mcp_function": "parse_usn_journal",
       "mitre_attack": [],
-      "rationale": "USN journal records file create/rename/delete in the patent-files area on exfil dates."
+      "rationale": "USN journal records file create/rename/delete in the patent-files area on exfil dates.",
+      "severity": "medium"
     },
     {
       "finding_id": "F-M57J-009",
@@ -107,8 +132,11 @@
       "artifact_type": "browser_credentials",
       "host_path": "Users/Jean/AppData/",
       "expected_dart_mcp_function": "detect_credential_access",
-      "mitre_attack": ["T1555.003"],
-      "rationale": "Browser-stored login secrets relevant to identifying external services used."
+      "mitre_attack": [
+        "T1555.003"
+      ],
+      "rationale": "Browser-stored login secrets relevant to identifying external services used.",
+      "severity": "critical"
     },
     {
       "finding_id": "F-M57J-010",
@@ -118,8 +146,11 @@
       "artifact_type": "registry_hive",
       "host_path": "Users/Jean/NTUSER.DAT",
       "expected_dart_mcp_function": "parse_registry_hive",
-      "mitre_attack": ["T1021.002"],
-      "rationale": "Shows whether Jean accessed shared file servers as part of the data-collection step."
+      "mitre_attack": [
+        "T1021.002"
+      ],
+      "rationale": "Shows whether Jean accessed shared file servers as part of the data-collection step.",
+      "severity": "medium"
     }
   ]
 }
