@@ -456,7 +456,7 @@ Eleven case studies are bundled — eight Layer-1 synthetic (cases 01–07 + 11)
 
 2. **[IP-KVM remote-hands insider](./examples/case-studies/case-01-ipkvm-insider/README.md)** &mdash; a step-by-step walkthrough of the bundled IP-KVM case showing what the agent does at each iteration, what `audit.jsonl` records, and how `dart-audit trace F-013` resolves a finding back to raw evidence in three clicks.
 
-For the full case library — including the new v0.7.0 case-11 (supply-chain → ADCS ESC8 → DCSync → Golden Ticket) — see [`examples/case-studies/`](./examples/case-studies/).
+For the full case library — including case-11 (supply-chain → ADCS ESC8 → DCSync → Golden Ticket, added in v0.7.0 and ground-truth-reconciled in v0.7.1) — see [`examples/case-studies/`](./examples/case-studies/).
 
 ## Measured accuracy (reproducible)
 
