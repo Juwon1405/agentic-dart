@@ -16,7 +16,9 @@
       "artifact_type": "auth_log",
       "host_path": "linux/auth.log",
       "expected_dart_mcp_function": "analyze_unix_auth",
-      "mitre_attack": ["T1110.001"],
+      "mitre_attack": [
+        "T1110.001"
+      ],
       "severity": "high",
       "rationale": "10 failed SSH attempts (admin/root/test/postgres + 2x analyst) followed by publickey accept = brute-force survivor pattern."
     },
@@ -24,13 +26,16 @@
       "finding_id": "F-AUTH-002",
       "category": "privilege_escalation",
       "claim": "Post-foothold sudo to root with /etc/shadow access + curl|bash",
-      "evidence_path": "linux/auth.log + linux/bash_history",
+      "evidence_path": "linux/auth.log",
       "artifact_type": "auth_log",
       "host_path": "linux/auth.log",
       "expected_dart_mcp_function": "detect_privilege_escalation",
-      "mitre_attack": ["T1548.003", "T1003.008"],
+      "mitre_attack": [
+        "T1548.003",
+        "T1003.008"
+      ],
       "severity": "critical",
-      "rationale": "sudo cat /etc/shadow + remote payload pipe to shell = post-compromise priv-esc."
+      "rationale": "sudo cat /etc/shadow + remote payload pipe to shell = post-compromise priv-esc. Secondary evidence: linux/bash_history."
     },
     {
       "finding_id": "F-AUTH-003",
@@ -40,7 +45,10 @@
       "artifact_type": "windows_security_log",
       "host_path": "disk/Windows/.../Security.evtx",
       "expected_dart_mcp_function": "analyze_windows_logons",
-      "mitre_attack": ["T1021.002", "T1110.003"],
+      "mitre_attack": [
+        "T1021.002",
+        "T1110.003"
+      ],
       "severity": "high",
       "rationale": "4 failed type-3 logons followed by success — credential reuse from Linux compromise."
     },
@@ -52,7 +60,9 @@
       "artifact_type": "windows_security_log",
       "host_path": "disk/Windows/.../Security.evtx",
       "expected_dart_mcp_function": "analyze_windows_logons",
-      "mitre_attack": ["T1021.001"],
+      "mitre_attack": [
+        "T1021.001"
+      ],
       "severity": "high",
       "rationale": "Type-10 RDP from internet IP after SMB foothold = hands-on lateral."
     },
@@ -64,7 +74,9 @@
       "artifact_type": "kerberos_event",
       "host_path": "disk/Windows/.../Security.evtx",
       "expected_dart_mcp_function": "analyze_kerberos_events",
-      "mitre_attack": ["T1558.003"],
+      "mitre_attack": [
+        "T1558.003"
+      ],
       "severity": "critical",
       "rationale": "RC4 encryption on TGS requests = classic Kerberoasting signature targeting SPN-bearing accounts."
     },
@@ -76,7 +88,9 @@
       "artifact_type": "kerberos_event",
       "host_path": "disk/Windows/.../Security.evtx",
       "expected_dart_mcp_function": "analyze_kerberos_events",
-      "mitre_attack": ["T1558.004"],
+      "mitre_attack": [
+        "T1558.004"
+      ],
       "severity": "high",
       "rationale": "TGT requested with DONT_REQ_PREAUTH flag = AS-REP roastable account targeted."
     },
@@ -88,7 +102,10 @@
       "artifact_type": "process_tree",
       "host_path": "disk/processes.csv",
       "expected_dart_mcp_function": "detect_lateral_movement",
-      "mitre_attack": ["T1021.002", "T1047"],
+      "mitre_attack": [
+        "T1021.002",
+        "T1047"
+      ],
       "severity": "critical",
       "rationale": "psexec + wmiexec command lines visible in process tree = remote command execution on DC and SQL hosts."
     },
@@ -100,7 +117,9 @@
       "artifact_type": "windows_security_log",
       "host_path": "disk/Windows/.../Security.evtx",
       "expected_dart_mcp_function": "analyze_windows_logons",
-      "mitre_attack": ["T1078"],
+      "mitre_attack": [
+        "T1078"
+      ],
       "severity": "high",
       "rationale": "Type-10 RDP at 02:17 from different external IP = attacker returning via persistence mechanism."
     }

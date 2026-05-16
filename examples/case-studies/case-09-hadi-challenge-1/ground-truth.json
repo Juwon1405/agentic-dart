@@ -44,14 +44,14 @@
       "finding_id": "F-HADI1-003",
       "category": "persistence",
       "claim": "Cron-based persistence mechanism installed",
-      "evidence_path": "/etc/crontab and /var/spool/cron/crontabs/",
+      "evidence_path": "/etc/crontab",
       "artifact_type": "cron_job",
       "host_path": "/etc/crontab",
       "expected_dart_mcp_function": "parse_linux_cron_jobs",
       "mitre_attack": [
         "T1053.003"
       ],
-      "rationale": "Attacker-modified cron job re-establishes shell connection at interval.",
+      "rationale": "Attacker-modified cron job re-establishes shell connection at interval. Secondary evidence: /var/spool/cron/crontabs/.",
       "severity": "high"
     },
     {
@@ -88,14 +88,14 @@
       "finding_id": "F-HADI1-006",
       "category": "lateral_movement",
       "claim": "Outbound connection initiated to attacker C2",
-      "evidence_path": "/var/log/syslog and netstat",
+      "evidence_path": "/var/log/syslog",
       "artifact_type": "network_artifact",
       "host_path": "/var/log/syslog",
       "expected_dart_mcp_function": "parse_linux_text_log",
       "mitre_attack": [
         "T1071.001"
       ],
-      "rationale": "Reverse-shell connection appears in process listing and syslog.",
+      "rationale": "Reverse-shell connection appears in process listing and syslog. Secondary evidence: netstat.",
       "severity": "medium"
     },
     {
@@ -116,14 +116,14 @@
       "finding_id": "F-HADI1-008",
       "category": "impact",
       "claim": "MySQL database accessed without authorization",
-      "evidence_path": "/var/log/mysql/ and binary logs",
+      "evidence_path": "/var/log/mysql/",
       "artifact_type": "db_log",
       "host_path": "/var/log/mysql/",
       "expected_dart_mcp_function": "parse_linux_text_log",
       "mitre_attack": [
         "T1213.003"
       ],
-      "rationale": "MySQL general log shows queries from web-shell-injected SQL.",
+      "rationale": "MySQL general log shows queries from web-shell-injected SQL. Secondary evidence: binary logs.",
       "severity": "medium"
     },
     {

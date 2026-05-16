@@ -17,7 +17,9 @@
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
       "expected_dart_mcp_function": "get_process_tree",
-      "mitre_attack": ["T1195.002"],
+      "mitre_attack": [
+        "T1195.002"
+      ],
       "severity": "critical",
       "rationale": "Vendor management binary as direct parent of rundll32 loading a custom DLL = abnormal vendor-binary behaviour. SolarWinds SUNBURST pattern (CISA AA20-352A): trojanized signed update payload."
     },
@@ -29,7 +31,10 @@
       "artifact_type": "network_flow",
       "host_path": "disk/supplychain-network.json",
       "expected_dart_mcp_function": "detect_exfiltration",
-      "mitre_attack": ["T1071.001", "T1041"],
+      "mitre_attack": [
+        "T1071.001",
+        "T1041"
+      ],
       "severity": "high",
       "rationale": "Beacon cadence + large post-DCSync outbound transfer = staged exfil of credential material. APT29-style TTP."
     },
@@ -41,7 +46,10 @@
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
-      "mitre_attack": ["T1187", "T1557.001"],
+      "mitre_attack": [
+        "T1187",
+        "T1557.001"
+      ],
       "severity": "critical",
       "rationale": "PetitPotam (CVE-2021-36942 MS-EFSRPC) + ntlmrelayx --adcs = canonical ESC8 chain. The forced auth event also shows as 4624 type-3 from MGMT-VELO-01 → CA01 with DC01$ subject."
     },
@@ -53,7 +61,9 @@
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
-      "mitre_attack": ["T1649"],
+      "mitre_attack": [
+        "T1649"
+      ],
       "severity": "critical",
       "rationale": "ntlmrelayx --adcs --template DomainController + subsequent Rubeus asktgt /certificate:dc01.pfx = textbook ESC8 (SpecterOps 'Certified Pre-Owned'). ADCS 4886/4887 audit events were NOT centralized — detection-gap callout."
     },
@@ -65,7 +75,10 @@
       "artifact_type": "kerberos_event",
       "host_path": "disk/supplychain-security-events.json",
       "expected_dart_mcp_function": "analyze_kerberos_events",
-      "mitre_attack": ["T1558", "T1550.003"],
+      "mitre_attack": [
+        "T1558",
+        "T1550.003"
+      ],
       "severity": "critical",
       "rationale": "EventID 4768 with PreAuthType=16 (PKINIT) + TicketEncryptionType 0x12 (AES256, cert-based) from a non-DC source IP. Repeated 4 times across 3 minutes from 4 different sources → users_with_scattered_tgts trigger."
     },
@@ -77,7 +90,10 @@
       "artifact_type": "windows_security_log",
       "host_path": "disk/supplychain-security-events.json",
       "expected_dart_mcp_function": "analyze_windows_logons",
-      "mitre_attack": ["T1550.003", "T1078.002"],
+      "mitre_attack": [
+        "T1550.003",
+        "T1078.002"
+      ],
       "severity": "critical",
       "rationale": "Logon type 9 (NewCredentials, RunAs /netonly equivalent) appearing on a DC with Subject=DC01$ is highly anomalous. Combined with PKINIT auth package = S4U2self → DA impersonation. Rubeus s4u command in process tree confirms."
     },
@@ -85,13 +101,17 @@
       "finding_id": "F-SC-007",
       "category": "lateral_movement",
       "claim": "Lateral movement — psexec to DC01, psexec to FS-DATA-02, wmiexec.py with overpass-the-hash to WS-FIN-09 (all from MGMT-VELO-01)",
-      "evidence_path": "disk/supplychain-processes.csv + disk/supplychain-security-events.json",
+      "evidence_path": "disk/supplychain-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
       "expected_dart_mcp_function": "detect_lateral_movement",
-      "mitre_attack": ["T1021.002", "T1021.006", "T1550.002"],
+      "mitre_attack": [
+        "T1021.002",
+        "T1021.006",
+        "T1550.002"
+      ],
       "severity": "critical",
-      "rationale": "Three remote-admin tool invocations within 90 seconds, all from same source host, targeting different categories (DC / file server / endpoint). wmiexec with -hashes flag = overpass-the-hash via NTLM."
+      "rationale": "Three remote-admin tool invocations within 90 seconds, all from same source host, targeting different categories (DC / file server / endpoint). wmiexec with -hashes flag = overpass-the-hash via NTLM. Secondary evidence: disk/supplychain-security-events.json."
     },
     {
       "finding_id": "F-SC-008",
@@ -101,7 +121,9 @@
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
-      "mitre_attack": ["T1003.006"],
+      "mitre_attack": [
+        "T1003.006"
+      ],
       "severity": "critical",
       "rationale": "lsadump::dcsync targeting krbtgt = canonical DCSync attack. The KRBTGT hash is the master key for forging Kerberos tickets domain-wide; this is the highest-impact credential theft possible against AD."
     },
@@ -113,7 +135,9 @@
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
-      "mitre_attack": ["T1003.003"],
+      "mitre_attack": [
+        "T1003.003"
+      ],
       "severity": "critical",
       "rationale": "ntdsutil ac in ntds ifm create full = official Microsoft tool abused to copy the entire AD database including all account hashes. Combined with the DCSync above = belt-and-suspenders credential theft."
     },
@@ -125,7 +149,9 @@
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
       "expected_dart_mcp_function": "detect_persistence",
-      "mitre_attack": ["T1098.005"],
+      "mitre_attack": [
+        "T1098.005"
+      ],
       "severity": "critical",
       "rationale": "AdminSDHolder is the ACL template re-applied every 60 minutes (SDProp) to every protected admin group (Domain Admins, Enterprise Admins, etc.). Granting an attacker account GenericAll on AdminSDHolder = automatic, self-healing privileged persistence. Removal of one access grant won't kick the attacker out."
     },
@@ -137,7 +163,9 @@
       "artifact_type": "kerberos_event",
       "host_path": "disk/supplychain-security-events.json",
       "expected_dart_mcp_function": "analyze_kerberos_events",
-      "mitre_attack": ["T1558.001"],
+      "mitre_attack": [
+        "T1558.001"
+      ],
       "severity": "critical",
       "rationale": "krbtgt account does not authenticate; its TGT requests should never appear with PreAuth=0. The 4768 for TargetUserName=krbtgt with RC4 encryption type is a known forged-TGT artefact (AS-REP-roasting detector will also flag it as a side-effect via the PreAuthType=0 condition)."
     },
@@ -145,13 +173,15 @@
       "finding_id": "F-SC-012",
       "category": "defense_evasion",
       "claim": "Security/System/Application log clearing on MGMT-VELO-01 (EventID 1102 + wevtutil cl)",
-      "evidence_path": "disk/supplychain-security-events.json + disk/supplychain-processes.csv",
+      "evidence_path": "disk/supplychain-security-events.json",
       "artifact_type": "windows_security_log",
       "host_path": "disk/supplychain-security-events.json",
       "expected_dart_mcp_function": "detect_defense_evasion",
-      "mitre_attack": ["T1070.001"],
+      "mitre_attack": [
+        "T1070.001"
+      ],
       "severity": "high",
-      "rationale": "Three sequential wevtutil cl invocations + EventID 1102 self-emission = explicit log destruction. Performed only on MGMT-VELO-01 (initial-access host) so DC traces survive — operator-error giveaway that aids attribution to the supply-chain entry point."
+      "rationale": "Three sequential wevtutil cl invocations + EventID 1102 self-emission = explicit log destruction. Performed only on MGMT-VELO-01 (initial-access host) so DC traces survive — operator-error giveaway that aids attribution to the supply-chain entry point. Secondary evidence: disk/supplychain-processes.csv."
     }
   ]
 }
