@@ -13,6 +13,13 @@ sys.path.insert(0, str(ROOT / "dart_mcp" / "src"))
 os.environ["DART_EVIDENCE_ROOT"] = str(ROOT / "examples" / "sample-evidence-realistic")
 
 from dart_mcp import call_tool  # noqa: E402
+import dart_mcp as _dm  # noqa: E402
+
+# Monkey-patch EVIDENCE_ROOT in case another test imported dart_mcp first
+# with a different DART_EVIDENCE_ROOT (the module reads env at line 45 of
+# __init__.py only once, so a later test cannot override via env alone).
+# Affects only this test module's call_tool invocations.
+_dm.EVIDENCE_ROOT = Path(os.environ["DART_EVIDENCE_ROOT"])
 
 
 # ─── parse_linux_text_log ─────────────────────────────────────────

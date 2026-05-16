@@ -141,6 +141,9 @@ def test_live_mcp_server_advertises_correct_surface():
         "parse_macos_quarantine",
         "parse_linux_cron_jobs",
         "detect_dns_tunneling",
+        # v0.7.0 Linux DFIR triplet (parse_linux_cron_jobs already counted above)
+        "parse_linux_text_log",
+        "parse_linux_shell_history",
     }
     assert advertised == expected, \
         f"wire surface drift:\n" \

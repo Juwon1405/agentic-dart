@@ -34,7 +34,7 @@ because the wire it speaks on does not expose misbehaviour.
 
 Agentic-DART is an autonomous DFIR (Digital Forensics and Incident
 Response) agent that runs on the SANS SIFT Workstation. It exposes
-**67 typed, read-only forensic functions** to Claude via a custom MCP
+**72 typed, read-only forensic functions** to Claude via a custom MCP
 (Model Context Protocol) server, executes a structured **10-phase
 playbook**, and emits:
 
@@ -135,7 +135,7 @@ engine **decoupled from any single collection vendor**.
 | Scale engine | DuckDB (for cross-source timeline correlation) |
 | Heavy parsers | SIFT toolchain (Volatility 3, MFTECmd, EvtxECmd, ...) |
 | Audit chain | SHA-256 linked JSONL |
-| Test suite | pytest (72 tests, all green at submission) |
+| Test suite | pytest (79 tests, all green at submission) |
 | CI | GitHub Actions (Linux + macOS) |
 | Sample evidence | seeded deterministic generator |
 
@@ -408,7 +408,7 @@ python3 -m dart_agent \
 - [x] Audit-chain verification utility (`dart_audit verify`)
 - [x] Architectural guardrail test pack (`tests/bypass_tests/`)
 - [x] Single-source-of-truth count discipline (no hardcoded drift)
-- [x] CI green at submission (75 tests passing)
+- [x] CI green at submission (79 tests passing)
 - [x] Companion collector-adapter repo: https://github.com/Juwon1405/agentic-dart-collector-adapter
 
 ---

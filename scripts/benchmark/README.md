@@ -319,7 +319,7 @@ scripts/benchmark/
 - `scripts/generate_realistic_evidence.py` — seeded noise generator for the realistic variant
 - `examples/sample-evidence/` — Layer 1 reference (deterministic) evidence
 - `examples/sample-evidence-realistic/` — Layer 1 noise-injected evidence
-- `examples/case-studies/case-NN/ground-truth.json` — per-case answer key (all 10 cases)
+- `examples/case-studies/case-NN/ground-truth.json` — per-case answer key (all 11 cases)
 - `docs/accuracy-report.md` — Layer 1 detailed report
 - `docs/benchmarks/SUMMARY.md` — unified Layer 1 + Layer 2 score sheet
 - `docs/benchmarks/*.json` — per-run Layer 2 detail
