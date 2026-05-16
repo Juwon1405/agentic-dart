@@ -1,5 +1,5 @@
-AbsolutePath,FirstInteracted,LastInteracted
-C:\Users\analyst\Downloads,2026-03-15 14:19:10,2026-03-15 14:23:11
-C:\Users\analyst\Documents\Confidential,2026-03-15 14:24:00,2026-03-15 14:29:45
-\\fileserver\finance\Q4-leads,2026-03-15 14:25:02,2026-03-15 14:27:18
-E:\exfil,2026-03-15 14:30:00,2026-03-15 14:34:15
+BagPath,Slot,NodeSlot,MRUPosition,AbsolutePath,ShellType,Value,ChildBags,CreatedOn,ModifiedOn,AccessedOn,LastWriteTime,MFTEntry,MFTSequenceNumber,ExtensionBlockCount,FirstInteracted,LastInteracted,HasExplored,Miscellaneous
+Shell/BagMRU,0,1,1,Desktop,Root folder: GUID,Desktop,Yes,2019-03-19 04:45:32.0312500,2019-03-19 04:45:32.0312500,2019-03-19 04:45:32.0312500,2019-03-19 04:45:32.0312500,,,,,,No,
+Shell/BagMRU/0,1,2,0,Desktop\My Computer,Root folder: GUID,My Computer,Yes,2019-03-19 04:45:32.0312500,2025-09-12 08:18:42.1019847,2026-03-15 14:14:31.8881921,2019-03-19 04:45:32.0312500,,,,,,No,
+Shell/BagMRU/0/0,2,3,1,Desktop\My Computer\C:\Users\analyst\Downloads,Drive\Directory,C:\Users\analyst\Downloads,Yes,2025-09-12 08:18:42.1019847,2026-03-15 14:25:34.1170020,2026-03-15 14:35:48.8819102,2026-03-15 14:25:34.1170020,72864,8,3,2025-09-12 08:18:42.1019847,2026-03-15 14:35:48.8819102,Yes,
+Shell/BagMRU/0/0/12,3,4,2,Desktop\My Computer\C:\Users\analyst\Downloads\helper,Directory,C:\Users\analyst\Downloads\helper,No,2026-03-15 14:25:34.1170020,2026-03-15 14:25:48.4498117,2026-03-15 14:25:48.4498117,2026-03-15 14:25:48.4498117,35044,1,2,2026-03-15 14:25:34.1170020,2026-03-15 14:25:48.4498117,Yes,Right-clicked

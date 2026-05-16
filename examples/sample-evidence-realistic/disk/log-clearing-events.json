@@ -1,4 +1,34 @@
 [
-  {"EventID": 1102, "TimeCreated": "2026-03-15 14:30:20", "Channel": "Security", "SubjectUserName": "analyst", "SubjectDomainName": "CORP"},
-  {"EventID": 104, "TimeCreated": "2026-03-15 14:30:22", "Channel": "System", "SubjectUserName": "analyst"}
+  {
+    "EventID": 1102,
+    "Channel": "Security",
+    "Computer": "WKS-07.corp.local",
+    "TimeCreated": "2026-03-15 14:30:20.118",
+    "EventRecordID": 1297443,
+    "UserSid": "S-1-5-21-1581655573-1957994488-1801674531-1107",
+    "UserName": "analyst",
+    "DomainName": "CORP",
+    "LogonId": "0x9881a4c",
+    "BackupPath": "-"
+  },
+  {
+    "EventID": 104,
+    "Channel": "System",
+    "Computer": "WKS-07.corp.local",
+    "TimeCreated": "2026-03-15 14:30:22.401",
+    "EventRecordID": 5512011,
+    "SubjectUserSid": "S-1-5-21-1581655573-1957994488-1801674531-1107",
+    "SubjectUserName": "analyst",
+    "SubjectDomainName": "CORP",
+    "Channel_Cleared": "System"
+  },
+  {
+    "EventID": 1100,
+    "Channel": "Security",
+    "Computer": "WKS-07.corp.local",
+    "TimeCreated": "2026-03-15 14:30:25.992",
+    "EventRecordID": 1297444,
+    "ServiceName": "Event Log",
+    "Message": "The event logging service has shut down."
+  }
 ]

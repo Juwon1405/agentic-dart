@@ -1,9 +1,36 @@
 {
-  "executable": "REMOTE-ADMIN.EXE",
-  "path_hash": "A7F3E912",
-  "run_count": 3,
-  "last_run": "2026-03-15T14:23:55",
-  "run_times": ["2026-03-15T14:23:55", "2026-03-15T14:28:12", "2026-03-15T14:35:02"],
-  "loaded_modules_count": 47,
-  "loaded_modules_sample": ["NTDLL.DLL", "KERNEL32.DLL", "WS2_32.DLL", "WINHTTP.DLL"]
+  "SourceFilename": "REMOTE-ADMIN.EXE-A7F3E912.pf",
+  "SourceCreatedOn": "2026-03-15 14:23:11.7421188",
+  "SourceModifiedOn": "2026-03-15 14:23:15.4019112",
+  "SourceAccessedOn": "2026-03-15 14:23:15.4019112",
+  "ExecutableName": "REMOTE-ADMIN.EXE",
+  "Hash": "A7F3E912",
+  "Size": 12384,
+  "Version": "Windows 10/11 (30)",
+  "RunCount": 1,
+  "LastRunTimes": [
+    "2026-03-15 14:23:11.7421188"
+  ],
+  "PreviousRunTimes": [],
+  "Volumes": [
+    {
+      "DeviceName": "\\VOLUME{01dab3c2-e9b56122-7c4d8e2f}",
+      "CreationTime": "2019-03-19 04:45:32.0312500",
+      "SerialNumber": "8E3A4291",
+      "DirectoryNames": [
+        "\\USERS\\ANALYST\\DOWNLOADS",
+        "\\WINDOWS\\SYSTEM32",
+        "\\WINDOWS\\WINSXS"
+      ]
+    }
+  ],
+  "FilesLoaded": [
+    "\\VOLUME{01dab3c2-e9b56122-7c4d8e2f}\\USERS\\ANALYST\\DOWNLOADS\\REMOTE-ADMIN.EXE",
+    "\\VOLUME{01dab3c2-e9b56122-7c4d8e2f}\\WINDOWS\\SYSTEM32\\NTDLL.DLL",
+    "\\VOLUME{01dab3c2-e9b56122-7c4d8e2f}\\WINDOWS\\SYSTEM32\\KERNEL32.DLL",
+    "\\VOLUME{01dab3c2-e9b56122-7c4d8e2f}\\WINDOWS\\SYSTEM32\\KERNELBASE.DLL",
+    "\\VOLUME{01dab3c2-e9b56122-7c4d8e2f}\\WINDOWS\\SYSTEM32\\WS2_32.DLL",
+    "\\VOLUME{01dab3c2-e9b56122-7c4d8e2f}\\WINDOWS\\SYSTEM32\\CRYPT32.DLL"
+  ],
+  "ParsingError": false
 }

