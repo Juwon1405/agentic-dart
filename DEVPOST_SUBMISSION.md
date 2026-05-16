@@ -3,7 +3,7 @@
 > **Submission URL:** https://findevil.devpost.com/
 > **Project URL:** https://github.com/Juwon1405/agentic-dart
 > **License:** MIT
-> **Version at submission:** v0.6.1
+> **Version at submission:** v0.7.0
 > **Submission date:** 2026-06-15
 > **Author:** Bang Juwon (sole contributor)
 
@@ -163,7 +163,7 @@ years — they cannot represent in-distribution training data.
 - Recall: **1.000**
 - False positive rate: **0.000**
 - Hallucinations: **0**
-- Evidence integrity preserved: **true** (SHA-256 pre/post match across 30+ files)
+- Evidence integrity preserved: **true** (SHA-256 pre/post match across 49 files in realistic variant)
 
 **Measured numbers on external datasets** (Layer 2): see
 `docs/benchmarks/SUMMARY.md`. Re-run the entire benchmark suite with:
