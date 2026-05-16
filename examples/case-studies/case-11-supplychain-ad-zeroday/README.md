@@ -428,3 +428,25 @@ output (with `source.path`, `source.sha256`, individual hit details,
 MITRE technique IDs, severity, timestamps) is in the returned dict —
 see [docs/accuracy-report.md](../../docs/accuracy-report.md) for the
 full schema and measured recall/FPR.
+
+
+## Ground-truth finding map
+
+This table maps each ground-truth finding ID to the expected dart-mcp
+function, MITRE ATT&CK technique, and primary evidence path. Use it to
+trace `findings.json` outputs back to specific ground-truth entries.
+
+| Finding | Category | Expected function | MITRE | Evidence |
+|---|---|---|---|---|
+| F-SC-001 | initial_access | `get_process_tree` | T1195.002 | `disk/supplychain-processes.csv` |
+| F-SC-002 | command_and_control | `detect_exfiltration` | T1071.001, T1041 | `disk/supplychain-network.json` |
+| F-SC-003 | credential_access | `detect_credential_access` | T1187, T1557.001 | `disk/supplychain-processes.csv` |
+| F-SC-004 | credential_access | `detect_credential_access` | T1649 | `disk/supplychain-processes.csv` |
+| F-SC-005 | credential_access | `analyze_kerberos_events` | T1558, T1550.003 | `disk/supplychain-security-events.json` |
+| F-SC-006 | lateral_movement | `analyze_windows_logons` | T1550.003, T1078.002 | `disk/supplychain-security-events.json` |
+| F-SC-007 | lateral_movement | `detect_lateral_movement` | T1021.002, T1021.006 | `disk/supplychain-processes.csv` |
+| F-SC-008 | credential_access | `detect_credential_access` | T1003.006 | `disk/supplychain-processes.csv` |
+| F-SC-009 | credential_access | `detect_credential_access` | T1003.003 | `disk/supplychain-processes.csv` |
+| F-SC-010 | persistence | `detect_persistence` | T1098.005 | `disk/supplychain-processes.csv` |
+| F-SC-011 | persistence | `analyze_kerberos_events` | T1558.001 | `disk/supplychain-security-events.json` |
+| F-SC-012 | defense_evasion | `detect_defense_evasion` | T1070.001 | `disk/supplychain-security-events.json` |
