@@ -185,7 +185,12 @@ agentic-dart/
 │   ├── screenshots/           # README + wiki image assets
 │   └── voiceover/             # per-scene narration scripts (en/ko/ja)
 ├── .github/
-│   └── workflows/ci.yml       # Python 3.10/3.11/3.12/3.13 matrix + URL reachability job
+│   ├── workflows/ci.yml       # Python 3.10/3.11/3.12/3.13 matrix + URL reachability job
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.yml
+│   │   ├── mcp_function_proposal.yml
+│   │   └── accuracy_regression.yml
+│   └── PULL_REQUEST_TEMPLATE.md
 ├── README.md
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
