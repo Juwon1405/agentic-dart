@@ -157,7 +157,7 @@ The audit verifier should print `OK — chain intact, N entries, SHA-256 hash X.
 If the demo budget allows for one more case, case-11 is the most striking second pick. It does NOT overlap with case-04: where case-04 is "user clicked a phishing link", case-11 is **"a signed vendor binary entered as a routine update"** — the SolarWinds-era attack class that defeated SOCs of much larger orgs. It also shows agentic-dart's AD chops end to end.
 
 ```bash
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence-realistic"
 
 python3 - <<'PY'
