@@ -163,7 +163,7 @@ years — they cannot represent in-distribution training data.
 - Recall: **1.000**
 - False positive rate: **0.000**
 - Hallucinations: **0**
-- Evidence integrity preserved: **true** (SHA-256 pre/post match across 49 files in realistic variant)
+- Evidence integrity preserved: **true** (SHA-256 pre/post match across 50 files in realistic variant)
 
 **Measured numbers on external datasets** (Layer 2): see
 `docs/benchmarks/SUMMARY.md`. Re-run the entire benchmark suite with:
@@ -408,7 +408,7 @@ python3 -m dart_agent \
 - [x] Audit-chain verification utility (`dart_audit verify`)
 - [x] Architectural guardrail test pack (`tests/bypass_tests/`)
 - [x] Single-source-of-truth count discipline (no hardcoded drift)
-- [x] CI green at submission (72 tests passing)
+- [x] CI green at submission (75 tests passing)
 - [x] Companion collector-adapter repo: https://github.com/Juwon1405/agentic-dart-collector-adapter
 
 ---

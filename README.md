@@ -256,7 +256,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **70/72/72/0.** **45 native forensic functions + 25 SIFT Workstation tool adapters = 70 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **72 of 72 tests passing on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **72/75/75/0.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **75 of 75 tests passing on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|
@@ -418,7 +418,7 @@ For the full case library — including the new v0.7.0 case-11 (supply-chain →
 Recall:                    1.000
 False positive rate:       0.000
 Hallucination count:       0
-Evidence integrity:        preserved (49 files, all SHA-256 hashes match pre/post)
+Evidence integrity:        preserved (50 files, all SHA-256 hashes match pre/post)
 Self-correction observed:  true
 ```
 
