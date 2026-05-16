@@ -300,7 +300,7 @@ def run(short: str, image_arg: str | None, *, skip_hash: bool = False) -> Benchm
     # Score
     result = BenchmarkResult(
         dataset=short,
-        timestamp=dt.datetime.utcnow().isoformat() + "Z",
+        timestamp=dt.datetime.now(dt.timezone.utc).isoformat(),
         image_path=str(image),
         image_sha256=image_hash,
         agent_runtime_sec=agent_sec,

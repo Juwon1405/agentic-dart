@@ -224,7 +224,7 @@ def main() -> int:
     )
     args = p.parse_args()
 
-    start = dt.datetime.utcnow().isoformat()
+    start = dt.datetime.now(dt.timezone.utc).isoformat()
     print(f"\nstart: {start}")
     print(f"repo:  {REPO}")
     print(f"layer: {args.layer}")
@@ -255,7 +255,7 @@ def main() -> int:
     print(f"  layer-1 detail : {REPO / 'docs' / 'accuracy-report.md'}")
     print(f"  layer-2 detail : {REPO / 'docs' / 'benchmarks'}/")
     print("=" * 72)
-    print(f"\nend: {dt.datetime.utcnow().isoformat()}")
+    print(f"\nend: {dt.datetime.now(dt.timezone.utc).isoformat()}")
     print(f"exit code: {rc_total}")
     return rc_total
 
