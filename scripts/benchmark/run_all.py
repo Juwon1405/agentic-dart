@@ -126,8 +126,24 @@ def _mirror_layer_1_into_summary(variant: str) -> None:
         )
 
     today = dt.date.today().isoformat()
+
+    # Dup guard: if this (date, case) combination is already present in
+    # SUMMARY.md (e.g. running run_all twice in the same day), skip
+    # rewriting the row. The intent is rolling-ledger semantics, but
+    # multiple runs in a single day should not bloat the summary.
+    existing_keys = set()
+    if summary_path.exists():
+        for line in summary_path.read_text().split("\n"):
+            if line.startswith("| ") and "%" in line:
+                cells = [c.strip() for c in line.split("|")]
+                if len(cells) >= 3:
+                    existing_keys.add((cells[1], cells[2]))
+
     with summary_path.open("a") as f:
         for case_dir_name in LAYER_1_CASES:
+            # Skip if this case is already logged today
+            if (today, case_dir_name) in existing_keys:
+                continue
             gt_path = REPO / "examples" / "case-studies" / case_dir_name / "ground-truth.json"
             if not gt_path.exists():
                 continue
