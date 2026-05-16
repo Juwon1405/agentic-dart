@@ -140,23 +140,64 @@ Evidence is mounted **read-only at the OS level** before the agent is ever start
 
 ```text
 agentic-dart/
-├── dart_audit/       # Tamper-evident JSONL logger with SHA-256 chain
-├── dart_mcp/         # Custom MCP server: typed, read-only forensic functions
-│                     #   (native pure-Python + SIFT Workstation adapters)
-├── dart_agent/       # Iteration controller + self-correction loop
-├── dart_playbook/    # Senior-analyst YAML playbooks (v1 / v2 / v3)
-├── dart_corr/        # Cross-artifact correlation engine — design contract +
-│                     #   reserved package boundary. The contradiction-handling
-│                     #   behavior demoed in v0.5 currently lives inline in
-│                     #   dart_agent and dart_mcp.correlate_timeline; the
-│                     #   standalone JOIN engine is the mid-2026 target.
+├── dart_audit/                # Tamper-evident JSONL logger with SHA-256 chain
+├── dart_mcp/                  # Custom MCP server: typed, read-only forensic functions
+│                              #   (native pure-Python + SIFT Workstation adapters)
+├── dart_agent/                # Iteration controller + self-correction loop
+├── dart_playbook/             # Senior-analyst YAML playbooks (v1 / v2 / v3)
+├── dart_corr/                 # Cross-artifact correlation engine — design contract +
+│                              #   reserved package boundary. The contradiction-handling
+│                              #   behavior demoed in v0.5 currently lives inline in
+│                              #   dart_agent and dart_mcp.correlate_timeline; the
+│                              #   standalone JOIN engine is the mid-2026 target.
 ├── examples/
-│   ├── sample-evidence/  # Reproducible test fixtures (triggers IP-KVM finding)
-│   ├── demo-run.sh       # One-command demo — exactly what the video records
-│   └── out/              # Generated on each run: audit.jsonl, progress.jsonl, report.json
-├── tests/             # pytest-compatible; runs without network
-├── docs/              # architecture.md, dataset.md, accuracy-report.md, troubleshooting.md
-└── dart-architecture.png
+│   ├── case-studies/          # 11 case studies / 99 ground-truth findings
+│   │                          #   Layer 1: case-01..07 + case-11 (synthetic, noise-injected)
+│   │                          #   Layer 2: case-08 CFReDS, case-09 Hadi, case-10 M57 (external)
+│   ├── sample-evidence/       # Reference variant — deterministic CI baseline
+│   ├── sample-evidence-realistic/  # Realistic variant — 50 files, EvtxECmd/Zeek/MFTECmd
+│   │                          #   /PECmd/SBECmd/RECmd/Hindsight/journald/auditd fidelity
+│   ├── demo-run.sh            # One-command demo — exactly what the video records
+│   ├── sift-adapter-demo.sh   # Same demo, exercising the SIFT adapter layer
+│   └── out/                   # Generated on each run: audit.jsonl, progress.jsonl, report.json
+├── scripts/
+│   ├── benchmark/             # Layer 2 benchmark runner (run_all.py)
+│   ├── measure_accuracy.py    # Reproducible recall/FPR/hallucination harness
+│   ├── measure_cfreds.py      # NIST CFReDS external-benchmark scorer
+│   ├── generate_realistic_evidence.py   # Deterministic noise injection (seed=20260508)
+│   ├── regenerate_hero.py     # Hero image rebuilder
+│   └── install.sh             # SIFT VM bootstrap (Python 3.10+, pure-Python deps)
+├── tests/                     # 75 pytest tests; runs without network
+│                              #   (test_live_mcp.py opt-in: requires Claude API key)
+├── docs/
+│   ├── architecture.md
+│   ├── accuracy-report.md
+│   ├── case-pth-timestomp.md
+│   ├── comparison.md
+│   ├── dataset.md
+│   ├── DEMO_STORYBOARD_v2.md
+│   ├── DEVPOST_SUBMISSION.md  # judge-facing field-by-field submission text
+│   ├── external-skill-references.md
+│   ├── live-mode.md
+│   ├── running-on-macos.md
+│   ├── troubleshooting.md
+│   ├── demo_assets/           # screencast slide/image inventory
+│   ├── screenshots/           # README + wiki image assets
+│   └── voiceover/             # per-scene narration scripts (en/ko/ja)
+├── .github/
+│   └── workflows/ci.yml       # Python 3.10/3.11/3.12/3.13 matrix + URL reachability job
+├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── SECURITY.md
+├── DEVPOST_SUBMISSION.md      # top-level Devpost submission summary
+├── LICENSE                    # MIT
+├── pytest.ini
+├── dart-architecture.png
+├── dart-architecture.drawio
+├── agentic-dart-hero.png
+└── agentic-dart-thumbnail.png
 ```
 
 ## Quick start — prove it works in 30 seconds
