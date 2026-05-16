@@ -113,7 +113,7 @@ made SUNBURST detectable in retrospect.
 ### `analyze_windows_logons` — type-9 NewCredentials on DC
 
 ```
-events_examined: 16
+events_examined: 22
 by_logon_type:
   "5 (Service)":            1   ← initial VeloLink service boot
   "3 (Network)":            4   ← PSExec/WMI landings on DC/FS/WS + relay
@@ -138,7 +138,7 @@ combination.
 ### `analyze_kerberos_events` — PKINIT anomaly + Golden Ticket
 
 ```
-events_examined: 16  max_severity: high
+events_examined: 22  max_severity: high
 
 scattered_tgts (DC01$ requested TGTs from 4 distinct sources in 3 min):
   user: dc01$
@@ -147,7 +147,7 @@ scattered_tgts (DC01$ requested TGTs from 4 distinct sources in 3 min):
 
 asrep_roasting_candidates (Golden Ticket side-channel):
   {user: "krbtgt", source_ip: "10.50.10.40",
-   ts: "2026-04-22 09:11:37",
+   ts: "2026-04-22 09:11:37.226",
    interpretation: "TGT with no pre-auth — AS-REP Roasting"}
   ← krbtgt user with PreAuth=0 = forged TGT artefact, not legitimate AS-REP roasting
 ```
@@ -165,10 +165,17 @@ remote_admin_tool_hits: 3
   {tool: "psexec",  pid: 4488, cmdline: "PsExec.exe \\\\FS-DATA-02 -u domadmin ..."}
   {tool: "wmiexec", pid: 4552, cmdline: "wmiexec.py -hashes :8846f7eaee... WS-FIN-09"}
 
-network_logon_count: 5   suspicious_pairs: 5
+network_logon_count: 5   suspicious_pairs: 2
 
 summary_by_tool: {"psexec": 2, "wmiexec": 1}
 ```
+
+The two `suspicious_pairs` are the two `domadmin@10.50.10.40 → psexec`
+launches that fired within 60 s of their preceding 4624 type-3 logon
+on the target host (`DC01`, `FS-DATA-02`). The wmiexec landing on
+`WS-FIN-09` proxies through Kerberos and arrives at the target on a
+slightly larger delta — it is captured in `remote_admin_tool_hits`
+but not paired by the 60 s proximity heuristic.
 
 ### `detect_credential_access` — DCSync + ntdsutil + mimikatz
 
@@ -407,9 +414,9 @@ Expected output (deterministic on the bundled evidence):
 
 ```
 get_process_tree:           21 procs in tree
-analyze_windows_logons:     16 events, 1 type-9 NewCredentials
+analyze_windows_logons:     22 events, 1 type-9 NewCredentials
 analyze_kerberos_events:    1 scattered_tgts user(s), 1 as-rep (golden-ticket side-channel)
-detect_lateral_movement:    3 remote-admin tools, 5 suspicious pairs
+detect_lateral_movement:    3 remote-admin tools, 2 suspicious pairs
 detect_credential_access:   3 findings (critical max severity)
 detect_defense_evasion:     4 findings (critical max severity)
 detect_exfiltration:        1 signals (medium max severity)
