@@ -62,7 +62,7 @@ except ImportError:
 REPO = Path(__file__).resolve().parents[2]
 
 
-# ─── Layer 1: internal cases (01-07) ─────────────────────────────────────────
+# ─── Layer 1: internal cases (01-07, 11) ─────────────────────────────────────
 LAYER_1_CASES = [
     "case-01-ipkvm-insider",
     "case-02-lotl-powershell",
@@ -71,6 +71,7 @@ LAYER_1_CASES = [
     "case-05-authentication-lateral",
     "case-06-web-attack-to-rdp-pivot",
     "case-07-ransomware-full-chain",
+    "case-11-supplychain-ad-zeroday",
 ]
 
 

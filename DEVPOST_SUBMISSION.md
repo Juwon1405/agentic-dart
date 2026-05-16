@@ -145,12 +145,12 @@ engine **decoupled from any single collection vendor**.
 
 ### 1. IR Accuracy
 
-Agentic-DART is evaluated against **10 case studies** spanning two
+Agentic-DART is evaluated against **11 case studies** spanning two
 evidence tiers:
 
 | Tier | Cases | Evidence | Total findings |
 |---|---|---|---:|
-| Internal (synthetic, production-noise-injected) | case-01 to case-07 | `examples/sample-evidence-realistic/` (748 KB bundled) | 57 |
+| Internal (synthetic, production-noise-injected) | case-01 to case-07, case-11 | `examples/sample-evidence-realistic/` (748 KB bundled) | 69 |
 | External (third-party, community-verified) | case-08 to case-10 | NIST CFReDS / Ali Hadi / Digital Corpora M57 (~13 GB downloaded) | 30 |
 
 External datasets are deliberately chosen across three independent
@@ -237,7 +237,7 @@ Three properties verified by the test suite on every CI run:
 | Surface | Path |
 |---|---|
 | Top-level overview | `README.md` |
-| Per-case walkthroughs | `examples/case-studies/case-NN/README.md` (10 cases) |
+| Per-case walkthroughs | `examples/case-studies/case-NN/README.md` (11 cases) |
 | Per-case machine-readable ground truth | `examples/case-studies/case-NN/ground-truth.json` |
 | Benchmark suite operator guide | `scripts/benchmark/README.md` |
 | Accuracy report (Layer 1) | `docs/accuracy-report.md` |
@@ -402,7 +402,7 @@ python3 -m dart_agent \
 - [x] License: MIT (`LICENSE` in repo root)
 - [x] README with architecture overview and reproduction commands
 - [x] Demo video (3 languages: English, Korean, Japanese — under `docs/demo_assets/output/`)
-- [x] 10 documented case studies with machine-readable ground truth
+- [x] 11 documented case studies with machine-readable ground truth
 - [x] Benchmark suite (`scripts/benchmark/`) covering internal + external evidence
 - [x] Accuracy report (`docs/accuracy-report.md`)
 - [x] Audit-chain verification utility (`dart_audit verify`)

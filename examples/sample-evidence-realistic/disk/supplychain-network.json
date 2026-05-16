@@ -1,0 +1,44 @@
+[
+  {
+    "ts": "2026-04-21 02:18:11",
+    "src_ip": "10.50.10.40",
+    "dst_ip": "198.51.100.62",
+    "dst_host": "telemetry-velolink-cdn.com",
+    "bytes_recv": 412,
+    "bytes_sent": 188,
+    "process": "svchost.exe",
+    "pid": 4112,
+    "interpretation": "Low-frequency beacon (every ~8min), JA3 mismatch vs legit VeloLink telemetry endpoint"
+  },
+  {
+    "ts": "2026-04-21 02:26:14",
+    "src_ip": "10.50.10.40",
+    "dst_ip": "198.51.100.62",
+    "dst_host": "telemetry-velolink-cdn.com",
+    "bytes_recv": 412,
+    "bytes_sent": 188,
+    "process": "svchost.exe",
+    "pid": 4112
+  },
+  {
+    "ts": "2026-04-21 02:34:18",
+    "src_ip": "10.50.10.40",
+    "dst_ip": "198.51.100.62",
+    "dst_host": "telemetry-velolink-cdn.com",
+    "bytes_recv": 412,
+    "bytes_sent": 188,
+    "process": "svchost.exe",
+    "pid": 4112
+  },
+  {
+    "ts": "2026-04-21 03:14:22",
+    "src_ip": "10.50.10.40",
+    "dst_ip": "203.0.113.74",
+    "dst_host": "cdn-mirror-2.velolink.org",
+    "bytes_recv": 4912,
+    "bytes_sent": 52428800,
+    "process": "svchost.exe",
+    "pid": 4112,
+    "interpretation": "Large outbound (~50MB) — ntds.dit + krbtgt hash exfil after DCSync"
+  }
+]

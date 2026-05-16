@@ -1,0 +1,149 @@
+[
+  {
+    "event_id": 4624,
+    "ts": "2026-04-21T02:14:08",
+    "user": "svc-velolink",
+    "domain": "ENT",
+    "logon_type": 5,
+    "source_ip": "-",
+    "workstation": "MGMT-VELO-01",
+    "comment": "Service logon for VeloLink-Agent.exe at boot — benign baseline"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-04-21T02:42:04",
+    "user": "DC01$",
+    "domain": "ENT",
+    "logon_type": 3,
+    "source_ip": "10.50.10.40",
+    "workstation": "CA01",
+    "comment": "DC01 machine acct authenticating to CA01 (certsrv) from MGMT-VELO-01 — relayed via NTLM (PetitPotam coercion)"
+  },
+  {
+    "EventID": 4768,
+    "TimeCreated": "2026-04-21 02:42:32",
+    "TargetUserName": "DC01$",
+    "IpAddress": "10.50.10.40",
+    "PreAuthType": "16",
+    "TicketEncryptionType": "0x12",
+    "Comment": "PKINIT TGT request for DC01$ from MGMT-VELO-01 (10.50.10.40) — DC01 should authenticate only from itself (10.50.10.10). Cert-based Kerberos auth from anomalous source = ESC8 indicator."
+  },
+  {
+    "EventID": 4768,
+    "TimeCreated": "2026-04-21 02:43:11",
+    "TargetUserName": "DC01$",
+    "IpAddress": "10.50.30.7",
+    "PreAuthType": "2",
+    "TicketEncryptionType": "0x12",
+    "Comment": "scattered_tgts pad #1 — DC01 from another anomalous IP"
+  },
+  {
+    "EventID": 4768,
+    "TimeCreated": "2026-04-21 02:44:02",
+    "TargetUserName": "DC01$",
+    "IpAddress": "10.50.40.89",
+    "PreAuthType": "2",
+    "TicketEncryptionType": "0x12",
+    "Comment": "scattered_tgts pad #2 — DC01 cert auth from WS-FIN-09 (workstation, abnormal)"
+  },
+  {
+    "EventID": 4768,
+    "TimeCreated": "2026-04-21 02:45:18",
+    "TargetUserName": "DC01$",
+    "IpAddress": "10.50.20.52",
+    "PreAuthType": "2",
+    "TicketEncryptionType": "0x12",
+    "Comment": "scattered_tgts pad #3 — DC01 cert auth from FS-DATA-02 (file server, abnormal). 4 distinct sources within 3 minutes triggers scattered_tgts (>3)."
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-04-21T03:05:14",
+    "user": "domadmin",
+    "domain": "ENT",
+    "logon_type": 9,
+    "source_ip": "10.50.10.40",
+    "workstation": "DC01",
+    "comment": "Type-9 NewCredentials on DC01 — Subject:DC01$ → impersonated TargetUserName:domadmin via Kerberos PKINIT. Cert-based DA impersonation = ESC8 payoff."
+  },
+  {
+    "EventID": 4769,
+    "TimeCreated": "2026-04-21 03:05:48",
+    "TargetUserName": "domadmin",
+    "ServiceName": "cifs/DC01.ent.example.local",
+    "IpAddress": "10.50.10.40",
+    "TicketEncryptionType": "0x12"
+  },
+  {
+    "EventID": 4769,
+    "TimeCreated": "2026-04-21 03:06:21",
+    "TargetUserName": "domadmin",
+    "ServiceName": "cifs/FS-DATA-02.ent.example.local",
+    "IpAddress": "10.50.10.40",
+    "TicketEncryptionType": "0x12"
+  },
+  {
+    "EventID": 4769,
+    "TimeCreated": "2026-04-21 03:07:15",
+    "TargetUserName": "domadmin",
+    "ServiceName": "host/WS-FIN-09.ent.example.local",
+    "IpAddress": "10.50.10.40",
+    "TicketEncryptionType": "0x12"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-04-21T03:05:48",
+    "user": "domadmin",
+    "domain": "ENT",
+    "logon_type": 3,
+    "source_ip": "10.50.10.40",
+    "workstation": "DC01",
+    "comment": "Network logon to DC01 (psexec) — explicit-cred from MGMT-VELO-01"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-04-21T03:06:21",
+    "user": "domadmin",
+    "domain": "ENT",
+    "logon_type": 3,
+    "source_ip": "10.50.10.40",
+    "workstation": "FS-DATA-02",
+    "comment": "Lateral 2 — file server"
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-04-21T03:07:15",
+    "user": "domadmin",
+    "domain": "ENT",
+    "logon_type": 3,
+    "source_ip": "10.50.10.40",
+    "workstation": "WS-FIN-09",
+    "comment": "Lateral 3 — workstation"
+  },
+  {
+    "EventID": 4768,
+    "TimeCreated": "2026-04-22 09:11:37",
+    "TargetUserName": "krbtgt",
+    "IpAddress": "10.50.10.40",
+    "PreAuthType": "0",
+    "TicketEncryptionType": "0x17",
+    "Comment": "Golden Ticket indicator — KRBTGT itself receiving TGT with PreAuth=0 and RC4 encryption. Real krbtgt TGT requests never happen client-side; this pattern = forged golden ticket interaction. AS-REP roasting hit also fires here."
+  },
+  {
+    "event_id": 4624,
+    "ts": "2026-04-22T09:12:08",
+    "user": "domadmin",
+    "domain": "ENT",
+    "logon_type": 10,
+    "source_ip": "10.50.10.40",
+    "workstation": "DC01",
+    "comment": "Type-10 RDP from MGMT-VELO-01 to DC01 next day — persistence return"
+  },
+  {
+    "EventID": 1102,
+    "TimeCreated": "2026-04-22 09:15:00",
+    "Channel": "Security",
+    "SubjectUserName": "Administrator",
+    "SubjectDomainName": "ENT",
+    "Comment": "Security log cleared on MGMT-VELO-01 — defense evasion (T1070.001)"
+  }
+]

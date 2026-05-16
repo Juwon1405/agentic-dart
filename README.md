@@ -422,6 +422,10 @@ Self-correction observed:  true
 
 Produced by `python3 scripts/measure_accuracy.py`. The same numbers hold on the noise-injected variant — `python3 scripts/measure_accuracy.py --variant realistic` runs the same detection functions against the same IOCs mixed with synthetic benign traffic at ~1:30 ratios (web log 1027 lines, security events 516, unix auth 517) and produces identical recall=1.0 / FPR=0.0 / hallucination=0. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, both variants' results, ground truth, and explicit limitations (including third-party dataset benchmarking deferred to Phase 2 — issue #47).
 
+### Supply-chain + AD certificate-services attack chain (case-11)
+
+The newest Layer-1 case — [`examples/case-studies/case-11-supplychain-ad-zeroday/`](./examples/case-studies/case-11-supplychain-ad-zeroday/) — covers the attack class that defeated SolarWinds-era SOCs: a trojanized signed vendor binary enters as a routine software update, then abuses an **ADCS ESC8** misconfiguration (PetitPotam coercion → NTLM relay → certificate for `DC01$` → PKINIT TGT → S4U2self DA impersonation → DCSync of KRBTGT → Golden Ticket persistence). All 12 findings are reproduced deterministically by seven MCP functions on bundled evidence — see the case README for byte-stable expected output. The chain is composed entirely from public references (CISA AA20-352A, SpecterOps "Certified Pre-Owned", CVE-2021-36942, MITRE T1098.005 / T1003.006 / T1558.001) with no cross-reference to any real environment.
+
 ### External-benchmark accuracy — NIST CFReDS Hacking Case (v0.5.4)
 
 For a community-trusted, third-party benchmark, see [`examples/case-studies/case-08-cfreds-hacking-case/`](./examples/case-studies/case-08-cfreds-hacking-case/) — first integration with the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil", image MD5 `AEE4FCD9301C03B3B054623CA261959A`). Of 10 sampled NIST ground-truth findings:
