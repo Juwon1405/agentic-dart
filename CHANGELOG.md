@@ -1,5 +1,126 @@
 # Changelog
 
+## [v0.7.0] — 2026-05-16 — case-11 supply-chain/ADCS + evidence schema fidelity
+
+Two major additions, both targeted at SANS FIND EVIL! 2026 submission:
+a new case-11 covering the supply-chain-to-domain-admin attack class
+that defeated SolarWinds-era SOCs, and a wholesale enrichment of every
+bundled evidence file to native forensic-tool dump fidelity.
+
+### Added — case-11 supply-chain entry to AD certificate-services abuse
+
+`examples/case-studies/case-11-supplychain-ad-zeroday/` ships 12
+ground-truth findings reproduced deterministically by seven MCP
+functions on bundled evidence. The chain:
+
+- Trojanized signed vendor binary (SolarWinds SUNBURST class entry)
+- Low-and-slow C2 beaconing with calibrated sub-SIEM-threshold cadence
+- PetitPotam (CVE-2021-36942) coercion of `DC01$`
+- ntlmrelayx `--adcs` relay to CA01 Web Enrollment endpoint
+- Certificate issued for `DC01$` under DomainController template (ESC8)
+- Rubeus `asktgt /certificate` + `s4u /impersonateuser:domadmin`
+- 4624 type-9 NewCredentials on DC (S4U2self DA impersonation)
+- PsExec / wmiexec overpass-the-hash lateral to DC, file server, endpoint
+- ntdsutil `ifm create full` (T1003.003) + mimikatz `dcsync /user:krbtgt`
+  (T1003.006)
+- AdminSDHolder ACL modification (T1098.005 — self-healing privileged
+  persistence via SDProp)
+- Golden Ticket forged with KRBTGT hash (T1558.001) used next morning
+- Three sequential `wevtutil cl` calls + EventID 1102 self-emission
+
+New evidence files in `examples/sample-evidence-realistic/disk/`:
+- `supplychain-security-events.json` — 22 EVTX-shaped records including
+  ADCS 4886/4887 audit, AdminSDHolder 5136, type-9 NewCredentials,
+  scattered_tgts PKINIT pattern
+- `supplychain-processes.csv` — 21-process tree from trojan to log clear
+- `supplychain-network.json` — Zeek conn.log fidelity beacons + exfil
+
+Chain composed entirely from public references (CISA AA20-352A,
+SpecterOps "Certified Pre-Owned", MS-EFSRPC CVE, MITRE T1098.005 /
+T1003.006 / T1558.001). All hosts, IPs, domain (`ent.example.local`),
+SIDs are RFC1918/RFC5737/RFC2606 synthetic with zero cross-reference
+to any real environment.
+
+### Changed — every sample evidence file enriched to real tool-dump fidelity
+
+Prior versions of `sample-evidence-realistic/` files were too sparse to
+look like genuine forensic-tool captures. This release replaces every
+file with the on-disk schema produced by the corresponding real tool.
+
+Detection coverage is preserved across all cases:
+
+| Case | Detection result | Δ |
+|---|---|---|
+| case-05 main | kerberoasting=3, asrep=1, scattered=0 | unchanged |
+| case-05 brute | failures=15, credential_stuffing=1, survivors=1 | unchanged |
+| case-04 network | signals=2 (upload-to-suspicious + large-outbound) | unchanged |
+| case-07 evasion | findings=2 (1102 + 104 log clearing), max=critical | unchanged |
+| case-03 fsevents | mac suspicious=4, macos suspicious=2 | improved |
+| case-11 supply | scattered_tgts=1, asrep=1 | unchanged |
+
+68 unit tests green; `measure_accuracy.py --variant realistic` confirms
+recall=1.000 / FPR=0.000 / hallucination=0 on F-001 + F-013.
+
+Schema enrichments:
+- **Windows event logs**: full EVTX field set (Channel, Computer,
+  EventRecordID, SubjectUserSid, SubjectLogonId, TargetUserSid,
+  TargetLogonId, LogonProcessName, AuthenticationPackageName,
+  WorkstationName, LogonGuid, TransmittedServices, LmPackageName,
+  KeyLength, ImpersonationLevel, RestrictedAdminMode, VirtualAccount,
+  ElevatedToken, Status, FailureReason, SubStatus, TicketOptions,
+  TicketEncryptionType, PreAuthType, ServiceName, ServiceSid,
+  PrivilegeList). Millisecond timestamps. Consistent SID format.
+- **Network**: Zeek conn.log fidelity (uid, src/dst_port, proto,
+  service, duration, conn_state, history, ja3, ja3s, tls_version,
+  server_name, subject, issuer, http_method, http_uri, user_agent).
+- **Disk artifacts**:
+  - `$MFT.csv` — MFTECmd 25-column format with both 0x10 SI and 0x30
+    FN timestamp pairs, USN, LSN, SecurityId, ObjectIdFileDroid, ADS
+  - shellbags — SBECmd format with BagPath, NodeSlot, AbsolutePath,
+    ShellType, LastInteracted, HasExplored, Miscellaneous
+  - runkeys/services/shimcache — RECmd / AppCompatCacheParser output
+  - Prefetch JSON — PECmd format with Volumes, FilesLoaded, run times
+  - Chrome History — Hindsight column set
+- **Unified pipeline** — Sysmon process_guid, hashes (MD5/SHA256/IMPHASH),
+  integrity level, USB device_class_guid + device_instance_id
+- **Linux**: auditd SYSCALL+EXECVE+CWD+PATH+PROCTITLE+USER_LOGIN+CRED_ACQ
+  +USER_CMD+USER_AUTH; journal ndjson with `__REALTIME_TIMESTAMP`,
+  `__MONOTONIC_TIMESTAMP`, `_BOOT_ID`, `_MACHINE_ID`, `_SYSTEMD_CGROUP`,
+  `_AUDIT_SESSION`, `_AUDIT_LOGINUID`; bash_history with HISTTIMEFORMAT
+  epoch markers
+- **macOS**: `log show`-style unified log (thread/subsystem/category/
+  sender); FSEventsParser-shaped fsevents (id+mask hex+flags comma-
+  separated+inode+node_id+sha256_at_event); knowledgeC with zobject_uuid
+  /zstreamname/zsource_bundleid/zvaluestring
+- **Memory image info** — winpmem acquisition metadata, kernel_base,
+  KDBG offset, physical layout, suggested profile, per-process VAD
+  anomalies, network connections, yara hits with offsets
+
+### Fixed — setupapi.dev.log missing from realistic variant
+
+`setupapi.dev.log` existed in `sample-evidence/` (reference variant)
+but was absent from `sample-evidence-realistic/` — the agent's IP-KVM
+detection (F-013) silently failed on the realistic variant, dropping
+recall to 0.5 (F-001 only). Restored with full setupapi log fidelity:
+BeginLog/EndLog markers, dvi/ndv install-section payloads, hardware-ID
++ compat-ID searches, friendly names, exit-status footers, plus benign-
+USB noise records around the IP-KVM (VID 0557 PID 2419 ATEN) signal.
+
+### Counts after v0.7.0
+
+| Surface | Count |
+|---|---|
+| Native MCP functions | 67 |
+| Total ground-truth findings | 99 (Layer 1 = 69, Layer 2 = 30) |
+| Bundled case studies | 11 |
+| Internal cases (Layer 1) | 8 (01–07, 11) |
+| External cases (Layer 2) | 3 (08–10: CFReDS, Hadi, M57) |
+| Evidence files in realistic variant | 49 |
+| MITRE ATT&CK tactic coverage | 11 of 12 |
+| Unit tests | 68 green (excluding `test_live_mcp` which needs MCP package) |
+
+---
+
 ## [v0.6.1] — 2026-05-14 — macOS quarantine + Linux cron + DNS tunneling
 
 Three new native functions plus the Single-Source-of-Truth cleanup of
