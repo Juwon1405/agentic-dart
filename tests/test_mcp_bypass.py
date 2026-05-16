@@ -136,6 +136,8 @@ def test_surface_is_exact_positive_and_negative_set():
         "parse_macos_quarantine",
         "parse_linux_cron_jobs",
         "detect_dns_tunneling",
+        "parse_linux_text_log",
+        "parse_linux_shell_history",
     }
     negative = {"execute_shell", "write_file", "mount", "umount", "eval",
                 "exec_python", "network_egress", "delete_file", "system",

@@ -36,8 +36,9 @@ import hashlib
 import json
 import os
 import re
+from collections import Counter
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
@@ -2171,6 +2172,203 @@ def analyze_unix_auth(auth_log_path, time_window_start=None,
         "ssh_accepts": ssh_accepts[:100],
         "ssh_failures_sample": ssh_failures[:100],
     }
+
+
+# ── Linux text log parser (apache/nginx/syslog/messages/secure/audit fallback) ──
+
+_LINUX_LOG_PATTERNS = [
+    # Apache/nginx combined access log
+    (re.compile(r'^(?P<src>\S+)\s+\S+\s+\S+\s+\[(?P<ts>[^\]]+)\]\s+"(?P<method>\S+)\s+(?P<uri>\S+)\s+(?P<proto>[^"]+)"\s+(?P<status>\d+)\s+(?P<size>\S+)(?:\s+"(?P<ref>[^"]*)"\s+"(?P<ua>[^"]*)")?'),
+     "http_access"),
+    # syslog / messages (RFC3164)
+    (re.compile(r'^(?P<ts>\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+(?P<host>\S+)\s+(?P<proc>[^\[\s:]+)(?:\[(?P<pid>\d+)\])?:\s+(?P<msg>.+)$'),
+     "syslog"),
+    # auditd dispatcher (text mode)
+    (re.compile(r'^type=(?P<type>\S+)\s+msg=audit\((?P<ts>[\d.:]+)\):\s+(?P<msg>.+)$'),
+     "auditd"),
+]
+
+# Suspicious-content rules applied across any parsed line
+_LINUX_LOG_SUSPICIOUS = [
+    (re.compile(r'/etc/(?:shadow|sudoers|passwd)\b'),         "T1003.008",     "high",     "sensitive_file_access"),
+    (re.compile(r'(?:\.\./|%2e%2e/|%2e%2e%5c)'),               "T1190",         "high",     "path_traversal_attempt"),
+    (re.compile(r'(?:union\s+select|or\s+1\s*=\s*1|sleep\(\d+\))', re.I), "T1190", "high", "sql_injection_pattern"),
+    (re.compile(r'(?:<\?php|eval\s*\(|base64_decode|system\s*\(|passthru\()'), "T1505.003", "critical", "webshell_pattern"),
+    (re.compile(r'(?:wget|curl)\s+[^\s|>]+\s*(?:\||;|&&|>)'),  "T1105",         "high",     "remote_download_to_shell"),
+    (re.compile(r'(?:nc|ncat|netcat)\s+(?:-[lnvep]+|.+\s+\d{2,5})'), "T1071.001", "high", "netcat_listener_or_connect"),
+    (re.compile(r'(?:nmap|masscan|nikto)\b'),                  "T1046",         "medium",   "scanner_tool_invoked"),
+    (re.compile(r'(?:chmod\s+777|chmod\s+\+s)\b'),             "T1222.002",     "medium",   "dangerous_permission_change"),
+    (re.compile(r'(?:python\s+-c|perl\s+-e|bash\s+-i)\b.*(?:socket|/dev/tcp)'), "T1059.004", "critical", "reverse_shell_oneliner"),
+    (re.compile(r'(?:mysql\s+-[uh]|mysqldump)\b'),             "T1213.002",     "medium",   "database_credential_use"),
+]
+
+
+@tool(
+    name="parse_linux_text_log",
+    description="Parse a Linux text log (apache/nginx access, syslog, messages, "
+                "secure, audit dispatcher text mode). Detects format from line "
+                "shape, returns structured records with suspicious-content tags.",
+    schema={"type": "object", "properties": {
+        "log_path": {"type": "string"},
+        "max_records": {"type": "integer", "default": 5000, "maximum": 100000},
+    }, "required": ["log_path"]},
+)
+def parse_linux_text_log(log_path, max_records=5000):
+    p = _safe_resolve(log_path)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+    try:
+        text = p.read_text(encoding="utf-8", errors="replace")
+    except (OSError, IOError) as ex:
+        return {"error": "read_failed", "path": str(p), "detail": str(ex)[:120]}
+
+    records = []
+    formats_seen = Counter()
+    suspicious = []
+    by_severity = Counter()
+    by_technique = Counter()
+
+    for lineno, raw in enumerate(text.splitlines(), 1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        matched = False
+        for pat, fmt in _LINUX_LOG_PATTERNS:
+            m = pat.match(line)
+            if not m:
+                continue
+            matched = True
+            formats_seen[fmt] += 1
+            rec = {"line": lineno, "format": fmt, **{k: v for k, v in m.groupdict().items() if v is not None}}
+            if len(records) < max_records:
+                records.append(rec)
+            # suspicious content scan
+            for spat, mitre, sev, rule in _LINUX_LOG_SUSPICIOUS:
+                if spat.search(line):
+                    hit = {"line": lineno, "format": fmt, "rule": rule,
+                           "technique": mitre, "severity": sev,
+                           "snippet": line[:240]}
+                    suspicious.append(hit)
+                    by_severity[sev] += 1
+                    by_technique[mitre] += 1
+            break
+        if not matched:
+            formats_seen["unparsed"] += 1
+
+    # Synthesise additional metadata signals across parsed http records
+    if formats_seen.get("http_access"):
+        ua_counts = Counter(r.get("ua", "-") for r in records if r.get("format") == "http_access")
+        scan_uas = [ua for ua in ua_counts
+                    if any(s in ua.lower() for s in ("nikto", "sqlmap", "nmap", "masscan", "zgrab"))]
+        if scan_uas:
+            suspicious.append({"line": 0, "format": "http_access", "rule": "scanner_user_agent",
+                               "technique": "T1595.002", "severity": "medium",
+                               "snippet": f"scanner UAs observed: {scan_uas[:5]}"})
+            by_severity["medium"] += 1
+            by_technique["T1595.002"] += 1
+
+    max_sev = next((s for s in ("critical","high","medium","low") if by_severity.get(s)), "info")
+    return {
+        "source": {"path": str(p), "sha256": _sha256(p)},
+        "lines_examined": sum(formats_seen.values()),
+        "records_parsed": len(records),
+        "records": records[:max_records],
+        "formats": dict(formats_seen),
+        "suspicious_hits": suspicious,
+        "by_severity": dict(by_severity),
+        "by_technique": dict(by_technique),
+        "max_severity": max_sev,
+    }
+
+
+# ── Linux shell history (bash/zsh, with HISTTIMEFORMAT support) ────
+
+_LINUX_SHELL_DANGEROUS = [
+    (re.compile(r'^\s*(?:wget|curl)\s+[^\s|>]+(?:\s*\|\s*(?:bash|sh|python))'), "T1105",     "critical", "remote_payload_piped_to_shell"),
+    (re.compile(r'\bcat\s+/etc/(?:shadow|sudoers|passwd)'),                      "T1003.008", "high",     "sensitive_file_read"),
+    (re.compile(r'\b(?:chmod\s+777|chmod\s+\+s)\b'),                             "T1222.002", "medium",   "dangerous_permission_change"),
+    (re.compile(r'\bnc\s+(?:-[lnvep]+|.+\s+\d{2,5})'),                           "T1071.001", "high",     "netcat_listener_or_connect"),
+    (re.compile(r'\bpython\s+-c.*(?:socket|/dev/tcp)'),                          "T1059.004", "critical", "reverse_shell_oneliner"),
+    (re.compile(r'\bcrontab\s+-[el]'),                                           "T1053.003", "medium",   "cron_modification"),
+    (re.compile(r'\bnohup\s+(?:/tmp|/var/tmp|/dev/shm)'),                        "T1059.004", "high",     "background_exec_from_world_writable"),
+    (re.compile(r'>>?\s*(?:\S*/)?\.ssh/authorized_keys'),                        "T1098.004", "critical", "ssh_key_persistence"),
+    (re.compile(r'\bhistory\s+-c\b|>\s*~/\.bash_history'),                       "T1070.003", "high",     "shell_history_cleared"),
+    (re.compile(r'\b(?:nmap|masscan|nikto|gobuster|dirb)\b'),                    "T1046",     "medium",   "discovery_scanner"),
+    (re.compile(r'\b(?:mysql|mongo|psql)\s+-[uh]'),                              "T1213.002", "medium",   "database_credential_use"),
+]
+
+
+@tool(
+    name="parse_linux_shell_history",
+    description="Parse a bash/zsh history file. Supports HISTTIMEFORMAT (epoch "
+                "comment lines). Returns commands with dangerous-pattern tags.",
+    schema={"type": "object", "properties": {
+        "history_path": {"type": "string"},
+    }, "required": ["history_path"]},
+)
+def parse_linux_shell_history(history_path):
+    p = _safe_resolve(history_path)
+    if not p.exists():
+        return {"error": "file_not_found", "path": str(p)}
+    try:
+        text = p.read_text(encoding="utf-8", errors="replace")
+    except (OSError, IOError) as ex:
+        return {"error": "read_failed", "path": str(p), "detail": str(ex)[:120]}
+
+    lines = text.splitlines()
+    entries = []
+    suspicious = []
+    by_severity = Counter()
+    by_technique = Counter()
+    pending_ts = None
+
+    for idx, raw in enumerate(lines, 1):
+        line = raw.rstrip("\r")
+        if not line:
+            continue
+        if line.startswith("#") and line[1:].isdigit():
+            # HISTTIMEFORMAT marker
+            try:
+                pending_ts = int(line[1:])
+            except ValueError:
+                pending_ts = None
+            continue
+        ts_iso = None
+        if pending_ts is not None:
+            try:
+                ts_iso = datetime.fromtimestamp(pending_ts, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            except (OSError, OverflowError, ValueError):
+                ts_iso = None
+        entry = {"index": len(entries) + 1, "line": idx, "command": line, "ts": ts_iso}
+        entries.append(entry)
+        pending_ts = None
+        for spat, mitre, sev, rule in _LINUX_SHELL_DANGEROUS:
+            if spat.search(line):
+                hit = {**entry, "rule": rule, "technique": mitre, "severity": sev}
+                suspicious.append(hit)
+                by_severity[sev] += 1
+                by_technique[mitre] += 1
+
+    max_sev = next((s for s in ("critical","high","medium","low") if by_severity.get(s)), "info")
+    return {
+        "source": {"path": str(p), "sha256": _sha256(p)},
+        "total_commands": len(entries),
+        "has_timestamps": any(e.get("ts") for e in entries),
+        "commands": entries[:500],
+        "suspicious_hits": suspicious,
+        "by_severity": dict(by_severity),
+        "by_technique": dict(by_technique),
+        "max_severity": max_sev,
+    }
+
+
+# ── Linux cron jobs (system + user crontabs) ──────────────────────
+
+# ── Linux cron jobs ────────────────────────────────────────────────
+# Implemented in dart_mcp._v06_macos_linux as parse_linux_cron_jobs
+# (mounted-image scanner over /etc/crontab, /etc/cron.d/, /var/spool/cron/,
+#  /etc/anacrontab — exposed via evidence_root + flagged_only schema).
+# Do not re-register here.
 
 
 @tool(

@@ -73,6 +73,13 @@ def test_registered_tools_are_exact_set():
         "parse_macos_quarantine",
         "parse_linux_cron_jobs",
         "detect_dns_tunneling",
+        # v0.7.0 Linux DFIR triplet for case-09 (Hadi Challenge 1) coverage.
+        # parse_linux_text_log handles apache/nginx access, syslog, messages,
+        # auditd dispatcher text; parse_linux_shell_history covers bash/zsh
+        # with HISTTIMEFORMAT awareness. parse_linux_cron_jobs already lives
+        # in v0.6.1 module above. Closes 5 of 7 case-09 ground-truth gaps.
+        "parse_linux_text_log",
+        "parse_linux_shell_history",
     }
     assert names == expected, f"surface drift: {names ^ expected}"
 

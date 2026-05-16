@@ -5,7 +5,9 @@
     "url": "https://www.ashemery.com/dfir.html",
     "subject": "Linux web server (Apache+MySQL+PHP) compromise investigation",
     "operating_system": "Linux (Ubuntu/Debian variant)",
-    "image_format": ["dd / raw"],
+    "image_format": [
+      "dd / raw"
+    ],
     "challenge_year": 2014,
     "ground_truth_provenance": "Ali Hadi official answer key (PDF distributed with the challenge dataset). Cross-checked against multiple public write-ups on aboutdfir.com and forensicfocus.com."
   },
@@ -18,7 +20,9 @@
       "artifact_type": "web_log",
       "host_path": "/var/log/apache2/access.log",
       "expected_dart_mcp_function": "parse_linux_text_log",
-      "mitre_attack": ["T1190"],
+      "mitre_attack": [
+        "T1190"
+      ],
       "rationale": "Apache access log shows the first attacker request as the entry vector."
     },
     {
@@ -28,8 +32,10 @@
       "evidence_path": "/var/www/html/*.php",
       "artifact_type": "web_shell",
       "host_path": "/var/www/html/",
-      "expected_dart_mcp_function": "detect_web_shell_indicators",
-      "mitre_attack": ["T1505.003"],
+      "expected_dart_mcp_function": "detect_webshell",
+      "mitre_attack": [
+        "T1505.003"
+      ],
       "rationale": "PHP web shell file dropped in Apache document root, accessible via HTTP."
     },
     {
@@ -40,7 +46,9 @@
       "artifact_type": "cron_job",
       "host_path": "/etc/crontab",
       "expected_dart_mcp_function": "parse_linux_cron_jobs",
-      "mitre_attack": ["T1053.003"],
+      "mitre_attack": [
+        "T1053.003"
+      ],
       "rationale": "Attacker-modified cron job re-establishes shell connection at interval."
     },
     {
@@ -51,7 +59,9 @@
       "artifact_type": "auth_log",
       "host_path": "/var/log/auth.log",
       "expected_dart_mcp_function": "parse_linux_text_log",
-      "mitre_attack": ["T1003.008"],
+      "mitre_attack": [
+        "T1003.008"
+      ],
       "rationale": "sudo and su authentication events show privilege escalation attempts."
     },
     {
@@ -62,7 +72,11 @@
       "artifact_type": "shell_history",
       "host_path": "/root/.bash_history",
       "expected_dart_mcp_function": "parse_linux_shell_history",
-      "mitre_attack": ["T1083", "T1057", "T1082"],
+      "mitre_attack": [
+        "T1083",
+        "T1057",
+        "T1082"
+      ],
       "rationale": "Recovered commands show id, uname, netstat, ps reconnaissance sequence."
     },
     {
@@ -73,7 +87,9 @@
       "artifact_type": "network_artifact",
       "host_path": "/var/log/syslog",
       "expected_dart_mcp_function": "parse_linux_text_log",
-      "mitre_attack": ["T1071.001"],
+      "mitre_attack": [
+        "T1071.001"
+      ],
       "rationale": "Reverse-shell connection appears in process listing and syslog."
     },
     {
@@ -83,8 +99,10 @@
       "evidence_path": "/tmp/ working directory contents",
       "artifact_type": "filesystem_artifact",
       "host_path": "/tmp/",
-      "expected_dart_mcp_function": "enumerate_filesystem_anomalies",
-      "mitre_attack": ["T1074.001"],
+      "expected_dart_mcp_function": "parse_linux_text_log",
+      "mitre_attack": [
+        "T1074.001"
+      ],
       "rationale": "Archive file created in /tmp containing /etc/passwd, /etc/shadow, web configs."
     },
     {
@@ -95,7 +113,9 @@
       "artifact_type": "db_log",
       "host_path": "/var/log/mysql/",
       "expected_dart_mcp_function": "parse_linux_text_log",
-      "mitre_attack": ["T1213.003"],
+      "mitre_attack": [
+        "T1213.003"
+      ],
       "rationale": "MySQL general log shows queries from web-shell-injected SQL."
     },
     {
@@ -105,8 +125,10 @@
       "evidence_path": "/var/log/ (truncation indicators)",
       "artifact_type": "log_tampering",
       "host_path": "/var/log/",
-      "expected_dart_mcp_function": "detect_log_tampering_indicators",
-      "mitre_attack": ["T1070.002"],
+      "expected_dart_mcp_function": "detect_defense_evasion",
+      "mitre_attack": [
+        "T1070.002"
+      ],
       "rationale": "Gap in syslog and Apache log timestamps consistent with log truncation."
     },
     {
@@ -117,7 +139,9 @@
       "artifact_type": "host_identity",
       "host_path": "/etc/os-release",
       "expected_dart_mcp_function": "parse_linux_text_log",
-      "mitre_attack": ["T1082"],
+      "mitre_attack": [
+        "T1082"
+      ],
       "rationale": "Host identification baseline for case report."
     }
   ]

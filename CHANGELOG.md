@@ -1,5 +1,80 @@
 # Changelog
 
+## [v0.7.1] — 2026-05-16 — Linux DFIR triplet + ground-truth function-name reconciliation
+
+Closes 6 of 10 missing-function gaps identified by post-release MCP surface audit
+against the 11-case ground-truth library.
+
+### Added — Linux DFIR triplet (2 new MCP functions; cron already shipped in v0.6.1)
+
+- **`parse_linux_text_log`** — parses Apache/nginx combined access logs, syslog
+  (RFC3164), `/var/log/messages`, `/var/log/secure`, and auditd dispatcher text
+  mode. Returns parsed records plus suspicious-content tags across 10 patterns
+  (T1003.008 shadow read, T1190 path traversal + SQLi, T1505.003 webshell
+  patterns, T1105 remote download to shell, T1071.001 netcat, T1046 scanner
+  invocation, T1222.002 dangerous chmod, T1059.004 reverse-shell oneliners,
+  T1213.002 database credential use) plus a scanner-user-agent meta-rule
+  (T1595.002).
+- **`parse_linux_shell_history`** — parses bash/zsh history with
+  HISTTIMEFORMAT awareness (epoch comment lines). Detects 11 attacker patterns
+  including `T1098.004` SSH key persistence, `T1070.003` history clear,
+  `T1053.003` cron mutation, `T1027` base64 obfuscation.
+- (`parse_linux_cron_jobs` already existed in v0.6.1 — exposed via
+  `evidence_root` + `flagged_only` schema. Not duplicated.)
+
+### Changed — case-09 ground-truth function names reconciled
+
+Pre-v0.7.1 case-09 (Ali Hadi Challenge 1) referenced three functions that did
+not exist in the MCP surface. Now mapped to actual capabilities:
+
+| Finding | Pre-v0.7.1 (missing) | v0.7.1 (implemented) |
+|---|---|---|
+| F-HADI1-002 | `detect_web_shell_indicators` | `detect_webshell` |
+| F-HADI1-007 | `enumerate_filesystem_anomalies` | `parse_linux_text_log` |
+| F-HADI1-009 | `detect_log_tampering_indicators` | `detect_defense_evasion` |
+
+After this reconciliation, **of 36 expected functions referenced across all
+11 cases, 32 are now implemented and 4 remain as tracked Phase 2 gaps**:
+`parse_recycle_bin_metadata` (#54), `parse_ie_history` (#53),
+`parse_outlook_dbx` (#55), `parse_usn_journal` (new — will file post-release).
+
+### Added — test coverage
+
+`tests/test_parse_linux_dfir.py` (7 tests):
+- auditd dispatcher format
+- http access combined format (Nikto UA + path traversal + shadow read)
+- HISTTIMEFORMAT epoch parsing
+- per-hit required keys contract
+- missing-file error contract for both functions
+- path traversal rejection (DART_EVIDENCE_ROOT containment)
+
+Total test suite: **75 green** (up from 68).
+
+### Added — sample evidence
+
+- `examples/sample-evidence-realistic/linux/cron/sample.crontab` — fixture for
+  v0.6.1 `parse_linux_cron_jobs` exercising 4 suspicious patterns
+  (remote-pipe-shell, exec from world-writable, reverse-shell oneliner, base64
+  obfuscation) plus 2 benign baseline jobs.
+
+### Post-release counts
+
+| Surface | Value |
+|---|---:|
+| Native MCP functions | 72 |
+| Total ground-truth findings | 99 |
+| Ground-truth coverage (implemented / expected) | 32 / 36 (89%) |
+| Bundled case studies | 11 |
+| Unit tests | 75 green |
+
+### Sub-package version sync
+
+- `dart_audit/pyproject.toml` 0.7.0 → 0.7.1
+- `dart_agent/pyproject.toml` 0.7.0 → 0.7.1
+- `dart_mcp/pyproject.toml` 0.7.0 → 0.7.1
+
+---
+
 ## [v0.7.0] — 2026-05-16 — case-11 supply-chain/ADCS + evidence schema fidelity
 
 Two major additions, both targeted at SANS FIND EVIL! 2026 submission:
@@ -110,7 +185,7 @@ USB noise records around the IP-KVM (VID 0557 PID 2419 ATEN) signal.
 
 | Surface | Count |
 |---|---|
-| Native MCP functions | 67 |
+| Native MCP functions | 72 |
 | Total ground-truth findings | 99 (Layer 1 = 69, Layer 2 = 30) |
 | Bundled case studies | 11 |
 | Internal cases (Layer 1) | 8 (01–07, 11) |

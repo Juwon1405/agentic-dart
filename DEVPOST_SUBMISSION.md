@@ -88,7 +88,7 @@ call is hashed into `audit.jsonl`. The playbook is YAML-defined
 (`dart_playbook/senior-analyst-v3.yaml`), so a customer can swap in
 their own playbook without modifying the agent code.
 
-### Phase 2 — 67 native MCP functions
+### Phase 2 — 72 native MCP functions
 
 Each function is **typed**, **read-only**, and emits **structured
 findings** the agent can correlate against later. Coverage by surface:
@@ -294,7 +294,7 @@ Three properties verified by the test suite on every CI run:
   shipped by one person in six weeks.
 - **Zero third-party Python dependencies in the core MCP layer** —
   every native function is stdlib-only. Auditable in a single sitting.
-- **MITRE ATT&CK coverage: 11 of 12 tactics** across the 67 native
+- **MITRE ATT&CK coverage: 11 of 12 tactics** across the 72 native
   functions (Reconnaissance, Resource Development, Initial Access,
   Execution, Persistence, Privilege Escalation, Defense Evasion,
   Credential Access, Discovery, Lateral Movement, Collection, Command
