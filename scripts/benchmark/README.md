@@ -1,7 +1,7 @@
 # Benchmark Suite
 
-Reproducible accuracy measurement for Agentic-DART across **10 case
-studies** spanning two evidence tiers.
+Reproducible accuracy measurement for Agentic-DART across **11 case
+studies** (99 ground-truth findings) spanning two evidence tiers.
 
 > The goal of this suite is not to advertise a single number. It is to
 > let any third-party reviewer (SANS judge, customer security team,
@@ -27,7 +27,7 @@ python3 -m scripts.benchmark.run_all --layer 2
 ```
 
 Output goes to:
-- `docs/benchmarks/SUMMARY.md` — unified score sheet (all 10 cases)
+- `docs/benchmarks/SUMMARY.md` — unified score sheet (all 11 cases)
 - `docs/benchmarks/<dataset>_<timestamp>.json` — per-run external detail
 - `docs/accuracy-report.md` — Layer-1 detailed breakdown
 
@@ -35,12 +35,12 @@ Output goes to:
 
 ## Two-layer methodology
 
-The 10 cases are evaluated in two distinct layers because the evidence
+The 11 cases are evaluated in two distinct layers because the evidence
 provenance is fundamentally different.
 
 | Layer | Cases | Evidence | Size | Where it comes from |
 |:---:|---|---|---:|---|
-| **1** | case-01 to case-07 | `examples/sample-evidence-realistic/` | 748 KB | Bundled with the repository |
+| **1** | case-01 to case-07, case-11 | `examples/sample-evidence-realistic/` | 748 KB + supply-chain evidence | Bundled with the repository |
 | **2** | case-08 to case-10 | `./datasets/` (gitignored) | 13 GB | Downloaded from external mirrors |
 
 Splitting them this way lets us be **honest about what each layer

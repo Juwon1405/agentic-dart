@@ -404,11 +404,13 @@ See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-us
 
 ## Case study for judges
 
-Two case studies are bundled:
+Eleven case studies are bundled — eight Layer-1 synthetic (cases 01–07 + 11) and three Layer-2 external benchmarks (cases 08 CFReDS, 09 Hadi, 10 M57). For the judge walkthrough, two are the recommended entry points:
 
 1. **[Pass-the-Hash with timestomp pre-existence](./docs/case-pth-timestomp.md)** &mdash; the headline walkthrough. Watch the agent build a coherent partial MITRE chain, then have it broken by a `dart-corr` contradiction (timestomp before the credential event), then revise to a correct verdict. This is the architecture-first claim made concrete.
 
 2. **[IP-KVM remote-hands insider](./examples/case-studies/case-01-ipkvm-insider/README.md)** &mdash; a step-by-step walkthrough of the bundled IP-KVM case showing what the agent does at each iteration, what `audit.jsonl` records, and how `dart-audit trace F-013` resolves a finding back to raw evidence in three clicks.
+
+For the full case library — including the new v0.7.0 case-11 (supply-chain → ADCS ESC8 → DCSync → Golden Ticket) — see [`examples/case-studies/`](./examples/case-studies/).
 
 ## Measured accuracy (reproducible)
 
@@ -416,7 +418,7 @@ Two case studies are bundled:
 Recall:                    1.000
 False positive rate:       0.000
 Hallucination count:       0
-Evidence integrity:        preserved (61 files, all SHA-256 hashes match pre/post)
+Evidence integrity:        preserved (49 files, all SHA-256 hashes match pre/post)
 Self-correction observed:  true
 ```
 
@@ -426,9 +428,9 @@ Produced by `python3 scripts/measure_accuracy.py`. The same numbers hold on the 
 
 The newest Layer-1 case — [`examples/case-studies/case-11-supplychain-ad-zeroday/`](./examples/case-studies/case-11-supplychain-ad-zeroday/) — covers the attack class that defeated SolarWinds-era SOCs: a trojanized signed vendor binary enters as a routine software update, then abuses an **ADCS ESC8** misconfiguration (PetitPotam coercion → NTLM relay → certificate for `DC01$` → PKINIT TGT → S4U2self DA impersonation → DCSync of KRBTGT → Golden Ticket persistence). All 12 findings are reproduced deterministically by seven MCP functions on bundled evidence — see the case README for byte-stable expected output. The chain is composed entirely from public references (CISA AA20-352A, SpecterOps "Certified Pre-Owned", CVE-2021-36942, MITRE T1098.005 / T1003.006 / T1558.001) with no cross-reference to any real environment.
 
-### External-benchmark accuracy — NIST CFReDS Hacking Case (v0.5.4)
+### External-benchmark accuracy — NIST CFReDS Hacking Case (case-08)
 
-For a community-trusted, third-party benchmark, see [`examples/case-studies/case-08-cfreds-hacking-case/`](./examples/case-studies/case-08-cfreds-hacking-case/) — first integration with the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil", image MD5 `AEE4FCD9301C03B3B054623CA261959A`). Of 10 sampled NIST ground-truth findings:
+For a community-trusted, third-party benchmark, see [`examples/case-studies/case-08-cfreds-hacking-case/`](./examples/case-studies/case-08-cfreds-hacking-case/) — first integration with the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil", image MD5 `AEE4FCD9301C03B3B054623CA261959A`). Of 10 sampled NIST ground-truth findings, scored historically:
 
 | Version | Strict recall | Lenient recall | What changed |
 |---|---:|---:|---|
