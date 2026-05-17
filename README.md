@@ -271,6 +271,8 @@ python3 tests/test_concurrency_and_edge_cases.py        #  3 — concurrent audi
 python3 tests/test_qa_pass_regressions.py               #  1 — v0.5.1 QA-pass regression guard
 python3 tests/test_parse_registry_hive.py               # 12 — registry hive parsing (v0.5.4 CFReDS gap closure)
 python3 tests/test_v05_supply_chain.py                  # 12 — cross-platform supply-chain IOC sweeps (v0.6.0)
+python3 tests/test_v06_macos_linux.py                   # 17 — macOS quarantine + Linux cron + DNS tunneling (v0.6.1)
+python3 tests/test_parse_linux_dfir.py                  #  7 — Linux text-log + shell-history + cron parsing (v0.7.0)
                                              # ──
                                              # full suite
 ```
