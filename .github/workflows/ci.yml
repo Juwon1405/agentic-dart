@@ -29,6 +29,8 @@ jobs:
           python3 -m pip install -e ./dart_mcp/
           # Install dart_corr (correlation engine extracted in v0.7.1)
           python3 -m pip install -e ./dart_corr/
+          # pytest for the dart_corr engine test suite
+          python3 -m pip install pytest
 
       - name: Audit chain tests
         env:
