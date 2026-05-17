@@ -127,7 +127,7 @@ The author's handle, **優心 (yushin)**, reads as "discerning mind" — the tra
 
 ## Architecture
 
-![Agentic-DART Architecture](./dart-architecture.png)
+![Agentic-DART Architecture](./docs/dart-architecture.png)
 
 1. **Custom MCP Server** (`dart_mcp`) is the primary enforcement layer. The agent has no `execute_shell()`. Destructive commands are not refused — they are *not present*.
 2. **Direct Agent Extension on Claude Code** (`dart_agent`) handles session ergonomics. Security boundaries live in the server, not the prompt.
@@ -140,24 +140,15 @@ Evidence is mounted **read-only at the OS level** before the agent is ever start
 
 ```text
 agentic-dart/
-├── dart_audit/        # Tamper-evident JSONL logger (SHA-256 chained)
-├── dart_mcp/          # Custom MCP server — 47 native + 25 SIFT adapter functions
-├── dart_agent/        # Iteration controller + self-correction loop
-├── dart_corr/         # Cross-artifact correlation engine (DuckDB)
-├── dart_playbook/     # Senior-analyst YAML playbooks (v1 / v2 / v3)
-├── examples/          # 11 case studies + sample evidence + demo runners
-├── scripts/           # benchmark/, measure_accuracy.py, install.sh
-├── tests/             # pytest suites (79 dart_mcp + 14 dart_corr = 93)
-├── docs/              # architecture, accuracy report, case walkthroughs
-├── .github/           # CI matrix, issue templates, PR template
-├── README.md          # this file
-├── CHANGELOG.md
-├── DEVPOST_SUBMISSION.md
-├── LICENSE            # MIT
-└── *.png              # hero, thumbnail, architecture diagram
+├── dart_audit/         dart_mcp/         dart_agent/
+├── dart_corr/          dart_playbook/      ← 5 core packages
+├── examples/           ← 11 case studies + sample evidence + demo runners
+├── tests/              ← pytest suites (79 + 14 dart_corr = 93)
+├── scripts/            ← benchmark/, measure_accuracy.py, install.sh
+└── docs/               ← architecture, accuracy report, case walkthroughs
 ```
 
-Each top-level package has its own README with deeper detail — `dart_mcp/README.md` for the MCP wire surface, `dart_corr/README.md` for the correlation engine, etc. Drill in as needed.
+Each package has its own `README.md` with deeper detail (wire surface for `dart_mcp`, engine internals for `dart_corr`, playbook YAML for `dart_playbook`, etc.). Drill in as needed.
 
 ## Quick start — prove it works in 30 seconds
 
@@ -181,33 +172,24 @@ The demo walks the full senior-analyst loop against sample evidence, triggers a 
 
 ### What a real run looks like
 
-Below is a sample run on the SANS SIFT Workstation against a representative case. **Stage 1 — startup, MCP handshake, first hypothesis:**
+<table>
+<tr>
+<td width="50%"><strong>1. Startup, MCP handshake, first hypothesis</strong><br>
+<img src="./docs/screenshots/dart-run-01-init.png" alt="dart-agent startup"></td>
+<td width="50%"><strong>2. Typed tool calls, MITRE chain forming</strong><br>
+<img src="./docs/screenshots/dart-run-02-investigate.png" alt="typed forensic tool calls"></td>
+</tr>
+<tr>
+<td width="50%"><strong>3. Contradiction → hypothesis revision</strong><br>
+<img src="./docs/screenshots/dart-run-03-contradiction.png" alt="dart-corr UNRESOLVED + revision"></td>
+<td width="50%"><strong>4. Final verdict, audit chain verified</strong><br>
+<img src="./docs/screenshots/dart-run-04-final.png" alt="final verdict + verified audit chain"></td>
+</tr>
+</table>
 
-<p align="center">
-  <img src="./docs/screenshots/dart-run-01-init.png" alt="dart-agent startup and first hypothesis" width="92%">
-</p>
+When artifacts disagree, `dart-corr` flags the contradiction as `UNRESOLVED` and the agent is forced to revise — no prompt instruction needed. Architecture-first, not prompt-first.
 
-**Stage 2 — typed tool calls, MITRE chain begins to form:**
-
-<p align="center">
-  <img src="./docs/screenshots/dart-run-02-investigate.png" alt="dart-agent calling typed forensic tools" width="92%">
-</p>
-
-**Stage 3 — contradiction detected, hypothesis refined automatically:**
-
-<p align="center">
-  <img src="./docs/screenshots/dart-run-03-contradiction.png" alt="dart-corr detecting an UNRESOLVED contradiction and the agent refining" width="92%">
-</p>
-
-This is the architecture-first claim made concrete: when artifacts disagree, `dart-corr` flags the contradiction as `UNRESOLVED` and the agent is forced to revise. No prompt instruction was needed — the contradiction surfaces from the data itself.
-
-**Stage 4 — final verdict, MITRE ATT&CK chain verified, audit chain integrity confirmed:**
-
-<p align="center">
-  <img src="./docs/screenshots/dart-run-04-final.png" alt="dart-agent final verdict with verified audit chain" width="92%">
-</p>
-
-> *Sample run output — representative of an actual SIFT Workstation execution. A live screencast will replace these stills in the final hackathon submission video (June 2026).*
+> *Representative SIFT Workstation stills. A live screencast replaces these in the hackathon submission video (June 2026).*
 
 ## Running the tests
 

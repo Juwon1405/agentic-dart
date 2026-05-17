@@ -6,7 +6,7 @@ Protocol SIFT works. It also hallucinates more than a DFIR practitioner can stan
 
 ## System overview
 
-See [`../dart-architecture.png`](../dart-architecture.png).
+See [`dart-architecture.png`](./dart-architecture.png).
 
 The stack is a deliberate hybrid of three of the four supported FIND EVIL! architectural patterns:
 
