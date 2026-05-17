@@ -507,7 +507,7 @@ verify the fixes do what the diff says they do.
       tests passing                  VERIFIABLE     SHA-256 audit chain
       0     destructive ops          ZERO           destructive ops on the wire
 
-  Original archived to `docs/agentic-dart-hero-v0.4.png` for history.
+  Original archived to `docs/legacy/agentic-dart-hero-v0.4.png` for history.
 
 - **README badges** rewritten to evergreen semantics:
 
