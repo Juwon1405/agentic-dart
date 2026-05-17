@@ -208,3 +208,11 @@ __marimo__/
 
 # Benchmark dataset images (large, downloaded separately)
 datasets/
+
+# Demo recording assets — kept locally, NOT in repo
+# Videos, voiceover scripts, slide generators, storyboards
+docs/demo_assets/
+docs/voiceover/
+docs/DEMO_STORYBOARD.md
+docs/DEMO_STORYBOARD_v2.md
+*.mp4
