@@ -13,7 +13,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "${HERE}/.." && pwd)"
 
 export DART_EVIDENCE_ROOT="${HERE}/sample-evidence"
-export PYTHONPATH="${REPO}/dart_audit/src:${REPO}/dart_mcp/src:${REPO}/dart_agent/src"
+export PYTHONPATH="${REPO}/dart_audit/src:${REPO}/dart_mcp/src:${REPO}/dart_agent/src:${REPO}/dart_corr/src"
 
 OUT="${REPO}/examples/out/find-evil-ref-01"
 rm -rf "${OUT}"

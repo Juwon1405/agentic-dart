@@ -22,7 +22,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "${HERE}/.." && pwd)"
 
 export DART_EVIDENCE_ROOT="${HERE}/sample-evidence"
-export PYTHONPATH="${REPO}/dart_audit/src:${REPO}/dart_mcp/src:${REPO}/dart_agent/src"
+export PYTHONPATH="${REPO}/dart_audit/src:${REPO}/dart_mcp/src:${REPO}/dart_agent/src:${REPO}/dart_corr/src"
 
 # Pretty output
 B='\033[1;34m'; G='\033[1;32m'; Y='\033[1;33m'; R='\033[1;31m'; C='\033[1;36m'; N='\033[0m'
