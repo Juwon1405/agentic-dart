@@ -1,0 +1,127 @@
+# correlation-rules.yaml — operator-tunable contradiction patterns for dart_corr
+#
+# Each rule names a pair of event sources that should be mutually
+# exclusive (or jointly suspicious) within a time window. When
+# correlate_timeline() finds events from source_a and source_b
+# sharing an actor and falling inside window_seconds, it emits an
+# UNRESOLVED contradiction record using the rule's name.
+#
+# Operators can add, remove, or tune rules without touching Python.
+# The agent reads contradictions via the MCP wire (correlate_timeline)
+# and must either resolve them with additional evidence or report the
+# finding as UNRESOLVED with both sources cited.
+#
+# Version: 0.7.1
+# Maintained alongside the dart_corr package; see Wiki/dart-corr for
+# the architectural rationale.
+
+rules:
+  # ─── Insider-threat / remote-hands patterns ───────────────────────
+
+  - name: ip_kvm_session_overlaps_vpn_session
+    description: >
+      An IP-KVM session that continues past the end of the operator's
+      VPN session is physically impossible if the operator is the
+      sole authorized user. Surfaces remote-hands / shared-credential
+      patterns.
+    source_a: ip_kvm_session_end
+    source_b: ip_kvm_session_activity
+    window_seconds: 60
+    severity: high
+
+  - name: ip_kvm_precedes_logon
+    description: >
+      USB IP-KVM device insertion immediately followed (≤10 min) by
+      a console logon. Pairs with correlate_events for the same
+      pattern at event grain.
+    source_a: usb_ip_kvm_inserted
+    source_b: logon_event
+    window_seconds: 600
+    severity: high
+
+  # ─── Living-off-the-land / process-tree anomaly ───────────────────
+
+  - name: lolbin_followed_by_exfil
+    description: >
+      LOLBin execution (powershell, certutil, bitsadmin, mshta, ...)
+      followed by outbound network connection to a non-corporate
+      target within 60 seconds.
+    source_a: lolbin_execution
+    source_b: outbound_network_connection
+    window_seconds: 60
+    severity: high
+
+  # ─── Pass-the-Hash / lateral movement ─────────────────────────────
+
+  - name: pth_with_timestomp_pre_existence
+    description: >
+      Pass-the-Hash logon (4624 type-9) at time T, but MFT $SI vs
+      $FN disagreement on the credential blob predates T by < 5
+      minutes. The credential could not have legitimately existed
+      before it was created.
+    source_a: pth_logon
+    source_b: mft_si_fn_disagreement
+    window_seconds: 300
+    severity: high
+
+  # ─── Disk-vs-memory consistency ───────────────────────────────────
+
+  - name: disk_process_exit_vs_memory_alive
+    description: >
+      Disk says process P exited at T, memory dump (taken at T+ε)
+      shows process P with same PID still running. Possible
+      anti-forensics (PEB unlink, DKOM) or stale evidence.
+    source_a: disk_process_exit
+    source_b: memory_process_active
+    window_seconds: 120
+    severity: medium
+
+  # ─── Authentication anomaly ───────────────────────────────────────
+
+  - name: kerberos_pkinit_anomalous_origin
+    description: >
+      PKINIT TGT request for a Domain Controller machine account
+      originating from a non-DC source IP. The DC should authenticate
+      itself; a workstation requesting a TGT for DC$ is the ESC8
+      relay signature.
+    source_a: pkinit_request
+    source_b: dc_machine_account_target
+    window_seconds: 30
+    severity: high
+
+  # ─── Supply-chain / signed-binary abuse ───────────────────────────
+
+  - name: signed_vendor_binary_spawns_recon
+    description: >
+      A code-signed vendor binary becomes the parent of standard AD
+      recon tooling (whoami /priv, net group "Domain Admins",
+      AdFind, BloodHound, SharpHound). Signing is not a free pass
+      for arbitrary child processes.
+    source_a: signed_vendor_process_start
+    source_b: ad_recon_child_spawn
+    window_seconds: 300
+    severity: high
+
+  # ─── DCSync / domain-admin theft ──────────────────────────────────
+
+  - name: dcsync_from_non_dc_host
+    description: >
+      Directory Replication Service rights exercised (4662 with
+      access mask 0x40, GUID DS-Replication-Get-Changes-All) by a
+      principal whose source workstation is not a Domain Controller.
+    source_a: drsuapi_replication_request
+    source_b: source_host_not_dc
+    window_seconds: 5
+    severity: high
+
+  # ─── Log clearing ────────────────────────────────────────────────
+
+  - name: log_clear_after_admin_action
+    description: >
+      Security/System log clear (EventID 1102 or wevtutil cl) within
+      10 minutes after a privilege-escalation or persistence action
+      on the same host.
+    source_a: privilege_escalation_action
+    source_b: event_log_cleared
+    window_seconds: 600
+    severity: high

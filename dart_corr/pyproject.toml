@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dart_corr"
+version = "0.7.1"
+description = "Cross-artifact correlation engine — DuckDB-backed timeline joins and contradiction flagging for Agentic-DART"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Bang Juwon", email = "juwon1405.jp@gmail.com" }]
+dependencies = [
+    "duckdb>=0.10.0",
+    "PyYAML>=6.0",
+]
+
+[project.urls]
+Repository = "https://github.com/Juwon1405/agentic-dart"
+Documentation = "https://github.com/Juwon1405/agentic-dart/wiki/dart-corr"
+
+[tool.setuptools.packages.find]
+where = ["src"]

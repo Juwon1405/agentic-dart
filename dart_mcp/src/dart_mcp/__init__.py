@@ -36,11 +36,21 @@ import hashlib
 import json
 import os
 import re
+import sys
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
+
+# dart_corr is a sibling package — extracted from dart_mcp in v0.7.1.
+# If the package was installed (pip install -e dart_corr) the import
+# just works. If we're running from a clean checkout without install,
+# add the sibling src/ to sys.path so the import still works without
+# requiring users to pip-install both packages.
+_DART_CORR_SRC = Path(__file__).resolve().parent.parent.parent.parent / "dart_corr" / "src"
+if _DART_CORR_SRC.exists() and str(_DART_CORR_SRC) not in sys.path:
+    sys.path.insert(0, str(_DART_CORR_SRC))
 
 EVIDENCE_ROOT = Path(os.environ.get("DART_EVIDENCE_ROOT", "/mnt/evidence"))
 
@@ -656,28 +666,12 @@ def analyze_event_logs(events_json, limit_alerts=500):
 )
 def correlate_events(hypothesis_id, usb_events=None, logon_events=None,
                      proximity_seconds=600):
-    usb_events = usb_events or []
-    logon_events = logon_events or []
-    flags = []
-    for logon in logon_events:
-        l_ts = _parse_ts(logon.get("ts", ""))
-        if l_ts is None:
-            continue
-        for u in usb_events:
-            u_ts = _parse_ts(u.get("ts", ""))
-            if u_ts is None:
-                continue
-            delta = (l_ts - u_ts).total_seconds()
-            if 0 <= delta <= proximity_seconds and u.get("is_ip_kvm"):
-                flags.append({"rule": "ip_kvm_precedes_logon",
-                              "usb_event": u, "logon_event": logon,
-                              "delta_seconds": int(delta),
-                              "severity": "high", "status": "UNRESOLVED"})
-    return {"hypothesis_id": hypothesis_id,
-            "usb_event_count": len(usb_events),
-            "logon_event_count": len(logon_events),
-            "contradictions": flags,
-            "clean_correlations": max(0, len(usb_events) * len(logon_events) - len(flags))}
+    # Delegates to dart_corr.correlate_events. The MCP wire surface
+    # (this function's name, schema, and registration) is unchanged;
+    # only the implementation moved out of dart_mcp into the
+    # extracted package in v0.7.1.
+    from dart_corr import correlate_events as _impl
+    return _impl(hypothesis_id, usb_events, logon_events, proximity_seconds)
 
 
 @tool(
@@ -692,113 +686,95 @@ def correlate_events(hypothesis_id, usb_events=None, logon_events=None,
     }, "required": ["events"]},
 )
 def correlate_timeline(events, rules=None, window_seconds=300):
+    # Core correlation is now in dart_corr. The MCP layer keeps two
+    # things on top:
+    #   1. A small back-compat result shape (cross_source_correlations
+    #      + kvm_precedes_logon + engine field) so existing case
+    #      studies don't break.
+    #   2. The user-rule injection defense, which only makes sense at
+    #      the MCP boundary (the agent submits raw SQL fragments here
+    #      and we must reject DDL/DML/metafunctions before passing them
+    #      to DuckDB).
+    from dart_corr import correlate_timeline as _impl
+    core = _impl(events, rules=None, window_seconds=window_seconds)
+
+    # Apply user-supplied rule strings under the strict allow-list.
+    # Identical defense logic to v0.7.0; kept here at the wire boundary.
     import duckdb
-    normalized = []
-    for e in events:
-        if not isinstance(e, dict):
-            continue
-        ts = _parse_ts(str(e.get("ts", "") or e.get("timestamp", "")))
-        if ts is None:
-            continue
-        normalized.append({
-            "ts": ts, "source": e.get("source", ""),
-            "actor": e.get("actor", "") or e.get("user", ""),
-            "target": e.get("target", "") or e.get("path", "") or e.get("image", ""),
-            "type": e.get("type", "") or e.get("event_type", ""),
-            "raw": json.dumps(e, default=str, sort_keys=True)[:2000],
-        })
-
-    con = duckdb.connect(":memory:")
-    con.execute("""
-        CREATE TABLE ev (
-            ts TIMESTAMP, source VARCHAR, actor VARCHAR,
-            target VARCHAR, type VARCHAR, raw VARCHAR
-        )
-    """)
-    con.executemany(
-        "INSERT INTO ev VALUES (?, ?, ?, ?, ?, ?)",
-        [(e["ts"], e["source"], e["actor"], e["target"], e["type"], e["raw"])
-         for e in normalized],
-    )
-    con.execute("CREATE INDEX ev_ts ON ev(ts)")
-
-    q1 = f"""
-        SELECT e1.source AS s1, e1.ts AS ts1, e1.actor AS a1, e1.target AS t1, e1.type AS ty1,
-               e2.source AS s2, e2.ts AS ts2, e2.actor AS a2, e2.target AS t2, e2.type AS ty2,
-               date_diff('second', e1.ts, e2.ts) AS delta_s
-        FROM ev e1 JOIN ev e2
-          ON e1.source <> e2.source
-          AND e2.ts BETWEEN e1.ts AND e1.ts + INTERVAL {int(window_seconds)} SECOND
-          AND ((e1.actor <> '' AND e1.actor = e2.actor)
-               OR (e1.target <> '' AND e1.target = e2.target))
-        ORDER BY e1.ts, e2.ts
-        LIMIT 500
-    """
-    cross_src = [dict(zip(
-        ["s1", "ts1", "a1", "t1", "ty1", "s2", "ts2", "a2", "t2", "ty2", "delta_s"], row
-    )) for row in con.execute(q1).fetchall()]
-
-    q2 = f"""
-        SELECT e1.ts AS kvm_ts, e1.target AS device,
-               e2.ts AS logon_ts, e2.actor AS user,
-               date_diff('second', e1.ts, e2.ts) AS delta_s
-        FROM ev e1 JOIN ev e2
-          ON e1.type = 'usb_insert' AND e2.type = 'logon'
-          AND e2.ts BETWEEN e1.ts AND e1.ts + INTERVAL {int(window_seconds)} SECOND
-        ORDER BY e1.ts
-        LIMIT 100
-    """
-    kvm_patterns = [dict(zip(["kvm_ts", "device", "logon_ts", "user", "delta_s"], row))
-                    for row in con.execute(q2).fetchall()]
-
-    # User-supplied join predicates are a small but real prompt-injection
-    # surface. The previous filter only blocked ';' and '--'; that left
-    # /* */ comments, UNION SELECT, and DuckDB-specific functions like
-    # read_csv_auto / copy on the table. We now apply a strict allow-list:
-    #   - identifiers only (e1./e2. column refs, integer/string literals,
-    #     comparison operators, AND/OR/NOT, parens, simple arithmetic)
-    #   - any other character (semicolon, comment marker, backtick, $) → reject
-    # This lets the LLM still write meaningful join rules but makes
-    # smuggling DDL/DML or DuckDB metafunctions structurally impossible.
-    _RULE_ALLOWED_RE = re.compile(
-        r"^[\s\w\.\(\)\=\<\>\!\+\-\*\/\,\'\"]+$"
-    )
-    _RULE_FORBIDDEN_TOKENS = re.compile(
-        r"\b(?:union|insert|update|delete|drop|create|alter|attach|detach|"
-        r"copy|pragma|read_csv|read_csv_auto|read_parquet|read_json|"
-        r"export|import|install|load|exec|execute|describe|explain)\b",
-        re.IGNORECASE,
-    )
-
     user_matches = []
-    for rule in (rules or []):
-        if not isinstance(rule, str):
-            continue
-        if not _RULE_ALLOWED_RE.match(rule):
-            user_matches.append({"rule": rule,
-                                  "error": "rule rejected: disallowed character"})
-            continue
-        if _RULE_FORBIDDEN_TOKENS.search(rule):
-            user_matches.append({"rule": rule,
-                                  "error": "rule rejected: forbidden SQL keyword"})
-            continue
-        try:
-            rows = con.execute(
-                f"SELECT e1.source, e1.ts, e1.target, e2.source, e2.ts, e2.target "
-                f"FROM ev e1 JOIN ev e2 ON {rule} LIMIT 50"
-            ).fetchall()
-            user_matches.append({"rule": rule, "hits": len(rows), "sample": rows[:5]})
-        except Exception as ex:
-            user_matches.append({"rule": rule, "error": str(ex)[:200]})
+    if rules:
+        _RULE_ALLOWED_RE = re.compile(
+            r"^[\s\w\.\(\)\=\<\>\!\+\-\*\/\,\'\"]+$"
+        )
+        _RULE_FORBIDDEN_TOKENS = re.compile(
+            r"\b(?:union|insert|update|delete|drop|create|alter|attach|detach|"
+            r"copy|pragma|read_csv|read_csv_auto|read_parquet|read_json|"
+            r"export|import|install|load|exec|execute|describe|explain)\b",
+            re.IGNORECASE,
+        )
+        # Re-normalize events for the rule evaluation pass.
+        normalized = []
+        for e in events:
+            if not isinstance(e, dict):
+                continue
+            ts = _parse_ts(str(e.get("ts", "") or e.get("timestamp", "")))
+            if ts is None:
+                continue
+            normalized.append((
+                ts, e.get("source", ""),
+                e.get("actor", "") or e.get("user", ""),
+                e.get("target", "") or e.get("path", "") or e.get("image", ""),
+                e.get("type", "") or e.get("event_type", ""),
+                json.dumps(e, default=str, sort_keys=True)[:2000],
+            ))
+        if normalized:
+            con = duckdb.connect(":memory:")
+            con.execute("""
+                CREATE TABLE ev (ts TIMESTAMP, source VARCHAR, actor VARCHAR,
+                                  target VARCHAR, type VARCHAR, raw VARCHAR)""")
+            con.executemany("INSERT INTO ev VALUES (?, ?, ?, ?, ?, ?)", normalized)
+            for rule in rules:
+                if not isinstance(rule, str):
+                    continue
+                if not _RULE_ALLOWED_RE.match(rule):
+                    user_matches.append({"rule": rule,
+                                         "error": "rule rejected: disallowed character"})
+                    continue
+                if _RULE_FORBIDDEN_TOKENS.search(rule):
+                    user_matches.append({"rule": rule,
+                                         "error": "rule rejected: forbidden SQL keyword"})
+                    continue
+                try:
+                    rows = con.execute(
+                        f"SELECT e1.source, e1.ts, e1.target, e2.source, e2.ts, e2.target "
+                        f"FROM ev e1 JOIN ev e2 ON {rule} LIMIT 50"
+                    ).fetchall()
+                    user_matches.append({"rule": rule, "hits": len(rows), "sample": rows[:5]})
+                except Exception as ex:
+                    user_matches.append({"rule": rule, "error": str(ex)[:200]})
+            con.close()
 
-    con.close()
+    # Map dart_corr's shape into the back-compat result shape that
+    # existing case studies expect.
+    cross_src = []
+    for c in core.get("correlations", []):
+        cross_src.append({
+            "s1": c["source_a"], "ts1": c["ts_a"], "a1": c["actor_a"],
+            "t1": c["target_a"], "ty1": c["type_a"],
+            "s2": c["source_b"], "ts2": c["ts_b"], "a2": c["actor_b"],
+            "t2": c["target_b"], "ty2": c["type_b"],
+            "delta_s": c["delta_seconds"],
+        })
+    kvm_patterns = [c for c in cross_src
+                    if c.get("ty1") == "usb_insert" and c.get("ty2") == "logon"]
     return {
-        "event_count": len(normalized),
+        "event_count": core["normalized_event_count"],
         "cross_source_correlations": cross_src[:100],
         "cross_source_total": len(cross_src),
         "kvm_precedes_logon": kvm_patterns,
         "user_rule_matches": user_matches,
-        "engine": "duckdb", "window_seconds": window_seconds,
+        "engine": "duckdb",
+        "window_seconds": window_seconds,
     }
 
 

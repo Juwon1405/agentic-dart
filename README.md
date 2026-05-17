@@ -145,7 +145,7 @@ agentic-dart/
 │                              #   (native pure-Python + SIFT Workstation adapters)
 ├── dart_agent/                # Iteration controller + self-correction loop
 ├── dart_playbook/             # Senior-analyst YAML playbooks (v1 / v2 / v3)
-├── dart_corr/                 # Cross-artifact correlation engine — design contract +
+├── dart_corr/                 # Cross-artifact correlation engine — DuckDB-backed
 │                              #   reserved package boundary. The contradiction-handling
 │                              #   behavior demoed in v0.5 currently lives inline in
 │                              #   dart_agent and dart_mcp.correlate_timeline; the
@@ -258,7 +258,7 @@ This is the architecture-first claim made concrete: when artifacts disagree, `da
 ## Running the tests
 
 ```bash
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src:$PWD/dart_corr/src"
 export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 
 python3 tests/test_audit_chain.py                       #  4 — chain integrity + tamper detection
@@ -273,8 +273,9 @@ python3 tests/test_parse_registry_hive.py               # 12 — registry hive p
 python3 tests/test_v05_supply_chain.py                  # 12 — cross-platform supply-chain IOC sweeps (v0.6.0)
 python3 tests/test_v06_macos_linux.py                   # 17 — macOS quarantine + Linux cron + DNS tunneling (v0.6.1)
 python3 tests/test_parse_linux_dfir.py                  #  7 — Linux text-log + shell-history + cron parsing (v0.7.0)
+python3 -m pytest dart_corr/tests/                      # 14 — dart_corr extracted engine (v0.7.1)
                                              # ──
-                                             # full suite
+                                             # full suite (93 tests)
 ```
 
 The full suite passes on a clean checkout. The repo also contains
@@ -304,7 +305,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **72/79/79/0.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **79 of 79 tests passing on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **72/93/93/0.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **93 of 93 tests passing on a fresh clone** (79 dart_mcp/agent/audit + 14 dart_corr — audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|
@@ -600,13 +601,13 @@ All 25 share the same architectural guarantees as the native layer — read-only
 | `dart_audit` (CLI) | SHA-256-chained JSONL logger; `verify / lookup / trace / summary` subcommands; thread-safe under concurrent writers |
 | `dart_mcp.server_stdio` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart -- python3 -m dart_mcp.server_stdio` |
 | `dart_playbook/senior-analyst-v3.yaml` | **Recommended** — ten-phase senior-analyst methodology with ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
-| `dart_corr/` (scaffolding) | Standalone cross-artifact JOIN engine — currently a documented design contract; the contradiction-handling behavior demoed in the v0.5 run lives inline in `dart_agent` and `dart_mcp.correlate_timeline`. Mid-2026 target for the standalone engine. |
+| `dart_corr/` (v0.7.1: extracted package) | Standalone cross-artifact JOIN engine — DuckDB `:memory:`, 9-rule operator-tunable pack. Imports cleanly without `dart_mcp`. The dart_mcp wrappers delegate here for backwards-compat MCP wire surface. |
 
 ### Remaining roadmap (honest)
 
 | Item | Status / target |
 |---|---|
-| Standalone `dart_corr` cross-artifact JOIN engine (MFT ↔ memory process tree) | Mid-2026 (contract documented in `dart_corr/README.md`) |
+| Standalone `dart_corr` cross-artifact JOIN engine (MFT ↔ memory process tree) | **Shipped in v0.7.1** — see [`dart_corr/`](./dart_corr/) for the package and 14 unit tests |
 | Sigma rule matcher (`match_sigma_rules`) | Phase 2 — scaffolded under `tests/_pending/` |
 | Native EVTX binary parser (drop EvtxECmd CSV sidecar requirement) | Phase 2 — currently `analyze_event_logs` consumes JSON exports; SIFT adapter `sift_evtxecmd_parse` covers the binary path |
 | External-dataset accuracy runs (Ali Hadi Challenge #1, NIST CFReDS Hacking Case) | Post-submission |
