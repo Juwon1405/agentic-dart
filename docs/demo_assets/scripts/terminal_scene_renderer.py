@@ -173,9 +173,9 @@ def scene2_frames():
         _prompt_line(cmd),
         (),
         [("══ ", HEADER), ("5. MCP surface verification", HEADER)],
-        [("    ", TEXT_PRI), ("native pure-Python forensic functions:  ", TEXT_DIM), ("45", SUCCESS)],
+        [("    ", TEXT_PRI), ("native pure-Python forensic functions:  ", TEXT_DIM), ("47", SUCCESS)],
         [("    ", TEXT_PRI), ("SIFT Workstation adapters:              ", TEXT_DIM), ("25", SUCCESS)],
-        [("    ", TEXT_PRI), ("total typed read-only MCP tools:        ", TEXT_DIM), ("70", SUCCESS)],
+        [("    ", TEXT_PRI), ("total typed read-only MCP tools:        ", TEXT_DIM), ("72", SUCCESS)],
         (),
         [("[", SUCCESS), ("ok", SUCCESS), ("] ", SUCCESS), ("MCP surface verified", TEXT_PRI)],
         (),
@@ -279,7 +279,7 @@ def scene4_frames():
 
     # Frame 2: P0-P3 streaming
     render_frame("s4_02_p0_p3", [
-        [("[boot] ", HEADER), ("Agentic-DART v0.6.1  ·  loaded 70 MCP tools  ·  playbook v3 (10 phases)", TEXT_PRI)],
+        [("[boot] ", HEADER), ("Agentic-DART v0.7.1  ·  loaded 72 MCP tools  ·  playbook v3 (10 phases)", TEXT_PRI)],
         [("[boot] ", HEADER), ("audit chain seeded from manifest.json (entry 0, SHA-256: 7af3...c01e)", TEXT_DIM)],
         (),
         [("[P0] ", PROMPT_HOST), ("scope and volatility", TEXT_PRI)],

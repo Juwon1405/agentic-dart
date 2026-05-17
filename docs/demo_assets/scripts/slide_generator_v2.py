@@ -113,8 +113,8 @@ def slide1_cover():
 
     # Three pillar boxes
     pillars = [
-        ("70", "typed read-only\nMCP tools", ACCENT),
-        ("72/72", "tests passing\non a fresh clone", SUCCESS),
+        ("72", "typed read-only\nMCP tools", ACCENT),
+        ("79/79", "tests passing\non a fresh clone", SUCCESS),
         ("0", "destructive operations\npossible by construction", DANGER),
     ]
     box_w = 19
