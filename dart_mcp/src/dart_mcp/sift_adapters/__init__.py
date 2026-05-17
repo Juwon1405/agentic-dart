@@ -4,7 +4,7 @@ sift_adapters — SIFT Workstation tool adapters for agentic-dart.
 This subpackage adds typed, read-only MCP wrappers around the canonical
 DFIR tools shipped on the SANS SIFT Workstation. Importing this package
 registers all adapters with the parent dart_mcp tool registry via the
-@tool decorator, so they appear in list_tools() alongside the 35 native
+@tool decorator, so they appear in list_tools() alongside the 47 native
 agentic-dart functions.
 
 This brings agentic-dart into alignment with the SANS FIND EVIL! 2026
