@@ -405,7 +405,7 @@ See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-us
 
 Eleven case studies are bundled — eight Layer-1 synthetic (cases 01–07 + 11) and three Layer-2 external benchmarks (cases 08 CFReDS, 09 Hadi, 10 M57) — for a total of **99 ground-truth findings** with 108 MITRE ATT&CK technique codes attached. For the judge walkthrough, two are the recommended entry points:
 
-1. **[Pass-the-Hash with timestomp pre-existence](./docs/case-pth-timestomp.md)** &mdash; the headline walkthrough. Watch the agent build a coherent partial MITRE chain, then have it broken by a `dart-corr` contradiction (timestomp before the credential event), then revise to a correct verdict. This is the architecture-first claim made concrete.
+1. **[Pass-the-Hash with timestomp pre-existence](./docs/case-pth-timestomp.md)** &mdash; the conceptual walkthrough. A narrative explainer showing the agent build a coherent partial MITRE chain, then have it broken by a `dart-corr` contradiction (timestomp before the credential event), then revise to a correct verdict. This is the architecture-first claim in document form; the bundled, fully-executable equivalent is case-07-ransomware-full-chain, which exercises PtH + timestomp in the same call shape.
 
 2. **[IP-KVM remote-hands insider](./examples/case-studies/case-01-ipkvm-insider/README.md)** &mdash; a step-by-step walkthrough of the bundled IP-KVM case showing what the agent does at each iteration, what `audit.jsonl` records, and how `dart-audit trace F-013` resolves a finding back to raw evidence in three clicks.
 
