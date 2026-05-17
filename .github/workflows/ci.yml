@@ -115,9 +115,6 @@ jobs:
               'example.com', 'example.local', 'example-corp.com',
               'attacker-infra.xyz', 'finance-update-secure.tk',
               'evil.example.com', 'transfer.sh', 'bashupload.com',
-              # Private corp infrastructure — only reachable inside LY
-              'workers-hub.com', 'genai-gateway.flava-cloud.com',
-              'chatai.workers-hub.com', 'git.linecorp.com',
               # User content placeholders
               'cdn-mirror-2.velolink.org', 'telemetry-velolink-cdn.com',
           )
