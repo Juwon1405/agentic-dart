@@ -27,6 +27,8 @@ jobs:
           # Install dart_mcp via pip (verifies pyproject.toml is sane,
           # including that the sift_adapters subpackage is discovered)
           python3 -m pip install -e ./dart_mcp/
+          # Install dart_corr (correlation engine extracted in v0.7.1)
+          python3 -m pip install -e ./dart_corr/
 
       - name: Audit chain tests
         env:
@@ -53,9 +55,14 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
         run: python3 tests/test_concurrency_and_edge_cases.py
 
+      - name: dart_corr engine tests (v0.7.1 extracted package)
+        env:
+          PYTHONPATH: ${{ github.workspace }}/dart_corr/src
+        run: python3 -m pytest dart_corr/tests/ -v
+
       - name: Agent end-to-end self-correction
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src
+          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
         run: python3 tests/test_agent_self_correction.py
 
       - name: Demo run (offline native tools)
@@ -66,7 +73,7 @@ jobs:
 
       - name: Accuracy measurement
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src
+          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
         run: python3 scripts/measure_accuracy.py
 
   url-reachability:

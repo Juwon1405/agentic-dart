@@ -71,6 +71,9 @@ pip install --upgrade pip wheel >/dev/null
 log "Installing dart_mcp package (editable)"
 pip install -e ./dart_mcp/ >/dev/null
 ok "dart_mcp installed in venv"
+log "Installing dart_corr package (editable) — correlation engine + DuckDB"
+pip install -e ./dart_corr/ >/dev/null
+ok "dart_corr installed in venv"
 
 # --- 4. SIFT Workstation tool detection ---
 sect "4. SIFT Workstation tool detection"

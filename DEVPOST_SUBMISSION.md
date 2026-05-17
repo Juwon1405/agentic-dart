@@ -246,7 +246,7 @@ Three properties verified by the test suite on every CI run:
 | Playbook | `dart_playbook/senior-analyst-v3.yaml` |
 | Audit format | `dart_audit/README.md` |
 | Collector adapter | `https://github.com/Juwon1405/agentic-dart-collector-adapter` |
-| Demo video | `docs/demo_assets/output/agentic-dart-demo-en.mp4` (also Korean + Japanese versions) |
+| Demo video | Submitted directly to Devpost form as YouTube unlisted URL (English narration; Korean and Japanese versions available on request) |
 
 ---
 
@@ -401,14 +401,14 @@ python3 -m dart_agent \
 - [x] Source code: https://github.com/Juwon1405/agentic-dart
 - [x] License: MIT (`LICENSE` in repo root)
 - [x] README with architecture overview and reproduction commands
-- [x] Demo video (3 languages: English, Korean, Japanese — under `docs/demo_assets/output/`)
+- [x] Demo video (3 languages: English, Korean, Japanese — submitted directly to Devpost form, not embedded in repo)
 - [x] 11 documented case studies with machine-readable ground truth
 - [x] Benchmark suite (`scripts/benchmark/`) covering internal + external evidence
 - [x] Accuracy report (`docs/accuracy-report.md`)
 - [x] Audit-chain verification utility (`dart_audit verify`)
-- [x] Architectural guardrail test pack (`tests/bypass_tests/`)
+- [x] Architectural guardrail test pack (`tests/test_mcp_bypass.py` — 7 bypass tests)
 - [x] Single-source-of-truth count discipline (no hardcoded drift)
-- [x] CI green at submission (79 tests passing)
+- [x] CI green at submission (93 tests passing — 79 dart_mcp + 14 dart_corr)
 - [x] Companion collector-adapter repo: https://github.com/Juwon1405/agentic-dart-collector-adapter
 
 ---
