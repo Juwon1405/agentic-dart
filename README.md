@@ -324,7 +324,7 @@ The full surface is enumerated at runtime via `python3 -c "from dart_mcp import 
 
 ### 25 SIFT Workstation tool adapters — by tool family
 
-The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **67**.
+The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **72** (47 native + 25 SIFT).
 
 | Tool family | Adapters | Count |
 |---|---|:---:|

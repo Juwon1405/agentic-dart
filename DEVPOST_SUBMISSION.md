@@ -135,7 +135,7 @@ engine **decoupled from any single collection vendor**.
 | Scale engine | DuckDB (for cross-source timeline correlation) |
 | Heavy parsers | SIFT toolchain (Volatility 3, MFTECmd, EvtxECmd, ...) |
 | Audit chain | SHA-256 linked JSONL |
-| Test suite | pytest (79 tests, all green at submission) |
+| Test suite | pytest (93 tests, all green at submission — 79 dart_mcp + 14 dart_corr) |
 | CI | GitHub Actions (Linux + macOS) |
 | Sample evidence | seeded deterministic generator |
 
