@@ -140,15 +140,29 @@ Evidence is mounted **read-only at the OS level** before the agent is ever start
 
 ```text
 agentic-dart/
-├── dart_audit/         dart_mcp/         dart_agent/
-├── dart_corr/          dart_playbook/      ← 5 core packages
-├── examples/           ← 11 case studies + sample evidence + demo runners
-├── tests/              ← pytest suites (79 + 14 dart_corr = 93)
-├── scripts/            ← benchmark/, measure_accuracy.py, install.sh
-└── docs/               ← architecture, accuracy report, case walkthroughs
+├── dart_audit/           SHA-256-chained JSONL logger — every MCP call recorded, tamper-evident
+├── dart_mcp/             Custom MCP server — typed, read-only forensic functions (native + SIFT adapters)
+├── dart_agent/           Iteration controller, hypothesis tracker, self-correction loop
+├── dart_corr/            Cross-artifact correlation engine — DuckDB joins, contradiction flagging
+├── dart_playbook/        Senior-analyst YAML playbooks (v1 / v2 / v3 industrialization)
+│
+├── examples/
+│   ├── case-studies/     11 cases — 8 internal synthetic + 3 external (CFReDS / Hadi / M57)
+│   ├── sample-evidence/  Deterministic baseline used by CI
+│   └── demo-run.sh       One-command reproducible demo
+│
+├── tests/                pytest suite — 93 tests (79 dart_mcp/agent/audit + 14 dart_corr)
+├── scripts/              install.sh (SIFT bootstrap), benchmark/, measure_accuracy.py
+├── docs/                 architecture.md, accuracy-report.md, case walkthroughs
+├── .github/workflows/    CI matrix (Python 3.10–3.13) + URL reachability
+│
+├── README.md             this file
+├── CHANGELOG.md          release history
+├── DEVPOST_SUBMISSION.md judge-facing field-by-field
+└── LICENSE               MIT
 ```
 
-Each package has its own `README.md` with deeper detail (wire surface for `dart_mcp`, engine internals for `dart_corr`, playbook YAML for `dart_playbook`, etc.). Drill in as needed.
+Each package has its own `README.md` with deeper detail (wire surface for `dart_mcp`, engine internals for `dart_corr`, YAML grammar for `dart_playbook`, audit format for `dart_audit`).
 
 ## Quick start — prove it works in 30 seconds
 
