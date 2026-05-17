@@ -119,31 +119,38 @@ def make_hero():
     return img
 
 
-def _crop_to_aspect(img, target_w, target_h):
+def _fit_to_aspect(img, target_w, target_h, bg=BG_BOTTOM):
+    """Fit (not crop) the source into target aspect ratio by letterbox
+    padding. Preserves ALL content — text and the dartboard never get
+    cropped off."""
     hw, hh = img.size
     src_ratio = hw / hh
     tgt_ratio = target_w / target_h
     if src_ratio > tgt_ratio:
-        new_w = int(hh * tgt_ratio)
-        x0 = (hw - new_w) // 2
-        crop = img.crop((x0, 0, x0 + new_w, hh))
-    else:
+        # Source wider — letterbox top/bottom
         new_h = int(hw / tgt_ratio)
-        y0 = (hh - new_h) // 2
-        crop = img.crop((0, y0, hw, y0 + new_h))
-    return crop.resize((target_w, target_h), Image.LANCZOS)
+        canvas = Image.new("RGB", (hw, new_h), bg)
+        y_offset = (new_h - hh) // 2
+        canvas.paste(img.convert("RGB"), (0, y_offset))
+    else:
+        # Source taller — pillarbox left/right
+        new_w = int(hh * tgt_ratio)
+        canvas = Image.new("RGB", (new_w, hh), bg)
+        x_offset = (new_w - hw) // 2
+        canvas.paste(img.convert("RGB"), (x_offset, 0))
+    return canvas.resize((target_w, target_h), Image.LANCZOS)
 
 
 def make_thumbnail(hero):
-    thumb = _crop_to_aspect(hero, 1280, 720)
-    thumb.convert("RGB").save(THUMB_OUT, "PNG", optimize=True)
+    thumb = _fit_to_aspect(hero, 1280, 720)
+    thumb.save(THUMB_OUT, "PNG", optimize=True)
     print(f"  ✓ thumbnail → {THUMB_OUT.name}  "
           f"({THUMB_OUT.stat().st_size // 1024} KB, 1280×720)")
 
 
 def make_wiki_banner(hero):
-    banner = _crop_to_aspect(hero, 1200, 300)
-    banner.convert("RGB").save(WIKI_OUT, "PNG", optimize=True)
+    banner = _fit_to_aspect(hero, 1200, 300)
+    banner.save(WIKI_OUT, "PNG", optimize=True)
     print(f"  ✓ wiki      → docs/{WIKI_OUT.name}  "
           f"({WIKI_OUT.stat().st_size // 1024} KB, 1200×300)")
 
