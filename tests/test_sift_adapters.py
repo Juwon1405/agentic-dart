@@ -168,7 +168,11 @@ def test_total_tool_count_native_plus_sift():
     all_tools = [t["name"] for t in list_tools()]
     # Negative — confirm no native tools were accidentally renamed
     native = [t for t in all_tools if not t.startswith("sift_")]
-    assert len(native) >= 35, f"Native tool count regressed to {len(native)}"
+    # Tightened from `>= 35` to exact: a soft floor lets the surface
+    # drift silently (e.g. someone removes a function and the test
+    # still passes because the floor is several years out of date).
+    # Exact equality catches both regressions and unannounced additions.
+    assert len(native) == 47, f"Native tool count drifted to {len(native)} (expected 47)"
 
 
 if __name__ == "__main__":
