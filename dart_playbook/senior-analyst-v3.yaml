@@ -1167,8 +1167,9 @@ operator_notes: |
 
   Everything from v2 is preserved. The architectural-first guarantees
   (read-only MCP, audit chain, contradiction enforcement) apply
-  unchanged. The 35 functions are unchanged. Only the methodology
-  surrounding them has matured.
+  unchanged. The 72 typed read-only MCP tools (47 native + 25 SIFT
+  adapters) are unchanged. Only the methodology surrounding them has
+  matured.
 
   Forking this playbook for your case class:
     1. Copy this file to dart_playbook/<your-name>-v1.yaml
