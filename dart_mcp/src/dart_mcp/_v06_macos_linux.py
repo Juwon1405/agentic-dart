@@ -158,14 +158,24 @@ def parse_macos_quarantine(
         }
 
     for r in rows:
-        ts_cfat = r["ts_cfat"] or 0.0
-        ts_dt = CFAT_EPOCH + timedelta(seconds=ts_cfat)
-        ts_iso = ts_dt.isoformat()
+        ts_cfat = r["ts_cfat"]
+        if ts_cfat is None or ts_cfat == 0.0:
+            # Null / zero CFAbsoluteTime in the LSQuarantine row means the
+            # downloader didn't record a timestamp — NOT that the event
+            # happened at the CFAT epoch (2001-01-01). Surface it as
+            # unknown rather than misdating to 2001.
+            ts_dt = None
+            ts_iso = None
+        else:
+            ts_dt = CFAT_EPOCH + timedelta(seconds=ts_cfat)
+            ts_iso = ts_dt.isoformat()
 
-        if start_dt and ts_dt < start_dt:
-            continue
-        if end_dt and ts_dt > end_dt:
-            continue
+        # Window filtering only applies when we actually know the time.
+        if ts_dt is not None:
+            if start_dt and ts_dt < start_dt:
+                continue
+            if end_dt and ts_dt > end_dt:
+                continue
 
         agent_bundle = r["agent_bundle"] or ""
         agent_name = r["agent_name"] or ""
@@ -267,24 +277,41 @@ def _scan_cron_file(path: Path, kind: str):
         line = raw_line.strip()
         if not line or line.startswith("#"):
             continue
-        # Skip env-var lines like FOO=bar (no whitespace before =)
-        if "=" in line.split()[0] if line.split() else False:
+        # Skip env-var lines like FOO=bar (no schedule prefix). The
+        # original one-liner `if "=" in line.split()[0] if line.split()`
+        # parsed correctly but was hard to read; explicit form below
+        # also avoids mistakenly skipping lines whose first token is a
+        # schedule keyword that happens to contain '=' (e.g. malformed).
+        _toks = line.split()
+        if (_toks
+                and "=" in _toks[0]
+                and not _toks[0].startswith(("@", "*", "0", "1", "2",
+                                              "3", "4", "5", "6"))):
             continue
         # /etc/crontab and /etc/cron.d/* have an extra user field
         # but /etc/cron.hourly/* are direct executables — different parse rules
         if kind in ("system_hourly", "system_daily", "system_weekly", "system_monthly"):
-            # The file itself IS the script. Single entry per file.
+            # The file itself IS the script. Capturing a single arbitrary
+            # line as the `command` is misleading — an analyst could read
+            # that one line and think it's the whole story. Instead, mark
+            # the file as the executable and flag against its entire
+            # content. This branch processes the script once (we still
+            # `break` after the single emission) but uses the full text.
+            full_lines = content.splitlines()
+            full_flags = _flag_cron_command(content)
             jobs.append({
                 "path": str(path),
                 "sha256": sha,
                 "kind": kind,
                 "schedule": kind.replace("system_", "") + " run",
                 "user": "root",
-                "command": line,
+                "command": f"<executable script: {path.name}>",
+                "first_lines": full_lines[:5],
+                "line_count": len(full_lines),
                 "lineno": lineno,
-                "flags": _flag_cron_command(line),
+                "flags": full_flags,
             })
-            break  # only need first non-comment line as marker; actual command IS the file
+            break  # one entry per script file; content was scanned wholesale
         else:
             # crontab-format: minute hour dom month dow [user] command
             parts = line.split(None, 6 if kind in ("system_crontab", "system_cron_d") else 5)

@@ -44,10 +44,14 @@ from pathlib import Path
 from typing import Callable
 
 # dart_corr is a sibling package — extracted from dart_mcp in v0.7.1.
-# If the package was installed (pip install -e dart_corr) the import
-# just works. If we're running from a clean checkout without install,
-# add the sibling src/ to sys.path so the import still works without
-# requiring users to pip-install both packages.
+# The supported install path is `pip install -e ./dart_mcp -e ./dart_corr`
+# (scripts/install.sh does this for you). The sys.path trick below is a
+# DEVELOPMENT-ONLY convenience for running directly from a checked-out
+# tree without installing either package. If you `pip install dart-mcp`
+# from a wheel without also installing dart_corr the trick will not
+# find the sibling, and correlate_* calls will raise ImportError. We
+# don't list dart-corr in pyproject.toml because the two packages live
+# in the same repository and aren't published to PyPI separately.
 _DART_CORR_SRC = Path(__file__).resolve().parent.parent.parent.parent / "dart_corr" / "src"
 if _DART_CORR_SRC.exists() and str(_DART_CORR_SRC) not in sys.path:
     sys.path.insert(0, str(_DART_CORR_SRC))
@@ -164,10 +168,23 @@ def get_amcache(hive_path, cursor=0, limit=100):
     if not p.exists():
         return {"error": "file_not_found", "path": str(p)}
     csv_sidecar = p.with_suffix(".csv")
-    items = _read_csv(csv_sidecar) if csv_sidecar.exists() else [
-        {"program": f"sample-{i}.exe",
-         "first_execution": f"2026-04-{10+i%10:02d}T12:00:00Z",
-         "sha1": f"{i:040x}"} for i in range(42)]
+    if not csv_sidecar.exists():
+        # Refuse to synthesize. A forensic tool MUST NOT return invented
+        # records — an analyst seeing 'sample-0.exe ... sample-41.exe'
+        # could plausibly mistake them for real evidence. Match the
+        # pattern used elsewhere (e.g. _v05_supply_chain) and surface
+        # the missing sidecar as an explicit error.
+        return {
+            "error": "amcache_csv_missing",
+            "path": str(p),
+            "hint": (
+                "AmcacheParser sidecar not found alongside the hive. "
+                "Run AmcacheParser.exe --csv <out_dir> -f <hive> and "
+                "place the resulting CSV next to the hive with the "
+                "same stem (e.g. Amcache.csv next to Amcache.hve)."
+            ),
+        }
+    items = _read_csv(csv_sidecar)
     total = len(items)
     s, e = cursor, min(cursor + limit, total)
     return {"source": {"path": str(p), "sha256": _sha256(p)},
@@ -1335,7 +1352,14 @@ def analyze_downloads(downloads_source, mode="auto", limit=200):
             zone_id = re.search(r"ZoneId=(\d+)", content)
             host_url = re.search(r"HostUrl=(\S+)", content)
             referrer = re.search(r"ReferrerUrl=(\S+)", content)
-            target = zi_path.with_suffix("")  # strip .Zone.Identifier
+            # `Path.with_suffix("")` only strips the FINAL suffix; for a
+            # file named `something.exe:Zone.Identifier` written to disk
+            # as `something.exe.Zone.Identifier` it would leave us with
+            # `something.exe.Zone` and break correlate_download_to_execution.
+            # Strip the full `.Zone.Identifier` literal instead.
+            _ZI_SUFFIX = ".Zone.Identifier"
+            _name = str(zi_path)
+            target = Path(_name[: -len(_ZI_SUFFIX)]) if _name.endswith(_ZI_SUFFIX) else zi_path
             items.append({
                 "source": "zone_identifier_ads",
                 "target_path": str(target.relative_to(EVIDENCE_ROOT)),
@@ -2030,10 +2054,17 @@ _UNIX_AUTH_PATTERNS = [
         "time_window_start": {"type": "string"},
         "time_window_end": {"type": "string"},
         "brute_force_threshold": {"type": "integer", "default": 5},
+        "assumed_year": {"type": "integer",
+                          "description": "Year to attach to syslog "
+                                         "timestamps (which omit the year). "
+                                         "If unset, derived from "
+                                         "time_window_start, else from the "
+                                         "evidence file's mtime."},
     }, "required": ["auth_log_path"]},
 )
 def analyze_unix_auth(auth_log_path, time_window_start=None,
-                      time_window_end=None, brute_force_threshold=5):
+                      time_window_end=None, brute_force_threshold=5,
+                      assumed_year=None):
     p = _safe_resolve(auth_log_path)
     if not p.exists():
         return {"error": "file_not_found", "path": str(p)}
@@ -2041,6 +2072,20 @@ def analyze_unix_auth(auth_log_path, time_window_start=None,
     text = p.read_text(encoding="utf-8", errors="replace")
     sdt = _parse_ts(time_window_start) if time_window_start else None
     edt = _parse_ts(time_window_end) if time_window_end else None
+
+    # Resolve the year syslog omits: explicit arg > time_window_start year
+    # > evidence file mtime year. We refuse to hardcode a year because the
+    # tool would otherwise silently misdate every event when run after the
+    # year rolls over.
+    if assumed_year is not None:
+        _year = int(assumed_year)
+    elif sdt is not None:
+        _year = sdt.year
+    else:
+        try:
+            _year = datetime.utcfromtimestamp(p.stat().st_mtime).year
+        except Exception:
+            _year = datetime.utcnow().year
 
     ssh_accepts = []
     ssh_failures = []
@@ -2058,9 +2103,8 @@ def analyze_unix_auth(auth_log_path, time_window_start=None,
         tm = re.match(r"^([A-Z][a-z]{2})\s+(\d+)\s+(\d{1,2}:\d{2}:\d{2})", line)
         if tm:
             try:
-                # Assume current year 2026 (from evidence context)
                 ts = datetime.strptime(
-                    f"2026 {tm.group(1)} {tm.group(2)} {tm.group(3)}",
+                    f"{_year} {tm.group(1)} {tm.group(2)} {tm.group(3)}",
                     "%Y %b %d %H:%M:%S")
             except ValueError:
                 ts = None
@@ -3093,9 +3137,30 @@ def detect_credential_access(processes=None, sysmon_events_json=None,
                     if "lsass.exe" not in target:
                         continue
                     mask = (ev.get("GrantedAccess") or "").lower()
-                    # 0x1010 / 0x1410 / 0x1438 / 0x1fffff = dangerous masks for LSASS
-                    if mask in ("0x1010", "0x1410", "0x1438", "0x143a",
-                                 "0x1fffff", "0x001f1fff", "0x1400"):
+                    # GrantedAccess is a Windows access-rights bitmask. The
+                    # 0x10 / 0x1000 / 0x1010 forms that adversary tooling
+                    # commonly requests for LSASS are READ + QUERY_LIMITED
+                    # variants. Parse the mask as an integer and check
+                    # bit-wise so we catch any value that contains the
+                    # dangerous bits regardless of exact hex spelling.
+                    try:
+                        m = int(mask, 16)
+                    except (TypeError, ValueError):
+                        m = 0
+                    # PROCESS_VM_READ = 0x10, PROCESS_QUERY_INFORMATION =
+                    # 0x400, PROCESS_QUERY_LIMITED_INFORMATION = 0x1000.
+                    # Any read-like access against LSASS is suspicious;
+                    # combined with QueryInformation it's near-certainly
+                    # credential dumping.
+                    _DANGEROUS_BITS = 0x0010              # VM_READ alone
+                    _DANGEROUS_COMBO_READ_QUERY = 0x1010  # VM_READ + QUERY_LIMITED
+                    _PROCESS_ALL_ACCESS = 0x1F0FFF
+                    dangerous = (
+                        (m & _DANGEROUS_COMBO_READ_QUERY) == _DANGEROUS_COMBO_READ_QUERY
+                        or (m & _PROCESS_ALL_ACCESS) == _PROCESS_ALL_ACCESS
+                        or (m & _DANGEROUS_BITS) == _DANGEROUS_BITS
+                    )
+                    if dangerous:
                         findings.append({
                             "technique": "T1003.001",
                             "sub_technique": "lsass_access_highpriv_mask",
@@ -3249,7 +3314,11 @@ def detect_ransomware_behavior(processes=None, fsevents_or_mft=None,
                     "cmdline": cmd[:200],
                 })
                 break
-    # Bucket by window
+    # Bucket by window. Drop ts-less events before sorting so they don't
+    # all collapse to the front of the list (which would corrupt the
+    # density-window count below). The downstream parse already skips
+    # un-parseable timestamps; this just makes the ordering meaningful.
+    stop_events = [e for e in stop_events if e.get("ts")]
     stop_events.sort(key=lambda x: x.get("ts") or "")
     if len(stop_events) >= 10:
         # Check density: any window of N seconds with >=10 hits?
@@ -3794,8 +3863,15 @@ def parse_registry_hive(hive_path, key, value_name=None, limit=100):
         if len(values_out) < limit:
             values_out.append(_serialize_value(v))
 
-    # Subkey enumeration (just names, no recursion — bounded surface)
-    subkeys = [s.name() for s in node.subkeys()][:limit]
+    # Subkey enumeration (just names, no recursion — bounded surface).
+    # Materialize once: registry-hive parsers expose subkeys() as a
+    # generator, so calling it three times (as the old subkey_count
+    # expression did) walked the tree three times — once for the name
+    # list, once for the hasattr check, once for the len(list(...))
+    # fallback. Pull a single list and reuse it for both the truncated
+    # display and the total count.
+    all_subkeys = list(node.subkeys())
+    subkeys = [s.name() for s in all_subkeys[:limit]]
 
     return {"source": {"path": str(p), "sha256": _sha256(p)},
             "key": norm_key,
@@ -3803,7 +3879,7 @@ def parse_registry_hive(hive_path, key, value_name=None, limit=100):
             "values_total": total,
             "values": values_out,
             "subkeys": subkeys,
-            "subkey_count": len(node.subkeys() if hasattr(node.subkeys(), '__len__') else list(node.subkeys()))}
+            "subkey_count": len(all_subkeys)}
 
 
 def __forbidden_never_registered():

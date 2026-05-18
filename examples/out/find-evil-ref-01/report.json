@@ -21,7 +21,7 @@
       "finding_id": "F-001",
       "description": "Unusual binary first-executed shortly after reported login",
       "audit_ids": [
-        "32867acc"
+        "918216f4"
       ],
       "status": "confirmed"
     },
@@ -29,8 +29,8 @@
       "finding_id": "F-013",
       "description": "IP-KVM device inserted ~3 min before operator logon \u2014 remote-hands pattern",
       "audit_ids": [
-        "ac01b0be",
-        "4ec50eb6"
+        "be7b39e3",
+        "605349fa"
       ],
       "status": "confirmed"
     }

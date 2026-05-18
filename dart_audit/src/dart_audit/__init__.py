@@ -68,15 +68,37 @@ class AuditLogger:
     def _load_tail_hash(self) -> str:
         if not self.path.exists() or self.path.stat().st_size == 0:
             return GENESIS_PREV_HASH
+        # Read backward in growing chunks until we've captured at least
+        # one complete newline-terminated line. The old fixed-4KB seek
+        # would truncate the last entry whenever a single entry exceeded
+        # 4 KB (very common when `inputs` carries a large dict), causing
+        # json.loads on a partial line and breaking resume.
         with self.path.open("rb") as f:
             f.seek(0, os.SEEK_END)
             size = f.tell()
             chunk = 4096
-            f.seek(max(0, size - chunk))
-            tail = f.read().splitlines()
-        if not tail:
+            tail = b""
+            while True:
+                start = max(0, size - chunk)
+                f.seek(start)
+                tail = f.read(size - start)
+                # We have a complete final line if either we've read from
+                # the beginning of the file, or the chunk we read includes
+                # an embedded newline (so the *last* line is complete
+                # because it ends at file EOF, and is preceded by \n).
+                if start == 0 or b"\n" in tail[:-1]:
+                    break
+                if chunk >= size:
+                    break
+                chunk *= 2
+            lines = tail.splitlines()
+        if not lines:
             return GENESIS_PREV_HASH
-        return json.loads(tail[-1])["entry_hash"]
+        # Skip a trailing empty line if the file ends with \n
+        last = lines[-1] if lines[-1] else (lines[-2] if len(lines) > 1 else b"")
+        if not last:
+            return GENESIS_PREV_HASH
+        return json.loads(last)["entry_hash"]
 
     def log(
         self,
