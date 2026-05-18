@@ -30,6 +30,25 @@ from ._common import (
 PECMD_TIMEOUT_SECONDS = 600  # 10 min — Prefetch is small
 
 
+def _safe_int(value: Any, default: int = 0) -> int:
+    """Coerce a CSV field to int; never raise.
+
+    PECmd RunCount is overwhelmingly numeric, but locale variants and
+    occasional corruption have been observed to emit 'N/A', empty
+    strings, or other non-integer tokens. We don't want one bad row
+    to abort an entire Prefetch directory scan.
+    """
+    if value is None or value == "":
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        try:
+            return int(float(value))
+        except (TypeError, ValueError):
+            return default
+
+
 def _pecmd_bin() -> str:
     return _which("PECmd", env_var="DART_PECMD_BIN")
 
@@ -137,7 +156,12 @@ def sift_pecmd_run_history(prefetch_path: str, limit: int = 200) -> dict[str, An
                 runs.append(v)
         history.append({
             "executable": row.get("ExecutableName", ""),
-            "run_count": int(row.get("RunCount", 0) or 0),
+            # RunCount is overwhelmingly numeric in PECmd CSVs, but
+            # an older .NET locale or a corrupted CSV can emit "N/A"
+            # or other non-numeric tokens. A bare int() would crash
+            # the whole adapter mid-batch and lose all subsequent
+            # rows — defend the call.
+            "run_count": _safe_int(row.get("RunCount")),
             "runs": runs,
             "size_bytes": row.get("Size", ""),
             "hash": row.get("Hash", ""),

@@ -1,5 +1,144 @@
 # Changelog
 
+## [v0.7.1 patch] — 2026-05-17 — external code-review correctness pass
+
+A pre-deadline external code-review pass surfaced eight correctness
+issues affecting analysis integrity and a few drift / robustness
+items. All were fixed in a single commit (`8e1bc43`) with a follow-up
+adding four regression tests (`ede3516`) and a third commit reflecting
+the new test count across surfaces (`58259ad`). A second review pass
+re-verified each fix with live tool invocations and identified one
+more robustness item now patched in `XXXX` (this commit).
+
+### Fixed — analysis correctness (8 items)
+
+- **`analyze_downloads`: Zone.Identifier suffix stripping.** `Path.with_suffix("")`
+  only strips the final suffix, so `something.exe.Zone.Identifier` was
+  collapsing to `something.exe.Zone`, breaking every join in
+  `correlate_download_to_execution`. Now strips the full literal.
+- **`get_amcache`: removed synthetic 42-record fallback.** When the
+  AmcacheParser sidecar CSV was missing, the function invented 42
+  records named `sample-0.exe` through `sample-41.exe`. A forensic
+  tool MUST NOT invent evidence — an analyst could mistake them for
+  real program executions. Now returns
+  `{error: 'amcache_csv_missing', hint: '...'}` matching the existing
+  sidecar-missing pattern.
+- **`analyze_unix_auth`: removed hardcoded year 2026.** Syslog lines
+  omit the year and the function pinned every parsed line to 2026,
+  guaranteeing an off-by-one-year miss starting January 2027. New
+  resolution order: explicit `assumed_year` arg → `time_window_start`
+  year → evidence-file mtime year. Added to the tool schema so
+  callers can pin it deterministically.
+- **`detect_credential_access`: LSASS GrantedAccess bitwise check.**
+  The mask comparison was string-equality against seven lowercase
+  literals (`0x1010`, `0x1410`, ..., `0x1fffff`). Any spelling
+  variation (uppercase `0X`, missing leading zero, integer form)
+  or any other mask containing the dangerous bits silently slipped
+  through. Now parses `int(mask, 16)` and checks bit-wise against
+  three classes: read+query combo (0x1010), full process access
+  (0x1F0FFF), and VM_READ alone (0x10). Five real-world masks the
+  old code missed are now detected: `0X1010`, `0x1F0FFF`, `0x0010`,
+  `0x1018`, `0x1410`.
+- **`_scan_cron_file`: hourly/daily script command extraction.** For
+  `/etc/cron.{hourly,daily,weekly,monthly}/*` the function emitted a
+  job entry whose `command` was an arbitrary line of the script body,
+  not the executed command (cron runs the whole file). New shape:
+  `command: <executable script: {filename}>`, `first_lines` for
+  context, `line_count`, full-file `flags` scan, full-content sha256.
+- **`parse_macos_quarantine`: NULL CFAbsoluteTime handling.** NULL
+  timestamps were collapsing to the CFAT epoch (2001-01-01), so an
+  analyst would see "first downloads in 2001". Now emits
+  `timestamp: null` and skips the window filter for those rows.
+- **`detect_ransomware_behavior`: ts-less events corrupted the sort.**
+  Events with missing timestamps clustered at the front of the
+  sorted list, corrupting the density-window math. Filter `ts None`
+  before sorting.
+- **cron env-var skip: parser ambiguity.** The one-liner
+  `if "=" in line.split()[0] if line.split() else False` parsed
+  correctly but could mistakenly skip schedule lines whose first
+  token contained `=`. Replaced with explicit tok check + schedule-
+  keyword prefix exclusion.
+
+### Fixed — robustness
+
+- **`dart_audit._load_tail_hash`: 4 KB tail seek truncated large
+  entries.** A fixed 4 KB seek at the file end would cut a single
+  entry > 4 KB in half (common when `inputs` carries a large dict),
+  causing `json.loads` to raise on resume. New backward-growing-
+  chunk loop doubles the read window until an embedded newline is
+  visible, guaranteeing the last line is complete. Verified live
+  with a 17 KB single entry that breaks the old code.
+- **`parse_registry_hive.subkey_count`: generator called 3 times.**
+  Old expression invoked `node.subkeys()` three times and most
+  python-registry parsers expose it as a generator, so the tree was
+  walked thrice plus once materialized. Now materialized once into
+  `all_subkeys` and reused.
+- **`sift_pecmd_run_history`: RunCount non-numeric parse.** A bare
+  `int(row.get("RunCount", 0) or 0)` would crash the adapter
+  mid-batch if a single CSV row had `"N/A"` or other non-numeric
+  RunCount (rare but observed in older PECmd locales / corrupted
+  outputs). Added `_safe_int` helper with `int → float → default`
+  fallback chain.
+
+### Surface discipline
+
+- **Tightened `tests/test_sift_adapters.py` native-count assertion.**
+  Changed `assert len(native) >= 35` to `== 47`. A floor-based check
+  let the surface drift silently — exact equality now catches both
+  regressions and unannounced additions.
+- **Corrected `dart_mcp/pyproject.toml` description string.** Was
+  `'60 tools: 35 native + 25 SIFT'` (v0.5 numbers); now
+  `'72 tools: 47 native + 25 SIFT'` and notes the dart-corr pairing.
+- **Pinned `duckdb>=1.0.0,<2.0`** in both `dart_mcp` and `dart_corr`
+  pyproject. DuckDB API evolves quickly and a 2.0 break would
+  silently brick the correlation engine.
+- **Documented the `sys.path` sibling-import trick** in
+  `dart_mcp/__init__.py`. Supported install path is `scripts/install.sh`
+  (installs both `dart_mcp` and `dart_corr` editable); wheel-only
+  installs without `dart_corr` raise `ImportError` on `correlate_*`.
+
+### Added — regression tests (4 new)
+
+`tests/test_qa_pass_regressions.py` gains:
+
+- `test_zone_identifier_full_suffix_strip` — asserts `target_path`
+  ends in `malware.exe`, not `.Zone`.
+- `test_lsass_mask_bitwise_uppercase_and_full_access` — three
+  masks (`0X1010`, `0x1F0FFF`, `0x143A`) must all surface as
+  `lsass_access` findings.
+- `test_cron_hourly_emits_full_file_not_arbitrary_line` — asserts
+  new shape (`<executable script:` marker + `first_lines` +
+  `line_count` + `sha256`).
+- `test_audit_chain_resume_with_large_entries` — writes one
+  ~10 KB entry, opens a fresh logger, writes a second, asserts
+  `AuditLogger.verify()` walks the chain end-to-end.
+
+Test count: 93 → 97 (79 dart_mcp/agent/audit + 14 dart_corr +
+4 new regression).
+
+### Deferred — post-2026-06-15
+
+Structural items intentionally not touched in the freeze window
+(no analysis-correctness impact today):
+
+- `EVIDENCE_ROOT` import-time capture in `sift_adapters/_common.py`
+  (affects monkeypatch tests; sound at runtime).
+- `server.py` and `server_stdio.py` consolidation (two MCP servers
+  with slightly different error formats).
+- `# noqa: F841` deferred variables — should become
+  `@pytest.mark.skip` with tracking issues.
+- `re.compile` pre-compilation in `detect_lateral_movement` hot
+  path (performance, not correctness).
+- Stream-based file reads in `parse_linux_text_log` etc. (memory,
+  not correctness).
+- `correlate_timeline` double-normalization in the dart_mcp wrapper
+  (needs a `dart_corr` extension point).
+- JSON-or-NDJSON parsing helper extraction (8+ duplicated blocks).
+- `utcfromtimestamp` / `utcnow()` Python 3.12 deprecation cleanup.
+- LSASS severity tier split (VM_READ alone at `critical` is
+  defensible because the `lsass.exe` target filter applies first,
+  but cleanup-worthy).
+
 ## [v0.7.1] — 2026-05-16 — Linux DFIR triplet + ground-truth function-name reconciliation
 
 Closes 6 of 10 missing-function gaps identified by post-release MCP surface audit
