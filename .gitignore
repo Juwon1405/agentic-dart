@@ -216,3 +216,8 @@ docs/voiceover/
 docs/DEMO_STORYBOARD.md
 docs/DEMO_STORYBOARD_v2.md
 *.mp4
+
+# Runtime output from examples/demo-run.sh (regenerated on every run;
+# audit chain hashes are run-specific, so committing the JSONL files
+# would cause spurious dirty-tree noise on every demo invocation).
+examples/out/
