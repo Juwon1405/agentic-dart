@@ -2082,10 +2082,13 @@ def analyze_unix_auth(auth_log_path, time_window_start=None,
     elif sdt is not None:
         _year = sdt.year
     else:
+        # datetime.utcfromtimestamp / datetime.utcnow are deprecated in
+        # Python 3.12 (scheduled for removal). Use timezone-aware UTC
+        # objects instead — the .year is identical but no warning fires.
         try:
-            _year = datetime.utcfromtimestamp(p.stat().st_mtime).year
+            _year = datetime.fromtimestamp(p.stat().st_mtime, timezone.utc).year
         except Exception:
-            _year = datetime.utcnow().year
+            _year = datetime.now(timezone.utc).year
 
     ssh_accepts = []
     ssh_failures = []
