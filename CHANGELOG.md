@@ -134,10 +134,16 @@ Structural items intentionally not touched in the freeze window
 - `correlate_timeline` double-normalization in the dart_mcp wrapper
   (needs a `dart_corr` extension point).
 - JSON-or-NDJSON parsing helper extraction (8+ duplicated blocks).
-- `utcfromtimestamp` / `utcnow()` Python 3.12 deprecation cleanup.
 - LSASS severity tier split (VM_READ alone at `critical` is
   defensible because the `lsass.exe` target filter applies first,
   but cleanup-worthy).
+
+> **Update (2026-05-21):** the `utcfromtimestamp` / `utcnow()`
+> Python 3.12 deprecation cleanup, originally deferred above, was
+> landed early in `d1d617b` — at two lines with a live warning
+> firing, it was cheaper to fix than to track. `analyze_unix_auth`'s
+> year-resolution fallback now uses `datetime.fromtimestamp(..., timezone.utc)`
+> and `datetime.now(timezone.utc)`.
 
 ## [v0.7.1] — 2026-05-16 — Linux DFIR triplet + ground-truth function-name reconciliation
 
