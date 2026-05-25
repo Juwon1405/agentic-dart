@@ -1,5 +1,61 @@
 # Changelog
 
+## [unreleased] — 2026-05-25 — agentic-loop hardening (Mekiki-inspired)
+
+A review of architectural patterns from a separate high-throughput
+pipeline bot surfaced several improvements applicable to the live
+agent loop. The safe, self-contained ones landed now; the ones that
+need a real API key or are structural were deferred (see below).
+
+### Added
+
+- **server.py: stderr traceback logging.** Tool failures now log a
+  full traceback to stderr via `logging.error(..., exc_info=True)`
+  while the client still gets a clean JSON-RPC error. Unregistered-tool
+  requests (the guardrail working) log at INFO with no traceback.
+  (commit 0cd8c6e)
+- **live.py: oversized-result guardrail.** MCP tool results are capped
+  at 24,000 chars before being handed back to the model, with an
+  in-band notice telling it to re-call with a smaller `limit` / tighter
+  filter rather than eyeballing a raw dump. Enforces the hybrid split:
+  the tool does heavy filtering, the model interprets. (commit 3f5e91a)
+- **evtxecmd: OOM-safe streaming read.** `_run_evtxecmd` now streams the
+  CSV with a `max_rows` cap and an optional `row_filter` predicate
+  pushed down into the reader, so a GB-scale Security.evtx never gets
+  fully materialized. New `total_scanned` / `truncated` metadata.
+  (commit d87be85)
+- **live.py: prompt caching.** The system prompt and tool definitions
+  carry a `cache_control: ephemeral` breakpoint, so the identical
+  request prefix is cached across reasoning-loop iterations (~90%
+  cheaper on the cached prefix). (commit b973d3e)
+
+### Deferred
+
+Needs a real API key (will be verified on the analysis host before
+landing):
+- **Adaptive thinking + effort.** `thinking: {type: adaptive}` +
+  `output_config: {effort}` on the live API call, for deeper reasoning
+  when reconciling contradictory artifacts. Verified as valid API on
+  Claude 4.6/4.7; needs live confirmation that the target model
+  accepts it and that interleaved thinking helps the tool loop.
+- **Structured output via forced tool use.** Replace the `REPORT:`
+  prefix-string parsing of the final report with a Pydantic-modeled
+  schema enforced through `tool_choice` (Anthropic has no OpenAI-style
+  `output_format`; forced tool use is the equivalent). Eliminates the
+  JSON-decode hallucination risk on the final report.
+
+Structural / post-deadline:
+- **YAML-driven deterministic phases.** Drive `DeterministicAnalyst`
+  from `senior-analyst-v3.yaml` instead of hardcoded `_phase_*`
+  methods. Deferred because the deterministic mode underpins the
+  reproducibility guarantee for the bundled case studies; changing it
+  near the submission is more risk than payoff.
+- **Local read-only dashboard.** A browser view of `progress.jsonl` +
+  `audit.jsonl` (hypothesis / audit trail / unresolved contradictions)
+  for demos. Deferred to a proper UI/UX pass after the submission;
+  will not pull in a web framework that conflicts with the
+  minimal-dependency design.
+
 ## [v0.7.1 patch] — 2026-05-17 — external code-review correctness pass
 
 A pre-deadline external code-review pass surfaced eight correctness
