@@ -80,6 +80,25 @@ def _truncate_tool_result(text: str, cap: int = _MCP_RESULT_CHAR_CAP) -> str:
     return text[:cap] + _TRUNCATION_NOTICE
 
 
+def _with_cache_breakpoint(tools: list[dict]) -> list[dict]:
+    """Mark the last tool definition with an ephemeral cache breakpoint.
+
+    Prompt caching (Mekiki insight 1) caches the request prefix up to the
+    last cache_control marker. By tagging the FINAL tool, the cached prefix
+    spans the system prompt + every tool definition — the large, identical
+    part of every iteration. Returns a shallow copy so the caller's list
+    isn't mutated; tool dicts themselves are copied only for the one we
+    tag. A no-op (returns the list unchanged) when there are no tools.
+    """
+    if not tools:
+        return tools
+    out = list(tools)
+    last = dict(out[-1])
+    last["cache_control"] = {"type": "ephemeral"}
+    out[-1] = last
+    return out
+
+
 SYSTEM_PROMPT = """You are Agentic-DART, a senior DFIR analyst.
 
 You have access to a set of typed, read-only forensic functions exposed by
@@ -146,8 +165,22 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
         resp = client.messages.create(
             model=model,
             max_tokens=4096,
-            system=SYSTEM_PROMPT,
-            tools=anthropic_tools,
+            # Prompt caching (Mekiki insight 1): the system prompt and the
+            # tool definitions are large and IDENTICAL on every iteration of
+            # the forensic reasoning loop. Marking the last one with
+            # cache_control: ephemeral lets the API cache everything up to
+            # that point — system + tools — so subsequent iterations re-read
+            # the cache instead of re-billing those input tokens (~90%
+            # cheaper on the cached prefix, and faster). The cache key is the
+            # exact prefix bytes, so this is safe: a cache miss just falls
+            # back to a normal full-price call. We put the marker on the LAST
+            # tool so the cached prefix spans system + every tool.
+            system=[{
+                "type": "text",
+                "text": SYSTEM_PROMPT,
+                "cache_control": {"type": "ephemeral"},
+            }],
+            tools=_with_cache_breakpoint(anthropic_tools),
             messages=state.messages,
         )
 
