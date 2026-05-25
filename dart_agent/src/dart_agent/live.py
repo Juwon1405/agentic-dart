@@ -44,6 +44,42 @@ except ImportError:
     pass
 
 
+# Hybrid-architecture guardrail (Mekiki insight 2): heavy data is the
+# tool's job; meaning is the LLM's job. If a tool returns a wall of text
+# (tens of thousands of event-log lines, a giant timeline dump), feeding
+# it verbatim to the model blows the context window, costs a fortune, and
+# invites hallucination as the model loses the thread. Instead we cap the
+# result and tell the model — in-band — to narrow the query rather than
+# trying to eyeball the raw dump.
+#
+# The cap is in characters (a cheap proxy for tokens; ~4 chars/token).
+# 24_000 chars ≈ 6k tokens, generous for a structured finding set but far
+# below the point where a single tool result dominates the window.
+_MCP_RESULT_CHAR_CAP = 24_000
+
+_TRUNCATION_NOTICE = (
+    "\n\n...(result truncated: this tool returned more data than fits the "
+    "analysis budget. Do NOT try to read the full dump here — instead "
+    "re-call the tool with a smaller `limit`, a tighter time window, or a "
+    "more specific filter, or use a DuckDB/Python-backed correlation tool "
+    "that returns only the matching rows. Heavy filtering is the tool's "
+    "job; your job is to interpret the filtered result.)"
+)
+
+
+def _truncate_tool_result(text: str, cap: int = _MCP_RESULT_CHAR_CAP) -> str:
+    """Cap an oversized tool result and append a guidance notice.
+
+    Returns the text unchanged when it's within budget. When it exceeds
+    the cap, keeps the leading `cap` characters (the start of a JSON
+    document carries the schema + first records, which is what the model
+    needs to decide how to narrow) and appends the truncation notice.
+    """
+    if len(text) <= cap:
+        return text
+    return text[:cap] + _TRUNCATION_NOTICE
+
+
 SYSTEM_PROMPT = """You are Agentic-DART, a senior DFIR analyst.
 
 You have access to a set of typed, read-only forensic functions exposed by
@@ -145,6 +181,10 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
                 mcp_result = await session.call_tool(tu.name, tu.input)
                 result_text = mcp_result.content[0].text \
                     if mcp_result.content else "{}"
+                # Hybrid-architecture guardrail: cap oversized results so a
+                # single huge dump can't blow the context window or invite
+                # the model to hallucinate over a wall of raw rows.
+                result_text = _truncate_tool_result(result_text)
             except Exception as e:
                 result_text = json.dumps({"error": type(e).__name__,
                                           "detail": str(e)[:300]})
