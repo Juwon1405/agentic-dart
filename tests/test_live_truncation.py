@@ -15,6 +15,7 @@ from dart_agent.live import (
     _truncate_tool_result,
     _MCP_RESULT_CHAR_CAP,
     _TRUNCATION_NOTICE,
+    _with_cache_breakpoint,
 )
 
 
@@ -59,6 +60,34 @@ def test_custom_cap_is_respected():
     result = _truncate_tool_result(text, cap=50)
     assert result[:50] == "Z" * 50
     assert result.endswith(_TRUNCATION_NOTICE)
+
+
+# ── Prompt caching (Mekiki insight 1) ──────────────────────────────────
+
+
+def test_cache_breakpoint_tags_last_tool():
+    """The ephemeral cache marker goes on the LAST tool so the cached
+    prefix spans system + all tools."""
+    tools = [
+        {"name": "a", "input_schema": {}},
+        {"name": "b", "input_schema": {}},
+    ]
+    out = _with_cache_breakpoint(tools)
+    assert "cache_control" not in out[0]
+    assert out[-1]["cache_control"] == {"type": "ephemeral"}
+
+
+def test_cache_breakpoint_does_not_mutate_input():
+    """The caller's list and dicts must not be mutated (the loop reuses
+    the same anthropic_tools every iteration)."""
+    tools = [{"name": "only", "input_schema": {}}]
+    _with_cache_breakpoint(tools)
+    assert "cache_control" not in tools[0], "original tool dict mutated"
+
+
+def test_cache_breakpoint_empty_is_noop():
+    """No tools → nothing to tag."""
+    assert _with_cache_breakpoint([]) == []
 
 
 if __name__ == "__main__":
