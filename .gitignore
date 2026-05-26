@@ -221,3 +221,6 @@ docs/DEMO_STORYBOARD_v2.md
 # audit chain hashes are run-specific, so committing the JSONL files
 # would cause spurious dirty-tree noise on every demo invocation).
 examples/out/
+
+# 로컬 작업 지침 (Claude Code 전용, 원격 비공개)
+CLAUDE.local.md
