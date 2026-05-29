@@ -62,7 +62,7 @@ def test_custom_cap_is_respected():
     assert result.endswith(_TRUNCATION_NOTICE)
 
 
-# ── Prompt caching (Mekiki insight 1) ──────────────────────────────────
+# ── Prompt caching ────────────────────────────────────────────────────
 
 
 def test_cache_breakpoint_tags_last_tool():

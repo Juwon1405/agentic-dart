@@ -40,7 +40,7 @@ def _run_evtxecmd(evtx_path: str, csv_filename: str = "evtx.csv",
                   row_filter=None) -> dict[str, Any]:
     """Internal — run EvtxECmd and stream-parse the resulting CSV.
 
-    OOM-safety (Mekiki insight 3): EvtxECmd output for a busy Security.evtx
+    OOM-safety: EvtxECmd output for a busy Security.evtx
     can be hundreds of MB to multiple GB. The old implementation did
     `rows = [dict(r) for r in reader]`, materializing the ENTIRE CSV into
     a list of dicts before any limit was applied — a textbook OOM on real
