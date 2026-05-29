@@ -135,7 +135,7 @@ engine **decoupled from any single collection vendor**.
 | Scale engine | DuckDB (for cross-source timeline correlation) |
 | Heavy parsers | SIFT toolchain (Volatility 3, MFTECmd, EvtxECmd, ...) |
 | Audit chain | SHA-256 linked JSONL |
-| Test suite | pytest (97 tests, all green at submission — 83 dart_mcp + 14 dart_corr) |
+| Test suite | pytest (111 tests, all green at submission — 97 dart_mcp/agent/audit + 14 dart_corr) |
 | CI | GitHub Actions (Linux + macOS) |
 | Sample evidence | seeded deterministic generator |
 
@@ -408,7 +408,7 @@ python3 -m dart_agent \
 - [x] Audit-chain verification utility (`dart_audit verify`)
 - [x] Architectural guardrail test pack (`tests/test_mcp_bypass.py` — 7 bypass tests)
 - [x] Single-source-of-truth count discipline (no hardcoded drift)
-- [x] CI green at submission (97 tests passing — 83 dart_mcp + 14 dart_corr)
+- [x] CI green at submission (111 tests passing — 97 dart_mcp/agent/audit + 14 dart_corr)
 - [x] Companion collector-adapter repo: https://github.com/Juwon1405/agentic-dart-collector-adapter
 
 ---
