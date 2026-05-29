@@ -67,6 +67,30 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
         run: python3 tests/test_agent_self_correction.py
 
+      - name: Pytest regression suite (parser, v0.5/v0.6 case coverage, and 2026-05 hardening pass)
+        env:
+          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
+        # These files use pytest collection (`def test_*`) instead of the
+        # standalone `if __name__ == "__main__"` style of the named steps
+        # above. They cover: Linux DFIR parsers, registry hive parsing,
+        # the v0.5 supply-chain bundle, the v0.6 macOS+Linux additions,
+        # the 2026-05-17 external code-review correctness fixes, and the
+        # 2026-05-25 Mekiki-inspired loop hardening (result truncation,
+        # cache breakpoint, evtxecmd OOM-safe streaming read).
+        #
+        # test_live_mcp.py is excluded because it needs the mcp SDK and
+        # an stdio subprocess; it runs from the dedicated live-MCP step
+        # at the top of the suite.
+        run: |
+          python3 -m pytest -v \
+            tests/test_parse_linux_dfir.py \
+            tests/test_parse_registry_hive.py \
+            tests/test_v05_supply_chain.py \
+            tests/test_v06_macos_linux.py \
+            tests/test_qa_pass_regressions.py \
+            tests/test_live_truncation.py \
+            tests/test_evtxecmd_oom.py
+
       - name: Demo run (offline native tools)
         run: bash examples/demo-run.sh
 
