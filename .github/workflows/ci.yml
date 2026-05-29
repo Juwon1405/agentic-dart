@@ -75,7 +75,7 @@ jobs:
         # above. They cover: Linux DFIR parsers, registry hive parsing,
         # the v0.5 supply-chain bundle, the v0.6 macOS+Linux additions,
         # the 2026-05-17 external code-review correctness fixes, and the
-        # 2026-05-25 Mekiki-inspired loop hardening (result truncation,
+        # 2026-05-25 agentic-loop hardening pass (result truncation,
         # cache breakpoint, evtxecmd OOM-safe streaming read).
         #
         # test_live_mcp.py is excluded because it needs the mcp SDK and

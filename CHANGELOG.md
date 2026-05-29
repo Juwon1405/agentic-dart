@@ -1,11 +1,11 @@
 # Changelog
 
-## [unreleased] — 2026-05-25 — agentic-loop hardening (Mekiki-inspired)
+## [unreleased] — 2026-05-25 — agentic-loop hardening pass
 
-A review of architectural patterns from a separate high-throughput
-pipeline bot surfaced several improvements applicable to the live
-agent loop. The safe, self-contained ones landed now; the ones that
-need a real API key or are structural were deferred (see below).
+An internal code-review pass focused on the live agent loop
+surfaced several improvements. The safe, self-contained ones
+landed now; the ones that need a real API key or are structural
+were deferred (see below).
 
 ### Added
 

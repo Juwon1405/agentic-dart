@@ -44,8 +44,8 @@ except ImportError:
     pass
 
 
-# Hybrid-architecture guardrail (Mekiki insight 2): heavy data is the
-# tool's job; meaning is the LLM's job. If a tool returns a wall of text
+# Hybrid-architecture guardrail: heavy data is the tool's job; meaning
+# is the LLM's job. If a tool returns a wall of text
 # (tens of thousands of event-log lines, a giant timeline dump), feeding
 # it verbatim to the model blows the context window, costs a fortune, and
 # invites hallucination as the model loses the thread. Instead we cap the
@@ -83,7 +83,7 @@ def _truncate_tool_result(text: str, cap: int = _MCP_RESULT_CHAR_CAP) -> str:
 def _with_cache_breakpoint(tools: list[dict]) -> list[dict]:
     """Mark the last tool definition with an ephemeral cache breakpoint.
 
-    Prompt caching (Mekiki insight 1) caches the request prefix up to the
+    Prompt caching caches the request prefix up to the
     last cache_control marker. By tagging the FINAL tool, the cached prefix
     spans the system prompt + every tool definition — the large, identical
     part of every iteration. Returns a shallow copy so the caller's list
@@ -165,7 +165,7 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
         resp = client.messages.create(
             model=model,
             max_tokens=4096,
-            # Prompt caching (Mekiki insight 1): the system prompt and the
+            # Prompt caching: the system prompt and the
             # tool definitions are large and IDENTICAL on every iteration of
             # the forensic reasoning loop. Marking the last one with
             # cache_control: ephemeral lets the API cache everything up to
