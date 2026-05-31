@@ -155,8 +155,15 @@ class LiveRunState:
 async def _run_with_real_claude(prompt: str, state: LiveRunState,
                                  model: str, anthropic_tools: list[dict],
                                  session) -> str:
-    """Drive the conversation with the real Anthropic API."""
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    """Drive the conversation with the real Anthropic API.
+
+    2026.05.31 (유신님): 3-tier auth — API key, else OAuth (file → Keychain).
+    With no API key it runs on the Claude Code subscription (OAuth) at zero API cost.
+    """
+    from .auth import build_anthropic_client
+    client = build_anthropic_client()
+    if client is None:
+        raise RuntimeError("No Anthropic credentials (API key or OAuth) available.")
 
     state.messages.append({"role": "user", "content": prompt})
 
@@ -309,10 +316,16 @@ async def live_run(case: str, out_dir: str, prompt: str,
         print("ERROR: mcp package not installed. pip install mcp", file=sys.stderr)
         return 2
 
-    # Decide mode early so we can print a banner
-    use_real = bool(os.environ.get("ANTHROPIC_API_KEY")) and not dry_run
+    # Decide mode early so we can print a banner.
+    # 2026.05.31 (유신님): live if API key OR OAuth credentials exist (zero-cost subscription).
+    try:
+        from .auth import has_any_credentials
+        _have_creds = has_any_credentials()
+    except Exception:
+        _have_creds = bool(os.environ.get("ANTHROPIC_API_KEY"))
+    use_real = _have_creds and not dry_run
     if use_real and not _ANTHROPIC_AVAILABLE:
-        print("WARNING: ANTHROPIC_API_KEY set but anthropic SDK not installed; "
+        print("WARNING: credentials present but anthropic SDK not installed; "
               "falling back to dry-run.", file=sys.stderr)
         use_real = False
     print(f"[live] case={case}  mode={'REAL-CLAUDE' if use_real else 'DRY-RUN'}  "
@@ -376,7 +389,8 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--prompt", default="Investigate the bundled evidence and "
                                         "report any findings with high severity.")
-    ap.add_argument("--model", default="claude-opus-4-7")
+    ap.add_argument("--model",
+                    default=os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001"))
     ap.add_argument("--max-iterations", type=int, default=8)
     ap.add_argument("--dry-run", action="store_true",
                     help="Use scripted mock Claude (no API key needed).")
