@@ -18,9 +18,15 @@ python3 --version
 
 If the SIFT Workstation default is older, use pyenv or a system-level install.
 
-### `ANTHROPIC_API_KEY` not set
+### No credentials (live mode falls back to mock)
 
-`dart-agent` talks to Claude through Claude Code, which reads this environment variable:
+`dart-agent` resolves credentials 3-tier: `ANTHROPIC_API_KEY` → OAuth file
+(`~/.claude/.credentials.json`) → macOS Keychain. If **none** are present, live
+mode runs the scripted mock instead of real Claude.
+
+- **Have a Claude subscription (Pro/Max)?** Just log in with Claude Code — the
+  OAuth credentials are picked up automatically. No API key needed (zero API cost).
+- **Pay-as-you-go instead?** Export an API key:
 
 ```bash
 export ANTHROPIC_API_KEY="sk-ant-..."

@@ -385,21 +385,22 @@ Coverage = **11 / 12** with one tactic explicitly partial. We do not claim 12/12
 
 ## Live mode (real Claude API + MCP stdio)
 
-Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC:
+Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. Credentials resolve 3-tier: `ANTHROPIC_API_KEY` → OAuth file (`~/.claude/.credentials.json`) → macOS Keychain. **With no API key it runs on your Claude Code subscription (OAuth) at zero API cost.**
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+# Default: OAuth subscription, zero API cost (no ANTHROPIC_API_KEY needed).
+# Default model claude-haiku-4-5; override via --model or DART_MODEL env.
 python3 -m dart_agent --mode live --case my-case --out /tmp/out \
     --prompt "Investigate for IP-KVM insider pattern"
 ```
 
-Or without an API key (scripted mock-Claude over real MCP plumbing):
+Or with a pay-as-you-go API key (`export ANTHROPIC_API_KEY=sk-ant-...` first), or without any credentials (scripted mock-Claude over real MCP plumbing):
 
 ```bash
 python3 -m dart_agent --mode live --case test --out /tmp/out --dry-run
 ```
 
-See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-use loop, and `tests/test_live_mcp.py` for end-to-end wire-level tests (no API key needed).
+See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-use loop, and `tests/test_live_mcp.py` for end-to-end wire-level tests (no credentials needed).
 
 ## Case study for judges
 

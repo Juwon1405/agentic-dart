@@ -159,13 +159,17 @@ else
   warn "(at least one count is zero — check your install)"
 fi
 
-# --- 6. Anthropic API key ---
-sect "6. Anthropic API key"
-if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-  warn "ANTHROPIC_API_KEY is not set."
-  warn "Export it before running live mode:  export ANTHROPIC_API_KEY=sk-ant-..."
+# --- 6. Claude credentials (3-tier: API key OR OAuth subscription) ---
+sect "6. Claude credentials"
+if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+  ok "ANTHROPIC_API_KEY is set (length: ${#ANTHROPIC_API_KEY}) — pay-as-you-go API."
+elif [[ -f "$HOME/.claude/.credentials.json" ]]; then
+  ok "Claude Code OAuth credentials found — runs on subscription (zero API cost)."
 else
-  ok "ANTHROPIC_API_KEY is set (length: ${#ANTHROPIC_API_KEY})"
+  warn "No API key and no Claude Code OAuth credentials found."
+  warn "Either log in with Claude Code (Pro/Max — zero API cost),"
+  warn "or export an API key:  export ANTHROPIC_API_KEY=sk-ant-..."
+  warn "Without either, live mode runs the offline mock."
 fi
 
 # --- 7. Next steps ---
@@ -186,8 +190,8 @@ Next steps:
   # Run the full test suite
   for t in tests/test_*.py; do python3 "$t"; done
 
-  # Live mode against Anthropic API
-  export ANTHROPIC_API_KEY=sk-ant-...
+  # Live mode — uses Claude Code OAuth (subscription, zero API cost) if logged in,
+  # else set ANTHROPIC_API_KEY for pay-as-you-go. Default model: claude-haiku-4-5.
   python3 -m dart_agent --case my-case --out ./out/my-case --mode live
 
 Documentation:

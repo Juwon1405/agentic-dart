@@ -38,7 +38,34 @@ it not to — because the MCP server does not expose anything else.
 
 ## Running it
 
-### With a real API key
+### Authentication (3-tier, zero-cost by default)
+
+agentic-dart resolves credentials in this order:
+
+1. **`ANTHROPIC_API_KEY`** — pay-as-you-go API, if set.
+2. **OAuth file** — `~/.claude/.credentials.json` (Claude Code / Pro/Max subscription).
+3. **macOS Keychain** — fallback when the file is absent; auto-refreshes near expiry.
+
+With **no API key**, it runs on your Claude Code subscription (OAuth) at **zero API cost**.
+You only need an API key if you have no Claude subscription.
+
+### With a subscription (OAuth — default, zero API cost)
+
+```bash
+# No ANTHROPIC_API_KEY needed — uses your Claude Code OAuth credentials.
+export DART_EVIDENCE_ROOT=/path/to/evidence
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
+
+python3 -m dart_agent --mode live \
+    --case my-case \
+    --out /tmp/my-case-out \
+    --prompt "Investigate evidence root for IP-KVM insider pattern. Report findings with audit IDs." \
+    --max-iterations 10
+# Default model: claude-haiku-4-5 (zero-cost on subscription).
+# Override with --model or DART_MODEL env (e.g. claude-sonnet-4-6 for higher precision).
+```
+
+### With a pay-as-you-go API key
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
@@ -49,17 +76,18 @@ python3 -m dart_agent --mode live \
     --case my-case \
     --out /tmp/my-case-out \
     --prompt "Investigate evidence root for IP-KVM insider pattern. Report findings with audit IDs." \
-    --model claude-opus-4-7 \
+    --model claude-haiku-4-5-20251001 \
     --max-iterations 10
 ```
 
-### Without an API key (CI, offline reproduction)
+### Without any credentials (CI, offline reproduction)
 
-Pass `--dry-run`. Everything runs the same — MCP subprocess, stdio
-handshake, real tool calls — except Claude is replaced with a scripted
-mock that walks a plausible tool-call sequence. Useful for:
+Pass `--dry-run`, or run with no API key **and** no OAuth credentials.
+Everything runs the same — MCP subprocess, stdio handshake, real tool calls —
+except Claude is replaced with a scripted mock that walks a plausible
+tool-call sequence. Useful for:
 
-- CI pipelines where an API key shouldn't live
+- CI pipelines where no credentials should live
 - Verifying the MCP plumbing without spending tokens
 - Running the same plumbing Claude will use in a deterministic test
 

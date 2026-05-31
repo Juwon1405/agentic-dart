@@ -1,21 +1,25 @@
 """Live-mode controller for dart-agent.
 
-Connects Claude (via the Anthropic API) to dart-mcp over a stdio subprocess.
-Claude sees only the typed forensic tools registered in dart-mcp; it
-cannot execute arbitrary code because there is no execute_shell for it
-to call.
+Connects Claude to dart-mcp over a stdio subprocess. Claude sees only the
+typed forensic tools registered in dart-mcp; it cannot execute arbitrary
+code because there is no execute_shell for it to call.
 
-Usage:
-    export ANTHROPIC_API_KEY=sk-ant-...
+Authentication (3-tier, resolved by dart_agent.auth):
+    1. ANTHROPIC_API_KEY      — pay-as-you-go API, if set
+    2. OAuth file             — ~/.claude/.credentials.json (Claude subscription)
+    3. macOS Keychain         — fallback, auto-refreshes near expiry
+With no API key it runs on the Claude Code subscription (OAuth) at zero API cost.
+
+Usage (subscription / OAuth — default, zero cost):
     python3 -m dart_agent --mode live --case my-case --out /tmp/out \\
         --prompt "Investigate the bundled IP-KVM evidence"
 
-Or with a custom model:
+Default model is claude-haiku-4-5. Override with --model or DART_MODEL env:
     python3 -m dart_agent --mode live --model claude-sonnet-4-6 ...
 
-If ANTHROPIC_API_KEY is unset or --dry-run is given, the controller
-executes a scripted fake-LLM that simulates the same tool-calling
-sequence. This lets CI exercise the live plumbing without an API key.
+If no credentials (no API key AND no OAuth) are available, or --dry-run is
+given, the controller executes a scripted fake-LLM that simulates the same
+tool-calling sequence. This lets CI exercise the live plumbing with no creds.
 """
 from __future__ import annotations
 

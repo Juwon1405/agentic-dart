@@ -355,7 +355,7 @@ Post-submission roadmap, scheduled for after 2026-06-15:
 ### Prerequisites
 
 - SIFT Workstation (or any Linux/macOS with Python 3.10+)
-- Anthropic API key (`ANTHROPIC_API_KEY` environment variable)
+- Claude access — either a Claude Code subscription (OAuth, zero API cost) **or** an Anthropic API key (`ANTHROPIC_API_KEY`). Live mode runs an offline mock if neither is present.
 - ~16 GB disk space (only if running external benchmarks)
 
 ### Install
