@@ -326,7 +326,7 @@ def main(argv: list[str] | None = None) -> int:
                     help="(live mode) initial user prompt to Claude")
     ap.add_argument("--model",
                     default=os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001"),
-                    help="(live mode) Anthropic model id. 기본: OAuth 하이쿠(비용 0). DART_MODEL env 또는 --model 로 가변(예 정밀 필요 시 claude-sonnet-4-6).")
+                    help="(live mode) Anthropic model id. 기본: OAuth Haiku(비용 0). DART_MODEL env 또는 --model 로 가변(예 정밀 필요 시 claude-sonnet-4-6).")
     ap.add_argument("--dry-run", action="store_true",
                     help="(live mode) use scripted mock Claude — no API key needed")
     args = ap.parse_args(argv)
