@@ -66,7 +66,7 @@ This project is developed by [Juwon Bang](https://github.com/Juwon1405) with ext
 
 - **Human-driven**: architectural decisions, security model, threat coverage taxonomy, MITRE ATT&CK mapping, evidence-integrity invariants, and final code review.
 - **AI-accelerated**: implementation, sample-evidence generation, test scaffolding, documentation drafting.
-- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 111-test suite must pass on a clean clone before any commit lands on `main`.
+- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 116-test suite must pass on a clean clone before any commit lands on `main`.
 
 This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
@@ -151,7 +151,7 @@ agentic-dart/
 │   ├── sample-evidence/  Deterministic baseline used by CI
 │   └── demo-run.sh       One-command reproducible demo
 │
-├── tests/                pytest suite — 111 tests (97 dart_mcp/agent/audit + 14 dart_corr)
+├── tests/                pytest suite — 116 tests (102 dart_mcp/agent/audit + 14 dart_corr)
 ├── scripts/              install.sh (SIFT bootstrap), benchmark/, measure_accuracy.py
 ├── docs/                 architecture.md, accuracy-report.md, case walkthroughs
 ├── .github/workflows/    CI matrix (Python 3.10–3.13) + URL reachability
@@ -225,7 +225,7 @@ python3 tests/test_v06_macos_linux.py                   # 17 — macOS quarantin
 python3 tests/test_parse_linux_dfir.py                  #  7 — Linux text-log + shell-history + cron parsing (v0.7.0)
 python3 -m pytest dart_corr/tests/                      # 14 — dart_corr extracted engine (v0.7.1)
                                              # ──
-                                             # full suite (111 tests)
+                                             # full suite (116 tests)
 ```
 
 The full suite passes on a clean checkout. The repo also contains
@@ -255,7 +255,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **72/111/111/0.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **111 of 111 tests passing on a fresh clone** (97 dart_mcp/agent/audit + 14 dart_corr — audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **72/116/116/0.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **116 of 116 tests passing on a fresh clone** (102 dart_mcp/agent/audit + 14 dart_corr — audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|

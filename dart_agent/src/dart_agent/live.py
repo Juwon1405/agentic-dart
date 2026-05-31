@@ -154,6 +154,15 @@ class LiveRunState:
     messages: list[dict] = field(default_factory=list)
     tool_call_log: list[dict] = field(default_factory=list)
     findings: list[dict] = field(default_factory=list)
+    # Token usage accumulators. Populated from each `messages.create` response's
+    # .usage object so the operator can see, at end of run, how much the loop
+    # cost in tokens (and which fraction was served from the prompt cache).
+    # Operational visibility only — no pricing math here; the analyst can
+    # cross-reference Anthropic console pricing if a USD figure is needed.
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_creation_tokens: int = 0
 
 
 async def _run_with_real_claude(prompt: str, state: LiveRunState,
@@ -196,6 +205,17 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
             tools=_with_cache_breakpoint(anthropic_tools),
             messages=state.messages,
         )
+
+        # Accumulate per-iteration token usage so the operator can see the
+        # full cost (and cache-hit ratio) at end of run. Each field falls
+        # back to 0 when the API response omits it (older SDK versions or
+        # the dry-run mock).
+        usage = getattr(resp, "usage", None)
+        if usage is not None:
+            state.input_tokens += getattr(usage, "input_tokens", 0) or 0
+            state.output_tokens += getattr(usage, "output_tokens", 0) or 0
+            state.cache_read_tokens += getattr(usage, "cache_read_input_tokens", 0) or 0
+            state.cache_creation_tokens += getattr(usage, "cache_creation_input_tokens", 0) or 0
 
         # Accumulate assistant message
         assistant_blocks = []
@@ -382,10 +402,32 @@ async def live_run(case: str, out_dir: str, prompt: str,
         "iterations": state.iteration,
         "tool_call_count": len(state.tool_call_log),
         "findings": state.findings,
+        # Token accounting — zero in dry-run because the mock doesn't return
+        # a usage object. In real-claude mode these come from each API
+        # response's .usage and let the operator verify that prompt caching
+        # is actually firing (cache_read_tokens should dominate input_tokens
+        # from iteration 2 onward).
+        "usage": {
+            "input_tokens": state.input_tokens,
+            "output_tokens": state.output_tokens,
+            "cache_read_tokens": state.cache_read_tokens,
+            "cache_creation_tokens": state.cache_creation_tokens,
+        },
     }, indent=2))
 
     print(f"[live] done — {state.iteration} iterations, "
           f"{len(state.tool_call_log)} tool calls", file=sys.stderr)
+    # Print token usage only when there's something to show (skip in dry-run
+    # where the mock doesn't report usage). cache_read / (input + cache_read)
+    # is the cache-hit ratio across the whole loop.
+    total_in = state.input_tokens + state.cache_read_tokens + state.cache_creation_tokens
+    if total_in > 0:
+        cache_pct = (state.cache_read_tokens * 100 // total_in) if total_in else 0
+        print(f"[live] tokens — in={state.input_tokens} "
+              f"out={state.output_tokens} "
+              f"cache_read={state.cache_read_tokens} "
+              f"cache_create={state.cache_creation_tokens} "
+              f"(cache-hit {cache_pct}% of input)", file=sys.stderr)
     print(f"[live] outputs in: {state.out_dir}", file=sys.stderr)
     return 0
 

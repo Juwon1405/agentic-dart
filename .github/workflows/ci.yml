@@ -74,9 +74,11 @@ jobs:
         # standalone `if __name__ == "__main__"` style of the named steps
         # above. They cover: Linux DFIR parsers, registry hive parsing,
         # the v0.5 supply-chain bundle, the v0.6 macOS+Linux additions,
-        # the 2026-05-17 external code-review correctness fixes, and the
+        # the 2026-05-17 external code-review correctness fixes, the
         # 2026-05-25 agentic-loop hardening pass (result truncation,
-        # cache breakpoint, evtxecmd OOM-safe streaming read).
+        # cache breakpoint, evtxecmd OOM-safe streaming read), and the
+        # 2026-05-31 per-iteration token usage tracking that lets the
+        # operator verify prompt caching is firing in live mode.
         #
         # test_live_mcp.py is excluded because it needs the mcp SDK and
         # an stdio subprocess; it runs from the dedicated live-MCP step
@@ -89,7 +91,8 @@ jobs:
             tests/test_v06_macos_linux.py \
             tests/test_qa_pass_regressions.py \
             tests/test_live_truncation.py \
-            tests/test_evtxecmd_oom.py
+            tests/test_evtxecmd_oom.py \
+            tests/test_live_usage_tracking.py
 
       - name: Demo run (offline native tools)
         run: bash examples/demo-run.sh

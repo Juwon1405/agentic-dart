@@ -1,5 +1,56 @@
 # Changelog
 
+## [unreleased] — 2026-05-31 — token usage visibility in live mode
+
+The live agent loop now reads `.usage` off every Anthropic
+`messages.create` response and accumulates four counters on the
+run state: `input_tokens`, `output_tokens`, `cache_read_tokens`,
+`cache_creation_tokens`. The point is operational visibility — the
+operator can verify, at the end of a run, that prompt caching is
+actually firing (cache-hit ratio should dominate from iteration 2
+onward, since the system prompt and tool definitions are identical
+across iterations).
+
+### Added
+
+- **`LiveRunState`: four token-usage fields.** Default 0; populated
+  per-iteration in `_run_with_real_claude`. All four guarded with
+  `getattr(..., 0) or 0` so a missing field or a `None` value
+  coerces cleanly to 0 instead of raising.
+
+- **`live_summary.json`: new `usage` block.** Aggregated input /
+  output / cache-read / cache-creation tokens. Zero in dry-run mode
+  (the mock doesn't report usage), real numbers in real-claude mode.
+
+- **Stderr summary line.** When a run actually consumed input
+  tokens, the end-of-run banner adds a line like
+  `[live] tokens — in=N out=N cache_read=N cache_create=N (cache-hit X% of input)`.
+  Skipped automatically in dry-run mode (total_in == 0).
+
+- **`tests/test_live_usage_tracking.py`: 5 new tests.** Pin the
+  defaults, the accumulation behavior, and the three tolerant-of-
+  malformed-response edge cases (missing `.usage`, partial fields,
+  `None` field values).
+
+### Changed
+
+- **CI workflow.** The pytest-regression step now includes the new
+  `tests/test_live_usage_tracking.py`, so any future change that
+  drops the accumulator or breaks the schema fails CI.
+
+- **README / DEVPOST / Pages.** Bumped the advertised test count
+  from 111 → 116 to reflect the new tests. Split is now
+  `102 dart_mcp/agent/audit + 14 dart_corr`.
+
+### Not changed
+
+- API behavior. Every existing CLI flag, exit code, and audit-log
+  semantic carries over. The only on-disk schema change is the new
+  `usage` key in `live_summary.json`; readers that ignore unknown
+  keys see no difference.
+
+---
+
 ## [unreleased] — 2026-05-25 — agentic-loop hardening pass
 
 An internal code-review pass focused on the live agent loop
