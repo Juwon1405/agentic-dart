@@ -194,4 +194,4 @@ print('analyze_kerberos_events:', r['events_examined'], 'events,', len(r['kerber
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
