@@ -161,8 +161,10 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
                                  session) -> str:
     """Drive the conversation with the real Anthropic API.
 
-    2026.05.31 (유신님): 3-tier auth — API key, else OAuth (file → Keychain).
-    With no API key it runs on the Claude Code subscription (OAuth) at zero API cost.
+    Uses the flexible three-tier auth flow: explicit API key when set,
+    otherwise OAuth credentials (file first, then Keychain). With no API
+    key configured the agent runs on the Claude Code subscription via
+    OAuth at zero per-call cost.
     """
     from .auth import build_anthropic_client
     client = build_anthropic_client()
@@ -321,7 +323,8 @@ async def live_run(case: str, out_dir: str, prompt: str,
         return 2
 
     # Decide mode early so we can print a banner.
-    # 2026.05.31 (유신님): live if API key OR OAuth credentials exist (zero-cost subscription).
+    # Live mode is available when EITHER an API key OR OAuth credentials
+    # exist (the subscription path gives zero per-call cost).
     try:
         from .auth import has_any_credentials
         _have_creds = has_any_credentials()

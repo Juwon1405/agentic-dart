@@ -1,15 +1,18 @@
-"""Claude Code CLI가 관리하는 OAuth credentials을 빌려쓰는 헬퍼.
+"""Flexible authentication layer that reuses Claude Code CLI OAuth credentials.
 
-목적: Anthropic API 키를 별도 발급받지 않고도 Claude Pro/Max 구독으로
-Vision 분석을 호출. 사용자는 집 PC에 Claude Code CLI를 1회 설치·로그인만
-하면 됨. 이후 refresh는 CLI가 알아서.
+Goal: let the agent talk to the Anthropic API using an existing Claude
+Pro/Max subscription instead of a separately-provisioned API key. The
+operator installs and signs into Claude Code once on the host; the CLI
+handles refresh from there.
 
-동작:
-1. `~/.claude/.credentials.json` (또는 동등한 위치) 읽기
-2. access_token이 곧 만료 임박이면 `claude` CLI를 dummy 호출해 강제 갱신
-3. 봇은 access_token만 추출해 anthropic SDK에 넘김
+Flow:
+1. Read `~/.claude/.credentials.json` (or one of the supported variants).
+2. If access_token is close to expiry, refresh it (direct OAuth call,
+   with a CLI fallback for legacy compatibility).
+3. Hand the bare access_token to the anthropic SDK.
 
-토큰은 절대 코드/저장소에 들어가지 않는다. 모두 파일에서 동적으로 읽음.
+No tokens ever live in code or the repo — every value is read at runtime
+from the local store.
 """
 
 from __future__ import annotations
@@ -25,18 +28,18 @@ from typing import Optional
 log = logging.getLogger(__name__)
 
 
-# Claude Code CLI가 credentials을 저장할 수 있는 위치 후보들.
-# 첫 매칭을 사용. macOS는 Keychain에 저장하기도 해서 거기는 별도 처리.
+# Candidate locations where the Claude Code CLI may stash credentials.
+# Tried in order; macOS may also use the Keychain, handled separately below.
 _CREDENTIALS_CANDIDATES = [
-    "~/.claude/.credentials.json",          # Linux 기본
-    "~/.config/claude/credentials.json",    # XDG 스타일
-    "~/Library/Application Support/claude/.credentials.json",  # macOS (Keychain 미사용 시)
+    "~/.claude/.credentials.json",          # Linux default
+    "~/.config/claude/credentials.json",    # XDG-style
+    "~/Library/Application Support/claude/.credentials.json",  # macOS (when Keychain is not used)
 ]
 
 
 def _find_credentials_file() -> Optional[Path]:
-    """존재하는 첫 credentials 파일 경로 반환."""
-    # 환경변수 명시 override
+    """Return the first credentials file path that exists, or None."""
+    # Explicit environment-variable override
     env_path = os.environ.get("CLAUDE_CREDENTIALS_FILE")
     if env_path:
         p = Path(env_path).expanduser()
@@ -51,15 +54,16 @@ def _find_credentials_file() -> Optional[Path]:
 
 
 def _parse_credentials(raw: dict) -> dict | None:
-    """다양한 스키마 변형을 표준 형태로 정규화.
+    """Normalize the several credential schema variants into one shape.
 
-    반환: {"access_token": str, "refresh_token": str|None, "expires_at": int(unix sec)}
+    Returns: {"access_token": str, "refresh_token": str|None,
+              "expires_at": int (unix seconds)}
     """
-    # 형태 A: {"claudeAiOauth": {"accessToken": ..., "expiresAt": ..., "refreshToken": ...}}
+    # Shape A: {"claudeAiOauth": {"accessToken": ..., "expiresAt": ..., "refreshToken": ...}}
     if isinstance(raw.get("claudeAiOauth"), dict):
         d = raw["claudeAiOauth"]
         exp = d.get("expiresAt") or 0
-        # expiresAt이 ms 단위인 경우 보정
+        # Correct expiresAt if it is in milliseconds
         if exp > 10_000_000_000:
             exp = exp // 1000
         return {
@@ -68,7 +72,7 @@ def _parse_credentials(raw: dict) -> dict | None:
             "expires_at": int(exp),
         }
 
-    # 형태 B: 평면 키
+    # Shape B: flat keys
     if raw.get("access_token") or raw.get("accessToken"):
         access = raw.get("access_token") or raw.get("accessToken")
         refresh = raw.get("refresh_token") or raw.get("refreshToken")
@@ -85,11 +89,13 @@ def _parse_credentials(raw: dict) -> dict | None:
 
 
 def _load_from_keychain() -> dict | None:
-    """macOS Keychain에서 Claude Code 토큰 추출 (파일이 없을 때 폴백).
+    """Pull Claude Code credentials from the macOS Keychain (fallback).
 
-    Claude Code CLI가 macOS에서 credentials.json 대신 Keychain에 저장하는
-    경우를 대비. `security find-generic-password -s "Claude Code-credentials" -w`로
-    JSON 문자열을 뽑아 파싱한다. macOS가 아니거나 항목이 없으면 None.
+    Used when the CLI stores tokens in the Keychain instead of in
+    credentials.json. Reads the secret via
+    `security find-generic-password -s "Claude Code-credentials" -w` and
+    parses the JSON it returns. Returns None on non-macOS hosts or when
+    the entry is absent.
     """
     import sys
     if sys.platform != "darwin":
@@ -100,33 +106,35 @@ def _load_from_keychain() -> dict | None:
             capture_output=True, text=True, timeout=10,
         )
     except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
-        log.debug("Keychain 조회 불가: %s", e)
+        log.debug("Keychain lookup unavailable: %s", e)
         return None
     if r.returncode != 0 or not r.stdout.strip():
         return None
     try:
         raw = json.loads(r.stdout.strip())
     except json.JSONDecodeError:
-        log.warning("Keychain 토큰 JSON 파싱 실패")
+        log.warning("Failed to parse JSON returned by the Keychain lookup")
         return None
     parsed = _parse_credentials(raw)
     if parsed and parsed.get("access_token"):
         parsed["_path"] = "macOS Keychain (Claude Code-credentials)"
-        log.debug("macOS Keychain에서 Claude Code 토큰 로드 성공")
+        log.debug("Loaded Claude Code credentials from the macOS Keychain")
         return parsed
     return None
 
 
 def load_credentials() -> dict | None:
-    """Claude Code 자격증명 로드. 파일 + 키체인 둘 다 읽어 '더 최신' 토큰 선택.
+    """Load Claude Code credentials. Reads both file and Keychain and picks
+    the FRESHER (larger expires_at) of the two.
 
-    2026.05.30 유신님 401 근본원인: 헤드리스(SSH) 맥미니는 로그인 키체인이 잠겨
-    `security`가 'User interaction is not allowed'로 거부 → 키체인 우선 로직이
-    토큰을 못 읽어 401. 파일(~/.claude/.credentials.json)엔 최신 토큰 정상 저장됨.
-    → 파일 우선 + 양쪽 비교해 expires_at 큰(최신) 쪽 채택. 헤드리스는 파일이 답.
+    Why both: on a headless host (SSH session, no GUI login), the macOS
+    login Keychain is locked and `security` refuses with "User interaction
+    is not allowed", so a Keychain-first strategy fails to read the token
+    even when the file copy is fine. File-first + freshness-compare keeps
+    both interactive and headless setups working without configuration.
     """
     candidates = []
-    # 1) 파일 우선 (헤드리스에서 가장 안정적)
+    # 1) File first (most reliable on headless hosts)
     path = _find_credentials_file()
     if path:
         try:
@@ -137,20 +145,20 @@ def load_credentials() -> dict | None:
                 parsed["_path"] = str(path)
                 candidates.append(parsed)
         except (OSError, json.JSONDecodeError) as e:
-            log.warning("credentials.json 읽기 실패 %s: %s", path, e)
-    # 2) 키체인 (잠겨 있으면 None — 조용히 무시)
+            log.warning("Failed to read credentials.json at %s: %s", path, e)
+    # 2) Keychain (returns None when locked — silently ignored)
     kc = _load_from_keychain()
     if kc and kc.get("access_token"):
         kc["_path"] = "keychain"
         candidates.append(kc)
     if not candidates:
         return None
-    # 만료시각이 가장 늦은(=가장 최근 갱신된) 토큰 선택
+    # Pick the token with the latest expiry (= most recently refreshed)
     return max(candidates, key=lambda c: c.get("expires_at", 0))
 
 
 def is_expiring_soon(creds: dict, threshold_sec: int = 3600) -> bool:
-    """만료까지 threshold_sec 미만이면 True. expires_at이 0이면 알 수 없음 → False."""
+    """True if the token expires within threshold_sec. Unknown expiry returns False."""
     exp = int(creds.get("expires_at") or 0)
     if exp <= 0:
         return False
@@ -158,17 +166,19 @@ def is_expiring_soon(creds: dict, threshold_sec: int = 3600) -> bool:
 
 
 def trigger_refresh(timeout: float = 30.0) -> bool:
-    """`claude` CLI를 dummy 명령으로 호출해 토큰 갱신을 유도.
+    """Invoke the `claude` CLI as a side-effect to encourage a token refresh.
 
-    반환: 호출 성공(False면 CLI 미설치/오류 등). 갱신이 실제로 됐는지는
-    호출자가 credentials.json을 다시 읽어 확인해야 한다.
+    Returns whether the CLI invocation itself succeeded; the caller must
+    re-read credentials.json to know whether the access_token was actually
+    refreshed.
 
-    ⚠ 한계 (2026.05.30 유신님 401 사고): `claude --version`/`--help` 는 토큰을
-    갱신하지 않는다(버전 출력만). 진짜 갱신은 refresh_oauth_token() 이 직접 수행.
-    이 함수는 폴백으로만 남긴다.
+    Known limitation: `claude --version` / `--help` print version info
+    without refreshing the token. The real refresh path is
+    refresh_oauth_token() below, which posts to the token endpoint
+    directly. This function is kept as a legacy fallback only.
     """
     cmd_candidates = [
-        ["claude", "--version"],   # 가장 가벼움
+        ["claude", "--version"],   # cheapest invocation
         ["claude", "--help"],
     ]
     for cmd in cmd_candidates:
@@ -177,37 +187,40 @@ def trigger_refresh(timeout: float = 30.0) -> bool:
                 cmd, capture_output=True, text=True, timeout=timeout,
             )
             if r.returncode == 0:
-                log.info("claude CLI 호출 성공 (%s)", " ".join(cmd))
+                log.info("claude CLI call succeeded (%s)", " ".join(cmd))
                 return True
-            log.debug("claude %s 실패 (rc=%d): %s", cmd, r.returncode, r.stderr[:200])
+            log.debug("claude %s failed (rc=%d): %s", cmd, r.returncode, r.stderr[:200])
         except FileNotFoundError:
-            log.info("claude CLI를 찾을 수 없습니다. PATH에 설치되어 있는지 확인.")
+            log.info("claude CLI not found. Ensure it is installed on PATH.")
             return False
         except subprocess.TimeoutExpired:
-            log.warning("claude CLI 응답 없음 (timeout %ss)", timeout)
+            log.warning("claude CLI did not respond within %ss", timeout)
             return False
         except Exception as e:
-            log.warning("claude CLI 호출 오류: %s", e)
+            log.warning("claude CLI invocation error: %s", e)
     return False
 
 
-# Claude Code 공개 OAuth client_id (Anthropic CLI 가 쓰는 고정 공개값).
+# Public OAuth client_id used by the Claude Code CLI (constant, not a secret).
 _OAUTH_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
 _OAUTH_TOKEN_URL = "https://console.anthropic.com/v1/oauth/token"
 
 
 def refresh_oauth_token(timeout: float = 30.0) -> dict | None:
-    """refresh_token 으로 새 access_token 을 직접 발급받아 저장 (2026.05.30 신규).
+    """Issue a new access_token directly using the refresh_token, and
+    persist it back to whichever store held the previous one.
 
-    핵심: `claude --version` 은 토큰을 갱신하지 않으므로(유신님 401 사고 근본원인),
-    OAuth refresh_token grant 를 토큰 엔드포인트에 직접 POST 한다. 성공 시 새
-    토큰을 원래 저장소(파일/키체인)에 다시 써서 영속화.
+    The CLI-side `claude --version` invocation does NOT refresh the token,
+    so we POST the refresh_token grant to the token endpoint ourselves.
+    On success the new credentials are written back to the file (and to
+    the Keychain when present), so subsequent reads see fresh values.
 
-    반환: 갱신된 creds dict {access_token, refresh_token, expires_at} | 실패 시 None.
+    Returns: refreshed creds dict
+             {access_token, refresh_token, expires_at} | None on failure.
     """
     creds = load_credentials()
     if not creds or not creds.get("refresh_token"):
-        log.warning("refresh_oauth_token: refresh_token 없음 — 직접 갱신 불가")
+        log.warning("refresh_oauth_token: no refresh_token available — cannot refresh directly")
         return None
     try:
         import requests
@@ -227,26 +240,28 @@ def refresh_oauth_token(timeout: float = 30.0) -> dict | None:
         data = r.json()
         new_access = data.get("access_token")
         if not new_access:
-            log.warning("OAuth refresh 응답에 access_token 없음")
+            log.warning("OAuth refresh response did not include access_token")
             return None
         new_refresh = data.get("refresh_token") or creds["refresh_token"]
         expires_in = int(data.get("expires_in") or 0)
         new_exp = int(time.time()) + expires_in if expires_in else creds.get("expires_at", 0)
         new_creds = {"access_token": new_access, "refresh_token": new_refresh,
                      "expires_at": new_exp}
-        # 저장소에 다시 쓰기 (영속화 — 이걸 안 하면 매번 만료)
+        # Persist the refreshed credentials so subsequent reads pick them up
         _save_credentials(new_creds)
-        log.info("✅ OAuth 토큰 직접 갱신 성공 (만료까지 %.0f초)", new_exp - time.time())
+        log.info("OAuth token refreshed directly (expires in %.0fs)", new_exp - time.time())
         return new_creds
     except Exception as e:
-        log.warning("OAuth refresh 예외: %s: %s", type(e).__name__, str(e)[:120])
+        log.warning("OAuth refresh exception: %s: %s", type(e).__name__, str(e)[:120])
         return None
 
 
 def _save_credentials(creds: dict) -> bool:
-    """갱신된 토큰을 원래 저장소에 다시 쓴다. 파일 우선, macOS 키체인도 갱신.
+    """Write refreshed credentials back to their original store. File first,
+    Keychain second (when present).
 
-    claudeAiOauth 스키마(밀리초 expiresAt)로 저장해 Claude CLI 와 호환 유지.
+    Saved in the claudeAiOauth schema (milliseconds expiresAt) so that the
+    Claude CLI continues to read the values without changes.
     """
     payload = {"claudeAiOauth": {
         "accessToken": creds["access_token"],
@@ -255,7 +270,7 @@ def _save_credentials(creds: dict) -> bool:
         "subscriptionType": "max",
     }}
     ok = False
-    # 1) 파일이 있으면 파일에 저장
+    # 1) If the credentials file exists, write through to it
     path = _find_credentials_file()
     if path:
         try:
@@ -264,11 +279,11 @@ def _save_credentials(creds: dict) -> bool:
                 os.chmod(path, 0o600)
             except Exception:
                 pass
-            log.info("갱신 토큰 파일 저장: %s", path)
+            log.info("Refreshed token written to %s", path)
             ok = True
         except Exception as e:
-            log.warning("토큰 파일 저장 실패: %s", e)
-    # 2) macOS 키체인도 갱신 (키체인 우선 로드라 동기화 필수)
+            log.warning("Failed to persist refreshed token to file: %s", e)
+    # 2) Also refresh the macOS Keychain entry so it stays in sync
     import sys
     if sys.platform == "darwin":
         try:
@@ -278,39 +293,46 @@ def _save_credentials(creds: dict) -> bool:
                  "-w", json.dumps(payload)],
                 capture_output=True, text=True, timeout=10,
             )
-            log.info("갱신 토큰 키체인 저장")
+            log.info("Refreshed token written to the Keychain")
             ok = True
         except Exception as e:
-            log.debug("키체인 저장 실패(무시): %s", e)
+            log.debug("Keychain write failed (ignored): %s", e)
     return ok
 
 
 def refresh_oauth_if_needed(threshold_sec: int = 7200) -> dict:
-    """OAuth 토큰 선제 갱신 (2026.05.31 유신님 설계 — API 끊겨도 OAuth 항상 준비).
-    만료까지 threshold_sec(기본 2h) 미만이면 refresh_token 으로 직접 갱신.
-    주기적(데몬)으로 호출 → OAuth 항상 신선 → API 소진 시 즉시 Haiku 폴백.
-    반환: {state, detail, expires_in_sec}. 토큰 없으면 state='none'."""
+    """Proactively refresh the OAuth token so it is always ready as a fallback.
+
+    When the access_token has less than threshold_sec (default 2h) left
+    until expiry, refresh it via refresh_token directly. Intended for a
+    periodic call (daemon, cron) so that OAuth stays fresh and an instant
+    fallback is always available if a paid API path is unavailable.
+
+    Returns: {state, detail, expires_in_sec}. state is one of
+             'none' | 'fresh' | 'refreshed' | 'stale'.
+    """
     creds = load_credentials()
     if not creds or not creds.get("access_token"):
-        return {"state": "none", "detail": "OAuth 자격증명 없음", "expires_in_sec": 0}
+        return {"state": "none", "detail": "no OAuth credentials available", "expires_in_sec": 0}
     exp = int(creds.get("expires_at") or 0)
     remain = (exp - time.time()) if exp else 0
     if exp and remain >= threshold_sec:
-        return {"state": "fresh", "detail": "갱신 불필요", "expires_in_sec": int(remain)}
+        return {"state": "fresh", "detail": "refresh not needed", "expires_in_sec": int(remain)}
     refreshed = refresh_oauth_token()
     if refreshed and refreshed.get("access_token"):
         nr = refreshed["expires_at"] - time.time()
-        return {"state": "refreshed", "detail": "직접 갱신 성공", "expires_in_sec": int(nr)}
-    return {"state": "stale", "detail": "갱신 실패 — refresh_token 만료 가능",
+        return {"state": "refreshed", "detail": "refreshed via refresh_token grant", "expires_in_sec": int(nr)}
+    return {"state": "stale", "detail": "refresh failed — refresh_token may be expired",
             "expires_in_sec": int(remain)}
 
 
 def get_access_token(refresh_threshold_sec: int = 3600) -> str | None:
-    """현재 유효한 access_token 반환. 만료 임박이면 CLI 호출로 갱신 후 재시도.
+    """Return a currently-valid access_token, refreshing it first if it is
+    close to expiry.
 
-    반환:
-    - 정상: access_token 문자열
-    - 실패(파일 없음/CLI 없음/갱신 실패): None
+    Returns:
+        access_token string on success, or None on failure (no credentials,
+        no CLI, refresh failed).
     """
     creds = load_credentials()
     if creds is None:
@@ -320,64 +342,68 @@ def get_access_token(refresh_threshold_sec: int = 3600) -> str | None:
         return creds["access_token"]
 
     log.info(
-        "access_token 만료 임박 (expires_at=%d, 남은=%ds). 갱신 시도.",
+        "access_token close to expiry (expires_at=%d, %ds remaining); attempting refresh.",
         creds["expires_at"], int(creds["expires_at"] - time.time()),
     )
-    # 1순위: refresh_token 으로 직접 OAuth 갱신 (claude --version 은 갱신 안 됨).
+    # Primary: direct OAuth refresh via refresh_token grant.
     refreshed = refresh_oauth_token()
     if refreshed and refreshed.get("access_token"):
         return refreshed["access_token"]
-    # 2순위(폴백): CLI 호출 후 재독 (혹시 CLI 가 백그라운드 갱신했을 수도)
-    log.info("직접 OAuth 갱신 실패 → CLI 폴백 시도")
+    # Fallback: invoke the CLI and re-read (the CLI may have refreshed in the background)
+    log.info("Direct OAuth refresh failed; trying CLI fallback")
     if not trigger_refresh():
-        log.warning("CLI 호출도 실패. 만료 임박 토큰 그대로 반환.")
+        log.warning("CLI invocation also failed; returning the about-to-expire token")
         return creds["access_token"]
     creds2 = load_credentials()
     if creds2 is None:
         return creds["access_token"]
     if creds2["access_token"] != creds["access_token"]:
-        log.info("토큰 갱신 완료 (새 expires_at=%d)", creds2["expires_at"])
+        log.info("Token refreshed (new expires_at=%d)", creds2["expires_at"])
     return creds2["access_token"]
 
 
 # ──────────────────────────────────────────────────────────────────────────
-# agentic-dart 전용: 3티어 클라이언트 빌더 (2026.05.31 유신님 — 메키키/단타와 동일).
-#   Tier 1) ANTHROPIC_API_KEY (있으면 종량제 API)
-#   Tier 2) OAuth 파일 (~/.claude/.credentials.json — 로컬 우선)
-#   Tier 3) macOS Keychain (파일 없을 때 폴백) + 만료 임박 시 자동 갱신/연장
-# 키 없어도 OAuth(구독) 로 동작 → API 비용 0.
+# Flexible three-tier Anthropic client builder.
+#   Tier 1) ANTHROPIC_API_KEY (if set, use the metered API)
+#   Tier 2) OAuth credentials file (~/.claude/.credentials.json — preferred)
+#   Tier 3) macOS Keychain (fallback when the file is absent), with
+#           automatic refresh / extension when expiry is imminent
+# When no API key is set, the OAuth (subscription) path keeps the agent
+# running with zero per-call API cost.
 # ──────────────────────────────────────────────────────────────────────────
 def build_anthropic_client(timeout: float = 600.0):
-    """3티어 인증 Anthropic 클라이언트. 못 만들면 None (호출부가 mock 폴백)."""
+    """Build an Anthropic client through the three-tier auth flow. Returns
+    None when no credential source is available (caller falls back to mock)."""
     try:
         import anthropic
     except ImportError:
         return None
-    # Tier 1: API 키 (있으면 우선 — 종량제)
+    # Tier 1: explicit API key (preferred when present — metered)
     if os.environ.get("ANTHROPIC_API_KEY"):
-        log.info("[dart-auth] Tier1: ANTHROPIC_API_KEY 사용")
+        log.info("[dart-auth] Tier 1: using ANTHROPIC_API_KEY")
         return anthropic.Anthropic(timeout=timeout, max_retries=0)
-    # Tier 2+3: OAuth (파일 우선 → Keychain 폴백, load_credentials 가 최신 선택)
+    # Tier 2 + 3: OAuth (file first, Keychain fallback; load_credentials picks the fresher of the two)
     creds = load_credentials()
     if creds and creds.get("access_token"):
-        # 만료 임박하면 직접 갱신 시도 (연장)
+        # Attempt a direct refresh if the token is close to expiry
         try:
             if is_expiring_soon(creds, threshold_sec=3600):
                 refreshed = refresh_oauth_token()
                 if refreshed and refreshed.get("access_token"):
                     creds = refreshed
         except Exception as e:
-            log.debug("[dart-auth] OAuth 갱신 시도 실패(무시): %s", e)
+            log.debug("[dart-auth] OAuth refresh attempt failed (ignored): %s", e)
         src = creds.get("_path", "?")
-        log.info("[dart-auth] OAuth 사용 (출처: %s) — API 비용 0", src)
+        log.info("[dart-auth] using OAuth credentials (source: %s) — zero per-call API cost", src)
         return anthropic.Anthropic(auth_token=creds["access_token"],
                                    timeout=timeout, max_retries=0)
-    log.warning("[dart-auth] API 키·OAuth 모두 없음 → 클라이언트 생성 불가")
+    log.warning("[dart-auth] neither API key nor OAuth credentials available; client cannot be built")
     return None
 
 
 def has_any_credentials() -> bool:
-    """API 키 또는 OAuth 자격증명이 하나라도 있으면 True (live 모드 가능 판정)."""
+    """Return True if either an API key or OAuth credentials are present
+    (used by callers to decide whether live mode is viable)."""
     if os.environ.get("ANTHROPIC_API_KEY"):
         return True
     creds = load_credentials()
