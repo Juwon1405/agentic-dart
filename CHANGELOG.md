@@ -115,7 +115,7 @@ items. All were fixed in a single commit (`8e1bc43`) with a follow-up
 adding four regression tests (`ede3516`) and a third commit reflecting
 the new test count across surfaces (`58259ad`). A second review pass
 re-verified each fix with live tool invocations and identified one
-more robustness item now patched in `XXXX` (this commit).
+more robustness item now patched in this release.
 
 ### Fixed — analysis correctness (8 items)
 
