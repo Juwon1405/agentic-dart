@@ -294,8 +294,7 @@ Three properties verified by the test suite on every CI run:
 
 - **Single-developer end-to-end project** — autonomous agent + MCP
   server + SIFT adapter + collector adapter + benchmark suite + 11
-  case studies + multilingual demo video (English / Korean / Japanese)
-  shipped by one person in six weeks.
+  case studies + demo video, shipped by one person in six weeks.
 - **Minimal dependency surface in the core MCP layer.** Only two
   third-party Python packages — `duckdb` for the audit-trail query
   store and `python-registry` for offline hive parsing. The reasoning
