@@ -250,7 +250,7 @@ Three properties verified by the test suite on every CI run:
 | Playbook | `dart_playbook/senior-analyst-v3.yaml` |
 | Audit format | `dart_audit/README.md` |
 | Collector adapter | `https://github.com/Juwon1405/agentic-dart-collector-adapter` |
-| Demo video | Submitted directly to Devpost form as YouTube unlisted URL (English narration; Korean and Japanese versions available on request) |
+| Demo video | Submitted directly to Devpost form as YouTube unlisted URL |
 
 ---
 
@@ -406,7 +406,7 @@ python3 -m dart_agent \
 - [x] Source code: https://github.com/Juwon1405/agentic-dart
 - [x] License: MIT (`LICENSE` in repo root)
 - [x] README with architecture overview and reproduction commands
-- [x] Demo video (3 languages: English, Korean, Japanese — submitted directly to Devpost form, not embedded in repo)
+- [x] Demo video (submitted directly to Devpost form, not embedded in repo)
 - [x] 11 documented case studies with machine-readable ground truth
 - [x] Benchmark suite (`scripts/benchmark/`) covering internal + external evidence
 - [x] Accuracy report (`docs/accuracy-report.md`)
