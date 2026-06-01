@@ -88,24 +88,28 @@ call is hashed into `audit.jsonl`. The playbook is YAML-defined
 (`dart_playbook/senior-analyst-v3.yaml`), so a customer can swap in
 their own playbook without modifying the agent code.
 
-### Phase 2 — 72 native MCP functions
+### Phase 2 — 47 native MCP functions
 
 Each function is **typed**, **read-only**, and emits **structured
-findings** the agent can correlate against later. Coverage by surface:
+findings** the agent can correlate against later. Coverage spans:
 
-- **Windows** (24 functions): Amcache, Prefetch, ShimCache, Registry
-  hives, Scheduled Tasks, Event Logs, USB history, ShellBags, MFT,
-  USNJrnl, Recycle Bin, Browser history, Downloads, Persistence,
-  Kerberos events, etc.
-- **macOS** (8 functions): UnifiedLog, KnowledgeC, FSEvents, plist,
-  LaunchAgents/Daemons, **LSQuarantineEvent** (v0.6.1), TCC, etc.
-- **Linux** (12 functions): auth.log, syslog, journald, auditd,
-  bash_history, web logs, **cron** (v0.6.1), shell history, package
-  manager, network state.
-- **Cross-platform / correlation** (23 functions): DuckDB scale-engine
-  timeline correlation, process tree, lateral movement detection,
-  ransomware behaviour, credential access, defense evasion, discovery,
-  **DNS tunneling** (v0.6.1), MITRE ATT&CK mapping, etc.
+- **Windows artefacts** (10 OS-specific functions plus shared cross-
+  platform consumers): Amcache, Prefetch, ShimCache, Registry hives,
+  Scheduled Tasks, Event Logs, USB history, ShellBags, MFT, USN
+  journal. Many cross-platform functions (process tree, persistence,
+  defense evasion, Kerberos events, credential access, lateral
+  movement, etc.) also exercise the Windows surface.
+- **macOS artefacts** (5 OS-specific functions): UnifiedLog,
+  KnowledgeC, FSEvents, LaunchAgents/Daemons plist, **LSQuarantineEvent**
+  (v0.6.1).
+- **Linux artefacts** (6 OS-specific functions): auth.log/syslog
+  through `parse_linux_text_log`, journald, auditd, bash and shell
+  history, **cron** (v0.6.1).
+- **Cross-platform** (26 functions): DuckDB scale-engine timeline
+  correlation, process tree, lateral movement detection, ransomware
+  behaviour, credential access, defense evasion, discovery, **DNS
+  tunneling** (v0.6.1), MITRE ATT&CK mapping, browser history,
+  exfiltration, supply-chain IoC scanning.
 
 ### Phase 3 — SIFT Workstation adapter layer
 
@@ -135,7 +139,7 @@ engine **decoupled from any single collection vendor**.
 | Scale engine | DuckDB (for cross-source timeline correlation) |
 | Heavy parsers | SIFT toolchain (Volatility 3, MFTECmd, EvtxECmd, ...) |
 | Audit chain | SHA-256 linked JSONL |
-| Test suite | pytest (116 tests, all green at submission — 97 dart_mcp/agent/audit + 14 dart_corr) |
+| Test suite | pytest (116 tests, all green at submission — 102 dart_mcp/agent/audit + 14 dart_corr) |
 | CI | GitHub Actions (Linux + macOS) |
 | Sample evidence | seeded deterministic generator |
 
@@ -289,17 +293,19 @@ Three properties verified by the test suite on every CI run:
 ## Accomplishments we're proud of
 
 - **Single-developer end-to-end project** — autonomous agent + MCP
-  server + SIFT adapter + collector adapter + benchmark suite + 10
+  server + SIFT adapter + collector adapter + benchmark suite + 11
   case studies + multilingual demo video (English / Korean / Japanese)
   shipped by one person in six weeks.
-- **Zero third-party Python dependencies in the core MCP layer** —
-  every native function is stdlib-only. Auditable in a single sitting.
-- **MITRE ATT&CK coverage: 11 of 12 tactics** across the 72 native
-  functions (Reconnaissance, Resource Development, Initial Access,
-  Execution, Persistence, Privilege Escalation, Defense Evasion,
-  Credential Access, Discovery, Lateral Movement, Collection, Command
-  and Control, Exfiltration, Impact — Resource Development being the
-  one tactic not in scope for a post-incident DFIR agent).
+- **Minimal dependency surface in the core MCP layer.** Only two
+  third-party Python packages — `duckdb` for the audit-trail query
+  store and `python-registry` for offline hive parsing. The reasoning
+  loop adds the official `anthropic` SDK on top. Auditable in a
+  single sitting.
+- **MITRE ATT&CK coverage: 13 of 14 Enterprise tactics** across the
+  72 typed functions, spanning Reconnaissance through Impact
+  (TA0001/02/03/04/05/06/07/08/09/10/11/40/43). 108 distinct technique
+  references mapped to 99 ground-truth findings across the 11 case
+  studies.
 - **External-dataset honesty.** Layer 2 evaluation against three
   independent third-party datasets that the project's author did not
   create or have influence over. Numbers are what they are.

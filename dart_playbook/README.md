@@ -83,7 +83,7 @@ A comprehensive senior-analyst methodology synthesizing every authoritative sour
 - **Lockheed Martin Cyber Kill Chain** — 7-phase intelligence-driven defense (Hutchins, Cloppert & Amin 2011)
 - **David Bianco** — Pyramid of Pain (TTPs over IOCs) + Hunting Maturity Model + hypothesis-driven hunting
 - **Diamond Model of Intrusion Analysis** — Caltagirone, Pendergast, Betz 2013 (adversary / capability / infrastructure / victim)
-- **MITRE ATT&CK Enterprise v16** — 12 tactics, 200+ techniques mapped
+- **MITRE ATT&CK Enterprise v16** — 14 tactics (Reconnaissance through Impact), 200+ techniques mapped
 - **F3EAD** — Find, Fix, Finish, Exploit, Analyze, Disseminate (originally U.S. military targeting; now standard DFIR practice)
 - **NIST SP 800-61 / 800-86 / 800-150** — incident handling, forensic integration, threat intel sharing
 
