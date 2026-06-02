@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 880" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#22c55e"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="880" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="700" y="42" font-size="26" font-weight="700" text-anchor="middle" fill="#0f172a">Agentic-DART Roadmap — External Validation → Internal Adoption → Enterprise Expansion</text>
+  <text x="700" y="68" font-size="14" text-anchor="middle" fill="#64748b">2026-04 onwards · MIT License · MCP read-only architecture · SHA-256 audit chain</text>
+
+  <!-- Three vertical lanes -->
+  <!-- Phase 0: External Validation -->
+  <rect x="40" y="100" width="420" height="720" fill="#fff" stroke="#dc2626" stroke-width="2.5" rx="14"/>
+  <rect x="40" y="100" width="420" height="56" fill="#dc2626" rx="14"/>
+  <rect x="40" y="135" width="420" height="21" fill="#dc2626"/>
+  <text x="250" y="135" font-size="18" font-weight="700" text-anchor="middle" fill="#fff">Phase 0 — External Validation</text>
+  <text x="250" y="152" font-size="12" text-anchor="middle" fill="#fecaca">2026-04 ~ 2026-06-15  ·  SANS FIND EVIL! 2026</text>
+
+  <!-- Phase 0 items -->
+  <g font-size="13" fill="#1e293b">
+    <rect x="60" y="180" width="380" height="58" fill="#fef2f2" stroke="#fca5a5" rx="8"/>
+    <text x="74" y="200" font-weight="600">Native MCP layer · 47 functions</text>
+    <text x="74" y="220" fill="#475569">EVTX / MFT / registry / memory / disk parsers</text>
+
+    <rect x="60" y="248" width="380" height="58" fill="#fef2f2" stroke="#fca5a5" rx="8"/>
+    <text x="74" y="268" font-weight="600">SIFT adapter layer · 25 functions</text>
+    <text x="74" y="288" fill="#475569">EZ Tools 6 + Volatility 3 + Plaso + YARA wrapping</text>
+
+    <rect x="60" y="316" width="380" height="58" fill="#fef2f2" stroke="#fca5a5" rx="8"/>
+    <text x="74" y="336" font-weight="600">Playbook v3 · case-class aware</text>
+    <text x="74" y="356" fill="#475569">ransomware / LOTL / lateral / insider sequencing</text>
+
+    <rect x="60" y="384" width="380" height="58" fill="#fef2f2" stroke="#fca5a5" rx="8"/>
+    <text x="74" y="404" font-weight="600">Collector adapter v0.2.0</text>
+    <text x="74" y="424" fill="#475569">Velociraptor triage ZIP → evidence_root layout</text>
+
+    <rect x="60" y="452" width="380" height="58" fill="#fef2f2" stroke="#fca5a5" rx="8"/>
+    <text x="74" y="472" font-weight="600">11 case studies · ground-truth + audit chain</text>
+    <text x="74" y="492" fill="#475569">recall 1.000 · hallucination 0 · 99 findings</text>
+
+    <rect x="60" y="520" width="380" height="58" fill="#fef2f2" stroke="#fca5a5" rx="8"/>
+    <text x="74" y="540" font-weight="600">Verda-dev runbook · Rocky 9.7</text>
+    <text x="74" y="560" fill="#475569">3-stage script · 28 dnf pkgs · 6 EZ Tools .NET 8</text>
+
+    <rect x="60" y="588" width="380" height="58" fill="#fff7ed" stroke="#fb923c" rx="8"/>
+    <text x="74" y="608" font-weight="600" fill="#9a3412">→ 2026-06-15  Devpost 제출</text>
+    <text x="74" y="628" fill="#9a3412">YouTube unlisted demo · SANS reviewer validation</text>
+  </g>
+
+  <!-- Phase 1: Internal Adoption -->
+  <rect x="490" y="100" width="420" height="720" fill="#fff" stroke="#4F46E5" stroke-width="2.5" rx="14"/>
+  <rect x="490" y="100" width="420" height="56" fill="#4F46E5" rx="14"/>
+  <rect x="490" y="135" width="420" height="21" fill="#4F46E5"/>
+  <text x="700" y="135" font-size="18" font-weight="700" text-anchor="middle" fill="#fff">Phase 1 — Internal Adoption</text>
+  <text x="700" y="152" font-size="12" text-anchor="middle" fill="#c7d2fe">2026-06-16 ~ 2026-07  ·  FY26 OKR Phase 1</text>
+
+  <g font-size="13" fill="#1e293b">
+    <rect x="510" y="180" width="380" height="58" fill="#eef2ff" stroke="#a5b4fc" rx="8"/>
+    <text x="524" y="200" font-weight="600">Brand transition</text>
+    <text x="524" y="220" fill="#475569">Agentic-DART → DART-DFIR (internal)</text>
+
+    <rect x="510" y="248" width="380" height="58" fill="#eef2ff" stroke="#a5b4fc" rx="8"/>
+    <text x="524" y="268" font-weight="600">Internal GHE private mirror</text>
+    <text x="524" y="288" fill="#475569">DART namespace · CI/CD adapt</text>
+
+    <rect x="510" y="316" width="380" height="80" fill="#eef2ff" stroke="#a5b4fc" rx="8"/>
+    <text x="524" y="336" font-weight="600">polarity-mcp PoC</text>
+    <text x="524" y="356" fill="#475569">Polarity API → read-only MCP surface</text>
+    <text x="524" y="376" fill="#475569">lookup_ip / hash / domain · 자체 빌드</text>
+
+    <rect x="510" y="406" width="380" height="58" fill="#eef2ff" stroke="#a5b4fc" rx="8"/>
+    <text x="524" y="426" font-weight="600">XSOAR TIM scoring integration</text>
+    <text x="524" y="446" fill="#475569">Polarity + TIM + analysis context weighting</text>
+
+    <rect x="510" y="474" width="380" height="58" fill="#eef2ff" stroke="#a5b4fc" rx="8"/>
+    <text x="524" y="494" font-weight="600">LLM enrichment loop</text>
+    <text x="524" y="514" fill="#475569">IOC found → auto-enrich → reflect in report</text>
+
+    <rect x="510" y="542" width="380" height="58" fill="#eef2ff" stroke="#a5b4fc" rx="8"/>
+    <text x="524" y="562" font-weight="600">Wiki integration</text>
+    <text x="524" y="582" fill="#475569">runbook / threat-model auto-cite</text>
+
+    <rect x="510" y="610" width="380" height="80" fill="#f0fdf4" stroke="#86efac" rx="8"/>
+    <text x="524" y="630" font-weight="700" fill="#15803d">→ 2026-07  OKR Phase 1 KR registration</text>
+    <text x="524" y="650" fill="#15803d">internal deployment evidence</text>
+    <text x="524" y="670" fill="#15803d">analyst feedback baseline</text>
+  </g>
+
+  <!-- Phase 2 + 3: Enterprise Expansion -->
+  <rect x="940" y="100" width="420" height="720" fill="#fff" stroke="#22c55e" stroke-width="2.5" rx="14"/>
+  <rect x="940" y="100" width="420" height="56" fill="#22c55e" rx="14"/>
+  <rect x="940" y="135" width="420" height="21" fill="#22c55e"/>
+  <text x="1150" y="135" font-size="18" font-weight="700" text-anchor="middle" fill="#fff">Phase 2 / 3 — Enterprise Expansion</text>
+  <text x="1150" y="152" font-size="12" text-anchor="middle" fill="#bbf7d0">2026-2H ~ 2027  ·  FY26 OKR Phase 2/3</text>
+
+  <g font-size="13" fill="#1e293b">
+    <!-- Phase 2 sub-header -->
+    <rect x="960" y="180" width="380" height="34" fill="#22c55e" rx="6"/>
+    <text x="1150" y="202" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">Phase 2 — Arkime PCAP integration</text>
+
+    <rect x="960" y="222" width="380" height="58" fill="#f0fdf4" stroke="#86efac" rx="8"/>
+    <text x="974" y="242" font-weight="600">arkime-mcp surface</text>
+    <text x="974" y="262" fill="#475569">16-node fleet · JP / KR / SEA / CN</text>
+
+    <rect x="960" y="290" width="380" height="58" fill="#f0fdf4" stroke="#86efac" rx="8"/>
+    <text x="974" y="310" font-weight="600">PCAP-as-evidence</text>
+    <text x="974" y="330" fill="#475569">session/flow/payload — read-only adapter</text>
+
+    <!-- Phase 3 sub-header -->
+    <rect x="960" y="368" width="380" height="34" fill="#22c55e" rx="6"/>
+    <text x="1150" y="390" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">Phase 3 — XSOAR automated playbook</text>
+
+    <rect x="960" y="410" width="380" height="58" fill="#f0fdf4" stroke="#86efac" rx="8"/>
+    <text x="974" y="430" font-weight="600">Analysis → XSOAR trigger</text>
+    <text x="974" y="450" fill="#475569">findings.json → playbook entry contract</text>
+
+    <rect x="960" y="478" width="380" height="58" fill="#f0fdf4" stroke="#86efac" rx="8"/>
+    <text x="974" y="498" font-weight="600">Containment automation</text>
+    <text x="974" y="518" fill="#475569">isolate host / disable token / block IOC</text>
+
+    <rect x="960" y="546" width="380" height="58" fill="#f0fdf4" stroke="#86efac" rx="8"/>
+    <text x="974" y="566" font-weight="600">Write boundary in XSOAR layer</text>
+    <text x="974" y="586" fill="#475569">read-only MCP 원칙 유지 · 쓰기는 XSOAR만</text>
+
+    <rect x="960" y="614" width="380" height="58" fill="#fefce8" stroke="#facc15" rx="8"/>
+    <text x="974" y="634" font-weight="600" fill="#854d0e">Future — LogOAK upstream link</text>
+    <text x="974" y="654" fill="#854d0e">normalized pipeline → evidence_root</text>
+
+    <rect x="960" y="682" width="380" height="58" fill="#fefce8" stroke="#facc15" rx="8"/>
+    <text x="974" y="702" font-weight="600" fill="#854d0e">Future — Agentic-SOC alignment</text>
+    <text x="974" y="722" fill="#854d0e">DART支援 role · AR1 project boundary 유지</text>
+  </g>
+
+  <!-- Arrows between phases -->
+  <line x1="462" y1="450" x2="488" y2="450" stroke="#dc2626" stroke-width="3" marker-end="url(#arrowRed)"/>
+  <line x1="912" y1="450" x2="938" y2="450" stroke="#4F46E5" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- Bottom anchor -->
+  <text x="700" y="855" font-size="11" text-anchor="middle" fill="#64748b">All phases maintain MCP read-only boundary · SHA-256 audit chain · CI forbidden-tools verification</text>
+</svg>
