@@ -211,6 +211,11 @@ When artifacts disagree, `dart-corr` flags the contradiction as `UNRESOLVED` and
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src:$PWD/dart_corr/src"
 export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 
+# Test-suite dependencies (declared in each package's pyproject; listed here
+# for a PYTHONPATH run without an editable install): DuckDB backs dart_corr,
+# python-registry the registry-hive parser, mcp the JSON-RPC stdio wire tests.
+pip install duckdb python-registry mcp
+
 python3 tests/test_audit_chain.py                       #  4 — chain integrity + tamper detection
 python3 tests/test_mcp_surface.py                       #  3 — surface is the exact positive set
 python3 tests/test_mcp_bypass.py                        #  7 — destructive ops are blocked
@@ -228,7 +233,8 @@ python3 -m pytest dart_corr/tests/                      # 14 — dart_corr extra
                                              # full suite (116 tests)
 ```
 
-The full suite passes on a clean checkout. The repo also contains
+The full suite passes on a clean checkout once the dependencies above are
+installed. The repo also contains
 `tests/_pending/` — tests for Phase 2 functions not yet on the
 MCP surface. Those are intentionally not part of the shipping suite.
 
