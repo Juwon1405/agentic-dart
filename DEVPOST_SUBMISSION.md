@@ -154,7 +154,7 @@ evidence tiers:
 
 | Tier | Cases | Evidence | Total findings |
 |---|---|---|---:|
-| Internal (synthetic, production-noise-injected) | case-01 to case-07, case-11 | `examples/sample-evidence-realistic/` (748 KB bundled) | 69 |
+| Internal (synthetic, noise-injected ~1:30) | case-01 to case-07, case-11 | `examples/sample-evidence-realistic/` (748 KB bundled) | 69 |
 | External (third-party, community-verified) | case-08 to case-10 | NIST CFReDS / Ali Hadi / Digital Corpora M57 (~13 GB downloaded) | 30 |
 
 External datasets are deliberately chosen across three independent
