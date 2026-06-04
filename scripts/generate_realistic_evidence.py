@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 """
-Generate a realistic (noise-injected) variant of the bundled sample-evidence.
+Enrich the two IOC-only logs in the realistic sample-evidence variant.
 
-The original examples/sample-evidence/ is kept as a deterministic reference
-(stable hashes, easy to debug). This script writes a parallel
-examples/sample-evidence-realistic/ tree where each evidence file is
-mixed with synthetic benign noise at production-realistic ratios:
+examples/sample-evidence/ is the deterministic reference set (stable hashes,
+small, fully IOC-loaded). examples/sample-evidence-realistic/ is a parallel,
+hand-curated tree carrying the same ground-truth IOCs at production volume on
+most surfaces (Windows Security EventLog ~11,530 lines, supply-chain, RDP
+brute-force, USB setupapi, memory triage, etc.).
 
-  Web access log:    27 attack lines  + 1000 benign lines  (1 : 37)
-  Security events:   18 IOC events    +  500 benign events (1 : 28)
-  Process tree CSV:  11 IOC procs     +  200 benign procs  (1 : 18)
-  Unix auth.log:     17 IOC lines     +  500 benign lines  (1 : 29)
+Two surfaces ship IOC-only -- the web access log and the unix auth log. This
+script enriches ONLY those two, in-place, with deterministic benign noise so
+needle-in-haystack detection is exercised on them:
 
-Ground truth (the IOC lines themselves, byte-for-byte) is preserved so
-measure_accuracy.py can score recall on the noise-injected variant
-against the same ground-truth set.
+  Web access log:  27 IOC requests + 1000 benign requests  (~1 : 37)
+  Unix auth.log:   17 IOC events    +  500 benign events    (~1 : 29)
 
-The benign generator is deterministic (seeded) — re-running this script
-produces byte-identical output, keeping CI reproducible.
+Every other evidence file is left byte-for-byte untouched. The benign
+generator is seeded (20260508), so re-running produces byte-identical output
+and the working tree stays clean. The IOC lines themselves are preserved
+verbatim, so measure_accuracy.py scores recall against the same ground truth.
 """
 
 import random

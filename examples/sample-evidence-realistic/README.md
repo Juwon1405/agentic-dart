@@ -15,7 +15,7 @@ regenerated:
 | Supply-chain events (`disk/supplychain-security-events.json`) | 427 lines |
 | RDP brute-force (`disk/rdp-brute-events.json`) | 452 lines |
 | USB setupapi (`disk/Windows/INF/setupapi.dev.log`) | 107 lines |
-| Network / memory / Prefetch / MFT / journald / ... | production-shaped |
+| Network / memory / Prefetch / MFT / journald / ... | production volume |
 
 Two surfaces ship **IOC-only** and are enriched in-place with deterministic
 benign noise by `../../scripts/generate_realistic_evidence.py` (seed
