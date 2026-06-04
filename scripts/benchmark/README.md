@@ -75,8 +75,10 @@ alongside this project. Two sub-variants ship in the repository:
 - The detection functions discriminate IOC from benign at production
   signal-to-noise ratios (not just on toy single-line inputs).
 - Recall and false-positive numbers hold across both the small
-  reference set and the noise-injected variant — both score
-  Recall 1.000 / FPR 0.000 / Hallucination 0.
+  reference set and the noise-injected variant — the case-01 reference
+  findings (F-001, F-013) score Recall 1.000 / FPR 0.000 / Hallucination 0
+  on both variants. Per-case scoring across all 11 cases is the job of
+  `score_cases.py` (audit-join match), exercised once live-mode runs land.
 
 **What this layer does NOT prove:**
 - That dart-mcp solves real-world cases collected from production
@@ -185,7 +187,7 @@ When you run `python3 -m scripts.benchmark.run_all --download`:
 │                                                                │
 │  1. measure_accuracy.py --variant realistic                    │
 │     ↓                                                          │
-│  2. Iterates case-01 through case-07                           │
+│  2. Scores case-01 ref (F-001/F-013)                           │
 │  3. Calls each detection function on bundled evidence          │
 │  4. Diffs findings against ground-truth.json per case          │
 │  5. Writes docs/accuracy-report.md                             │
@@ -367,7 +369,7 @@ scripts/benchmark/
 
 ## Related files elsewhere in the repo
 
-- `scripts/measure_accuracy.py` — Layer 1 evaluator (case-01 to case-07)
+- `scripts/measure_accuracy.py` — Layer 1 regression scorer (case-01 reference scenario: F-001, F-013)
 - `scripts/generate_realistic_evidence.py` — seeded noise generator for the realistic variant
 - `examples/sample-evidence/` — Layer 1 reference (deterministic) evidence
 - `examples/sample-evidence-realistic/` — Layer 1 noise-injected evidence
