@@ -302,15 +302,67 @@ That's all. `run_all.py --layer 2` will pick it up automatically.
 
 ---
 
+## Integrity gate & unified scorer
+
+Two modules keep the ground-truth honest and make every case scoreable
+through one path.
+
+### `validate_ground_truth.py` — drift gate
+
+Runs on every commit (`.pre-commit-config.yaml`) and in CI
+(`.github/workflows/benchmark-integrity.yml`). It fails the build if any
+ground-truth finding:
+
+- references an `expected_dart_mcp_function` not registered in
+  `dart_mcp._REGISTRY` (the live tool surface),
+- points at an `evidence_path` that does not exist in the evidence pool, or
+- has an inconsistent `host_path` / `evidence_path`.
+
+Derived findings (`self_correction_event`, `audit_chain`,
+`correlation_finding`) are exempt from path checks. External cases
+(08-10) downgrade missing paths / roadmap functions to WARN.
+
+```bash
+python3 scripts/benchmark/validate_ground_truth.py            # FAIL blocks
+python3 scripts/benchmark/validate_ground_truth.py --strict   # WARN also blocks (CI)
+```
+
+### `score_cases.py` — unified, case-agnostic scorer
+
+`run_benchmark.py` matches on `evidence_id`, but dart_agent's
+`report.json` does not carry one — the evidence path lives in
+`audit.jsonl` under each tool call's `inputs`. `score_cases.py` joins a
+finding's `audit_ids` back to `audit.jsonl` to recover
+`(tool_name, inputs paths)`, then matches that against ground-truth.
+This content-based match works for any case regardless of the
+finding_id scheme, and is the path intended for per-case, per-model
+recall once live-mode runs are wired in.
+
+```bash
+python3 scripts/benchmark/score_cases.py --case case-05-authentication-lateral --run-dir <out_dir>
+```
+
+### Dependencies
+
+Both modules use only the Python standard library (`json`, `re`,
+`argparse`, `pathlib`). `validate_ground_truth.py` imports `dart_mcp`
+for the live registry, so set `PYTHONPATH` to the package `src` dirs
+(see the repo-root README). No extra `pip install` is required beyond
+the base dart-mcp dependencies.
+
+---
+
 ## File index for this directory
 
 ```
 scripts/benchmark/
-├── README.md           this file
-├── datasets.py         registry of 3 external datasets with URLs, checksums, scenarios
-├── download.py         streaming downloader with resume + verify + auto-join
-├── run_benchmark.py    per-dataset evaluator (Layer 2 single-case runner)
-└── run_all.py          unified entry point — runs both layers, one command
+├── README.md                  this file
+├── datasets.py                registry of 3 external datasets with URLs, checksums, scenarios
+├── download.py                streaming downloader with resume + verify + auto-join
+├── run_benchmark.py           per-dataset evaluator (Layer 2 single-case runner)
+├── run_all.py                 unified entry point — runs both layers, one command
+├── score_cases.py             unified scorer — audit-join match, case-agnostic
+└── validate_ground_truth.py   CI/pre-commit integrity gate (ground-truth <-> MCP)
 ```
 
 ## Related files elsewhere in the repo
