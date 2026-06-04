@@ -57,23 +57,31 @@ alongside this project. Two sub-variants ship in the repository:
   that affected detection logic.
 
 - **`examples/sample-evidence-realistic/`** (the *realistic* variant,
-  748 KB) — same ground-truth signal, but mixed with synthetic benign
-  noise at production-realistic ratios:
+  748 KB) — the same ground-truth signals as the reference set. Two
+  IOC-only logs are enriched with deterministic benign noise; every other
+  surface is committed hand-curated at production volume:
 
   ```
-  Web access log     27 attack lines   + 1000 benign lines    1 : 37
-  Security events    18 IOC events     +  500 benign events   1 : 28
-  Process tree CSV   11 IOC procs      +  200 benign procs    1 : 18
-  Unix auth.log      17 IOC lines      +  500 benign lines    1 : 29
+  Enriched at measure time (reference IOC + benign noise):
+    Web access log     27 IOC requests  + 1000 benign requests   ~1 : 37
+    Unix auth.log      17 IOC events     +  500 benign events     ~1 : 29
+
+  Committed hand-curated, production volume (not regenerated):
+    Security EventLog  ~11,500 lines      Supply-chain events    427 lines
+    RDP brute-force    452 lines          USB setupapi.dev.log   107 lines
+    Network events     100 lines          Memory triage          104 lines
   ```
 
   The benign-noise generator (`scripts/generate_realistic_evidence.py`)
-  is seeded (`seed = 20260508`) so the output is byte-identical on every
-  run. CI re-derives the realistic tree on every build.
+  is seeded (`seed = 20260508`) so the noise it adds to the two IOC-only logs
+  is byte-identical on every run. `measure_accuracy.py --variant realistic`
+  re-derives those two logs before scoring (CI runs both variants on every
+  build); all other realistic evidence is committed hand-curated and is not
+  regenerated.
 
 **What this layer proves:**
-- The detection functions discriminate IOC from benign at production
-  signal-to-noise ratios (not just on toy single-line inputs).
+- The detection functions discriminate IOC from benign at realistic
+  (~1:30) signal-to-noise ratios, not just on toy single-line inputs.
 - Recall and false-positive numbers hold across both the small
   reference set and the noise-injected variant — the case-01 reference
   findings (F-001, F-013) score Recall 1.000 / FPR 0.000 / Hallucination 0

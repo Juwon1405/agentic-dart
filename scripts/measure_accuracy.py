@@ -19,6 +19,7 @@ Metrics:
 import hashlib
 import json
 import os
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -32,11 +33,14 @@ REPO = Path(__file__).resolve().parents[1]
 #                                           IOC-loaded, used for byte-stable
 #                                           regression / CI assertions.
 #
-#   examples/sample-evidence-realistic/   — the same IOCs mixed with
-#                                           synthetic benign noise at
-#                                           ~1:30 IOC:benign ratios.
-#                                           Demonstrates needle-in-haystack
-#                                           recall on production-shaped data.
+#   examples/sample-evidence-realistic/   — hand-curated, production-volume
+#                                           evidence (security-events ~11k
+#                                           lines, supply-chain, RDP brute,
+#                                           USB setupapi, ...). The web access
+#                                           and unix auth logs ship IOC-only
+#                                           and are enriched with benign noise
+#                                           (~1:30) at measure time, to exercise
+#                                           needle-in-haystack recall.
 #
 # Pass --variant realistic to score the agent against the noise-injected set;
 # the default (--variant reference) preserves CI determinism.
@@ -53,6 +57,22 @@ if _variant not in ("reference", "realistic"):
 _evidence_dir = (
     "sample-evidence-realistic" if _variant == "realistic" else "sample-evidence"
 )
+# For the realistic variant, re-derive the two IOC-only logs (web access and
+# unix auth) with deterministic benign noise before scoring, so the
+# needle-in-haystack measurement always reflects the current reference IOCs.
+# The generator only touches those two logs — all other hand-curated realistic
+# evidence (security-events, supply-chain, etc.) is left untouched — and its
+# output is byte-identical across runs, so this leaves git clean.
+if _variant == "realistic":
+    _gen = REPO / "scripts" / "generate_realistic_evidence.py"
+    _r = subprocess.run(
+        [sys.executable, str(_gen)], cwd=str(REPO),
+        capture_output=True, text=True,
+    )
+    if _r.returncode != 0:
+        print(f"generate_realistic_evidence.py failed:\n{_r.stderr}",
+              file=sys.stderr)
+        sys.exit(2)
 os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / _evidence_dir)
 sys.path.insert(0, str(REPO / "dart_audit" / "src"))
 sys.path.insert(0, str(REPO / "dart_mcp"   / "src"))

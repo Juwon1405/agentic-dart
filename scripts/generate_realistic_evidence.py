@@ -20,10 +20,7 @@ The benign generator is deterministic (seeded) — re-running this script
 produces byte-identical output, keeping CI reproducible.
 """
 
-import csv
-import json
 import random
-import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -54,22 +51,6 @@ BENIGN_PATHS = [
     "/dashboard", "/settings", "/profile",
 ]
 
-BENIGN_PROCESSES = [
-    ("svchost.exe", "C:\\Windows\\System32\\svchost.exe -k netsvcs"),
-    ("explorer.exe", "C:\\Windows\\explorer.exe"),
-    ("chrome.exe", "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\""),
-    ("OUTLOOK.EXE", "\"C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE\""),
-    ("WINWORD.EXE", "\"C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE\""),
-    ("Teams.exe", "\"C:\\Users\\analyst\\AppData\\Local\\Microsoft\\Teams\\current\\Teams.exe\""),
-    ("RuntimeBroker.exe", "C:\\Windows\\System32\\RuntimeBroker.exe"),
-    ("dwm.exe", "\"dwm.exe\""),
-    ("conhost.exe", "\\??\\C:\\Windows\\system32\\conhost.exe 0x4"),
-    ("OneDrive.exe", "\"C:\\Users\\analyst\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe\" /background"),
-    ("MsMpEng.exe", "\"C:\\ProgramData\\Microsoft\\Windows Defender\\Platform\\MsMpEng.exe\""),
-    ("SearchUI.exe", "\"C:\\Windows\\SystemApps\\Microsoft.Windows.Cortana_cw5n1h2txyewy\\SearchUI.exe\""),
-    ("audiodg.exe", "C:\\Windows\\System32\\audiodg.exe 0x568"),
-]
-
 BENIGN_USERS = ["analyst", "admin", "developer", "manager", "intern1", "intern2", "guest"]
 
 BENIGN_INTERNAL_IPS = [f"10.0.{a}.{b}" for a in range(1, 5) for b in range(1, 50)]
@@ -88,34 +69,6 @@ def synth_benign_access_log_line(ts):
     ua = random.choice(BENIGN_USER_AGENTS)
     ts_str = ts.strftime("%d/%b/%Y:%H:%M:%S +0000")
     return f'{ip} - - [{ts_str}] "{method} {path} HTTP/1.1" {status} {size} "-" "{ua}"'
-
-
-def synth_benign_logon_event(ts, event_id_pool=None):
-    if event_id_pool is None:
-        event_id_pool = [4624, 4624, 4624, 4634, 4634, 4672]
-    eid = random.choice(event_id_pool)
-    user = random.choice(BENIGN_USERS)
-    return {
-        "event_id": eid,
-        "ts": ts.isoformat(),
-        "user": user,
-        "domain": "CORP",
-        "logon_type": random.choice([2, 3, 7, 10]),
-        "source_ip": random.choice(BENIGN_INTERNAL_IPS),
-        "workstation": f"WS-{random.randint(1000, 9999)}",
-    }
-
-
-def synth_benign_process(ts, parent_pid):
-    image, cmdline = random.choice(BENIGN_PROCESSES)
-    return {
-        "ts": ts.isoformat(),
-        "pid": random.randint(1000, 65000),
-        "ppid": parent_pid,
-        "image": image,
-        "cmdline": cmdline,
-        "user": "analyst",
-    }
 
 
 def synth_benign_auth_log_line(ts):
@@ -153,60 +106,6 @@ def mix_access_log(src_path, dst_path, benign_count=1000):
     return len(ioc_lines), len(benign_lines)
 
 
-def mix_security_events(src_path, dst_path, benign_count=500):
-    """Mix benign Windows logon events with the IOC events."""
-    with open(src_path) as f:
-        ioc_events = json.load(f)
-    base_ts = datetime(2026, 3, 15, 8, 0, 0)
-    benign_events = [
-        synth_benign_logon_event(base_ts + timedelta(seconds=random.randint(0, 16 * 3600)))
-        for _ in range(benign_count)
-    ]
-    all_events = ioc_events + benign_events
-    # Sort by timestamp so the file looks like a real event stream
-    all_events.sort(key=lambda e: e.get("ts") or e.get("@timestamp", ""))
-    dst_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(dst_path, "w") as f:
-        json.dump(all_events, f, indent=2)
-    return len(ioc_events), len(benign_events)
-
-
-def mix_processes_csv(src_path, dst_path, benign_count=200):
-    """Mix benign background processes with the IOC processes.
-
-    Benign procs all attach under one of four well-known root PIDs (4, 696,
-    824, 1024) — this produces a wide-but-shallow tree (depth 1) and avoids
-    triggering get_process_tree's recursion on a long single-line chain.
-    The IOC processes keep their own multi-level parent relationships.
-    """
-    with open(src_path) as f:
-        reader = csv.DictReader(f)
-        fieldnames = reader.fieldnames
-        ioc_rows = list(reader)
-    base_ts = datetime(2026, 3, 15, 8, 0, 0)
-    well_known_roots = [4, 696, 824, 1024]
-    benign_rows = []
-    for _ in range(benign_count):
-        p = synth_benign_process(
-            base_ts + timedelta(seconds=random.randint(0, 8 * 3600)),
-            parent_pid=random.choice(well_known_roots),
-        )
-        row = {col: p.get(col, "") for col in fieldnames}
-        for col in fieldnames:
-            if col in row and row[col] == "" and col == "user":
-                row[col] = "analyst"
-        benign_rows.append(row)
-    all_rows = ioc_rows + benign_rows
-    random.shuffle(all_rows)
-    dst_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(dst_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in all_rows:
-            writer.writerow(row)
-    return len(ioc_rows), len(benign_rows)
-
-
 def mix_unix_auth_log(src_path, dst_path, benign_count=500):
     with open(src_path) as f:
         ioc_lines = [line.rstrip("\n") for line in f if line.strip()]
@@ -226,15 +125,27 @@ def mix_unix_auth_log(src_path, dst_path, benign_count=500):
 # ---------- Orchestration ---------------------------------------------------
 
 def main():
-    if DST.exists():
-        shutil.rmtree(DST)
-    # Start by mirroring the entire src tree (so files we don't actively mix
-    # — small CSVs, plist samples, etc. — still exist at the same relative path)
-    shutil.copytree(SRC, DST)
+    # The realistic tree is hand-curated with production-volume evidence on
+    # most surfaces (security-events ~11k lines, supply-chain, RDP brute, USB
+    # setupapi, memory triage, etc.). Only two logs ship IOC-only: the web
+    # access log and the unix auth log. This script enriches ONLY those two
+    # in-place with deterministic benign noise (seed 20260508) so that
+    # needle-in-haystack detection is exercised at realistic signal-to-noise.
+    #
+    # IMPORTANT: every other evidence file is left byte-for-byte untouched.
+    # We deliberately do NOT rmtree / copytree the reference set over the
+    # realistic tree — that would destroy hand-curated evidence that exists
+    # only in the realistic variant (e.g. supply-chain events with no
+    # reference counterpart). Enrichment is purely additive.
+    if not DST.exists():
+        raise SystemExit(
+            f"realistic tree not found at {DST}; it is version-controlled, "
+            f"hand-curated evidence and is not generated from scratch."
+        )
 
     summary = []
 
-    # 1. Web access log: 27 IOC + 1000 benign
+    # Web access log: reference IOC requests + benign traffic (~1:37)
     ioc, benign = mix_access_log(
         SRC / "web/logs/access.log",
         DST / "web/logs/access.log",
@@ -242,23 +153,7 @@ def main():
     )
     summary.append(("web/logs/access.log", ioc, benign))
 
-    # 2. Security events: 18 IOC + 500 benign
-    ioc, benign = mix_security_events(
-        SRC / "disk/security-events.json",
-        DST / "disk/security-events.json",
-        benign_count=500,
-    )
-    summary.append(("disk/security-events.json", ioc, benign))
-
-    # 3. Process trees: SKIPPED — noise injection on process trees triggers
-    #    PID collisions with IOC entries which then break get_process_tree's
-    #    recursive walk. Process trees are kept identical to the reference
-    #    set; the realistic IOC-detection signal is demonstrated through web
-    #    log (1:37 ratio), security events (1:31), and unix auth (1:29) which
-    #    are the surfaces where SOC analysts actually face haystack-scale
-    #    benign noise.
-
-    # 4. Unix auth.log
+    # Unix auth.log: reference IOC auth events + benign logins (~1:29)
     ioc, benign = mix_unix_auth_log(
         SRC / "mac/var/log/auth.log",
         DST / "mac/var/log/auth.log",

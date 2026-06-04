@@ -100,10 +100,14 @@ jobs:
       - name: SIFT adapter demo (graceful no-binary path)
         run: bash examples/sift-adapter-demo.sh
 
-      - name: Accuracy measurement
+      - name: Accuracy measurement (reference variant)
         env:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
         run: python3 scripts/measure_accuracy.py
+      - name: Accuracy measurement (realistic / noise-injected variant)
+        env:
+          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
+        run: python3 scripts/measure_accuracy.py --variant realistic
 
   url-reachability:
     name: URL reachability — verify every external reference in docs + case studies resolves
