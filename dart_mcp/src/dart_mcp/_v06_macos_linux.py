@@ -21,13 +21,10 @@ References (all open / public):
     T1568.002 (Domain Generation Algorithms), T1572 (Protocol Tunneling)
 """
 from __future__ import annotations
-import json
 import math
-import os
 import re
 import sqlite3
-import tempfile
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 

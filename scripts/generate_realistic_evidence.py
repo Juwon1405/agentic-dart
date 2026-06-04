@@ -22,10 +22,8 @@ produces byte-identical output, keeping CI reproducible.
 
 import csv
 import json
-import os
 import random
 import shutil
-import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 

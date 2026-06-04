@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
 
 from dart_mcp import tool, _safe_resolve, _sha256
 

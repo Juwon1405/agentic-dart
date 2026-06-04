@@ -20,7 +20,6 @@ extract the SOFTWARE/SYSTEM/SAM hives via The Sleuth Kit:
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 from pathlib import Path
