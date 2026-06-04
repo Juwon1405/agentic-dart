@@ -1,0 +1,63 @@
+# Dependabot configuration.
+#
+# Policy (DFIR / SANS-submission repository — reproducibility is critical):
+#   - Monthly cadence, not daily: dependency churn is reviewed in one batch.
+#   - Cooldown: a freshly published version waits before a PR is opened, so a
+#     malicious release is more likely to be caught upstream first
+#     (default 7 days; major bumps wait 30). This is the supply-chain guard.
+#   - minor/patch are grouped into a single PR; MAJOR bumps are intentionally
+#     left out of the group so each lands as its own PR for manual review.
+#   - No auto-merge is configured here: every PR is reviewed and merged by a
+#     human. Pinned dependencies + monthly batch review is the operating model.
+version: 2
+
+updates:
+  # ---- GitHub Actions workflows ----
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    groups:
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---- Python packages (multi-package layout) ----
+  - package-ecosystem: "pip"
+    directories:
+      - "/dart_audit"
+      - "/dart_corr"
+      - "/dart_agent"
+      - "/dart_mcp"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    groups:
+      python-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
