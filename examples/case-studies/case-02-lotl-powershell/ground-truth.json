@@ -16,7 +16,10 @@
       "artifact_type": "process_tree",
       "host_path": "disk/processes.csv",
       "expected_dart_mcp_function": "get_process_tree",
-      "mitre_attack": ["T1059.001", "T1059.003"],
+      "mitre_attack": [
+        "T1059.001",
+        "T1059.003"
+      ],
       "severity": "medium",
       "rationale": "PowerShell PID 4812 spawned cmd.exe 4820 and wscript.exe 4824 — unusual for benign workflows."
     },
@@ -28,7 +31,9 @@
       "artifact_type": "event_log",
       "host_path": "disk/events.json",
       "expected_dart_mcp_function": "analyze_event_logs",
-      "mitre_attack": ["T1003.001"],
+      "mitre_attack": [
+        "T1003.001"
+      ],
       "severity": "critical",
       "rationale": "Sysmon EventID 10 with full-access mask = mimikatz-class signature."
     },
@@ -40,7 +45,10 @@
       "artifact_type": "event_log",
       "host_path": "disk/events.json",
       "expected_dart_mcp_function": "analyze_event_logs",
-      "mitre_attack": ["T1059.001", "T1105"],
+      "mitre_attack": [
+        "T1059.001",
+        "T1105"
+      ],
       "severity": "high",
       "rationale": "EventID 4104 PowerShell script block contains classic in-memory loader."
     },
@@ -50,9 +58,11 @@
       "claim": "Registry Run key 'SecurityUpdate' with hidden PowerShell DownloadString",
       "evidence_path": "disk/Windows/System32/config/NTUSER.DAT.runkeys.csv",
       "artifact_type": "registry_run_key",
-      "host_path": "Windows/System32/config/NTUSER.DAT.runkeys.csv",
+      "host_path": "disk/Windows/System32/config/NTUSER.DAT.runkeys.csv",
       "expected_dart_mcp_function": "detect_persistence",
-      "mitre_attack": ["T1547.001"],
+      "mitre_attack": [
+        "T1547.001"
+      ],
       "severity": "high",
       "rationale": "Run key contains 'powershell -w hidden -c IEX(DownloadString(...))' command."
     },
@@ -62,9 +72,11 @@
       "claim": "Service 'RemoteHandsHelper' installed pointing to AppData\\Local\\Temp",
       "evidence_path": "disk/Windows/System32/config/SYSTEM.services.csv",
       "artifact_type": "service",
-      "host_path": "Windows/System32/config/SYSTEM.services.csv",
+      "host_path": "disk/Windows/System32/config/SYSTEM.services.csv",
       "expected_dart_mcp_function": "detect_persistence",
-      "mitre_attack": ["T1543.003"],
+      "mitre_attack": [
+        "T1543.003"
+      ],
       "severity": "high",
       "rationale": "Service binary path in user Temp folder — diagnostic of attacker persistence."
     },
@@ -76,7 +88,10 @@
       "artifact_type": "correlation_finding",
       "host_path": "audit.jsonl",
       "expected_dart_mcp_function": "correlate_timeline",
-      "mitre_attack": ["T1003.001", "T1059.001"],
+      "mitre_attack": [
+        "T1003.001",
+        "T1059.001"
+      ],
       "severity": "high",
       "rationale": "DuckDB scale engine cross-source correlation links script execution to credential dumping by same actor."
     },
@@ -86,9 +101,11 @@
       "claim": "Scheduled task 'RemoteHandsSync' (cross-references case-01)",
       "evidence_path": "disk/Windows/System32/Tasks/RemoteHandsSync",
       "artifact_type": "scheduled_task",
-      "host_path": "Windows/System32/Tasks/RemoteHandsSync",
+      "host_path": "disk/Windows/System32/Tasks/RemoteHandsSync",
       "expected_dart_mcp_function": "list_scheduled_tasks",
-      "mitre_attack": ["T1053.005"],
+      "mitre_attack": [
+        "T1053.005"
+      ],
       "severity": "high",
       "rationale": "Same persistence artefact as case-01 — demonstrates cross-case attribution."
     }

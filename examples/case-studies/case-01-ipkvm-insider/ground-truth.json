@@ -15,9 +15,11 @@
       "claim": "IP-KVM device (ATEN VID 0557 PID 2419) inserted before operator logon",
       "evidence_path": "disk/Windows/INF/setupapi.dev.log",
       "artifact_type": "usb_history",
-      "host_path": "Windows/INF/setupapi.dev.log",
+      "host_path": "disk/Windows/INF/setupapi.dev.log",
       "expected_dart_mcp_function": "analyze_usb_history",
-      "mitre_attack": ["T1200"],
+      "mitre_attack": [
+        "T1200"
+      ],
       "severity": "high",
       "rationale": "USB insertion signature at 14:19:47 precedes logon by ~3 minutes — diagnostic IP-KVM remote-hands pattern."
     },
@@ -27,9 +29,11 @@
       "claim": "Unusual binary first-executed shortly after suspicious logon",
       "evidence_path": "disk/Windows/AppCompat/Programs/Amcache.hve",
       "artifact_type": "amcache",
-      "host_path": "Windows/AppCompat/Programs/Amcache.hve",
+      "host_path": "disk/Windows/AppCompat/Programs/Amcache.hve",
       "expected_dart_mcp_function": "get_amcache",
-      "mitre_attack": ["T1059"],
+      "mitre_attack": [
+        "T1059"
+      ],
       "severity": "medium",
       "rationale": "Amcache first-execution timestamp falls within the IP-KVM session window."
     },
@@ -39,9 +43,11 @@
       "claim": "Scheduled task 'RemoteHandsSync' created for persistence",
       "evidence_path": "disk/Windows/System32/Tasks/RemoteHandsSync",
       "artifact_type": "scheduled_task",
-      "host_path": "Windows/System32/Tasks/RemoteHandsSync",
+      "host_path": "disk/Windows/System32/Tasks/RemoteHandsSync",
       "expected_dart_mcp_function": "list_scheduled_tasks",
-      "mitre_attack": ["T1053.005"],
+      "mitre_attack": [
+        "T1053.005"
+      ],
       "severity": "high",
       "rationale": "Task XML registered during the IP-KVM session window with unusual command line."
     },

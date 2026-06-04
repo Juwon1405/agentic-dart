@@ -16,7 +16,9 @@
       "artifact_type": "unified_log",
       "host_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
       "expected_dart_mcp_function": "parse_unified_log",
-      "mitre_attack": ["T1204.002"],
+      "mitre_attack": [
+        "T1204.002"
+      ],
       "severity": "high",
       "rationale": "macOS built-in antimalware (XProtect) flagged the second-stage binary."
     },
@@ -28,7 +30,9 @@
       "artifact_type": "unified_log",
       "host_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
       "expected_dart_mcp_function": "parse_unified_log",
-      "mitre_attack": ["T1548.006"],
+      "mitre_attack": [
+        "T1548.006"
+      ],
       "severity": "high",
       "rationale": "Unauthorized ScreenCapture request is diagnostic of credential-theft / surveillance intent."
     },
@@ -36,11 +40,13 @@
       "finding_id": "F-MAC-003",
       "category": "persistence",
       "claim": "launchd daemon dropped at ~/Library/LaunchAgents/com.remotehands.helper.plist",
-      "evidence_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
+      "evidence_path": "macos/com.evil.persistence.plist",
       "artifact_type": "launchd_plist",
-      "host_path": "~/Library/LaunchAgents/com.remotehands.helper.plist",
+      "host_path": "macos/com.evil.persistence.plist",
       "expected_dart_mcp_function": "parse_unified_log",
-      "mitre_attack": ["T1543.001"],
+      "mitre_attack": [
+        "T1543.001"
+      ],
       "severity": "high",
       "rationale": "User-scope LaunchAgent re-launches the remote-admin app at every login."
     },
@@ -52,7 +58,9 @@
       "artifact_type": "knowledgec",
       "host_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
       "expected_dart_mcp_function": "parse_knowledgec",
-      "mitre_attack": ["T1059.004"],
+      "mitre_attack": [
+        "T1059.004"
+      ],
       "severity": "medium",
       "rationale": "Terminal focus events corroborate hands-on-keyboard activity in attack window."
     },
@@ -64,7 +72,9 @@
       "artifact_type": "fsevents",
       "host_path": "mac/fsevents.csv",
       "expected_dart_mcp_function": "parse_fsevents",
-      "mitre_attack": ["T1074.001"],
+      "mitre_attack": [
+        "T1074.001"
+      ],
       "severity": "high",
       "rationale": "Create-then-delete pattern in TemporaryItems is the macOS staging signature."
     },
@@ -74,9 +84,11 @@
       "claim": "macOS-targeted credential dumper dropped at /Users/Shared/tools/mimikatz-mac",
       "evidence_path": "mac/fsevents.csv",
       "artifact_type": "fsevents",
-      "host_path": "/Users/Shared/tools/mimikatz-mac",
+      "host_path": "mac/fsevents.csv",
       "expected_dart_mcp_function": "parse_fsevents",
-      "mitre_attack": ["T1003"],
+      "mitre_attack": [
+        "T1003"
+      ],
       "severity": "high",
       "rationale": "Filename + Shared folder placement = credential-theft tool staging."
     },
@@ -88,7 +100,9 @@
       "artifact_type": "auth_log",
       "host_path": "mac/var/log/auth.log",
       "expected_dart_mcp_function": "analyze_unix_auth",
-      "mitre_attack": ["T1110.001"],
+      "mitre_attack": [
+        "T1110.001"
+      ],
       "severity": "medium",
       "rationale": "Auth log shows multiple SSH login failures from same external IP."
     },

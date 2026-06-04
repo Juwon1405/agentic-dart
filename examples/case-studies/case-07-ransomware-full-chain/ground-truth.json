@@ -12,9 +12,9 @@
       "finding_id": "F-RANSOM-001",
       "category": "credential_access",
       "claim": "mimikatz.exe sekurlsa::logonpasswords — primary LSASS dumper",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/creds-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.001"
@@ -26,9 +26,9 @@
       "finding_id": "F-RANSOM-002",
       "category": "credential_access",
       "claim": "procdump.exe -ma lsass.exe — Sysinternals LSASS dump",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/creds-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.001"
@@ -40,9 +40,9 @@
       "finding_id": "F-RANSOM-003",
       "category": "credential_access",
       "claim": "reg save HKLM\\SAM and HKLM\\SECURITY and HKLM\\SYSTEM — offline credential extraction",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/creds-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.002"
@@ -54,9 +54,9 @@
       "finding_id": "F-RANSOM-004",
       "category": "credential_access",
       "claim": "ntdsutil ac in ntds ifm create full — Active Directory database dump",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/creds-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.003"
@@ -68,9 +68,9 @@
       "finding_id": "F-RANSOM-005",
       "category": "credential_access",
       "claim": "rundll32 comsvcs.dll MiniDump — LOLBin LSASS dump",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/creds-processes.csv",
       "expected_dart_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.001",
@@ -83,9 +83,9 @@
       "finding_id": "F-RANSOM-006",
       "category": "discovery",
       "claim": "AD reconnaissance burst — 11 discovery commands in 60 seconds (SCRIPTED RECON)",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/discovery-processes.csv",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/discovery-processes.csv",
       "expected_dart_mcp_function": "detect_discovery",
       "mitre_attack": [
         "T1087.002",
@@ -103,9 +103,9 @@
       "finding_id": "F-RANSOM-007",
       "category": "discovery",
       "claim": "SharpHound.exe -c All -d corp.local — BloodHound AD graph collection",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/discovery-processes.csv",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/discovery-processes.csv",
       "expected_dart_mcp_function": "detect_discovery",
       "mitre_attack": [
         "T1069.002",
@@ -118,9 +118,9 @@
       "finding_id": "F-RANSOM-008",
       "category": "defense_evasion",
       "claim": "vssadmin delete shadows /all /quiet — shadow copy deletion (recovery denial)",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/log-clearing-events.json",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/log-clearing-events.json",
       "expected_dart_mcp_function": "detect_defense_evasion",
       "mitre_attack": [
         "T1490"
@@ -132,9 +132,9 @@
       "finding_id": "F-RANSOM-009",
       "category": "defense_evasion",
       "claim": "wbadmin delete catalog -quiet + bcdedit recoveryenabled no — backup catalog + recovery mode disabled",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/log-clearing-events.json",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/log-clearing-events.json",
       "expected_dart_mcp_function": "detect_defense_evasion",
       "mitre_attack": [
         "T1490"
@@ -146,9 +146,9 @@
       "finding_id": "F-RANSOM-010",
       "category": "defense_evasion",
       "claim": "wevtutil cl Security + System + Application — log clearing",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/log-clearing-events.json",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/log-clearing-events.json",
       "expected_dart_mcp_function": "detect_defense_evasion",
       "mitre_attack": [
         "T1070.001"
@@ -160,9 +160,9 @@
       "finding_id": "F-RANSOM-011",
       "category": "impact",
       "claim": "15 taskkill commands targeting SQL/backup services in <10 seconds",
-      "evidence_path": "disk/processes.csv",
+      "evidence_path": "disk/ransomware-processes.csv",
       "artifact_type": "process_tree",
-      "host_path": "disk/processes.csv",
+      "host_path": "disk/ransomware-processes.csv",
       "expected_dart_mcp_function": "detect_ransomware_behavior",
       "mitre_attack": [
         "T1489"
@@ -174,9 +174,9 @@
       "finding_id": "F-RANSOM-012",
       "category": "impact",
       "claim": "30 files renamed to *.locked extension — encryption signature",
-      "evidence_path": "disk/Users/analyst/",
+      "evidence_path": "disk/ransomware-processes.csv",
       "artifact_type": "filesystem_artifact",
-      "host_path": "disk/",
+      "host_path": "disk/ransomware-processes.csv",
       "expected_dart_mcp_function": "detect_ransomware_behavior",
       "mitre_attack": [
         "T1486"
@@ -188,9 +188,9 @@
       "finding_id": "F-RANSOM-013",
       "category": "impact",
       "claim": "README.txt and decrypt_instructions.txt ransom notes dropped",
-      "evidence_path": "disk/Users/analyst/",
+      "evidence_path": "disk/ransomware-processes.csv",
       "artifact_type": "filesystem_artifact",
-      "host_path": "disk/Users/analyst/",
+      "host_path": "disk/ransomware-processes.csv",
       "expected_dart_mcp_function": "detect_ransomware_behavior",
       "mitre_attack": [
         "T1486"

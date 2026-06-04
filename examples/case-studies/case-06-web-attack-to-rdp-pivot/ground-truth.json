@@ -16,7 +16,10 @@
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
       "expected_dart_mcp_function": "analyze_web_access_log",
-      "mitre_attack": ["T1190", "T1595.002"],
+      "mitre_attack": [
+        "T1190",
+        "T1595.002"
+      ],
       "severity": "high",
       "rationale": "sqlmap/1.7.2 User-Agent + 23 requests + 0.652 error ratio + 22 distinct paths = automated scanner signature."
     },
@@ -28,7 +31,9 @@
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
       "expected_dart_mcp_function": "analyze_web_access_log",
-      "mitre_attack": ["T1190"],
+      "mitre_attack": [
+        "T1190"
+      ],
       "severity": "high",
       "rationale": "Time-based blind SQLi payload diagnostic in URL query string."
     },
@@ -40,7 +45,9 @@
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
       "expected_dart_mcp_function": "analyze_web_access_log",
-      "mitre_attack": ["T1083"],
+      "mitre_attack": [
+        "T1083"
+      ],
       "severity": "high",
       "rationale": "Path traversal sequence with /etc/passwd target = LFI exploitation attempt."
     },
@@ -52,7 +59,9 @@
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
       "expected_dart_mcp_function": "analyze_web_access_log",
-      "mitre_attack": ["T1190"],
+      "mitre_attack": [
+        "T1190"
+      ],
       "severity": "high",
       "rationale": "SSRF probe of cloud metadata endpoint = attempt to steal IAM role credentials."
     },
@@ -64,7 +73,9 @@
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
       "expected_dart_mcp_function": "analyze_web_access_log",
-      "mitre_attack": ["T1190"],
+      "mitre_attack": [
+        "T1190"
+      ],
       "severity": "critical",
       "rationale": "Direct command injection via shell metacharacter in URL parameter."
     },
@@ -76,7 +87,9 @@
       "artifact_type": "web_shell",
       "host_path": "web/var/www/html/uploads/x.php",
       "expected_dart_mcp_function": "detect_webshell",
-      "mitre_attack": ["T1505.003"],
+      "mitre_attack": [
+        "T1505.003"
+      ],
       "severity": "critical",
       "rationale": "Classic China Chopper signature — minimal eval + POST parameter cmd."
     },
@@ -88,7 +101,10 @@
       "artifact_type": "web_shell",
       "host_path": "web/var/www/html/uploads/shell.php",
       "expected_dart_mcp_function": "detect_webshell",
-      "mitre_attack": ["T1505.003", "T1027"],
+      "mitre_attack": [
+        "T1505.003",
+        "T1027"
+      ],
       "severity": "critical",
       "rationale": "Encoded payload obfuscation via base64 decode + eval = active webshell."
     },
@@ -100,7 +116,9 @@
       "artifact_type": "web_shell",
       "host_path": "web/var/www/html/uploads/cmd.php",
       "expected_dart_mcp_function": "detect_webshell",
-      "mitre_attack": ["T1505.003"],
+      "mitre_attack": [
+        "T1505.003"
+      ],
       "severity": "critical",
       "rationale": "Direct system() call with GET parameter = trivial command execution shell."
     },
@@ -120,11 +138,14 @@
       "finding_id": "F-WEB-010",
       "category": "initial_access",
       "claim": "RDP brute force from 198.51.100.77 — 8 distinct usernames tried",
-      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "evidence_path": "disk/rdp-brute-events.json",
       "artifact_type": "windows_security_log",
-      "host_path": "disk/Windows/.../Security.evtx",
+      "host_path": "disk/rdp-brute-events.json",
       "expected_dart_mcp_function": "detect_brute_force_rdp",
-      "mitre_attack": ["T1110.001", "T1078"],
+      "mitre_attack": [
+        "T1110.001",
+        "T1078"
+      ],
       "severity": "high",
       "rationale": "Same external IP performing RDP password spray = parallel entry vector to web compromise."
     }

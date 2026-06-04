@@ -41,9 +41,9 @@
       "finding_id": "F-AUTH-003",
       "category": "lateral_movement",
       "claim": "Windows SMB brute force from same 203.0.113.42 (type-3 logons, NTLM)",
-      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "evidence_path": "disk/security-events.json",
       "artifact_type": "windows_security_log",
-      "host_path": "disk/Windows/.../Security.evtx",
+      "host_path": "disk/security-events.json",
       "expected_dart_mcp_function": "analyze_windows_logons",
       "mitre_attack": [
         "T1021.002",
@@ -56,9 +56,9 @@
       "finding_id": "F-AUTH-004",
       "category": "lateral_movement",
       "claim": "RDP (logon type 10) connection from external 203.0.113.42 to WKS-ANALYST",
-      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "evidence_path": "disk/security-events.json",
       "artifact_type": "windows_security_log",
-      "host_path": "disk/Windows/.../Security.evtx",
+      "host_path": "disk/security-events.json",
       "expected_dart_mcp_function": "analyze_windows_logons",
       "mitre_attack": [
         "T1021.001"
@@ -70,9 +70,9 @@
       "finding_id": "F-AUTH-005",
       "category": "credential_access",
       "claim": "Kerberoasting — 3 TGS requests with RC4 encryption (MSSQL/SQL01, HTTP/exchange, LDAP/DC01)",
-      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "evidence_path": "disk/security-events.json",
       "artifact_type": "kerberos_event",
-      "host_path": "disk/Windows/.../Security.evtx",
+      "host_path": "disk/security-events.json",
       "expected_dart_mcp_function": "analyze_kerberos_events",
       "mitre_attack": [
         "T1558.003"
@@ -84,9 +84,9 @@
       "finding_id": "F-AUTH-006",
       "category": "credential_access",
       "claim": "AS-REP roasting — TGT request for user 'alice' with no preauth",
-      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "evidence_path": "disk/security-events.json",
       "artifact_type": "kerberos_event",
-      "host_path": "disk/Windows/.../Security.evtx",
+      "host_path": "disk/security-events.json",
       "expected_dart_mcp_function": "analyze_kerberos_events",
       "mitre_attack": [
         "T1558.004"
@@ -113,9 +113,9 @@
       "finding_id": "F-AUTH-008",
       "category": "persistence",
       "claim": "After-hours RDP (02:17) from different IP 198.51.100.77",
-      "evidence_path": "disk/Windows/System32/winevt/Logs/Security.evtx",
+      "evidence_path": "disk/security-events.json",
       "artifact_type": "windows_security_log",
-      "host_path": "disk/Windows/.../Security.evtx",
+      "host_path": "disk/security-events.json",
       "expected_dart_mcp_function": "analyze_windows_logons",
       "mitre_attack": [
         "T1078"

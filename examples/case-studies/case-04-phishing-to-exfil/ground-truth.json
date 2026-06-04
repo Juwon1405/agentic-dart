@@ -16,7 +16,9 @@
       "artifact_type": "browser_history",
       "host_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
       "expected_dart_mcp_function": "parse_browser_history",
-      "mitre_attack": ["T1566.002"],
+      "mitre_attack": [
+        "T1566.002"
+      ],
       "severity": "high",
       "rationale": "URL `finance-update-secure.tk` with referrer from `outlook.office.com/mail` = phishing email entry vector confirmed."
     },
@@ -28,7 +30,9 @@
       "artifact_type": "browser_history",
       "host_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
       "expected_dart_mcp_function": "parse_browser_history",
-      "mitre_attack": ["T1071.001"],
+      "mitre_attack": [
+        "T1071.001"
+      ],
       "severity": "high",
       "rationale": "Raw IP + non-443 port indicates direct payload delivery, not standard HTTPS."
     },
@@ -40,7 +44,9 @@
       "artifact_type": "download_record",
       "host_path": "disk/Users/analyst/Downloads/",
       "expected_dart_mcp_function": "analyze_downloads",
-      "mitre_attack": ["T1204.002"],
+      "mitre_attack": [
+        "T1204.002"
+      ],
       "severity": "high",
       "rationale": "Double-extension trick (.pdf.exe) — classic phishing delivery signature."
     },
@@ -52,7 +58,9 @@
       "artifact_type": "correlation_finding",
       "host_path": "audit.jsonl",
       "expected_dart_mcp_function": "correlate_download_to_execution",
-      "mitre_attack": ["T1204.002"],
+      "mitre_attack": [
+        "T1204.002"
+      ],
       "severity": "high",
       "rationale": "Browser download record timestamps line up with Amcache/Prefetch execution by 6 min."
     },
@@ -64,7 +72,9 @@
       "artifact_type": "network_artifact",
       "host_path": "disk/Users/analyst/",
       "expected_dart_mcp_function": "detect_exfiltration",
-      "mitre_attack": ["T1567.002"],
+      "mitre_attack": [
+        "T1567.002"
+      ],
       "severity": "critical",
       "rationale": "Known file-drop services in browser history during attack window = data leaving the host."
     },
@@ -72,9 +82,9 @@
       "finding_id": "F-PHISH-006",
       "category": "self_correction",
       "claim": "Initial H1 'OneDriveStartup persistence' retracted after parse_registry_hive shows legitimate Microsoft path",
-      "evidence_path": "audit.jsonl",
+      "evidence_path": "disk/Users/analyst/NTUSER.DAT",
       "artifact_type": "self_correction_event",
-      "host_path": "audit.jsonl",
+      "host_path": "disk/Users/analyst/NTUSER.DAT",
       "expected_dart_mcp_function": "parse_registry_hive",
       "mitre_attack": [],
       "severity": "info",
