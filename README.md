@@ -428,7 +428,7 @@ Evidence integrity:        preserved (50 files, all SHA-256 hashes match pre/pos
 Self-correction observed:  true
 ```
 
-Produced by `python3 scripts/measure_accuracy.py`. The same numbers hold on the noise-injected variant — `python3 scripts/measure_accuracy.py --variant realistic` runs the same detection functions against the same IOCs mixed with synthetic benign traffic at ~1:30 ratios (web log 1027 lines, security events 516, unix auth 517) and produces identical recall=1.0 / FPR=0.0 / hallucination=0. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, both variants' results, ground truth, and explicit limitations (including third-party dataset benchmarking deferred to Phase 2 — issue #47).
+Produced by `python3 scripts/measure_accuracy.py`. The same numbers hold on the noise-injected variant — `python3 scripts/measure_accuracy.py --variant realistic` runs the same detection functions against the same IOCs mixed with synthetic benign traffic at ~1:30 ratios (web log 1027 lines, security events 516, unix auth 517) and produces identical recall=1.0 / FPR=0.0 / hallucination=0 on the case-01 reference findings (F-001, F-013); per-case scoring across all 11 cases is provided by `scripts/benchmark/score_cases.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, both variants' results, ground truth, and explicit limitations (including third-party dataset benchmarking deferred to Phase 2 — issue #47).
 
 ### Supply-chain + AD certificate-services attack chain (case-11)
 
