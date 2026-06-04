@@ -1,5 +1,35 @@
 # Changelog
 
+## [unreleased] — 2026-06-05 — realistic variant: enrich the two IOC-only logs, preserve hand-curated evidence
+
+### Changed
+
+- The realistic evidence tree (`examples/sample-evidence-realistic/`) is
+  recognized as hand-curated production-volume evidence on most surfaces
+  (Windows Security EventLog ~11,530 lines, supply-chain, RDP brute-force,
+  USB setupapi, memory triage). `scripts/generate_realistic_evidence.py` now
+  enriches ONLY the two IOC-only logs in-place with deterministic benign
+  noise — web access 27 -> 1027 (~1:37) and unix auth 17 -> 517 (~1:29) —
+  and no longer `rmtree`/`copytree` the reference set over the realistic tree
+  (which had destroyed hand-curated evidence with no reference counterpart,
+  e.g. supply-chain events).
+- `measure_accuracy.py --variant realistic` re-derives those two logs before
+  scoring; byte-identical output keeps the working tree clean.
+- CI now scores both reference and realistic variants on every build.
+
+### Removed
+
+- Dead code in the generator left unused by the in-place design: the
+  security/process-tree mixers, their benign synthesizers, `BENIGN_PROCESSES`,
+  and now-unused imports (`csv`, `json`, `shutil`).
+
+### Fixed
+
+- Documentation honesty: the realistic ratio table no longer claims the
+  generator synthesizes security/process noise (it does not), and dropped the
+  "production-shaped / production signal-to-noise" overstatement (the enriched
+  ratio is ~1:30 — past toy inputs, not production scale).
+
 ## [unreleased] — 2026-05-31 — token usage visibility in live mode
 
 The live agent loop now reads `.usage` off every Anthropic
