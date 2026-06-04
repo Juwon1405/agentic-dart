@@ -1,0 +1,11 @@
+# Ground-truth ↔ MCP 정합성을 commit 단계에서 검증한다.
+# 설치: pip install pre-commit && pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: validate-ground-truth
+        name: Validate ground-truth <-> MCP integrity
+        entry: python3 scripts/benchmark/validate_ground_truth.py
+        language: system
+        pass_filenames: false
+        files: '(examples/case-studies/.*ground-truth\.json|dart_mcp/.*\.py)$'

@@ -1,0 +1,40 @@
+name: benchmark-integrity
+
+# Ground-truth 정답지와 분석 코드의 표류를 CI에서 차단한다.
+on:
+  push:
+    paths:
+      - 'examples/case-studies/**/ground-truth.json'
+      - 'examples/sample-evidence**/**'
+      - 'dart_mcp/**'
+      - 'scripts/benchmark/**'
+  pull_request:
+    paths:
+      - 'examples/case-studies/**/ground-truth.json'
+      - 'examples/sample-evidence**/**'
+      - 'dart_mcp/**'
+      - 'scripts/benchmark/**'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate ground-truth integrity
+        # evidence_path 실존 + expected_function 등록 + host/evidence 정합.
+        # FAIL이 있으면 비제로 종료 → 머지 차단.
+        run: python3 scripts/benchmark/validate_ground_truth.py
+
+      - name: Regression — score case-01 (deterministic)
+        # 채점기가 깨지지 않았는지 회귀. deterministic은 case-01 고정 출력이라
+        # strict recall이 정해진 값으로 재현되어야 한다.
+        env:
+          PYTHONPATH: dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src:dart_playbook/src
+          DART_EVIDENCE_ROOT: examples/sample-evidence-realistic
+        run: |
+          python3 -m dart_agent --case case-01-ipkvm-insider --out /tmp/c01 --mode deterministic
+          python3 scripts/benchmark/score_cases.py --case case-01-ipkvm-insider --run-dir /tmp/c01 --json

@@ -70,7 +70,7 @@
       "claim": "Compressed archive uploaded to bashupload.com / transfer.sh",
       "evidence_path": "disk/Users/analyst/Downloads/",
       "artifact_type": "network_artifact",
-      "host_path": "disk/Users/analyst/",
+      "host_path": "disk/Users/analyst/Downloads/",
       "expected_dart_mcp_function": "detect_exfiltration",
       "mitre_attack": [
         "T1567.002"
