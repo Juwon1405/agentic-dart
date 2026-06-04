@@ -1,24 +1,23 @@
 #!/usr/bin/env python3
-"""
-통합 채점기 — 모든 케이스(내부 01~07,11 + 외부 08~10)를 단일 인터페이스로 채점.
+"""Unified scorer - scores every case (internal 01-07,11 + external 08-10) via one interface.
 
-dart_agent 출력(report.json)엔 evidence_path가 없으므로, 각 finding의 audit_ids로
-audit.jsonl을 조인해 (tool_name, inputs 경로)를 복원한 뒤 ground-truth와 매칭한다.
-이것이 finding_id 체계 불일치(F-001 vs F-AUTH-xxx)를 우회하는 내용 기반 매칭이다.
+dart_agent output (report.json) carries no evidence_path, so each finding's
+audit_ids are joined against audit.jsonl to recover (tool_name, inputs paths),
+which are then matched against ground-truth. This content-based match sidesteps
+the finding_id scheme mismatch (F-001 vs F-AUTH-xxx).
 
-  strict   : ground-truth (expected_function, evidence_path) ↔ finding (tool_name, 복원 경로)
-  lenient  : (artifact_type/host_path 접두)               ↔ finding 복원 경로 접두
-  파생(self_correction / audit_chain / correlation)        : 채점 제외
-  hallucination : audit_ids 가 없는 finding 수 (근거 체인 없는 주장)
-  FPR           : lenient 로도 매칭 안 된 finding / 전체 finding
+  strict   : ground-truth (expected_function, evidence_path) <-> finding (tool_name, recovered path)
+  lenient  : (artifact_type / host_path prefix)              <-> finding recovered-path prefix
+  derived (self_correction / audit_chain / correlation)       : excluded from scoring
+  hallucination : findings without any audit_ids (claims lacking a chain)
+  FPR           : findings matched by neither / total findings
 
-사용:
+Usage:
   python3 scripts/benchmark/score_cases.py --case case-05-authentication-lateral --run-dir <out_dir>
   python3 scripts/benchmark/score_cases.py --case <case> --report r.json --audit a.jsonl
 """
 import argparse
 import json
-import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -28,7 +27,7 @@ _PATH_HINT = (".json", ".csv", ".log", ".evtx", ".hve", ".ndjson", ".txt", ".dat
 
 
 def load_audit_map(audit_path):
-    """audit_id -> {tool, paths:set}. inputs 값 중 파일 경로로 보이는 것만 수집."""
+    """Map audit_id -> {tool, paths:set}. Collect only file-path-like inputs values."""
     amap = {}
     if not audit_path.exists():
         return amap
@@ -52,7 +51,7 @@ def load_audit_map(audit_path):
 
 
 def normalize_findings(report_path, amap):
-    """모델 finding -> {id, tools:set, paths:set, has_audit:bool} (audit 조인)."""
+    """Model finding -> {id, tools:set, paths:set, has_audit:bool} (audit join)."""
     out = []
     d = json.loads(report_path.read_text(encoding="utf-8"))
     for f in d.get("findings", []):
@@ -86,7 +85,7 @@ def load_gt(case):
 
 
 def match_strict(gt, findings, used):
-    """경로 일치 + (함수 일치 또는 gt 함수 미지정). 한 finding은 한 번만 소비."""
+    """Path match + (function match or gt function unset). One finding consumed once."""
     for f in findings:
         if id(f) in used:
             continue
@@ -110,10 +109,10 @@ def match_lenient(gt, findings, used):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--case", required=True)
-    ap.add_argument("--run-dir", help="dart_agent 출력 디렉토리 (report.json + audit.jsonl)")
+    ap.add_argument("--run-dir", help="dart_agent output dir (report.json + audit.jsonl)")
     ap.add_argument("--report")
     ap.add_argument("--audit")
-    ap.add_argument("--json", action="store_true", help="JSON 한 줄만 출력")
+    ap.add_argument("--json", action="store_true", help="print a single JSON line only")
     a = ap.parse_args()
 
     if a.run_dir:
@@ -122,7 +121,7 @@ def main():
     elif a.report and a.audit:
         report, audit = Path(a.report), Path(a.audit)
     else:
-        ap.error("--run-dir 또는 (--report와 --audit) 필요")
+        ap.error("requires --run-dir or both --report and --audit")
 
     amap = load_audit_map(audit)
     findings = normalize_findings(report, amap)
@@ -159,7 +158,7 @@ def main():
         print(json.dumps(res))
         return
     print(f"=== {a.case} ===")
-    print(f"ground-truth(비파생) {n_gt}  |  findings {n_f}")
+    print(f"ground-truth (non-derived) {n_gt}  |  findings {n_f}")
     print(f"strict  recall {res['strict_recall']:.1%} ({s_tp}/{n_gt})  precision {res['strict_precision']:.1%}")
     print(f"lenient recall {res['lenient_recall']:.1%} ({l_tp}/{n_gt})")
     print(f"hallucination {halluc}  |  FPR {res['fpr']:.1%} ({fp}/{n_f})")

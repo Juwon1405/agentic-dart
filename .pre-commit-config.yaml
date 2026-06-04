@@ -1,5 +1,5 @@
-# Ground-truth ↔ MCP 정합성을 commit 단계에서 검증한다.
-# 설치: pip install pre-commit && pre-commit install
+# Validate ground-truth <-> MCP integrity at commit time.
+# Install: pip install pre-commit && pre-commit install
 repos:
   - repo: local
     hooks:
