@@ -3,12 +3,17 @@
 > Concise operational guide for Codex and other coding agents. For the full
 > rationale see [CLAUDE.md](./CLAUDE.md). When the two overlap, both are
 > authoritative; CLAUDE.md carries the longer explanation.
+>
+> No hard-coded counts live in this file on purpose — they drift on every
+> ship and would violate our measure-don't-guess rule. Run the commands below
+> for live values.
 
 ## Project summary
 
-Autonomous DFIR agent. A senior-analyst loop calls **72 typed, read-only** MCP
-tools (47 native + 25 SIFT adapters), logs every call in a SHA-256-chained
-audit, and emits a findings report. Python 3.10+, MIT, SANS FIND EVIL! 2026.
+Autonomous DFIR agent. A senior-analyst loop calls **typed, read-only** MCP
+tools (two layers: native pure-Python functions + SIFT-tool adapters), logs
+every call in a SHA-256-chained audit, and emits a findings report.
+Python 3.10+, MIT, SANS FIND EVIL! 2026.
 
 ## Repository map
 
@@ -19,25 +24,29 @@ audit, and emits a findings report. Python 3.10+, MIT, SANS FIND EVIL! 2026.
 - `dart_playbook/` — senior-analyst YAML playbooks; **data, no `pyproject.toml`, loaded by path**
 - `examples/` — `case-studies/`, `sample-evidence/`, `sample-evidence-realistic/`, demos
 - `scripts/` — `install.sh`, `benchmark/`, `measure_accuracy.py`, `generate_realistic_evidence.py`
-- `tests/` — 102 tests; `dart_corr/tests/` — 14 tests
+- `tests/` — main pytest suite; `dart_corr/tests/` — correlation-engine tests
 
 ## Preferred commands
 
 ```bash
 export PYTHONPATH=dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src
 
-# Full suite (expect: 116 passed)
+# Full suite — every test must pass
 python3 -m pytest tests/ dart_corr/tests/ -q
 
 # Focused
-python3 tests/test_mcp_surface.py        # tool-surface drift
+python3 tests/test_mcp_surface.py        # tool-surface drift (asserts the exact set)
 python3 tests/test_mcp_bypass.py         # adversarial / read-only guard
 python3 -m pytest dart_corr/tests/ -q    # correlation engine
+
+# Live tool count / native / SIFT split
+PYTHONPATH=dart_mcp/src python3 -c "import dart_mcp; t=dart_mcp._REGISTRY; \
+s=[k for k in t if k.startswith('sift_')]; print(len(t), len(t)-len(s), len(s))"
 
 # Offline demo (deterministic, no API key)
 bash examples/demo-run.sh
 
-# Accuracy (deterministic; expect recall=1.0 / hallucination=0)
+# Accuracy (deterministic; recall must stay 1.0, hallucination 0)
 python3 scripts/measure_accuracy.py
 ```
 
@@ -55,13 +64,13 @@ no network, no API key. `dart_corr/tests/` runs as its own pytest step.
 - New playbook = YAML under `dart_playbook/`, no Python change.
 - Preserve sequential tool execution in the deterministic loop — parallelism
   would reorder the audit chain and break byte-stable determinism.
-- Measure counts live before writing them (tools 72 / tests 116 / cases 11 /
-  findings 99). Sweep all surfaces (README, docs, CHANGELOG, folder READMEs,
-  wiki) so no figure goes stale in one place.
+- Measure counts live before writing them anywhere; prefer pointing at the
+  measurement over pinning a figure. If a number must appear in prose, sweep
+  every surface (README, docs, CHANGELOG, folder READMEs, wiki) so none drifts.
 
-## Trading & data safety — N/A here, but the analogue holds
+## Data safety — no trades, no writes
 
-This repo never trades or writes. The equivalent rule: **never** commit real
+This repo never trades or writes. The standing rule: **never** commit real
 evidence, credentials, tokens, internal hostnames, company names, colleague
 names, or internal codenames. Intentional and allowed: the demo persona
 `yushin@siftworkstation`, `/home/yushin/...`, and the author handle
@@ -69,8 +78,8 @@ names, or internal codenames. Intentional and allowed: the demo persona
 
 ## Before finishing
 
-1. `python3 -m pytest tests/ dart_corr/tests/ -q` → 116 passed
-2. Tool surface still 72 (47 native + 25 SIFT)
-3. `measure_accuracy.py` → recall=1.0 / hallucination=0
+1. `python3 -m pytest tests/ dart_corr/tests/ -q` → every test passes
+2. Tool surface still matches the set asserted by `tests/test_mcp_surface.py`
+3. `measure_accuracy.py` → recall 1.0 / hallucination 0 (no regression)
 4. English commit message + English code comments
 5. `grep` your touched surfaces for stale numbers/phrasing
