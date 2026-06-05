@@ -147,12 +147,14 @@ agentic-dart/
 ├── dart_playbook/        Senior-analyst YAML playbooks (v1 / v2 / v3 industrialization)
 │
 ├── examples/
-│   ├── case-studies/     11 cases — 8 internal synthetic + 3 external (CFReDS / Hadi / M57)
-│   ├── sample-evidence/  Deterministic baseline used by CI
-│   └── demo-run.sh       One-command reproducible demo
+│   ├── case-studies/               11 cases — 8 internal synthetic + 3 external (CFReDS / Hadi / M57)
+│   ├── sample-evidence/            IOC-loaded deterministic baseline used by CI (reference variant)
+│   ├── sample-evidence-realistic/  Hand-curated production-volume tree; 2 IOC-only logs noise-injected (realistic variant)
+│   ├── demo-run.sh                 One-command reproducible demo (native tools)
+│   └── sift-adapter-demo.sh        SIFT-adapter demo (needs SIFT binaries on PATH)
 │
 ├── tests/                pytest suite — 116 tests (102 dart_mcp/agent/audit + 14 dart_corr)
-├── scripts/              install.sh (SIFT bootstrap), benchmark/, measure_accuracy.py
+├── scripts/              install.sh (SIFT bootstrap), benchmark/, measure_accuracy.py, generate_realistic_evidence.py
 ├── docs/                 architecture.md, accuracy-report.md, case walkthroughs
 ├── .github/workflows/    CI matrix (Python 3.10–3.13) + URL reachability
 │
