@@ -371,9 +371,14 @@ def get_access_token(refresh_threshold_sec: int = 3600) -> str | None:
 # When no API key is set, the OAuth (subscription) path keeps the agent
 # running with zero per-call API cost.
 # ──────────────────────────────────────────────────────────────────────────
-def build_anthropic_client(timeout: float = 600.0):
+def build_anthropic_client(timeout: float = 600.0, max_retries: int = 4):
     """Build an Anthropic client through the three-tier auth flow. Returns
-    None when no credential source is available (caller falls back to mock)."""
+    None when no credential source is available (caller falls back to mock).
+
+    `max_retries` enables the SDK's exponential backoff on transient failures
+    (HTTP 429 rate-limit, 529 overloaded, 5xx, connection drops). Deterministic
+    mode never touches the network, so this only affects `--mode live`; the
+    happy path is unchanged and only failed calls are retried."""
     try:
         import anthropic
     except ImportError:
@@ -381,7 +386,7 @@ def build_anthropic_client(timeout: float = 600.0):
     # Tier 1: explicit API key (preferred when present — metered)
     if os.environ.get("ANTHROPIC_API_KEY"):
         log.info("[dart-auth] Tier 1: using ANTHROPIC_API_KEY")
-        return anthropic.Anthropic(timeout=timeout, max_retries=0)
+        return anthropic.Anthropic(timeout=timeout, max_retries=max_retries)
     # Tier 2 + 3: OAuth (file first, Keychain fallback; load_credentials picks the fresher of the two)
     creds = load_credentials()
     if creds and creds.get("access_token"):
@@ -396,7 +401,7 @@ def build_anthropic_client(timeout: float = 600.0):
         src = creds.get("_path", "?")
         log.info("[dart-auth] using OAuth credentials (source: %s) — zero per-call API cost", src)
         return anthropic.Anthropic(auth_token=creds["access_token"],
-                                   timeout=timeout, max_retries=0)
+                                   timeout=timeout, max_retries=max_retries)
     log.warning("[dart-auth] neither API key nor OAuth credentials available; client cannot be built")
     return None
 
