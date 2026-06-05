@@ -327,7 +327,7 @@ Agentic-DART runs on **Linux**, **macOS**, and **Windows** as the host (Python 3
 | **Windows** &nbsp;<sub>10 / 11 / Server 2016+</sub> | 🟢 Deep | Registry hives (SYSTEM, SOFTWARE, NTUSER.DAT, AmCache.hve), $MFT, Prefetch, ShellBags, ShimCache, EVTX (Security/System/Application/Sysmon), Scheduled Tasks, USBSTOR + setupapi.dev.log, Volume Shadow metadata |
 | **macOS** &nbsp;<sub>11 Big Sur → 14 Sonoma</sub> | 🟢 Standard | UnifiedLog (`log show --style ndjson`), KnowledgeC.db (CoreDuet), FSEvents (fseventsd), LaunchAgent / LaunchDaemon plists, browser SQLite (Safari, Chrome, Firefox), Spotlight metadata, Quarantine xattrs |
 | **Linux** &nbsp;<sub>RHEL/Rocky/Alma 8+, Ubuntu 20.04+, Debian 11+</sub> | 🟢 Standard | auditd (`/var/log/audit/audit.log`), systemd-journal (`journalctl -o json`), syslog (`auth.log` / `secure`), bash/zsh history, cron / systemd-units, web access logs (Apache / Nginx) |
-| **Cross-platform** | 🟢 | Process trees, browser SQLite (Chrome / Firefox / Safari / Edge), Sigma rule matching against any pre-extracted event log, MITRE ATT&CK chain reasoning |
+| **Cross-platform** | 🟢 Broad | Process trees, browser SQLite (Chrome / Firefox / Safari / Edge), Sigma rule matching against any pre-extracted event log, MITRE ATT&CK chain reasoning |
 
 > **Note on host vs. target:** the agent reads forensic *output* the
 > operator produces (CSV / JSON / SQLite / plist / NDJSON). It does not
