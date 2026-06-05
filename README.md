@@ -218,21 +218,25 @@ export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 # python-registry the registry-hive parser, mcp the JSON-RPC stdio wire tests.
 pip install duckdb python-registry mcp
 
-python3 tests/test_audit_chain.py                       #  4 — chain integrity + tamper detection
-python3 tests/test_mcp_surface.py                       #  3 — surface is the exact positive set
-python3 tests/test_mcp_bypass.py                        #  7 — destructive ops are blocked
-python3 tests/test_sift_adapters.py                     #  8 — v0.5 SIFT adapter layer guarantees
-python3 tests/test_agent_self_correction.py             #  1 — end-to-end self-correction
-python3 tests/test_live_mcp.py                          #  4 — JSON-RPC stdio wire tests
-python3 tests/test_concurrency_and_edge_cases.py        #  3 — concurrent audit writes + path safety
-python3 tests/test_qa_pass_regressions.py               #  1 — v0.5.1 QA-pass regression guard
-python3 tests/test_parse_registry_hive.py               # 12 — registry hive parsing (v0.5.4 CFReDS gap closure)
-python3 tests/test_v05_supply_chain.py                  # 12 — cross-platform supply-chain IOC sweeps (v0.6.0)
-python3 tests/test_v06_macos_linux.py                   # 17 — macOS quarantine + Linux cron + DNS tunneling (v0.6.1)
-python3 tests/test_parse_linux_dfir.py                  #  7 — Linux text-log + shell-history + cron parsing (v0.7.0)
-python3 -m pytest dart_corr/tests/                      # 14 — dart_corr extracted engine (v0.7.1)
-                                             # ──
-                                             # full suite (116 tests)
+python3 tests/test_audit_chain.py                       # chain integrity + tamper detection
+python3 tests/test_mcp_surface.py                       # surface is the exact positive set
+python3 tests/test_mcp_bypass.py                        # destructive ops are blocked
+python3 tests/test_sift_adapters.py                     # v0.5 SIFT adapter layer guarantees
+python3 tests/test_agent_self_correction.py             # end-to-end self-correction
+python3 tests/test_live_mcp.py                          # JSON-RPC stdio wire tests
+python3 tests/test_live_truncation.py                   # live result truncation (24k cap)
+python3 tests/test_live_usage_tracking.py               # live token-usage accounting
+python3 tests/test_evtxecmd_oom.py                      # EvtxECmd OOM-safe streaming reads
+python3 tests/test_concurrency_and_edge_cases.py        # concurrent audit writes + path safety
+python3 tests/test_qa_pass_regressions.py               # QA-pass regression guard
+python3 tests/test_parse_registry_hive.py               # registry hive parsing (v0.5.4 CFReDS gap closure)
+python3 tests/test_v05_supply_chain.py                  # cross-platform supply-chain IOC sweeps (v0.6.0)
+python3 tests/test_v06_macos_linux.py                   # macOS quarantine + Linux cron + DNS tunneling (v0.6.1)
+python3 tests/test_parse_linux_dfir.py                  # Linux text-log + shell-history + cron parsing (v0.7.0)
+python3 -m pytest dart_corr/tests/                      # dart_corr extracted engine (v0.7.1)
+
+# Or run the whole suite at once (the authoritative count comes from here):
+python3 -m pytest tests/ dart_corr/tests/
 ```
 
 The full suite passes on a clean checkout once the dependencies above are
@@ -412,7 +416,7 @@ See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-us
 
 ## Case study for judges
 
-Eleven case studies are bundled — eight Layer-1 synthetic (cases 01–07 + 11) and three Layer-2 external benchmarks (cases 08 CFReDS, 09 Hadi, 10 M57) — for a total of **99 ground-truth findings** with 108 MITRE ATT&CK technique codes attached. For the judge walkthrough, two are the recommended entry points:
+Eleven case studies are bundled — eight Layer-1 synthetic (cases 01–07 + 11) and three Layer-2 external benchmarks (cases 08 CFReDS, 09 Hadi, 10 M57) — for a total of **99 ground-truth findings** with 108 MITRE ATT&CK technique references across 69 unique techniques attached. For the judge walkthrough, two are the recommended entry points:
 
 1. **[Pass-the-Hash with timestomp pre-existence](./docs/case-pth-timestomp.md)** &mdash; the conceptual walkthrough. A narrative explainer showing the agent build a coherent partial MITRE chain, then have it broken by a `dart-corr` contradiction (timestomp before the credential event), then revise to a correct verdict. This is the architecture-first claim in document form; the bundled, fully-executable equivalent is case-07-ransomware-full-chain, which exercises PtH + timestomp in the same call shape.
 

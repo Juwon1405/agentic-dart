@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dart-agent"
-version = "0.7.1"
+version = "1.0.0"
 description = "Agentic-DART autonomous DFIR agent (deterministic + live modes)"
 requires-python = ">=3.10"
 dependencies = [
@@ -16,6 +16,7 @@ dependencies = [
 live = [
     "anthropic>=0.40.0",
     "mcp>=1.0.0",
+    "requests>=2.25.0",
 ]
 
 [tool.setuptools.packages.find]

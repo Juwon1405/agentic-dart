@@ -1,6 +1,40 @@
 # Changelog
 
-## [unreleased] — 2026-06-05 — realistic variant: enrich the two IOC-only logs, preserve hand-curated evidence
+## [1.0.0] — 2026-06-05 — First stable release (SANS FIND EVIL! 2026)
+
+First stable, competition-submission release. Consolidates every dated entry
+below into a single versioned baseline.
+
+### Added
+- AI-assistant guides `CLAUDE.md` and `AGENTS.md` — measurement-oriented (no
+  pinned counts; they point at a Verify block, so they cannot go stale).
+
+### Changed
+- `dart_agent` live-mode Anthropic client now retries transient API errors
+  (429 / 5xx): `max_retries` 0 -> 4. Deterministic mode, CI, and the test
+  suite are mock-backed and unaffected.
+- `dart_agent` declares `requests` in `optional-dependencies[live]` — the
+  OAuth refresh-token path calls `requests.post` directly.
+- `README` test listing completed to all 15 test files; per-test count
+  comments dropped in favor of the `pytest` command as the single source of
+  truth. ATT&CK coverage restated as "108 references across 69 unique
+  techniques."
+- Wiki MCP-function catalog synced to the live tool surface (47 native + 25
+  SIFT adapters).
+
+### Fixed
+- `README` examples tree now matches the git-tracked entries exactly.
+- Removed a dead `dart_playbook/src` entry from the `PYTHONPATH` in CI config
+  and `tests/README` (`dart_playbook` is YAML data, never imported).
+- Corrected a stale tool-count glyph (35 -> 47) in a run screenshot.
+
+### Surface at release (measured at release time; reproduce via the README Verify block)
+- 72 MCP tools = 47 native pure-Python functions + 25 SIFT-tool adapters
+- 116 tests (102 `tests/` + 14 `dart_corr/tests/`), green on a clean clone
+- 11 case studies, 99 ground-truth findings (108 ATT&CK references / 69 unique)
+- recall 1.0 / FPR 0.0 / hallucination 0 on both reference and realistic variants
+
+## [1.0.0] — 2026-06-05 — realistic variant: enrich the two IOC-only logs, preserve hand-curated evidence
 
 ### Changed
 
@@ -30,7 +64,7 @@
   "production-shaped / production signal-to-noise" overstatement (the enriched
   ratio is ~1:30 — past toy inputs, not production scale).
 
-## [unreleased] — 2026-05-31 — token usage visibility in live mode
+## [1.0.0] — 2026-05-31 — token usage visibility in live mode
 
 The live agent loop now reads `.usage` off every Anthropic
 `messages.create` response and accumulates four counters on the
@@ -81,7 +115,7 @@ across iterations).
 
 ---
 
-## [unreleased] — 2026-05-25 — agentic-loop hardening pass
+## [1.0.0] — 2026-05-25 — agentic-loop hardening pass
 
 An internal code-review pass focused on the live agent loop
 surfaced several improvements. The safe, self-contained ones
