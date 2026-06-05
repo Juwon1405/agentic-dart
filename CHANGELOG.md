@@ -343,7 +343,7 @@ Total test suite: **75 green** (up from 68).
 
 | Surface | Value |
 |---|---:|
-| Native MCP functions | 72 |
+| MCP surface (47 native + 25 SIFT) | 72 |
 | Total ground-truth findings | 99 |
 | Ground-truth coverage (implemented / expected) | 32 / 36 (89%) |
 | Bundled case studies | 11 |
@@ -467,7 +467,7 @@ USB noise records around the IP-KVM (VID 0557 PID 2419 ATEN) signal.
 
 | Surface | Count |
 |---|---|
-| Native MCP functions | 72 |
+| MCP surface (47 native + 25 SIFT) | 72 |
 | Total ground-truth findings | 99 (Layer 1 = 69, Layer 2 = 30) |
 | Bundled case studies | 11 |
 | Internal cases (Layer 1) | 8 (01–07, 11) |
