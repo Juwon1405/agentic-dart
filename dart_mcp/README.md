@@ -17,9 +17,9 @@ If a destructive capability is not part of the MCP surface, the agent cannot inv
 
 | Layer | Count | Source | When to use |
 |---|---:|---|---|
-| **Native** | 35 | Pure Python in `dart_mcp/__init__.py` | Always available, fresh-clone demo |
+| **Native** | 47 | Pure Python in `dart_mcp/__init__.py` | Always available, fresh-clone demo |
 | **SIFT adapters** | 25 | Subprocess wrappers in `dart_mcp/sift_adapters/` | When deployed on SIFT Workstation |
-| **Total** | **60** | | |
+| **Total** | **72** | | |
 
 The SIFT adapter layer brings agentic-dart into explicit alignment with the SANS FIND EVIL! 2026 **Custom MCP Server** pattern. See the project root README's `## SIFT Workstation alignment` section.
 
