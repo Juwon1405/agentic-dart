@@ -1,14 +1,22 @@
 # Tests
 
 `pytest` test suite for the five packages plus the live-mode agent loop.
-Run from repo root:
+The suite is split across two directories — **116 tests total**:
+
+- `tests/` — **102** tests (dart_mcp / dart_agent / dart_audit, parsers,
+  live-mode loop, hardening).
+- `dart_corr/tests/` — **14** tests (the correlation engine extracted into
+  its own package in v0.7.1).
+
+Run both from repo root:
 
 ```bash
 PYTHONPATH=dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src:dart_playbook/src \
-  python3 -m pytest tests/ -q
+  python3 -m pytest tests/ dart_corr/tests/ -q
 ```
 
-CI runs the same command on every push (`.github/workflows/ci.yml`).
+CI runs these on every push (`.github/workflows/ci.yml`): the `tests/` files
+individually plus `python3 -m pytest dart_corr/tests/`.
 
 ## Categories
 
