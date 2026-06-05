@@ -11,7 +11,7 @@ The suite is split across two directories — **116 tests total**:
 Run both from repo root:
 
 ```bash
-PYTHONPATH=dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src:dart_playbook/src \
+PYTHONPATH=dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src \
   python3 -m pytest tests/ dart_corr/tests/ -q
 ```
 

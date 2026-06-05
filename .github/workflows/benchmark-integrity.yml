@@ -33,7 +33,7 @@ jobs:
         # Guard the scorer against breakage. deterministic emits a fixed case-01
         # output, so strict recall must reproduce a known value.
         env:
-          PYTHONPATH: dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src:dart_playbook/src
+          PYTHONPATH: dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src
           DART_EVIDENCE_ROOT: examples/sample-evidence-realistic
         run: |
           python3 -m dart_agent --case case-01-ipkvm-insider --out /tmp/c01 --mode deterministic
