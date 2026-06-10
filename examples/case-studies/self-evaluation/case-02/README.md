@@ -1,5 +1,7 @@
 # Self-Evaluation Case 02 — Living-Off-the-Land (LOTL) PowerShell Attack
 
+**Tier:** self-evaluation (synthetic scenario)
+
 **Scenario class:** LOTL attack using signed Windows binaries to evade AV
 **Evidence:** bundled in `examples/sample-evidence/` alongside Case 01
 **Detection path:** process tree → event logs → persistence → correlate

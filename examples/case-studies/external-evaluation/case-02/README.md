@@ -1,5 +1,7 @@
 # External Case 02 — Ali Hadi DFIR Challenge #1 (Web Server Case)
 
+**Tier:** external-evaluation (public dataset, downloaded on demand)
+
 > **Why this case exists.** Cases 01-07 use synthetic Windows / macOS /
 > Linux evidence authored by this project. Case 08 added the first
 > third-party benchmark (NIST CFReDS Hacking Case). This case adds the
@@ -60,7 +62,7 @@ Reasons:
 
 What this case **does** ship:
 
-- `ground-truth.json` — 10 sampled findings spanning initial access
+- `truth.json` — 10 sampled findings spanning initial access
   through exfiltration, mapped to expected MCP functions and MITRE
   ATT&CK techniques
 - Reproducible benchmark integration via
@@ -87,7 +89,7 @@ published. The benchmark runner:
 1. SHA-256 hashes the image (proof of identity)
 2. Converts to `evidence_root/` via agentic-dart-collector-adapter
 3. Runs `dart_agent` with the senior-analyst-v3 playbook
-4. Scores `findings.json` against `ground-truth.json` in both strict
+4. Scores `findings.json` against `truth.json` in both strict
    (exact `evidence_id`) and lenient (artifact type + path prefix) modes
 5. Detects hallucinations (findings without `audit_id` reference)
 6. Verifies the SHA-256 audit chain is internally consistent

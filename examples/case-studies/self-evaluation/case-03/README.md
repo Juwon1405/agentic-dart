@@ -1,5 +1,7 @@
 # Self-Evaluation Case 03 — macOS Remote-Admin Infection + Exfiltration
 
+**Tier:** self-evaluation (synthetic scenario)
+
 **Scenario class:** macOS insider threat, unsigned "remote admin" app + staged exfil
 **Evidence:** bundled at `examples/sample-evidence/mac/`
 **Functions used:** `parse_unified_log`, `parse_knowledgec`, `parse_fsevents`

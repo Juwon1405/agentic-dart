@@ -1,7 +1,9 @@
 # Self-Evaluation Case 08 — Supply-Chain Entry → AD Certificate Services Abuse → Lateral Movement
 
+**Tier:** self-evaluation (synthetic scenario)
+
 **Scenario class:** The "HOW DID THEY GET DOMAIN ADMIN" investigation — trojanized signed vendor binary + ESC8 + DCSync + Golden Ticket
-**Evidence:** bundled across `examples/sample-evidence-realistic/disk/` (supplychain-security-events.json, supplychain-processes.csv, supplychain-network.json)
+**Evidence:** bundled across `examples/case-studies/self-evaluation/case-01/evidence_root/disk/` (supplychain-security-events.json, supplychain-processes.csv, supplychain-network.json)
 **Functions used:** `get_process_tree`, `analyze_windows_logons`,
   `analyze_kerberos_events`, `detect_lateral_movement`,
   `detect_credential_access`, `detect_persistence`,
@@ -45,9 +47,9 @@ The full chain is reconstructed entirely from public references:
 - **Golden Ticket** (MITRE T1558.001) — forged TGT signed with the
   KRBTGT NTLM hash extracted via DCSync.
 
-> **case-05 vs case-11 — explicit differentiation:** no shared host,
+> **case-05 vs case-08 — explicit differentiation:** no shared host,
 > IP, account, timestamp, or domain. case-05 = `corp.local` /
-> 2026-03-15 / brute-force-then-Kerberoast. case-11 =
+> 2026-03-15 / brute-force-then-Kerberoast. case-08 =
 > `ent.example.local` / 2026-04-21 / trojanized-vendor-then-ESC8.
 
 ## Attack reconstruction (bundled evidence)
@@ -152,7 +154,7 @@ asrep_roasting_candidates (Golden Ticket side-channel):
   ← krbtgt user with PreAuth=0 = forged TGT artefact, not legitimate AS-REP roasting
 ```
 
-**Why this is the case-11 detection breakthrough:** scattered_tgts > 3
+**Why this is the case-08 detection breakthrough:** scattered_tgts > 3
 is the only generic Kerberos check that catches ESC8 today — once
 DC01$ has been certified, the attacker uses that ticket from wherever
 they like, so the source IPs scatter while the user stays constant.
@@ -191,7 +193,7 @@ by_technique: {T1003: 3}
 *(PetitPotam + ntlmrelayx + Rubeus do not match `detect_credential_access`'s
 LSASS-centric T1003 patterns; they surface via `get_process_tree` flags
 and the F-SC-003/F-SC-004 narrative below. The ESC8 chain is the
-case-11 detection-gap callout, not a built-in technique signature.)*
+case-08 detection-gap callout, not a built-in technique signature.)*
 
 ### `detect_persistence` — AdminSDHolder + scheduled task
 
@@ -219,7 +221,7 @@ narrative findings F-SC-010 and the persistence half of F-SC-011:
 most under-monitored AD persistence vector. Detecting it requires
 either DS Object Access auditing (4662) on the AdminSDHolder
 container, or process-tree analysis of `dsacls.exe` / `ldifde.exe`
-invocations as in case-11. The current `detect_persistence` function
+invocations as in case-08. The current `detect_persistence` function
 does not parse 4662 events; that work is tracked post-SANS.
 
 ### `detect_defense_evasion` — log clearing on initial-access host
@@ -237,7 +239,7 @@ Note: cleared only on MGMT-VELO-01 (initial-access host) — the
 attacker missed the DCs and file servers. The DC trail survives.
 ```
 
-## Detection gaps the case-11 walkthrough exposes
+## Detection gaps the case-08 walkthrough exposes
 
 Three gaps are intentionally embedded so reviewers see what the agent
 does NOT currently catch — and where SOC engineering should invest:
@@ -315,7 +317,7 @@ does NOT currently catch — and where SOC engineering should invest:
 
 ## What makes this case important
 
-Before case-11, the case library demonstrated detection on:
+Before case-08, the case library demonstrated detection on:
 
 - attacker who **brute-forces in** (case-05)
 - attacker who **phishes in** (case-04)
@@ -341,14 +343,14 @@ password.
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence-realistic"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-01/evidence_root"
 
 python3 - <<'PY'
 import csv, json
 from pathlib import Path
 from dart_mcp import call_tool
 
-ROOT = Path("examples/sample-evidence-realistic")
+ROOT = Path("examples/case-studies/self-evaluation/case-01/evidence_root")
 
 # Load processes & network as in-memory lists for functions that
 # expect parsed input (detect_lateral_movement / detect_credential_access

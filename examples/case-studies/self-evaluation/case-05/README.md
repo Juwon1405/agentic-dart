@@ -1,5 +1,7 @@
 # Self-Evaluation Case 05 — Authentication, AD, and Lateral Movement
 
+**Tier:** self-evaluation (synthetic scenario)
+
 **Scenario class:** The "WHO" investigation — stolen cred + AD attack chain
 **Evidence:** bundled across `examples/sample-evidence/disk/` (Windows logons, Kerberos events) and `examples/sample-evidence/linux/` (auth.log)
 **Functions used:** `analyze_windows_logons`, `detect_lateral_movement`,

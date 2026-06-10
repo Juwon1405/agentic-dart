@@ -1,5 +1,7 @@
 # Self-Evaluation Case 07 — Full Ransomware Chain (MITRE ATT&CK Coverage)
 
+**Tier:** self-evaluation (synthetic scenario)
+
 **Scenario class:** Post-foothold ransomware deployment with full MITRE
 **Evidence:** bundled at `examples/sample-evidence/disk/` (creds-processes, discovery-processes, security-events, log-clearing-events)
 **Functions used:** `detect_credential_access`, `detect_discovery`,

@@ -1,5 +1,7 @@
 # Self-Evaluation Case 04 — Phishing → Browser Download → Execution → Exfiltration
 
+**Tier:** self-evaluation (synthetic scenario)
+
 **Scenario class:** Classic data-theft chain (the 80% case)
 **Evidence:** bundled at `examples/sample-evidence/disk/Users/analyst/`
 **Functions used:** `parse_browser_history`, `analyze_downloads`,

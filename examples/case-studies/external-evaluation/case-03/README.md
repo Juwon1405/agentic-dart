@@ -1,5 +1,7 @@
 # External Case 03 — Digital Corpora M57-Patents Scenario (Jo's PC)
 
+**Tier:** external-evaluation (public dataset, downloaded on demand)
+
 > **Why this case exists.** External cases 01 and 02 added the first two
 > third-party benchmark datasets (NIST CFReDS, Ali Hadi). This case
 > adds the **most realistic corporate scenario in public DFIR
@@ -68,7 +70,7 @@ Reasons:
 
 What this case **does** ship:
 
-- `ground-truth.json` — 10 sampled findings focused on the IP-theft
+- `truth.json` — 10 sampled findings focused on the IP-theft
   narrative, mapped to expected MCP functions and MITRE ATT&CK
   techniques
 - Reproducible benchmark integration via

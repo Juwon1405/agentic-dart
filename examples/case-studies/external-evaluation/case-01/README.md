@@ -1,5 +1,7 @@
 # External Case 01 — NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil")
 
+**Tier:** external-evaluation (public dataset, downloaded on demand)
+
 > **Why this case exists.** Cases 01-07 use synthetic evidence authored
 > by the project. This case is the first integration with a
 > **community-verified, third-party benchmark dataset** — NIST's
@@ -40,7 +42,7 @@ What this case **does** ship:
 - `evidence-snippet/Hacking_Case.html` — original NIST case briefing
 - `evidence-snippet/TestAnswers.txt` — official answers (extracted from PDF)
 - `evidence-snippet/SCHARDT.LOG` — original acquisition log
-- `ground-truth.json` — the 10 sampled findings most relevant to
+- `truth.json` — the 10 sampled findings most relevant to
   dart-mcp's current capability surface, mapped to expected MCP
   functions and labelled with detection status (`directly_detectable_v053`).
 

@@ -189,7 +189,7 @@ def screenshots():
              "  --case screenshot-dry-run --out /tmp/agentic-dart-screenshot --max-iterations 4", CYAN),
             ("[live] case=screenshot-dry-run  mode=DRY-RUN  max_iter=4", GREEN),
             ("[live] MCP handshake OK - 72 tools visible", GREEN),
-            ("[live] evidence root: examples/sample-evidence (read-only)", MUTED),
+            ("[live] evidence root: case-studies/self-evaluation/case-01/evidence_root (read-only)", MUTED),
             ("[live] derived root : ${TMPDIR:-/tmp}/agentic-dart-derived", MUTED),
             ("[live] no API call is made in --dry-run; MCP stdio plumbing is real", YELLOW),
         ],

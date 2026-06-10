@@ -1,5 +1,7 @@
 # Self-Evaluation Case 06 — Web Attack + RDP Brute Force (Dual Entry Vectors)
 
+**Tier:** self-evaluation (synthetic scenario)
+
 **Scenario class:** Initial access via two most common enterprise paths
 **Evidence:** bundled at `examples/sample-evidence/web/` (Apache logs + uploaded webshells)
 **Functions used:** `analyze_web_access_log`, `detect_webshell`, `detect_brute_force_rdp`

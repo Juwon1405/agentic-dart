@@ -1,5 +1,7 @@
 # Self-Evaluation Case 01 — IP-KVM Remote-Hands Insider Pattern
 
+**Tier:** self-evaluation (synthetic scenario)
+
 **Scenario class:** Insider threat with remote-hands physical access vector
 **Evidence:** `examples/sample-evidence/` (bundled, reproducible)
 **Command:** `bash examples/demo-run.sh`
