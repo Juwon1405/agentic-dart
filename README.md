@@ -31,7 +31,7 @@
 - [Why Agentic-DART exists](#why-agentic-dart-exists)
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
-- [**Quick start — prove it works in 30 seconds**](#quick-start--prove-it-works-in-30-seconds)
+- [**Quick start**](#quick-start)
 - [Install and requirements](#install-and-requirements)
 - [Running the tests](#running-the-tests)
 - [Target case class](#target-case-class)
@@ -67,7 +67,7 @@ This project is developed by [Juwon Bang](https://github.com/Juwon1405) with ext
 
 - **Human-driven**: architectural decisions, security model, threat coverage taxonomy, MITRE ATT&CK mapping, evidence-integrity invariants, and final code review.
 - **AI-accelerated**: implementation, sample-evidence generation, test scaffolding, documentation drafting.
-- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 119-test suite must pass on a clean clone before any commit lands on `main`.
+- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the full test suite must pass on a clean clone before any commit lands on `main`.
 
 This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
@@ -148,14 +148,17 @@ agentic-dart/
 ├── dart_playbook/        Senior-analyst YAML playbooks (v1 / v2 / v3 industrialization)
 │
 ├── examples/
-│   ├── case-studies/               11 cases — 8 internal synthetic + 3 external (CFReDS / Hadi / M57)
-│   ├── sample-evidence/            IOC-loaded deterministic baseline used by CI (reference variant)
-│   ├── sample-evidence-realistic/  Hand-curated production-volume tree; 2 IOC-only logs noise-injected (realistic variant)
-│   ├── demo-run.sh                 One-command reproducible demo (native tools)
+│   ├── case-studies/               two tiers, self-contained cases (README + truth.json + evidence_root)
+│   │   ├── self-evaluation/        case-01..08 — synthetic; case-01 ships the canonical evidence_root
+│   │   └── external-evaluation/    case-01..03 — public datasets (NIST CFReDS / Ali Hadi / Digital Corpora M57)
+│   ├── sample-evidence/            small, byte-stable CI fixture (used by the unit tests)
+│   ├── demo-run.sh                 low-level reproducible demo (native tools, no API key)
 │   └── sift-adapter-demo.sh        SIFT-adapter demo (needs SIFT binaries on PATH)
 │
-├── tests/                pytest suite — 119 tests (105 dart_mcp/agent/audit + 14 dart_corr)
-├── scripts/              install.sh (SIFT bootstrap), benchmark/, measure_accuracy.py, generate_realistic_evidence.py
+├── run_eval.py           primary user-facing command (live mode; fail-fast without a key)
+├── requirements.txt      third-party deps (mirrors the package pyproject lower bounds)
+├── tests/                pytest suite (run it for the authoritative count)
+├── scripts/              install.sh, healthcheck.py, benchmark/, measure_accuracy.py, generate_realistic_evidence.py
 ├── docs/                 architecture.md, accuracy-report.md, case walkthroughs
 ├── .github/workflows/    CI matrix (Python 3.10–3.13) + URL reachability
 │
@@ -167,11 +170,40 @@ agentic-dart/
 
 Each package has its own `README.md` with deeper detail (wire surface for `dart_mcp`, engine internals for `dart_corr`, YAML grammar for `dart_playbook`, audit format for `dart_audit`).
 
-## Quick start — prove it works in 30 seconds
+## Quick start
 
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git
 cd agentic-dart
+bash scripts/install.sh --os ubuntu --skip-sift
+export ANTHROPIC_API_KEY='sk-...'
+python3 run_eval.py --case self-evaluation/case-01
+```
+
+`run_eval.py` is live mode only: with no `ANTHROPIC_API_KEY` it fails fast,
+before any work, with an actionable message. Discover cases with
+`python3 run_eval.py --list`; run an external dataset case (downloaded on
+demand) with `python3 run_eval.py --case external-evaluation/case-01 --download`.
+
+**Full SIFT Workstation path** (stages the SIFT toolchain via `cast` and the
+Eric Zimmerman Tools .NET 9 builds):
+
+```bash
+bash scripts/install.sh --os ubuntu --install-sift --install-eztools --yes
+```
+
+Verify a clone without an API key at any time:
+
+```bash
+python3 scripts/healthcheck.py
+```
+
+### Low-level offline demo (no API key)
+
+For a fully offline, API-free walkthrough of the senior-analyst loop, audit
+chain, and the architectural `execute_shell` bypass test:
+
+```bash
 bash examples/demo-run.sh
 ```
 
@@ -224,27 +256,32 @@ Core Python requirements are declared in each package's `pyproject.toml`:
 
 ### Fresh-clone install
 
+The installer is the supported path (venv-first; clones and installs the
+collector adapter in the same venv; optional SIFT / EZ Tools):
+
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git
 cd agentic-dart
-
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip wheel
-pip install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_agent[live]'
-
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
-export DART_DERIVED_ROOT="${TMPDIR:-/tmp}/agentic-dart-derived"
+bash scripts/install.sh --os ubuntu --skip-sift   # add --install-sift --install-eztools for the full toolchain
 ```
 
-`DART_EVIDENCE_ROOT` must point to read-only evidence. `DART_DERIVED_ROOT`
-is for generated Plaso storage files and other derived artifacts; it should
-not be inside the evidence tree.
-
-For a SANS SIFT Workstation bootstrap, use:
+Manual editable install (equivalent core, without the toolchain staging):
 
 ```bash
-bash scripts/install.sh
+python3 -m venv .venv && source .venv/bin/activate
+pip install --upgrade pip wheel
+pip install -r requirements.txt
+pip install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_agent[live]'
+```
+
+Each case resolves its own evidence from `case-XX/evidence_root/`, so no global
+`DART_EVIDENCE_ROOT` export is needed for `run_eval.py`. For the low-level
+developer commands, `DART_EVIDENCE_ROOT` must point to read-only evidence and
+`DART_DERIVED_ROOT` (for generated Plaso storage and other derived artifacts)
+should live outside the evidence tree:
+
+```bash
+export DART_DERIVED_ROOT="${TMPDIR:-/tmp}/agentic-dart-derived"
 ```
 
 ## Running the tests
@@ -317,7 +354,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **72/119/119/0.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **119 of 119 tests passing on a fresh clone** (105 dart_mcp/agent/audit + 14 dart_corr — audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **72 tools, full suite green, 0 destructive ops.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **The full pytest suite passes on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|
@@ -486,15 +523,15 @@ Evidence integrity:        preserved (62 files, all SHA-256 hashes match pre/pos
 Self-correction observed:  true
 ```
 
-Produced by `python3 scripts/measure_accuracy.py`. The same numbers hold on the noise-injected variant — `python3 scripts/measure_accuracy.py --variant realistic` runs the same detection functions, where the two IOC-only logs are enriched with synthetic benign traffic (web access 1027 lines ~1:37, unix auth 517 ~1:29) while every other surface is committed hand-curated at production volume (security EventLog ~11,530 lines, supply-chain, RDP brute, USB setupapi, etc.). It produces identical recall=1.0 / FPR=0.0 / hallucination=0 on the case-01 reference findings (F-001, F-013); per-case scoring across all 11 cases is provided by `scripts/benchmark/score_cases.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, both variants' results, ground truth, and explicit limitations (including third-party dataset benchmarking deferred to Phase 2 — issue #47).
+Produced by `python3 scripts/measure_accuracy.py`. The harness scores against the one canonical bundled evidence tree (`examples/case-studies/self-evaluation/case-01/evidence_root/`), where the two IOC-only logs are enriched with deterministic benign traffic (web access 1027 lines ~1:37, unix auth 517 ~1:29) while every other surface is committed hand-curated at production volume (security EventLog ~11,530 lines, supply-chain, RDP brute, USB setupapi, etc.). It produces recall=1.0 / FPR=0.0 / hallucination=0 on the case-01 reference findings (F-001, F-013); per-case scoring is provided by `scripts/benchmark/score_cases.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and explicit limitations (third-party dataset benchmarking is the `external-evaluation/` tier, downloaded on demand).
 
-### Supply-chain + AD certificate-services attack chain (case-11)
+### Supply-chain + AD certificate-services attack chain (self-evaluation/case-08)
 
-The newest Layer-1 case — [`examples/case-studies/case-11-supplychain-ad-zeroday/`](./examples/case-studies/case-11-supplychain-ad-zeroday/) — covers the attack class that defeated SolarWinds-era SOCs: a trojanized signed vendor binary enters as a routine software update, then abuses an **ADCS ESC8** misconfiguration (PetitPotam coercion → NTLM relay → certificate for `DC01$` → PKINIT TGT → S4U2self DA impersonation → DCSync of KRBTGT → Golden Ticket persistence). All 12 findings are reproduced deterministically by seven MCP functions on bundled evidence — see the case README for byte-stable expected output. The chain is composed entirely from public references (CISA AA20-352A, SpecterOps "Certified Pre-Owned", CVE-2021-36942, MITRE T1098.005 / T1003.006 / T1558.001) with no cross-reference to any real environment.
+The supply-chain case — [`examples/case-studies/self-evaluation/case-08/`](./examples/case-studies/self-evaluation/case-08/) — covers the attack class that defeated SolarWinds-era SOCs: a trojanized signed vendor binary enters as a routine software update, then abuses an **ADCS ESC8** misconfiguration (PetitPotam coercion → NTLM relay → certificate for `DC01$` → PKINIT TGT → S4U2self DA impersonation → DCSync of KRBTGT → Golden Ticket persistence). All 12 findings are reproduced deterministically by seven MCP functions on bundled evidence — see the case README for byte-stable expected output. The chain is composed entirely from public references (CISA AA20-352A, SpecterOps "Certified Pre-Owned", CVE-2021-36942, MITRE T1098.005 / T1003.006 / T1558.001) with no cross-reference to any real environment.
 
-### External-benchmark accuracy — NIST CFReDS Hacking Case (case-08)
+### External-benchmark accuracy — NIST CFReDS Hacking Case (external-evaluation/case-01)
 
-For a community-trusted, third-party benchmark, see [`examples/case-studies/case-08-cfreds-hacking-case/`](./examples/case-studies/case-08-cfreds-hacking-case/) — first integration with the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil", image MD5 `AEE4FCD9301C03B3B054623CA261959A`). Of 10 sampled NIST ground-truth findings, scored historically:
+For a community-trusted, third-party benchmark, see [`examples/case-studies/external-evaluation/case-01/`](./examples/case-studies/external-evaluation/case-01/) — first integration with the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil", image MD5 `AEE4FCD9301C03B3B054623CA261959A`). Of 10 sampled NIST ground-truth findings, scored historically:
 
 | Version | Strict recall | Lenient recall | What changed |
 |---|---:|---:|---|
