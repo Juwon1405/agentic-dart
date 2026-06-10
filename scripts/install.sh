@@ -1,204 +1,255 @@
 #!/usr/bin/env bash
-# Agentic-DART — One-command deploy on a clean SANS SIFT Workstation OVA
+# Agentic-DART installer.
 #
-# Usage (from a SIFT Workstation terminal):
-#   curl -fsSL https://raw.githubusercontent.com/Juwon1405/agentic-dart/main/scripts/install.sh | bash
+# OS-aware, venv-first installer for Agentic-DART and its collector adapter.
+# Optionally stages the SANS SIFT toolchain (via `cast`) and the Eric Zimmerman
+# Tools (.NET 9 builds). Nothing is silently faked: every optional component
+# reports clearly whether it was installed, skipped, or unavailable.
 #
-# What this script does (v0.5):
-#   1. Verifies prerequisites (Python 3.10+, git, curl, RAM, disk)
-#   2. Clones agentic-dart into ~/agentic-dart
-#   3. Creates an isolated Python venv
-#   4. Installs all local Agentic-DART packages in editable mode
-#   5. Probes for SIFT Workstation tool binaries (Volatility 3, MFTECmd,
-#      EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) and prints
-#      the env-var overrides needed for any binary not found on PATH
-#   6. Runs the tool-registration test to confirm 72 tools are exposed
-#   7. Prints next-step commands
-
+# Usage:
+#   bash scripts/install.sh [options]
+#
+# Options:
+#   --os auto|ubuntu|centos|macos   Target OS (default: auto-detect).
+#   --install-sift                  Install the SIFT toolchain via `cast`.
+#   --skip-sift                     Do not touch SIFT (default).
+#   --install-eztools               Stage Eric Zimmerman Tools (.NET 9) to ./bin/zimmerman/.
+#   --skip-eztools                  Do not stage EZ Tools (default).
+#   --adapter-dir <path>            Where to clone the collector adapter
+#                                   (default: ../agentic-dart-collector-adapter).
+#   --yes                           Non-interactive; assume yes to prompts.
+#   --help                          Show this help and exit.
 set -euo pipefail
 
-REPO_URL="https://github.com/Juwon1405/agentic-dart.git"
-INSTALL_DIR="${HOME}/agentic-dart"
-MIN_RAM_GB=8
-MIN_DISK_GB=20
+# ---- defaults --------------------------------------------------------------
+OS_TARGET="auto"
+DO_SIFT=0
+DO_EZTOOLS=0
+ASSUME_YES=0
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ADAPTER_DIR="$(cd "${REPO_ROOT}/.." && pwd)/agentic-dart-collector-adapter"
+ADAPTER_URL="https://github.com/Juwon1405/agentic-dart-collector-adapter.git"
+EZ_BASE="https://download.ericzimmermanstools.com/net9"
+EZ_TOOLS=(EvtxECmd MFTECmd PECmd RECmd AmcacheParser SBECmd)
 
 log()  { printf '\033[1;34m[agentic-dart]\033[0m %s\n' "$*"; }
-ok()   { printf '\033[1;32m[ok]\033[0m            %s\n' "$*"; }
-warn() { printf '\033[1;33m[warn]\033[0m         %s\n' "$*" >&2; }
-die()  { printf '\033[1;31m[fatal]\033[0m        %s\n' "$*" >&2; exit 1; }
+ok()   { printf '\033[1;32m[ok]\033[0m   %s\n' "$*"; }
+warn() { printf '\033[1;33m[warn]\033[0m %s\n' "$*" >&2; }
+die()  { printf '\033[1;31m[fatal]\033[0m %s\n' "$*" >&2; exit 1; }
 sect() { printf '\n\033[1;36m=== %s ===\033[0m\n' "$*"; }
 
-sect "Bootstrapping Agentic-DART on $(uname -srm)"
+usage() { sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
-# --- 1. Prerequisite checks ---
-sect "1. Prerequisite checks"
-command -v git     >/dev/null || die "git is required (apt install git)"
-command -v python3 >/dev/null || die "python3 is required"
-command -v curl    >/dev/null || die "curl is required"
-ok "git / python3 / curl present"
-
-PYV=$(python3 -c 'import sys; print(f"{sys.version_info[0]}.{sys.version_info[1]}")')
-log "Python ${PYV} detected"
-[[ "${PYV}" =~ ^3\.(1[0-9]|[2-9][0-9])$ ]] || warn "Python 3.10+ required; continuing with ${PYV}"
-
-if command -v free >/dev/null; then
-  RAM_GB=$(free -g | awk '/^Mem:/ {print $2}')
-  log "Available RAM: ${RAM_GB} GB"
-  (( RAM_GB >= MIN_RAM_GB )) || warn "Less than ${MIN_RAM_GB} GB RAM"
-fi
-
-# --- 2. Clone repo ---
-sect "2. Clone agentic-dart"
-if [[ -d "${INSTALL_DIR}/.git" ]]; then
-  log "Updating existing checkout at ${INSTALL_DIR}"
-  git -C "${INSTALL_DIR}" pull --ff-only
-else
-  log "Cloning into ${INSTALL_DIR}"
-  git clone --depth 1 "${REPO_URL}" "${INSTALL_DIR}"
-fi
-cd "${INSTALL_DIR}"
-ok "Repo at ${INSTALL_DIR}"
-
-# --- 3. Virtualenv + package install ---
-sect "3. Python virtualenv + package install"
-if [[ ! -d .venv ]]; then
-  log "Creating Python virtualenv"
-  python3 -m venv .venv
-fi
-# shellcheck disable=SC1091
-source .venv/bin/activate
-pip install --upgrade pip wheel >/dev/null
-log "Installing Agentic-DART packages (editable)"
-pip install \
-  -e ./dart_audit/ \
-  -e './dart_mcp[stdio]' \
-  -e ./dart_corr/ \
-  -e './dart_agent[live]' >/dev/null
-ok "dart_audit, dart_mcp, dart_corr, and dart_agent installed in venv"
-
-# --- 4. SIFT Workstation tool detection ---
-sect "4. SIFT Workstation tool detection"
-log "Probing PATH for SIFT-bundled tool binaries..."
-
-# Tool binary -> override env var name (for fall-back instructions)
-SIFT_BINARIES=(
-  "vol|DART_VOLATILITY3_BIN|Volatility 3 (memory forensics, 12 plugins)"
-  "MFTECmd|DART_MFTECMD_BIN|Eric Zimmerman MFT parser"
-  "EvtxECmd|DART_EVTXECMD_BIN|Eric Zimmerman EVTX parser"
-  "PECmd|DART_PECMD_BIN|Eric Zimmerman Prefetch parser"
-  "RECmd|DART_RECMD_BIN|Eric Zimmerman Registry parser"
-  "AmcacheParser|DART_AMCACHEPARSER_BIN|Eric Zimmerman Amcache parser"
-  "yara|DART_YARA_BIN|YARA signature matcher"
-  "log2timeline.py|DART_LOG2TIMELINE_BIN|Plaso log2timeline"
-  "psort.py|DART_PSORT_BIN|Plaso psort"
-)
-
-FOUND=0
-MISSING=0
-MISSING_LIST=()
-
-for entry in "${SIFT_BINARIES[@]}"; do
-  binary="${entry%%|*}"
-  rest="${entry#*|}"
-  envvar="${rest%%|*}"
-  desc="${rest#*|}"
-
-  if command -v "${binary}" >/dev/null 2>&1; then
-    found_at=$(command -v "${binary}")
-    ok "${binary} → ${found_at}"
-    FOUND=$((FOUND+1))
-  else
-    warn "${binary} NOT on PATH (${desc})"
-    MISSING_LIST+=("${envvar}|${binary}|${desc}")
-    MISSING=$((MISSING+1))
-  fi
+# ---- argument parser -------------------------------------------------------
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --os)             OS_TARGET="${2:-}"; shift 2 ;;
+    --install-sift)   DO_SIFT=1; shift ;;
+    --skip-sift)      DO_SIFT=0; shift ;;
+    --install-eztools) DO_EZTOOLS=1; shift ;;
+    --skip-eztools)   DO_EZTOOLS=0; shift ;;
+    --adapter-dir)    ADAPTER_DIR="${2:-}"; shift 2 ;;
+    --yes|-y)         ASSUME_YES=1; shift ;;
+    --help|-h)        usage; exit 0 ;;
+    *) die "unknown option: $1 (try --help)" ;;
+  esac
 done
 
-echo ""
-log "SIFT tool detection summary: ${FOUND} found, ${MISSING} missing"
+case "${OS_TARGET}" in auto|ubuntu|centos|macos) ;; *) die "invalid --os '${OS_TARGET}'" ;; esac
 
-if (( MISSING > 0 )); then
-  echo ""
-  warn "Missing binaries — add these env-var overrides to ~/.bashrc if installed elsewhere:"
-  for entry in "${MISSING_LIST[@]}"; do
-    envvar="${entry%%|*}"
-    rest="${entry#*|}"
-    binary="${rest%%|*}"
-    desc="${rest#*|}"
-    printf "  export %-30s=/path/to/%-22s # %s\n" "${envvar}" "${binary}" "${desc}"
+detect_os() {
+  if [[ "${OS_TARGET}" != "auto" ]]; then echo "${OS_TARGET}"; return; fi
+  case "$(uname -s)" in
+    Darwin) echo macos ;;
+    Linux)
+      if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        case "${ID:-}${ID_LIKE:-}" in
+          *ubuntu*|*debian*) echo ubuntu ;;
+          *rhel*|*centos*|*fedora*) echo centos ;;
+          *) echo ubuntu ;;  # default Linux assumption
+        esac
+      else echo ubuntu; fi ;;
+    *) die "unsupported platform $(uname -s)" ;;
+  esac
+}
+OS="$(detect_os)"
+
+sect "Agentic-DART installer (os=${OS}, sift=${DO_SIFT}, eztools=${DO_EZTOOLS})"
+
+# ---- 1. system dependencies ------------------------------------------------
+sect "1. System dependencies"
+install_os_deps() {
+  case "${OS}" in
+    ubuntu)
+      if command -v apt-get >/dev/null; then
+        local pkgs=(python3 python3-venv python3-pip git curl unzip)
+        log "apt-get install: ${pkgs[*]}"
+        if [[ "${ASSUME_YES}" == 1 ]]; then sudo apt-get update -qq || warn "apt update failed (continuing)"; fi
+        sudo apt-get install -y "${pkgs[@]}" || warn "some apt packages failed (optional ones are non-fatal)"
+      else warn "apt-get not found; install python3/venv/pip/git/curl/unzip manually"; fi ;;
+    centos)
+      local mgr=""; command -v dnf >/dev/null && mgr=dnf || { command -v yum >/dev/null && mgr=yum; }
+      if [[ -n "${mgr}" ]]; then
+        local pkgs=(python3 python3-pip git curl unzip)
+        log "${mgr} install: ${pkgs[*]}"
+        sudo "${mgr}" install -y "${pkgs[@]}" || warn "some ${mgr} packages failed (non-fatal)"
+      else warn "neither dnf nor yum found; install python3/pip/git/curl/unzip manually"; fi ;;
+    macos)
+      if command -v brew >/dev/null; then
+        log "brew install: python git curl"
+        brew install python git curl || warn "some brew formulae failed (non-fatal)"
+      else warn "Homebrew not found; install from https://brew.sh then re-run, or install python3/git manually"; fi ;;
+  esac
+}
+install_os_deps
+command -v python3 >/dev/null || die "python3 is required"
+command -v git     >/dev/null || die "git is required"
+PYV="$(python3 -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")')"
+[[ "${PYV}" =~ ^3\.(1[0-9]|[2-9][0-9])$ ]] || warn "Python 3.10+ recommended; found ${PYV}"
+ok "python3 ${PYV}, git present"
+
+# ---- 2. Python venv + packages --------------------------------------------
+sect "2. Python virtualenv + packages (venv-first)"
+cd "${REPO_ROOT}"
+VENV_OK=0
+if python3 -m venv .venv 2>/dev/null; then
+  # shellcheck disable=SC1091
+  source .venv/bin/activate
+  python3 -m pip install --upgrade pip wheel >/dev/null
+  VENV_OK=1
+  ok "virtualenv ready: ${REPO_ROOT}/.venv"
+else
+  warn "python3 -m venv failed (python3-venv missing?)."
+  warn "Falling back to a CONTROLLED system install. Never uninstalling OS pip/wheel."
+fi
+
+pip_install() {
+  if [[ "${VENV_OK}" == 1 ]]; then
+    python3 -m pip install "$@"
+  else
+    # Controlled non-venv fallback: do not disturb OS-managed pip/wheel.
+    python3 -m pip install --break-system-packages --ignore-installed wheel pip "$@"
+  fi
+}
+
+log "Installing third-party requirements (requirements.txt)"
+pip_install -r requirements.txt
+log "Installing Agentic-DART packages (editable)"
+pip_install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_agent[live]'
+ok "dart_audit, dart_mcp, dart_corr, dart_agent installed"
+
+# ---- 3. collector adapter (same venv) -------------------------------------
+sect "3. Collector adapter"
+if [[ -d "${ADAPTER_DIR}/.git" ]]; then
+  log "Updating adapter checkout at ${ADAPTER_DIR}"
+  git -C "${ADAPTER_DIR}" pull --ff-only || warn "adapter pull failed (continuing with existing checkout)"
+else
+  log "Cloning adapter into ${ADAPTER_DIR}"
+  git clone --depth 1 "${ADAPTER_URL}" "${ADAPTER_DIR}" || warn "adapter clone failed"
+fi
+if [[ -d "${ADAPTER_DIR}" ]]; then
+  pip_install -e "${ADAPTER_DIR}" || warn "adapter editable install failed"
+  ok "adapter installed: python3 -m dart_collector_adapter --help"
+  # Stage / verify the Velociraptor binary used by --source image.
+  if command -v velociraptor >/dev/null; then
+    ok "Velociraptor on PATH: $(command -v velociraptor)"
+  elif [[ -n "${DART_VELOCIRAPTOR_BIN:-}" && -x "${DART_VELOCIRAPTOR_BIN}" ]]; then
+    ok "Velociraptor via DART_VELOCIRAPTOR_BIN=${DART_VELOCIRAPTOR_BIN}"
+  elif [[ -x "${ADAPTER_DIR}/bin/velociraptor" ]]; then
+    ok "Velociraptor staged at ${ADAPTER_DIR}/bin/velociraptor"
+  else
+    warn "Velociraptor binary not found. --source image needs it; stage a release"
+    warn "binary into ${ADAPTER_DIR}/bin/ or export DART_VELOCIRAPTOR_BIN. (The"
+    warn "default --source zip path does not require Velociraptor.)"
+  fi
+fi
+
+# ---- 4. SIFT toolchain (optional) -----------------------------------------
+sect "4. SIFT toolchain"
+SIFT_CORE=(vol log2timeline.py psort.py yara)
+detect_sift() {
+  local found=0
+  for b in "${SIFT_CORE[@]}"; do command -v "${b}" >/dev/null 2>&1 && found=$((found+1)); done
+  echo "${found}"
+}
+if [[ "${DO_SIFT}" == 1 ]]; then
+  if [[ "${OS}" != "ubuntu" ]]; then
+    warn "SIFT install via cast is supported on Ubuntu/SIFT only; skipping on ${OS}."
+  elif command -v cast >/dev/null; then
+    log "Installing SIFT via: sudo cast install teamdfir/sift-saltstack"
+    sudo cast install teamdfir/sift-saltstack || warn "cast install returned non-zero"
+  else
+    warn "SIFT full install not run: 'cast' is not installed."
+    warn "Prerequisite: install cast first ->"
+    warn "  curl -L https://github.com/ekristen/cast/releases/latest/download/cast-linux-amd64 -o /usr/local/bin/cast && chmod +x /usr/local/bin/cast"
+    warn "then re-run with --install-sift."
+  fi
+else
+  log "SIFT install skipped (--skip-sift). Probing for existing SIFT core tools..."
+fi
+FOUND_SIFT="$(detect_sift)"
+if [[ "${FOUND_SIFT}" -gt 0 ]]; then
+  ok "SIFT core tools detected on PATH: ${FOUND_SIFT}/${#SIFT_CORE[@]}"
+else
+  warn "No SIFT core tools (vol/log2timeline/psort/yara) on PATH."
+  warn "SIFT adapters will raise SiftToolNotFoundError; native tools still work."
+fi
+
+# ---- 5. Eric Zimmerman Tools (.NET 9) -------------------------------------
+sect "5. Eric Zimmerman Tools (.NET 9)"
+if [[ "${DO_EZTOOLS}" == 1 ]]; then
+  EZ_DIR="${REPO_ROOT}/bin/zimmerman"
+  mkdir -p "${EZ_DIR}"
+  command -v unzip >/dev/null || warn "unzip not found; EZ Tools extraction may fail"
+  for tool in "${EZ_TOOLS[@]}"; do
+    url="${EZ_BASE}/${tool}.zip"
+    # Validate the URL with a real request before downloading.
+    code="$(curl -s -o /dev/null -w '%{http_code}' -I "${url}" || echo 000)"
+    if [[ "${code}" != "200" ]]; then
+      warn "${tool}: ${url} returned HTTP ${code}; skipping"
+      continue
+    fi
+    log "Fetching ${tool} (.NET 9) ..."
+    if curl -fsSL "${url}" -o "${EZ_DIR}/${tool}.zip"; then
+      unzip -oq "${EZ_DIR}/${tool}.zip" -d "${EZ_DIR}/${tool}" || warn "${tool}: unzip failed"
+      ok "${tool} staged -> ${EZ_DIR}/${tool}/"
+    else
+      warn "${tool}: download failed"
+    fi
   done
+  # Print env-var overrides for the adapters that consume these binaries.
   echo ""
-  warn "Adapters whose binary is missing will raise SiftToolNotFoundError when called."
-  warn "The agent loop will fall back to native pure-Python tools where possible."
-  warn "To install the SIFT toolchain see:"
-  warn "  https://github.com/teamdfir/sift-saltstack"
-  warn "  https://ericzimmerman.github.io/  (Eric Zimmerman tool kit)"
-fi
-
-# --- 5. Tool registration test ---
-sect "5. Verify MCP tool registration (72 tools expected)"
-TOOL_COUNT=$(python3 -c "
-import os
-os.environ.setdefault('DART_EVIDENCE_ROOT', '/tmp/dart-bootstrap-evidence')
-os.makedirs('/tmp/dart-bootstrap-evidence', exist_ok=True)
-from dart_mcp import list_tools
-tools = list_tools()
-native = [t for t in tools if not t['name'].startswith('sift_')]
-sift = [t for t in tools if t['name'].startswith('sift_')]
-print(f'{len(tools)}|{len(native)}|{len(sift)}')
-")
-
-TOTAL="${TOOL_COUNT%%|*}"
-REST="${TOOL_COUNT#*|}"
-NATIVE="${REST%|*}"
-SIFT="${REST##*|}"
-
-if [[ "${TOTAL}" -gt 0 && "${NATIVE}" -gt 0 && "${SIFT}" -gt 0 ]]; then
-  ok "MCP surface verified: ${NATIVE} native + ${SIFT} SIFT adapters = ${TOTAL} tools"
+  log "Export these so dart_mcp SIFT adapters find the staged EZ Tools:"
+  declare -A EZ_ENV=(
+    [EvtxECmd]=DART_EVTXECMD_BIN [MFTECmd]=DART_MFTECMD_BIN [PECmd]=DART_PECMD_BIN
+    [RECmd]=DART_RECMD_BIN [AmcacheParser]=DART_AMCACHEPARSER_BIN [SBECmd]=DART_SBECMD_BIN
+  )
+  for tool in "${EZ_TOOLS[@]}"; do
+    bin="$(find "${EZ_DIR}/${tool}" -maxdepth 2 -iname "${tool}*" -type f 2>/dev/null | head -1 || true)"
+    [[ -n "${bin}" ]] && printf "  export %s=%s\n" "${EZ_ENV[$tool]}" "${bin}"
+  done
 else
-  warn "Tool count drift: total=${TOTAL} native=${NATIVE} sift=${SIFT}"
-  warn "(at least one count is zero — check your install)"
+  log "EZ Tools staging skipped (--skip-eztools). Source: ${EZ_BASE}/<TOOL>.zip"
 fi
 
-# --- 6. Claude credentials ---
-sect "6. Claude credentials"
-if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-  ok "ANTHROPIC_API_KEY is set (length: ${#ANTHROPIC_API_KEY})."
+# ---- 6. healthcheck --------------------------------------------------------
+sect "6. Healthcheck (API-free)"
+if python3 scripts/healthcheck.py; then
+  :
 else
-  warn "ANTHROPIC_API_KEY is not set."
-  warn "Real live mode needs: export ANTHROPIC_API_KEY=sk-ant-..."
-  warn "For offline reproduction, run live mode with --dry-run."
+  warn "Healthcheck reported issues above; review before running live."
 fi
 
-# --- 7. Next steps ---
-sect "Bootstrap complete"
+sect "Install complete"
 cat <<'EOF'
 
 Next steps:
+  1. export ANTHROPIC_API_KEY='sk-...'
+  2. python3 run_eval.py --case self-evaluation/case-01
 
-  cd ~/agentic-dart
-  source .venv/bin/activate
-
-  # Run the offline demo (uses native tools; works without SIFT binaries)
-  bash examples/demo-run.sh
-
-  # Run the SIFT adapter demo (requires SIFT binaries on PATH or env-vars set)
-  bash examples/sift-adapter-demo.sh
-
-  # Run the full test suite
-  for t in tests/test_*.py; do python3 "$t"; done
-
-  # Live mode — set ANTHROPIC_API_KEY first.
-  # Default model: claude-haiku-4-5-20251001.
-  python3 -m dart_agent --case my-case --out ./out/my-case --mode live
-
-  # Offline live-plumbing smoke test (no API key):
-  python3 -m dart_agent --case smoke --out ./out/smoke --mode live --dry-run
-
-Documentation:
-  README          architecture + judging-criteria alignment
+Docs:
+  README          quickstart + architecture
   CHANGELOG       release history
   Wiki            https://github.com/Juwon1405/agentic-dart/wiki
-  SIFT adapters   https://github.com/Juwon1405/agentic-dart/wiki/SIFT-adapter-layer
-
 EOF
