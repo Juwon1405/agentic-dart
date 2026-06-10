@@ -2,7 +2,7 @@
 
 Cross-artifact correlation engine. Python + DuckDB. Performs timeline joins across disk, memory, and network evidence; flags contradictions as `UNRESOLVED`.
 
-## Status — v1.0.0
+## Status — v1.0.1
 
 **Extracted and implemented.** The package is no longer a docs-only scaffold. Three public functions are implemented end-to-end:
 

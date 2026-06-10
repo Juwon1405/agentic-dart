@@ -3,27 +3,29 @@
 This directory holds the evidence trees and case studies used to exercise and
 benchmark dart-mcp / dart-agent.
 
-## Evidence variants
+## Evidence
 
-- **`sample-evidence/`** — the deterministic *reference* set. Small
-  (≤30 lines/file), fully IOC-loaded, stable SHA-256 hashes. Used as the CI
-  regression baseline: any change in detection numbers flags a code change.
-- **`sample-evidence-realistic/`** — the *realistic* set. Hand-curated at
-  production volume on most surfaces (Windows Security EventLog ~11,530 lines,
-  supply-chain, RDP brute-force, USB setupapi, memory triage). The two
-  IOC-only logs (web access, unix auth) are enriched with deterministic benign
-  noise to exercise needle-in-haystack recall. See its own README for details.
+- **Canonical bundled evidence** — `case-studies/self-evaluation/case-01/evidence_root/`.
+  Hand-curated at production volume on most surfaces (Windows Security EventLog
+  ~11,530 lines, supply-chain, RDP brute-force, USB setupapi, memory triage).
+  The two IOC-only logs (web access, unix auth) are enriched with deterministic
+  benign noise to exercise needle-in-haystack recall. This is what
+  `scripts/measure_accuracy.py` scores.
+- **`sample-evidence/`** — a small (≤30 lines/file), fully IOC-loaded,
+  byte-stable CI fixture used by the unit tests. Not a user-selectable evidence
+  set.
 
-Both variants are scored against the same ground truth by
-`scripts/measure_accuracy.py` (`--variant reference` | `--variant realistic`).
+There is no public `--variant` selector any more: the harness always scores the
+one canonical evidence root.
 
 ## Case studies
 
-`case-studies/case-NN-*/` — eleven end-to-end investigations, each with a
-`README.md` and a `ground-truth.json`. Layer 1 (cases 01–07, 11) is synthetic;
-Layer 2 (cases 08–10) is built on community-verified public datasets (CFReDS,
-Ali Hadi, M57). Per-case scoring is done by
-`scripts/benchmark/score_cases.py`.
+`case-studies/<tier>/case-NN/` — self-contained investigations, each with a
+`README.md`, a `truth.json`, and (for the bundled case) `evidence_root/`. The
+`self-evaluation/` tier (case-01..08) is synthetic; the `external-evaluation/`
+tier (case-01..03) is built on community-verified public datasets (NIST CFReDS,
+Ali Hadi, Digital Corpora M57). Run a case with `python3 run_eval.py --case
+<tier>/case-NN`; per-case scoring is done by `scripts/benchmark/score_cases.py`.
 
 ## Output
 

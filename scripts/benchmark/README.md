@@ -13,6 +13,11 @@ studies** (99 ground-truth findings) spanning two evidence tiers.
 
 ## Quick start (one command)
 
+> The primary, user-facing runner is the repo-root **`run_eval.py`**
+> (`python3 run_eval.py --case <tier>/case-NN`). The `run_all.py` commands below
+> are the lower-level benchmark-harness entry points used for the measured
+> accuracy tables.
+
 ```bash
 cd ~/agentic-dart
 
@@ -40,24 +45,24 @@ provenance is fundamentally different.
 
 | Layer | Cases | Evidence | Size | Where it comes from |
 |:---:|---|---|---:|---|
-| **1** | case-01 to case-07, case-11 | `examples/sample-evidence-realistic/` | 748 KB + supply-chain evidence | Bundled with the repository |
-| **2** | case-08 to case-10 | `./datasets/` (gitignored) | 13 GB | Downloaded from external mirrors |
+| **1** | self-evaluation/case-01 to case-08 | `examples/case-studies/self-evaluation/case-01/evidence_root/` | 748 KB + supply-chain evidence | Bundled with the repository |
+| **2** | external-evaluation/case-01 to case-03 | `./datasets/` (gitignored) | 13 GB | Downloaded from external mirrors |
 
 Splitting them this way lets us be **honest about what each layer
 proves**.
 
-### Layer 1 — internal evidence (case-01 to case-07)
+### Layer 1 — internal evidence (self-evaluation tier)
 
 **What it is:** synthetic-but-realistic DFIR evidence authored
-alongside this project. Two sub-variants ship in the repository:
+alongside this project. Two trees ship in the repository:
 
-- **`examples/sample-evidence/`** (the *reference* set, 408 KB) — small,
-  deterministic, fully IOC-loaded. Used by the CI to detect detection
+- **`examples/sample-evidence/`** (the CI fixture, 408 KB) — small,
+  deterministic, fully IOC-loaded. Used by the unit tests to detect detection
   regressions: any change in numbers immediately flags a code change
-  that affected detection logic.
+  that affected detection logic. Not a user-selectable evidence set.
 
-- **`examples/sample-evidence-realistic/`** (the *realistic* variant,
-  748 KB) — the same ground-truth signals as the reference set. Two
+- **`examples/case-studies/self-evaluation/case-01/evidence_root/`** (the
+  canonical bundled evidence, 748 KB) — what `measure_accuracy.py` scores. Two
   IOC-only logs are enriched with deterministic benign noise; every other
   surface is committed hand-curated at production volume:
 
@@ -74,19 +79,18 @@ alongside this project. Two sub-variants ship in the repository:
 
   The benign-noise generator (`scripts/generate_realistic_evidence.py`)
   is seeded (`seed = 20260508`) so the noise it adds to the two IOC-only logs
-  is byte-identical on every run. `measure_accuracy.py --variant realistic`
-  re-derives those two logs before scoring (CI runs both variants on every
-  build); all other realistic evidence is committed hand-curated and is not
-  regenerated.
+  is byte-identical on every run. `measure_accuracy.py` re-derives those two
+  logs before scoring; all other canonical evidence is committed hand-curated
+  and is not regenerated.
 
 **What this layer proves:**
 - The detection functions discriminate IOC from benign at realistic
   (~1:30) signal-to-noise ratios, not just on toy single-line inputs.
-- Recall and false-positive numbers hold across both the small
-  reference set and the noise-injected variant — the case-01 reference
-  findings (F-001, F-013) score Recall 1.000 / FPR 0.000 / Hallucination 0
-  on both variants. Per-case scoring across all 11 cases is the job of
-  `score_cases.py` (audit-join match), exercised once live-mode runs land.
+- The case-01 findings (F-001, F-013) score Recall 1.000 / FPR 0.000 /
+  Hallucination 0 on the canonical bundled evidence; the small
+  `sample-evidence/` fixture corroborates the same detection logic in CI.
+  Per-case scoring across all cases is the job of `score_cases.py` (audit-join
+  match), exercised once live-mode runs land.
 
 **What this layer does NOT prove:**
 - That dart-mcp solves real-world cases collected from production
@@ -94,7 +98,7 @@ alongside this project. Two sub-variants ship in the repository:
 
 This is documented in detail at `../../docs/accuracy-report.md`.
 
-### Layer 2 — external public datasets (case-08 to case-10)
+### Layer 2 — external public datasets (external-evaluation/case-01 to case-03)
 
 **What it is:** three peer-reviewed, community-verified, public DFIR
 datasets that none of this project's authors created or had any
@@ -103,9 +107,9 @@ benchmarking, and their answer keys are independently published.
 
 | short | Case | Authoring body | Year | Era |
 |---|---|---|---:|---|
-| `cfreds_hacking_case` | case-08 | **U.S. NIST** (federal standards body) | 2004 | Windows XP |
-| `hadi_challenge_1` | case-09 | **Dr. Ali Hadi**, Champlain College | 2014 | Windows Server 2008 |
-| `m57_jo` | case-10 | **Naval Postgraduate School + NIST** | 2009 | Windows XP |
+| `cfreds_hacking_case` | external case-01 | **U.S. NIST** (federal standards body) | 2004 | Windows XP |
+| `hadi_challenge_1` | external case-02 | **Dr. Ali Hadi**, Champlain College | 2014 | Windows Server 2008 |
+| `m57_jo` | external case-03 | **Naval Postgraduate School + NIST** | 2009 | Windows XP |
 
 **Why these three specifically:**
 
@@ -140,7 +144,7 @@ benchmarking, and their answer keys are independently published.
 Every Layer-2 dataset URL is HEAD-checked live on 2026-05-15. Reviewers
 can independently verify each source.
 
-### case-08 — NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil")
+### external case-01 — NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil")
 
 - **Homepage:** https://cfreds-archive.nist.gov/all/NIST/HackingCase
 - **Download base:** https://cfreds-archive.nist.gov/images/hacking-dd/
@@ -149,11 +153,11 @@ can independently verify each source.
 - **License:** Public Domain (U.S. Government work)
 - **Authoring body:** U.S. National Institute of Standards and Technology
 - **Original briefing + answer key:** ships with the dataset under
-  `examples/case-studies/case-08-cfreds-hacking-case/SCHARDT.LOG`
+  `examples/case-studies/external-evaluation/case-01/SCHARDT.LOG`
 - **Citation context:** referenced in SANS GCFE / GCFA prep materials
   and in hundreds of academic forensics courses
 
-### case-09 — Ali Hadi DFIR Challenge #1 (Web Server Case)
+### external case-02 — Ali Hadi DFIR Challenge #1 (Web Server Case)
 
 - **Homepage:** https://www.ashemery.com/dfir.html
 - **Primary mirror:** https://archive.org/details/dfir-case1 (Internet Archive — stable, resumable, no captcha)
@@ -167,7 +171,7 @@ can independently verify each source.
   community write-ups on aboutdfir.com, forensicfocus.com, and
   betweentwodfirns.blogspot.com
 
-### case-10 — Digital Corpora M57-Patents (Jo's PC, 2009-12-10)
+### external case-03 — Digital Corpora M57-Patents (Jo's PC, 2009-12-10)
 
 - **Homepage:** https://digitalcorpora.org/corpora/scenarios/m57-patents-scenario/
 - **S3 bucket (canonical):** https://digitalcorpora.s3.amazonaws.com/
@@ -178,11 +182,12 @@ can independently verify each source.
   with NIST funding
 - **Citation context:** Garfinkel, Farrell, Roussev, "Bringing Science
   to Digital Forensics with Standardized Forensic Corpora", DFRWS 2009
-- **Note on the name:** the M57 scenario's actual employees are
-  `charlie, jo, pat, terry`. Earlier documentation in this repo
-  incorrectly referred to "jean" — `case-10-m57-jean` directory
-  name is preserved for git history continuity but the dataset
-  is officially `m57_jo`.
+- **Note on the name:** the M57-Patents scenario's actual employees are
+  `charlie, jo, pat, terry`. Earlier documentation in this repo incorrectly
+  referred to "jean" (which is a *different* Digital Corpora scenario). The
+  case now lives at `external-evaluation/case-03` and the dataset, README,
+  truth file, and host paths all agree on subject **Jo** (`m57_jo`,
+  `jo-2009-12-10.E01`).
 
 ---
 
@@ -193,11 +198,11 @@ When you run `python3 -m scripts.benchmark.run_all --download`:
 ```
 ┌─ Layer 1 (~10 seconds) ────────────────────────────────────────┐
 │                                                                │
-│  1. measure_accuracy.py --variant realistic                    │
+│  1. measure_accuracy.py                    │
 │     ↓                                                          │
 │  2. Scores case-01 ref (F-001/F-013)                           │
 │  3. Calls each detection function on bundled evidence          │
-│  4. Diffs findings against ground-truth.json per case          │
+│  4. Diffs findings against truth.json per case          │
 │  5. Writes docs/accuracy-report.md                             │
 │  6. Mirrors per-case rows into docs/benchmarks/SUMMARY.md      │
 │                                                                │
@@ -215,7 +220,7 @@ When you run `python3 -m scripts.benchmark.run_all --download`:
 │  3. SHA-256 hash the image (proof of identity)                 │
 │  4. Convert image → evidence_root via collector-adapter        │
 │  5. Run dart_agent with senior-analyst-v3 playbook             │
-│  6. Score findings.json vs case-NN/ground-truth.json           │
+│  6. Score findings.json vs case-NN/truth.json           │
 │       - strict mode  : exact evidence_id match                 │
 │       - lenient mode : artifact_type + host_path prefix match  │
 │  7. Detect hallucinations (findings without audit_id)          │
@@ -296,19 +301,21 @@ DATASETS["dfrws_2022"] = {
     "download_base":   "https://...",
     "parts":           [("file.E01", "sha1", None)],
     "joined_name":     "file.E01",
-    "ground_truth_path": "examples/case-studies/case-12-dfrws-2022/ground-truth.json",
+    "ground_truth_path": "examples/case-studies/external-evaluation/case-04/truth.json",
     "scenario":        "...",
     "key_artifacts":   [...],
 }
 ```
 
-Then create `examples/case-studies/case-12-dfrws-2022/` with a `README.md`
-and `ground-truth.json` (schema: see `case-08-cfreds-hacking-case/ground-truth.json`).
+Then create `examples/case-studies/external-evaluation/case-04/` with a
+`README.md` and `truth.json` (schema: see
+`external-evaluation/case-01/truth.json`), and point `ground_truth_path` at it.
 
-> Note: case-11 is already occupied by `case-11-supplychain-ad-zeroday`
-> (Layer 1). The next available external-benchmark slot is case-12.
+> Note: the external tier currently holds case-01..03. The next available
+> external slot is `external-evaluation/case-04`.
 
-That's all. `run_all.py --layer 2` will pick it up automatically.
+That's all. `run_all.py --layer 2` (or `run_eval.py --case
+external-evaluation/case-04 --download`) will pick it up automatically.
 
 ---
 
@@ -330,7 +337,7 @@ ground-truth finding:
 
 Derived findings (`self_correction_event`, `audit_chain`,
 `correlation_finding`) are exempt from path checks. External cases
-(08-10) downgrade missing paths / roadmap functions to WARN.
+(external-evaluation tier) downgrade missing paths / roadmap functions to WARN.
 
 ```bash
 python3 scripts/benchmark/validate_ground_truth.py            # FAIL blocks
@@ -349,7 +356,7 @@ finding_id scheme, and is the path intended for per-case, per-model
 recall once live-mode runs are wired in.
 
 ```bash
-python3 scripts/benchmark/score_cases.py --case case-05-authentication-lateral --run-dir <out_dir>
+python3 scripts/benchmark/score_cases.py --case self-evaluation/case-05 --run-dir <out_dir>
 ```
 
 ### Dependencies
@@ -370,7 +377,7 @@ scripts/benchmark/
 ├── datasets.py                registry of 3 external datasets with URLs, checksums, scenarios
 ├── download.py                streaming downloader with resume + verify + auto-join
 ├── run_benchmark.py           per-dataset evaluator (Layer 2 single-case runner)
-├── run_all.py                 unified entry point — runs both layers, one command
+├── run_all.py                 lower-level layer runner (the primary UX is the repo-root run_eval.py)
 ├── score_cases.py             unified scorer — audit-join match, case-agnostic
 └── validate_ground_truth.py   CI/pre-commit integrity gate (ground-truth <-> MCP)
 ```
@@ -379,9 +386,9 @@ scripts/benchmark/
 
 - `scripts/measure_accuracy.py` — Layer 1 regression scorer (case-01 reference scenario: F-001, F-013)
 - `scripts/generate_realistic_evidence.py` — seeded noise generator for the realistic variant
-- `examples/sample-evidence/` — Layer 1 reference (deterministic) evidence
-- `examples/sample-evidence-realistic/` — Layer 1 noise-injected evidence
-- `examples/case-studies/case-NN/ground-truth.json` — per-case answer key (all 11 cases)
+- `examples/sample-evidence/` — small byte-stable CI fixture (unit tests)
+- `examples/case-studies/self-evaluation/case-01/evidence_root/` — canonical bundled evidence (scored by measure_accuracy.py)
+- `examples/case-studies/<tier>/case-NN/truth.json` — per-case answer key
 - `docs/accuracy-report.md` — Layer 1 detailed report
 - `docs/benchmarks/SUMMARY.md` — unified Layer 1 + Layer 2 score sheet
 - `docs/benchmarks/*.json` — per-run Layer 2 detail

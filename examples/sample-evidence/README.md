@@ -1,12 +1,13 @@
-# Reference evidence variant
+# CI fixture evidence
 
-The deterministic baseline evidence tree. Small (≤30 lines/file), fully
-IOC-loaded, stable SHA-256 hashes — used as the CI regression baseline:
-any change in detection numbers flags a code change rather than a data drift.
+A small (≤30 lines/file), fully IOC-loaded, byte-stable evidence tree used as a
+**CI fixture by the unit tests** (`tests/`) and as the source the realistic
+generator enriches from. It is **not** a user-selectable evidence set and is
+**not** what the accuracy harness scores — that is the canonical bundled
+evidence at `../case-studies/self-evaluation/case-01/evidence_root/`.
 
-Pair this with `../sample-evidence-realistic/` (hand-curated production
-volume + benign noise on the two IOC-only logs) to demonstrate that detection
-behaviour is the same on both — see `../../docs/accuracy-report.md`.
+Stable hashes here mean any change in test detection numbers flags a code
+change rather than a data drift.
 
 ## Layout
 
@@ -16,19 +17,21 @@ behaviour is the same on both — see `../../docs/accuracy-report.md`.
 | `event-logs/` | `unified_events.jsonl` — EvtxECmd-shaped output |
 | `linux/` | `journal.ndjson`, `auditd_sample.txt`, `bash_history` |
 | `logs/` | `security_sample.evtx` + its CSV export (Windows Security samples) |
-| `mac/` | `auth.log` (IOC-only — enriched in realistic), `fsevents.csv` |
+| `mac/` | `auth.log` (IOC-only — enriched in the canonical tree), `fsevents.csv` |
 | `macos/` | `unified_log_sample.csv`, `fsevents_sample.csv`, `KnowledgeC.db` |
 | `memory/` | `memdump.raw` + `memdump.raw.info.json` (volatility-style triage metadata) |
 | `sigma-rules/` | Sample Sigma detections used by the corr engine |
-| `web/` | `access.log` (IOC-only — enriched in realistic), web shell drops |
+| `web/` | `access.log` (IOC-only — enriched in the canonical tree), web shell drops |
 
 ## How it is used
 
-- `python3 scripts/measure_accuracy.py` scores the case-01 reference findings
-  (F-001, F-013) against this tree directly.
+- The unit tests point `DART_EVIDENCE_ROOT` at this tree for byte-stable
+  regression assertions.
 - `scripts/generate_realistic_evidence.py` reads the two IOC-only logs from
   here (`web/logs/access.log`, `mac/var/log/auth.log`) and writes them, with
-  deterministic benign noise added, into `../sample-evidence-realistic/`.
+  deterministic benign noise added, into the canonical bundled evidence root
+  (`../case-studies/self-evaluation/case-01/evidence_root/`).
+- `python3 scripts/measure_accuracy.py` scores the canonical bundled
+  evidence root (not this fixture) for the case-01 findings (F-001, F-013).
 - Per-case scoring (`scripts/benchmark/score_cases.py`) walks each
-  `../case-studies/case-NN-*/ground-truth.json` and runs detection against
-  this tree.
+  `../case-studies/<tier>/case-NN/truth.json`.

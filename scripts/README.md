@@ -6,39 +6,41 @@ runtime package surface — they are repository tooling.
 
 ## Accuracy measurement
 
-- **`measure_accuracy.py`** — scores case-01 reference findings (F-001 web
-  shell, F-013 USB setupapi) against the bundled evidence. Two variants:
-  - `python3 scripts/measure_accuracy.py` → `examples/sample-evidence/`
-    (reference, deterministic baseline).
-  - `python3 scripts/measure_accuracy.py --variant realistic` →
-    `examples/sample-evidence-realistic/`. Before scoring, this re-derives
-    the two IOC-only logs (web access, unix auth) with deterministic benign
-    noise by invoking `generate_realistic_evidence.py`. Output is
-    byte-identical across runs, so the working tree stays clean.
-- **`measure_cfreds.py`** — Layer 2 / case-08 (CFReDS) standalone scorer.
+- **`measure_accuracy.py`** — scores the case-01 findings (F-001 web shell,
+  F-013 USB setupapi) against the **canonical bundled evidence**
+  (`examples/case-studies/self-evaluation/case-01/evidence_root/`). There is no
+  `--variant` selector any more. Before scoring it re-derives the two IOC-only
+  logs (web access, unix auth) with deterministic benign noise by invoking
+  `generate_realistic_evidence.py`; output is byte-identical across runs, so the
+  working tree stays clean.
+- **`healthcheck.py`** — API-free readiness check (imports, dependency versions,
+  MCP tool surface, adapter `--help`, tiered case layout, `run_eval` fail-fast).
+- **`measure_cfreds.py`** — external CFReDS standalone scorer.
 
 ## Evidence enrichment
 
-- **`generate_realistic_evidence.py`** — enriches ONLY the two IOC-only logs
-  in `examples/sample-evidence-realistic/` (web access 27 → 1027, unix auth
+- **`generate_realistic_evidence.py`** — enriches ONLY the two IOC-only logs in
+  the canonical bundled evidence root (web access 27 → 1027, unix auth
   17 → 517) in-place with deterministic benign noise (seed `20260508`). It
-  does **not** touch any other file in the realistic tree — security
-  EventLog, supply-chain, RDP brute, USB setupapi, memory triage, etc. are
-  all committed hand-curated. The script intentionally avoids
-  `rmtree`/`copytree` of the reference set over the realistic tree, since
-  that destroys hand-curated evidence with no reference counterpart.
+  does **not** touch any other file — security EventLog, supply-chain, RDP
+  brute, USB setupapi, memory triage, etc. are all committed hand-curated. The
+  script intentionally avoids `rmtree`/`copytree` of the `sample-evidence/`
+  fixture over the canonical tree, since that would destroy hand-curated
+  evidence with no fixture counterpart.
 
 ## Installation / setup
 
-- **`install.sh`** — one-shot installer for the five packages
-  (`dart_audit`, `dart_mcp`, `dart_agent`, `dart_corr`, `dart_playbook`) in
-  editable mode plus a pinned `pytest` for the test suite.
+- **`install.sh`** — OS-aware (`--os auto|ubuntu|centos|macos`), venv-first
+  installer; installs the packages editable, clones+installs the collector
+  adapter, and optionally stages SIFT (`--install-sift`, via `cast`) and the
+  Eric Zimmerman Tools (`--install-eztools`, .NET 9). See `install.sh --help`.
 
 ## Benchmarking
 
-- **`benchmark/`** — Layer 2 case orchestration (`run_all.py`,
-  `download.py`, `score_cases.py`). See `benchmark/README.md` for the
-  variant model and CI integration.
+- **`benchmark/`** — external-tier dataset orchestration (`download.py`,
+  `score_cases.py`, `validate_ground_truth.py`, and the lower-level
+  `run_all.py`). The primary user-facing runner is the repo-root
+  `run_eval.py`. See `benchmark/README.md`.
 
 ## Assets
 
