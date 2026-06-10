@@ -1,6 +1,35 @@
 # Changelog
 
-## [1.0.1] — 2026-06-10 — Evidence isolation, schema validation, and documentation cleanup
+## [1.0.1] — 2026-06-10 — Evidence isolation, schema validation, platform overhaul
+
+### Added
+- `run_eval.py` — the primary user-facing command. Live mode only: fails fast,
+  before any work, with an exact actionable message when `ANTHROPIC_API_KEY` is
+  unset. Discovers cases dynamically from both tiers, writes
+  `out/<tier>/<case-id>/<timestamp>/{findings,report,summary}.json`.
+- `requirements.txt` at the repo root, mirroring the package pyproject bounds.
+- `scripts/healthcheck.py` — API-free readiness check (imports, dependency
+  versions, MCP tool surface, adapter `--help`, tiered case layout, run_eval
+  fail-fast).
+- OS-aware `scripts/install.sh` (`--os auto|ubuntu|centos|macos`,
+  `--install-sift/--skip-sift`, `--install-eztools/--skip-eztools`,
+  `--adapter-dir`, `--yes`, `--help`); venv-first; clones+installs the collector
+  adapter; stages Eric Zimmerman Tools from the .NET 9 builds; SIFT via `cast`
+  only when present.
+- Downloader: shared browser-like `DEFAULT_HTTP_HEADERS` on every request
+  (incl. resumed range requests), pure-Python streaming split-concat,
+  `--dry-run` and `--check-urls`.
+
+### Changed
+- Restructured `examples/case-studies/` into `self-evaluation/case-01..08` and
+  `external-evaluation/case-01..03`; index-only folder names; every
+  `ground-truth.json` renamed to `truth.json`; per-case `evidence_root/`.
+- Canonical bundled evidence moved to
+  `self-evaluation/case-01/evidence_root/`; removed the public evidence-variant
+  selector (`--variant`) from `measure_accuracy.py` and `run_all.py`. Recall
+  stays 1.0 / hallucination 0 on the migrated tree.
+- Resolved the M57 naming inconsistency to the M57-Patents scenario, subject Jo
+  (matching the download registry `jo-2009-12-10.E01`).
 
 ### Fixed
 - Enforced advertised MCP JSON Schema constraints in `call_tool()` before
@@ -20,7 +49,8 @@
   contest-facing setup path.
 - Install guidance now installs `dart_audit`, `dart_mcp[stdio]`, `dart_corr`,
   and `dart_agent[live]` together.
-- Current test surface updated to 119 tests (105 root tests + 14 `dart_corr`).
+- Test surface expanded with adapter image-source, downloader, and eval-layout
+  E2E suites (run `pytest tests/ dart_corr/tests/` for the authoritative count).
 
 ## [1.0.0] — 2026-06-05 — First stable release (SANS FIND EVIL! 2026)
 
