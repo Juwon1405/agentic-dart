@@ -3,7 +3,7 @@
 > **Submission URL:** https://findevil.devpost.com/
 > **Project URL:** https://github.com/Juwon1405/agentic-dart
 > **License:** MIT
-> **Version at submission:** v1.0.0
+> **Version at submission:** v1.0.1
 > **Submission date:** 2026-06-15
 > **Author:** Bang Juwon (sole contributor)
 
@@ -139,7 +139,7 @@ engine **decoupled from any single collection vendor**.
 | Scale engine | DuckDB (for cross-source timeline correlation) |
 | Heavy parsers | SIFT toolchain (Volatility 3, MFTECmd, EvtxECmd, ...) |
 | Audit chain | SHA-256 linked JSONL |
-| Test suite | pytest (119 tests, all green at submission — 105 dart_mcp/agent/audit + 14 dart_corr) |
+| Test suite | pytest (full suite green at submission; run it for the authoritative count) |
 | CI | GitHub Actions (Linux + macOS) |
 | Sample evidence | seeded deterministic generator |
 
@@ -154,27 +154,27 @@ evidence tiers:
 
 | Tier | Cases | Evidence | Total findings |
 |---|---|---|---:|
-| Internal (synthetic, noise-injected ~1:30) | case-01 to case-07, case-11 | `examples/sample-evidence-realistic/` (748 KB bundled) | 69 |
-| External (third-party, community-verified) | case-08 to case-10 | NIST CFReDS / Ali Hadi / Digital Corpora M57 (~13 GB downloaded) | 30 |
+| `self-evaluation/` (synthetic) | case-01 to case-08 | `self-evaluation/case-01/evidence_root/` bundled; others are scenario specs | 69 |
+| `external-evaluation/` (third-party, community-verified) | case-01 to case-03 | NIST CFReDS / Ali Hadi / Digital Corpora M57 (downloaded on demand) | 30 |
 
 External datasets are deliberately chosen across three independent
 authoring bodies (US NIST, Champlain College, Naval Postgraduate
 School) to avoid source bias. All three predate dart-mcp by 10-20
 years — they cannot represent in-distribution training data.
 
-**Reproducible measured baseline** (case-01, reference + realistic variants;
-`docs/accuracy-report.md`):
+**Reproducible measured baseline** (self-evaluation/case-01, canonical bundled
+evidence; `docs/accuracy-report.md`):
 - Recall: **1.000**
 - False positive rate: **0.000**
 - Hallucinations: **0**
-- Evidence integrity preserved: **true** (SHA-256 pre/post match across 67 files in realistic variant)
+- Evidence integrity preserved: **true** (SHA-256 pre/post match across 67 files)
 
 Per-case ground truth exists for all bundled case studies, but benchmark
 summary rows are only written for cases actually executed by the harness.
-External datasets (Layer 2) require the optional download path:
+External-tier datasets are downloaded on demand:
 
 ```bash
-python3 -m scripts.benchmark.run_all --download
+python3 run_eval.py --case external-evaluation/case-01 --download
 ```
 
 ### 2. Hallucination management
@@ -361,8 +361,8 @@ Post-submission roadmap, scheduled for after 2026-06-15:
 ### Prerequisites
 
 - SIFT Workstation (or any Linux/macOS with Python 3.10+)
-- Anthropic API key (`ANTHROPIC_API_KEY`) for real live mode. Use `--dry-run`
-  for the offline live-plumbing smoke test.
+- Anthropic API key (`ANTHROPIC_API_KEY`) — `run_eval.py` is live mode only and
+  fails fast without it.
 - ~16 GB disk space (only if running external benchmarks)
 
 ### Install
@@ -370,35 +370,39 @@ Post-submission roadmap, scheduled for after 2026-06-15:
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git
 cd agentic-dart
-bash scripts/install.sh
+bash scripts/install.sh --os ubuntu --skip-sift          # add --install-sift --install-eztools for the full toolchain
+python3 scripts/healthcheck.py                           # API-free readiness check
 ```
 
-The installer verifies Python, clones dependencies, probes the SIFT
-toolchain, registers MCP adapters, and validates the bypass test pack.
+The installer is OS-aware (`--os auto|ubuntu|centos|macos`), venv-first, clones
+and installs the collector adapter in the same venv, and only stages SIFT (via
+`cast`) / Eric Zimmerman Tools (.NET 9) when asked — never pretending a tool is
+present when it is not.
 
-### Run the bundled demo (~30 seconds)
+### Run an evaluation case
+
+```bash
+export ANTHROPIC_API_KEY='sk-...'
+python3 run_eval.py --case self-evaluation/case-01            # bundled evidence
+python3 run_eval.py --case external-evaluation/case-01 --download   # public dataset
+python3 run_eval.py --list                                   # discover all cases (no key needed)
+```
+
+### Low-level offline demo (no API key)
 
 ```bash
 bash examples/demo-run.sh
 ```
 
-### Run the full benchmark suite
-
-```bash
-# Internal cases only (~10 seconds, no download)
-python3 -m scripts.benchmark.run_all --layer 1
-
-# Everything, auto-fetching external datasets (~30-60 min first time)
-python3 -m scripts.benchmark.run_all --download
-```
-
 ### Run against your own evidence
 
+Convert a Velociraptor collection or a raw disk image into an `evidence_root/`
+with the collector adapter, drop it under a case folder, then run it:
+
 ```bash
-python3 -m dart_agent \
-    --evidence-root /path/to/your/evidence_root \
-    --playbook dart_playbook/senior-analyst-v3.yaml \
-    --output ./out
+python3 -m dart_collector_adapter --source image --input disk.E01 \
+    --output examples/case-studies/self-evaluation/case-01/evidence_root --case-id my-case
+python3 run_eval.py --case self-evaluation/case-01
 ```
 
 ---
@@ -411,11 +415,11 @@ python3 -m dart_agent \
 - [x] Demo video (submitted directly to Devpost form, not embedded in repo)
 - [x] 11 documented case studies with machine-readable ground truth
 - [x] Benchmark suite (`scripts/benchmark/`) covering internal + external evidence
-- [x] Accuracy report (`docs/accuracy-report.md`)
+- [x] CI green at submission (full pytest suite passing across dart_mcp, dart_agent, dart_audit, dart_corr)
 - [x] Audit-chain verification utility (`dart_audit verify`)
 - [x] Architectural guardrail test pack (`tests/test_mcp_bypass.py` — 7 bypass tests)
 - [x] Single-source-of-truth count discipline (no hardcoded drift)
-- [x] CI green at submission (119 tests passing — 105 dart_mcp/agent/audit + 14 dart_corr)
+- [x] CI green at submission (full pytest suite passing across dart_mcp, dart_agent, dart_audit, dart_corr)
 - [x] Companion collector-adapter repo: https://github.com/Juwon1405/agentic-dart-collector-adapter
 
 ---
