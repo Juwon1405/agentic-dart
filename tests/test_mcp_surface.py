@@ -101,7 +101,22 @@ def test_calling_unregistered_function_raises():
     raise AssertionError("should have raised KeyError(ToolNotFound)")
 
 
+def test_call_tool_validates_advertised_schema():
+    for args in (
+        {"hive_path": "disk/Windows/AppCompat/Programs/Amcache.hve", "limit": "bad"},
+        {"hive_path": "disk/Windows/AppCompat/Programs/Amcache.hve", "limit": 999999},
+        {"hive_path": "disk/Windows/AppCompat/Programs/Amcache.hve", "unexpected": True},
+        {},
+    ):
+        try:
+            call_tool("get_amcache", args)
+        except (TypeError, ValueError):
+            continue
+        raise AssertionError(f"schema validator accepted malformed args: {args!r}")
+
+
 if __name__ == "__main__":
     test_registered_tools_are_exact_set(); print("test_registered_tools_are_exact_set OK")
     test_destructive_functions_are_not_exposed(); print("test_destructive_functions_are_not_exposed OK")
     test_calling_unregistered_function_raises(); print("test_calling_unregistered_function_raises OK")
+    test_call_tool_validates_advertised_schema(); print("test_call_tool_validates_advertised_schema OK")

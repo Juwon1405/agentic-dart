@@ -21,11 +21,15 @@ cache the .plaso storage, then run psort multiple times to slice.
 from __future__ import annotations
 
 import csv
+import os
+import tempfile
+from pathlib import Path
 from typing import Any
 
 from dart_mcp import tool
 
 from ._common import (
+    PathTraversalAttempt,
     _sha256,
     _tempdir,
     _which,
@@ -36,6 +40,7 @@ from ._common import (
 # log2timeline can take many hours on a real disk image. Conservative default.
 LOG2TIMELINE_TIMEOUT_SECONDS = 6 * 60 * 60   # 6 hours
 PSORT_TIMEOUT_SECONDS = 1 * 60 * 60          # 1 hour
+DERIVED_ROOT_ENV = "DART_DERIVED_ROOT"
 
 
 def _log2timeline_bin() -> str:
@@ -44,6 +49,54 @@ def _log2timeline_bin() -> str:
 
 def _psort_bin() -> str:
     return _which("psort.py", env_var="DART_PSORT_BIN")
+
+
+def _derived_root() -> Path:
+    root = os.environ.get(DERIVED_ROOT_ENV)
+    if root:
+        return Path(root).expanduser().resolve()
+    return (Path(tempfile.gettempdir()) / "agentic-dart-derived").resolve()
+
+
+def _safe_derived_path(path_str: str, *, must_exist: bool = False) -> Path:
+    """Resolve a Plaso storage path under DART_DERIVED_ROOT.
+
+    Plaso is the one adapter family that needs a persistent derived artifact
+    for later psort slicing. Derived artifacts must never be written back into
+    EVIDENCE_ROOT, so this helper constrains them to a separate root.
+    """
+    if not isinstance(path_str, str) or not path_str:
+        raise PathTraversalAttempt(f"invalid derived path: {path_str!r}")
+    if "\x00" in path_str:
+        raise PathTraversalAttempt("null byte in derived path")
+
+    root = _derived_root()
+    raw = Path(path_str).expanduser()
+    if raw.is_absolute():
+        candidate = raw.resolve()
+    else:
+        norm = path_str.replace("\\", "/")
+        parts = [p for p in norm.split("/") if p]
+        if not parts or any(p in (".", "..") for p in parts):
+            raise PathTraversalAttempt(f"invalid derived path: {path_str!r}")
+        candidate = (root / Path(*parts)).resolve()
+
+    try:
+        candidate.relative_to(root)
+    except ValueError as e:
+        raise PathTraversalAttempt(
+            f"derived path escapes {DERIVED_ROOT_ENV}: {path_str!r}"
+        ) from e
+    if must_exist and not candidate.exists():
+        raise PathTraversalAttempt(f"derived path does not exist: {path_str!r}")
+    return candidate
+
+
+def _resolve_storage_input(storage_path: str) -> Path:
+    try:
+        return safe_evidence_input(storage_path)
+    except PathTraversalAttempt:
+        return _safe_derived_path(storage_path, must_exist=True)
 
 
 @tool(
@@ -63,7 +116,7 @@ def _psort_bin() -> str:
             },
             "output_storage_path": {
                 "type": "string",
-                "description": "Where to write the .plaso file (must be inside EVIDENCE_ROOT)",
+                "description": "Relative or absolute path under DART_DERIVED_ROOT for the .plaso file",
             },
             "parsers": {
                 "type": "string",
@@ -84,13 +137,12 @@ def sift_plaso_log2timeline(
     timeout_seconds: int = LOG2TIMELINE_TIMEOUT_SECONDS,
 ) -> dict[str, Any]:
     source = safe_evidence_input(source_path)
-    # output is also constrained to be under EVIDENCE_ROOT (the agent cannot
-    # write storage files into arbitrary filesystem locations)
-    out_path = safe_evidence_input(output_storage_path) if "/" in output_storage_path else None
-    if out_path is None:
-        # Allow specifying just a filename — resolve under EVIDENCE_ROOT
-        from dart_mcp import EVIDENCE_ROOT
-        out_path = EVIDENCE_ROOT / output_storage_path
+    out_path = _safe_derived_path(output_storage_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if out_path.exists():
+        raise FileExistsError(
+            f"derived storage already exists: {out_path}; choose a new output_storage_path"
+        )
 
     cmd = [
         _log2timeline_bin(),
@@ -109,6 +161,7 @@ def sift_plaso_log2timeline(
             "source_path": source_path,
             "source_sha256": _sha256(source) if source.is_file() else None,
             "output_storage_path": str(out_path),
+            "derived_root": str(_derived_root()),
             "storage_sha256": result.output_files.get(str(out_path)),
             "parsers": parsers,
             "duration_ms": result.duration_ms,
@@ -149,7 +202,7 @@ def sift_plaso_psort(
     filter_expression: str = "",
     limit: int = 10000,
 ) -> dict[str, Any]:
-    storage = safe_evidence_input(storage_path)
+    storage = _resolve_storage_input(storage_path)
     storage_sha = _sha256(storage)
 
     with _tempdir(prefix="dart-psort-") as workdir:

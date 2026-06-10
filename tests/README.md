@@ -1,9 +1,9 @@
 # Tests
 
 `pytest` test suite for the five packages plus the live-mode agent loop.
-The suite is split across two directories — **116 tests total**:
+The suite is split across two directories — **119 tests total**:
 
-- `tests/` — **102** tests (dart_mcp / dart_agent / dart_audit, parsers,
+- `tests/` — **105** tests (dart_mcp / dart_agent / dart_audit, parsers,
   live-mode loop, hardening).
 - `dart_corr/tests/` — **14** tests (the correlation engine extracted into
   its own package in v0.7.1).

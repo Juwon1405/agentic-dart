@@ -7,7 +7,8 @@ design — the dartboard target, the dark-blue palette, the typography.
 We keep all of that. We only fix two real problems:
 
   (1) Fake CLI '$dart-agent --hunt' in the top-left terminal banner.
-      That flag does not exist. Wipe and replace with a real command.
+      That command does not exist in this package. Wipe and replace it with
+      the documented module invocation.
 
   (2) Stat-block numbers that drift between releases (35 / 11/12 /
       20/20). Wipe and replace with evergreen design-principle words.
@@ -90,7 +91,7 @@ def make_hero():
     # Wipe generously to avoid old-text artefacts.
     _wipe(draw, 55, 18, 360, 52)
     mono = _font(20, mono=True)
-    draw.text((63, 22), "$ dart-agent --case case-04",
+    draw.text((63, 22), "$ python3 -m dart_agent --case case-04",
               fill=CYAN, font=mono)
 
     # (2) Wipe stat block, write evergreen words.
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     print("  - dark navy + cyan/green palette")
     print("  - title typography and gradients")
     print("\nFixed:")
-    print("  - $dart-agent --hunt   →   $ dart-agent --case case-04")
+    print("  - $dart-agent --hunt   ->   $ python3 -m dart_agent --case case-04")
     print("  - 35 / 11-12 / 20-20   →   READ-ONLY / ARCHITECTURAL /")
     print("                              VERIFIABLE / ZERO  (evergreen)")
     print("\nThumbnail and wiki-banner are derived from the same hero,")

@@ -28,49 +28,24 @@ The agent:
 
 1. Spawns `python -m dart_mcp.server_stdio` as a subprocess
 2. Completes the MCP initialize handshake
-3. Calls `list_tools()` — sees exactly the the full registered forensic function set
+3. Calls `list_tools()` — sees exactly the full registered forensic function set
 4. Hands that tool list (converted to Anthropic's tool-use schema) to Claude
 5. Enters a loop: ask Claude → receive tool_use blocks → route each via MCP
    session → feed results back → repeat until Claude stops or max-iter hits
 
-Claude can NOT see anything beyond the the full MCP surface on the typed MCP surface. Not because we told
-it not to — because the MCP server does not expose anything else.
+Claude cannot see anything beyond the typed MCP surface. Not because we told
+it not to, but because the MCP server does not expose anything else.
 
 ## Running it
 
-### Authentication (3-tier, zero-cost by default)
+### Authentication
 
-agentic-dart resolves credentials in this order:
-
-1. **`ANTHROPIC_API_KEY`** — pay-as-you-go API, if set.
-2. **OAuth file** — `~/.claude/.credentials.json` (Claude Code / Pro/Max subscription).
-3. **macOS Keychain** — fallback when the file is absent; auto-refreshes near expiry.
-
-With **no API key**, it runs on your Claude Code subscription (OAuth) at **zero API cost**.
-You only need an API key if you have no Claude subscription.
-
-### With a subscription (OAuth — default, zero API cost)
-
-```bash
-# No ANTHROPIC_API_KEY needed — uses your Claude Code OAuth credentials.
-export DART_EVIDENCE_ROOT=/path/to/evidence
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
-
-python3 -m dart_agent --mode live \
-    --case my-case \
-    --out /tmp/my-case-out \
-    --prompt "Investigate evidence root for IP-KVM insider pattern. Report findings with audit IDs." \
-    --max-iterations 10
-# Default model: claude-haiku-4-5 (zero-cost on subscription).
-# Override with --model or DART_MODEL env (e.g. claude-sonnet-4-6 for higher precision).
-```
-
-### With a pay-as-you-go API key
+The documented live-mode credential path is an Anthropic API key:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 export DART_EVIDENCE_ROOT=/path/to/evidence
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src:$PWD/dart_corr/src"
 
 python3 -m dart_agent --mode live \
     --case my-case \
@@ -80,12 +55,14 @@ python3 -m dart_agent --mode live \
     --max-iterations 10
 ```
 
+Override the model with `--model` or `DART_MODEL` when you need a different
+currently-supported Claude model.
+
 ### Without any credentials (CI, offline reproduction)
 
-Pass `--dry-run`, or run with no API key **and** no OAuth credentials.
-Everything runs the same — MCP subprocess, stdio handshake, real tool calls —
-except Claude is replaced with a scripted mock that walks a plausible
-tool-call sequence. Useful for:
+Pass `--dry-run`. Everything runs the same — MCP subprocess, stdio handshake,
+real tool calls — except Claude is replaced with a scripted mock that walks a
+plausible tool-call sequence. Useful for:
 
 - CI pipelines where no credentials should live
 - Verifying the MCP plumbing without spending tokens
@@ -145,7 +122,7 @@ by any prompt.
 ## Tests you can run right now
 
 ```bash
-# End-to-end: agent subprocess spawns MCP subprocess, 15-tool handshake,
+# End-to-end: agent subprocess spawns MCP subprocess, 72-tool handshake,
 # real tool calls over stdio, guardrail-over-wire verification.
 python3 tests/test_live_mcp.py
 ```

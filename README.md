@@ -32,6 +32,7 @@
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
 - [**Quick start — prove it works in 30 seconds**](#quick-start--prove-it-works-in-30-seconds)
+- [Install and requirements](#install-and-requirements)
 - [Running the tests](#running-the-tests)
 - [Target case class](#target-case-class)
 - [Judging-criteria alignment (SANS FIND EVIL!)](#judging-criteria-alignment-sans-find-evil)
@@ -66,7 +67,7 @@ This project is developed by [Juwon Bang](https://github.com/Juwon1405) with ext
 
 - **Human-driven**: architectural decisions, security model, threat coverage taxonomy, MITRE ATT&CK mapping, evidence-integrity invariants, and final code review.
 - **AI-accelerated**: implementation, sample-evidence generation, test scaffolding, documentation drafting.
-- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 116-test suite must pass on a clean clone before any commit lands on `main`.
+- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the 119-test suite must pass on a clean clone before any commit lands on `main`.
 
 This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
@@ -153,7 +154,7 @@ agentic-dart/
 │   ├── demo-run.sh                 One-command reproducible demo (native tools)
 │   └── sift-adapter-demo.sh        SIFT-adapter demo (needs SIFT binaries on PATH)
 │
-├── tests/                pytest suite — 116 tests (102 dart_mcp/agent/audit + 14 dart_corr)
+├── tests/                pytest suite — 119 tests (105 dart_mcp/agent/audit + 14 dart_corr)
 ├── scripts/              install.sh (SIFT bootstrap), benchmark/, measure_accuracy.py, generate_realistic_evidence.py
 ├── docs/                 architecture.md, accuracy-report.md, case walkthroughs
 ├── .github/workflows/    CI matrix (Python 3.10–3.13) + URL reachability
@@ -179,7 +180,7 @@ Expected output:
 ```
 [dart-agent] iterations: 5
 [dart-agent] findings: 2
-[dart-agent] audit chain: chain verified: 3 entries, tail=1e995b6afc6a6660...
+[dart-agent] audit chain: chain verified: 3 entries, tail=<sha256-prefix>...
 [demo] bypass test — attempting to call an unregistered destructive function:
 [demo] PASS — "ToolNotFound: 'execute_shell' is not exposed by dart-mcp"
 ```
@@ -207,16 +208,65 @@ When artifacts disagree, `dart-corr` flags the contradiction as `UNRESOLVED` and
 
 > *Representative SIFT Workstation stills. A live screencast replaces these in the hackathon submission video (June 2026).*
 
+## Install and requirements
+
+### Prerequisites
+
+- Python 3.10 or newer.
+- `git`, `pip`, and `venv`.
+- Optional for SIFT-adapter calls: SANS SIFT Workstation binaries on `PATH`
+  or the corresponding `DART_*_BIN` override environment variables.
+- Optional for real live mode: `ANTHROPIC_API_KEY`.
+
+Core Python requirements are declared in each package's `pyproject.toml`:
+`duckdb`, `PyYAML`, `python-registry`, and, for MCP/live mode, `mcp`,
+`anthropic`, and `requests`.
+
+### Fresh-clone install
+
+```bash
+git clone https://github.com/Juwon1405/agentic-dart.git
+cd agentic-dart
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip wheel
+pip install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_agent[live]'
+
+export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_DERIVED_ROOT="${TMPDIR:-/tmp}/agentic-dart-derived"
+```
+
+`DART_EVIDENCE_ROOT` must point to read-only evidence. `DART_DERIVED_ROOT`
+is for generated Plaso storage files and other derived artifacts; it should
+not be inside the evidence tree.
+
+For a SANS SIFT Workstation bootstrap, use:
+
+```bash
+bash scripts/install.sh
+```
+
 ## Running the tests
 
 ```bash
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src:$PWD/dart_corr/src"
 export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
 
-# Test-suite dependencies (declared in each package's pyproject; listed here
-# for a PYTHONPATH run without an editable install): DuckDB backs dart_corr,
-# python-registry the registry-hive parser, mcp the JSON-RPC stdio wire tests.
-pip install duckdb python-registry mcp
+# After the editable install above:
+python3 -m pytest tests/ dart_corr/tests/
+```
+
+For a PYTHONPATH-only run without installing the packages:
+
+```bash
+export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src:$PWD/dart_corr/src"
+pip install duckdb PyYAML python-registry mcp anthropic requests
+python3 -m pytest tests/ dart_corr/tests/
+```
+
+The same suite can also be run file-by-file while debugging:
+
+```bash
 
 python3 tests/test_audit_chain.py                       # chain integrity + tamper detection
 python3 tests/test_mcp_surface.py                       # surface is the exact positive set
@@ -267,7 +317,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **72/116/116/0.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **116 of 116 tests passing on a fresh clone** (102 dart_mcp/agent/audit + 14 dart_corr — audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **72/119/119/0.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **119 of 119 tests passing on a fresh clone** (105 dart_mcp/agent/audit + 14 dart_corr — audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|
@@ -397,16 +447,18 @@ Coverage = **11 / 12** with one tactic explicitly partial. We do not claim 12/12
 
 ## Live mode (real Claude API + MCP stdio)
 
-Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. Credentials resolve 3-tier: `ANTHROPIC_API_KEY` → OAuth file (`~/.claude/.credentials.json`) → macOS Keychain. **With no API key it runs on your Claude Code subscription (OAuth) at zero API cost.**
+Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. The documented credential path is an Anthropic API key through `ANTHROPIC_API_KEY`; use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
 
 ```bash
-# Default: OAuth subscription, zero API cost (no ANTHROPIC_API_KEY needed).
-# Default model claude-haiku-4-5; override via --model or DART_MODEL env.
+export ANTHROPIC_API_KEY=sk-ant-...
+
+# Default model: claude-haiku-4-5-20251001.
+# Override via --model or DART_MODEL env.
 python3 -m dart_agent --mode live --case my-case --out /tmp/out \
     --prompt "Investigate for IP-KVM insider pattern"
 ```
 
-Or with a pay-as-you-go API key (`export ANTHROPIC_API_KEY=sk-ant-...` first), or without any credentials (scripted mock-Claude over real MCP plumbing):
+Without credentials, run the scripted mock over real MCP stdio:
 
 ```bash
 python3 -m dart_agent --mode live --case test --out /tmp/out --dry-run
@@ -430,7 +482,7 @@ For the full case library — including case-11 (supply-chain → ADCS ESC8 → 
 Recall:                    1.000
 False positive rate:       0.000
 Hallucination count:       0
-Evidence integrity:        preserved (50 files, all SHA-256 hashes match pre/post)
+Evidence integrity:        preserved (62 files, all SHA-256 hashes match pre/post)
 Self-correction observed:  true
 ```
 
@@ -554,7 +606,7 @@ Reproduce with `python3 scripts/measure_cfreds.py`. Remaining gaps (F-CFR-006 IE
 | YARA | `sift_yara_{scan_file,scan_dir}` (2) | yara |
 | Plaso | `sift_plaso_{log2timeline,psort}` (2) | log2timeline.py / psort.py |
 
-All 25 share the same architectural guarantees as the native layer — read-only `EVIDENCE_ROOT` sandbox, subprocess timeout, SHA-256 of inputs and outputs to the audit chain, typed `SiftToolNotFoundError` graceful fallback when a binary is absent.
+All 25 share the same architectural guarantees as the native layer — read-only `EVIDENCE_ROOT` inputs, persistent derived artifacts constrained to `DART_DERIVED_ROOT` when a tool must write one (Plaso storage), subprocess timeout, SHA-256 of inputs and outputs to the audit chain, typed `SiftToolNotFoundError` graceful fallback when a binary is absent.
 
 **Infrastructure**
 
@@ -637,4 +689,3 @@ This project is a **personal/independent submission**. Built outside any
 employer relationship. All work, opinions, and code in this repository
 are my own and do not represent the views of any organization I am
 affiliated with.
-

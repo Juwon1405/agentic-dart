@@ -53,7 +53,7 @@ of YAML playbooks with no `pyproject.toml`; it is loaded by path, not imported.
 | Mode | Flag | Network / API | Used by |
 |---|---|---|---|
 | **Deterministic** | `--mode deterministic` (default) | none — scripted analyst calls MCP functions directly | demos, CI, accuracy harness |
-| **Live** | `--mode live` | Anthropic API (key or OAuth) | real-Claude reasoning, fidelity runs |
+| **Live** | `--mode live` | Anthropic API credentials | real-Claude reasoning, fidelity runs |
 | **Dry-run** | `--dry-run` | none — exercises live plumbing with a mock LLM | smoke-testing the live path |
 
 CI and `scripts/measure_accuracy.py` run **deterministic only** — they never

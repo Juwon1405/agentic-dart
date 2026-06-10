@@ -63,7 +63,7 @@ def normalize_findings(report_path, amap):
                     tools.add(amap[a]["tool"])
                 paths |= amap[a]["paths"]
         out.append({"id": f.get("finding_id"), "tools": tools,
-                    "paths": paths, "has_audit": bool(aids)})
+                    "paths": paths, "has_audit": any(a in amap for a in aids)})
     return out
 
 

@@ -139,7 +139,7 @@ engine **decoupled from any single collection vendor**.
 | Scale engine | DuckDB (for cross-source timeline correlation) |
 | Heavy parsers | SIFT toolchain (Volatility 3, MFTECmd, EvtxECmd, ...) |
 | Audit chain | SHA-256 linked JSONL |
-| Test suite | pytest (116 tests, all green at submission — 102 dart_mcp/agent/audit + 14 dart_corr) |
+| Test suite | pytest (119 tests, all green at submission — 105 dart_mcp/agent/audit + 14 dart_corr) |
 | CI | GitHub Actions (Linux + macOS) |
 | Sample evidence | seeded deterministic generator |
 
@@ -162,15 +162,16 @@ authoring bodies (US NIST, Champlain College, Naval Postgraduate
 School) to avoid source bias. All three predate dart-mcp by 10-20
 years — they cannot represent in-distribution training data.
 
-**Measured numbers on internal evidence** (Layer 1,
+**Reproducible measured baseline** (case-01, reference + realistic variants;
 `docs/accuracy-report.md`):
 - Recall: **1.000**
 - False positive rate: **0.000**
 - Hallucinations: **0**
-- Evidence integrity preserved: **true** (SHA-256 pre/post match across 50 files in realistic variant)
+- Evidence integrity preserved: **true** (SHA-256 pre/post match across 67 files in realistic variant)
 
-**Measured numbers on external datasets** (Layer 2): see
-`docs/benchmarks/SUMMARY.md`. Re-run the entire benchmark suite with:
+Per-case ground truth exists for all bundled case studies, but benchmark
+summary rows are only written for cases actually executed by the harness.
+External datasets (Layer 2) require the optional download path:
 
 ```bash
 python3 -m scripts.benchmark.run_all --download
@@ -360,7 +361,8 @@ Post-submission roadmap, scheduled for after 2026-06-15:
 ### Prerequisites
 
 - SIFT Workstation (or any Linux/macOS with Python 3.10+)
-- Claude access — either a Claude Code subscription (OAuth, zero API cost) **or** an Anthropic API key (`ANTHROPIC_API_KEY`). Live mode runs an offline mock if neither is present.
+- Anthropic API key (`ANTHROPIC_API_KEY`) for real live mode. Use `--dry-run`
+  for the offline live-plumbing smoke test.
 - ~16 GB disk space (only if running external benchmarks)
 
 ### Install
@@ -413,7 +415,7 @@ python3 -m dart_agent \
 - [x] Audit-chain verification utility (`dart_audit verify`)
 - [x] Architectural guardrail test pack (`tests/test_mcp_bypass.py` — 7 bypass tests)
 - [x] Single-source-of-truth count discipline (no hardcoded drift)
-- [x] CI green at submission (116 tests passing — 102 dart_mcp/agent/audit + 14 dart_corr)
+- [x] CI green at submission (119 tests passing — 105 dart_mcp/agent/audit + 14 dart_corr)
 - [x] Companion collector-adapter repo: https://github.com/Juwon1405/agentic-dart-collector-adapter
 
 ---

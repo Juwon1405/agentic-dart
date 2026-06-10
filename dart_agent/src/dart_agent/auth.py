@@ -1,15 +1,9 @@
-"""Flexible authentication layer that reuses Claude Code CLI OAuth credentials.
-
-Goal: let the agent talk to the Anthropic API using an existing Claude
-Pro/Max subscription instead of a separately-provisioned API key. The
-operator installs and signs into Claude Code once on the host; the CLI
-handles refresh from there.
+"""Flexible authentication layer for live-mode Anthropic clients.
 
 Flow:
-1. Read `~/.claude/.credentials.json` (or one of the supported variants).
-2. If access_token is close to expiry, refresh it (direct OAuth call,
-   with a CLI fallback for legacy compatibility).
-3. Hand the bare access_token to the anthropic SDK.
+1. Prefer `ANTHROPIC_API_KEY` when set.
+2. Optionally load local Claude credentials when present on the analyst host.
+3. Hand the resulting credential to the Anthropic SDK.
 
 No tokens ever live in code or the repo — every value is read at runtime
 from the local store.
@@ -28,8 +22,8 @@ from typing import Optional
 log = logging.getLogger(__name__)
 
 
-# Candidate locations where the Claude Code CLI may stash credentials.
-# Tried in order; macOS may also use the Keychain, handled separately below.
+# Candidate locations where local Claude credentials may be present. Tried in
+# order; macOS may also use the Keychain, handled separately below.
 _CREDENTIALS_CANDIDATES = [
     "~/.claude/.credentials.json",          # Linux default
     "~/.config/claude/credentials.json",    # XDG-style
@@ -89,10 +83,10 @@ def _parse_credentials(raw: dict) -> dict | None:
 
 
 def _load_from_keychain() -> dict | None:
-    """Pull Claude Code credentials from the macOS Keychain (fallback).
+    """Pull local Claude credentials from the macOS Keychain (fallback).
 
-    Used when the CLI stores tokens in the Keychain instead of in
-    credentials.json. Reads the secret via
+    Used when tokens are stored in the Keychain instead of in credentials.json.
+    Reads the secret via
     `security find-generic-password -s "Claude Code-credentials" -w` and
     parses the JSON it returns. Returns None on non-macOS hosts or when
     the entry is absent.
@@ -124,7 +118,7 @@ def _load_from_keychain() -> dict | None:
 
 
 def load_credentials() -> dict | None:
-    """Load Claude Code credentials. Reads both file and Keychain and picks
+    """Load local Claude credentials. Reads both file and Keychain and picks
     the FRESHER (larger expires_at) of the two.
 
     Why both: on a headless host (SSH session, no GUI login), the macOS
@@ -173,9 +167,9 @@ def trigger_refresh(timeout: float = 30.0) -> bool:
     refreshed.
 
     Known limitation: `claude --version` / `--help` print version info
-    without refreshing the token. The real refresh path is
-    refresh_oauth_token() below, which posts to the token endpoint
-    directly. This function is kept as a legacy fallback only.
+    without refreshing the token. The direct refresh helper below can refresh
+    local credentials when a refresh token is already present. This function
+    is kept as a legacy fallback only.
     """
     cmd_candidates = [
         ["claude", "--version"],   # cheapest invocation
@@ -201,7 +195,7 @@ def trigger_refresh(timeout: float = 30.0) -> bool:
     return False
 
 
-# Public OAuth client_id used by the Claude Code CLI (constant, not a secret).
+# Public client_id used by local Claude credentials (constant, not a secret).
 _OAUTH_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
 _OAUTH_TOKEN_URL = "https://console.anthropic.com/v1/oauth/token"
 
@@ -235,12 +229,12 @@ def refresh_oauth_token(timeout: float = 30.0) -> dict | None:
             timeout=timeout,
         )
         if r.status_code != 200:
-            log.warning("OAuth refresh HTTP %s: %s", r.status_code, r.text[:200])
+            log.warning("Local credential refresh HTTP %s: %s", r.status_code, r.text[:200])
             return None
         data = r.json()
         new_access = data.get("access_token")
         if not new_access:
-            log.warning("OAuth refresh response did not include access_token")
+            log.warning("Local credential refresh response did not include access_token")
             return None
         new_refresh = data.get("refresh_token") or creds["refresh_token"]
         expires_in = int(data.get("expires_in") or 0)
@@ -249,10 +243,10 @@ def refresh_oauth_token(timeout: float = 30.0) -> dict | None:
                      "expires_at": new_exp}
         # Persist the refreshed credentials so subsequent reads pick them up
         _save_credentials(new_creds)
-        log.info("OAuth token refreshed directly (expires in %.0fs)", new_exp - time.time())
+        log.info("Local Claude token refreshed directly (expires in %.0fs)", new_exp - time.time())
         return new_creds
     except Exception as e:
-        log.warning("OAuth refresh exception: %s: %s", type(e).__name__, str(e)[:120])
+        log.warning("Local credential refresh exception: %s: %s", type(e).__name__, str(e)[:120])
         return None
 
 
@@ -301,19 +295,18 @@ def _save_credentials(creds: dict) -> bool:
 
 
 def refresh_oauth_if_needed(threshold_sec: int = 7200) -> dict:
-    """Proactively refresh the OAuth token so it is always ready as a fallback.
+    """Proactively refresh the local token so it is ready as a fallback.
 
     When the access_token has less than threshold_sec (default 2h) left
     until expiry, refresh it via refresh_token directly. Intended for a
-    periodic call (daemon, cron) so that OAuth stays fresh and an instant
-    fallback is always available if a paid API path is unavailable.
+    periodic call (daemon, cron) so that local credentials stay fresh.
 
     Returns: {state, detail, expires_in_sec}. state is one of
              'none' | 'fresh' | 'refreshed' | 'stale'.
     """
     creds = load_credentials()
     if not creds or not creds.get("access_token"):
-        return {"state": "none", "detail": "no OAuth credentials available", "expires_in_sec": 0}
+        return {"state": "none", "detail": "no local credentials available", "expires_in_sec": 0}
     exp = int(creds.get("expires_at") or 0)
     remain = (exp - time.time()) if exp else 0
     if exp and remain >= threshold_sec:
@@ -345,12 +338,12 @@ def get_access_token(refresh_threshold_sec: int = 3600) -> str | None:
         "access_token close to expiry (expires_at=%d, %ds remaining); attempting refresh.",
         creds["expires_at"], int(creds["expires_at"] - time.time()),
     )
-    # Primary: direct OAuth refresh via refresh_token grant.
+    # Primary: direct refresh via refresh_token grant.
     refreshed = refresh_oauth_token()
     if refreshed and refreshed.get("access_token"):
         return refreshed["access_token"]
     # Fallback: invoke the CLI and re-read (the CLI may have refreshed in the background)
-    log.info("Direct OAuth refresh failed; trying CLI fallback")
+    log.info("Direct token refresh failed; trying CLI fallback")
     if not trigger_refresh():
         log.warning("CLI invocation also failed; returning the about-to-expire token")
         return creds["access_token"]
@@ -363,13 +356,9 @@ def get_access_token(refresh_threshold_sec: int = 3600) -> str | None:
 
 
 # ──────────────────────────────────────────────────────────────────────────
-# Flexible three-tier Anthropic client builder.
-#   Tier 1) ANTHROPIC_API_KEY (if set, use the metered API)
-#   Tier 2) OAuth credentials file (~/.claude/.credentials.json — preferred)
-#   Tier 3) macOS Keychain (fallback when the file is absent), with
-#           automatic refresh / extension when expiry is imminent
-# When no API key is set, the OAuth (subscription) path keeps the agent
-# running with zero per-call API cost.
+# Flexible Anthropic client builder.
+#   1) ANTHROPIC_API_KEY when set.
+#   2) Local Claude credentials when available on the analyst host.
 # ──────────────────────────────────────────────────────────────────────────
 def build_anthropic_client(timeout: float = 600.0, max_retries: int = 4):
     """Build an Anthropic client through the three-tier auth flow. Returns
@@ -383,11 +372,12 @@ def build_anthropic_client(timeout: float = 600.0, max_retries: int = 4):
         import anthropic
     except ImportError:
         return None
-    # Tier 1: explicit API key (preferred when present — metered)
+    # Tier 1: explicit API key.
     if os.environ.get("ANTHROPIC_API_KEY"):
         log.info("[dart-auth] Tier 1: using ANTHROPIC_API_KEY")
         return anthropic.Anthropic(timeout=timeout, max_retries=max_retries)
-    # Tier 2 + 3: OAuth (file first, Keychain fallback; load_credentials picks the fresher of the two)
+    # Tier 2: local credentials (file first, Keychain fallback; load_credentials
+    # picks the fresher of the two).
     creds = load_credentials()
     if creds and creds.get("access_token"):
         # Attempt a direct refresh if the token is close to expiry
@@ -397,17 +387,17 @@ def build_anthropic_client(timeout: float = 600.0, max_retries: int = 4):
                 if refreshed and refreshed.get("access_token"):
                     creds = refreshed
         except Exception as e:
-            log.debug("[dart-auth] OAuth refresh attempt failed (ignored): %s", e)
+            log.debug("[dart-auth] local credential refresh attempt failed (ignored): %s", e)
         src = creds.get("_path", "?")
-        log.info("[dart-auth] using OAuth credentials (source: %s) — zero per-call API cost", src)
+        log.info("[dart-auth] using local Claude credentials (source: %s)", src)
         return anthropic.Anthropic(auth_token=creds["access_token"],
                                    timeout=timeout, max_retries=max_retries)
-    log.warning("[dart-auth] neither API key nor OAuth credentials available; client cannot be built")
+    log.warning("[dart-auth] neither API key nor local Claude credentials available; client cannot be built")
     return None
 
 
 def has_any_credentials() -> bool:
-    """Return True if either an API key or OAuth credentials are present
+    """Return True if either an API key or local credentials are present
     (used by callers to decide whether live mode is viable)."""
     if os.environ.get("ANTHROPIC_API_KEY"):
         return True

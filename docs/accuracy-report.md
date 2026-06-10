@@ -43,7 +43,7 @@ shaped Chrome History**, **systemd-journald-shaped journal.ndjson** with
 auditd records** (SYSCALL+EXECVE+CWD+PATH+PROCTITLE+USER_LOGIN+CRED_ACQ),
 **FSEventsParser-shaped fsevents** with id/mask/flags/inode/sha256, and
 **`log show`-shaped unified log** with thread/subsystem/category/sender.
-Schema-level fidelity is byte-stable per re-run; all 75 unit tests and
+Schema-level fidelity is byte-stable per re-run; the full pytest suite and
 all per-case detection counts are preserved across the enrichment.
 
 ## MCP surface — the typed MCP surface (native pure-Python + SIFT Workstation adapters), all implemented end-to-end
@@ -87,7 +87,7 @@ all per-case detection counts are preserved across the enrichment.
 | Recall | **1.000** |
 | False positive rate | **0.000** |
 | Hallucination count | **0** |
-| Evidence integrity preserved | **true** (50 files, SHA-256 pre/post match; realistic variant) |
+| Evidence integrity preserved | **true** (62 reference files / 67 realistic files, SHA-256 pre/post match) |
 | Self-correction observed | **true** |
 | Audit chain length | 3 entries, SHA-256-linked |
 | True positives | F-001, F-013 |
@@ -386,4 +386,3 @@ on the reference variant.
 
 These are explicit gaps; this report does not claim to substitute for
 them. It claims only what was measured.
-

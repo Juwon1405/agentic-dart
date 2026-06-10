@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 """
-run_all.py — single-command benchmark runner across case-01 to case-10.
+run_all.py — single-command benchmark runner for measured benchmark layers.
 
 Splits work into two layers:
 
-  LAYER 1 (case-01 to case-07)
+  LAYER 1 BASELINE (case-01)
     Evaluated against examples/sample-evidence-realistic/ — bundled with
     the repository, no external download needed. Uses the existing
-    scripts/measure_accuracy.py harness.
+    scripts/measure_accuracy.py harness and records only that measured case.
 
   LAYER 2 (case-08 to case-10)
     Evaluated against externally-hosted third-party datasets (NIST CFReDS,
     Ali Hadi, Digital Corpora M57). Requires one-time ~13 GB download
     via benchmark/download.py.
 
-Both layers emit results in the same format and update the same
-docs/benchmarks/SUMMARY.md table, so a reviewer sees one unified
-score sheet covering both internal and external evidence.
+Both layers emit measured results into docs/benchmarks/SUMMARY.md. The runner
+does not fabricate rows for case studies that were not executed.
 
 Usage:
 
@@ -62,26 +61,17 @@ except ImportError:
 REPO = Path(__file__).resolve().parents[2]
 
 
-# ─── Layer 1: internal cases (01-07, 11) ─────────────────────────────────────
-LAYER_1_CASES = [
-    "case-01-ipkvm-insider",
-    "case-02-lotl-powershell",
-    "case-03-macos-remote-admin",
-    "case-04-phishing-to-exfil",
-    "case-05-authentication-lateral",
-    "case-06-web-attack-to-rdp-pivot",
-    "case-07-ransomware-full-chain",
-    "case-11-supplychain-ad-zeroday",
-]
+# ─── Layer 1: measured bundled baseline ─────────────────────────────────────
+LAYER_1_BASELINE_CASE = "case-01-ipkvm-insider"
 
 
 def run_layer_1(variant: str = "realistic") -> int:
     """
-    Run measure_accuracy.py against the bundled sample-evidence-realistic
-    tree. Returns 0 on success, non-zero on harness failure.
+    Run measure_accuracy.py against the bundled evidence tree. Returns 0 on
+    success, non-zero on harness failure.
     """
     print("\n" + "=" * 72)
-    print("  LAYER 1 — internal cases (case-01 to case-07)")
+    print("  LAYER 1 — measured bundled baseline (case-01)")
     print(f"  evidence: examples/sample-evidence-{variant}/")
     print("=" * 72)
 
@@ -96,41 +86,49 @@ def run_layer_1(variant: str = "realistic") -> int:
         "--variant", variant,
     ]
     print(f"  $ {' '.join(cmd)}")
-    proc = subprocess.run(cmd, cwd=REPO)
+    proc = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True)
+    if proc.stdout:
+        print(proc.stdout, end="" if proc.stdout.endswith("\n") else "\n")
+    if proc.stderr:
+        print(proc.stderr, file=sys.stderr, end="" if proc.stderr.endswith("\n") else "\n")
     if proc.returncode != 0:
         print(f"\n[FAIL] measure_accuracy.py returned {proc.returncode}")
         return proc.returncode
 
-    # measure_accuracy.py writes its own report to docs/accuracy-report.md.
-    # Mirror the summary row into docs/benchmarks/SUMMARY.md so both
-    # layers feed the same score sheet.
-    _mirror_layer_1_into_summary(variant)
+    try:
+        measurement = _extract_json_summary(proc.stdout)
+    except Exception as e:
+        print(f"\n[FAIL] could not parse measure_accuracy.py JSON: {e}")
+        return 1
+
+    _append_layer_1_summary(variant, measurement)
     return 0
 
 
-def _mirror_layer_1_into_summary(variant: str) -> None:
+def _extract_json_summary(stdout: str) -> dict:
+    start = stdout.find("{")
+    if start < 0:
+        raise ValueError("no JSON object found")
+    return json.loads(stdout[start:])
+
+
+def _append_layer_1_summary(variant: str, measurement: dict) -> None:
     """
-    measure_accuracy.py reports per-case in docs/accuracy-report.md.
-    For the unified summary, append one row per case-01..07 to
-    docs/benchmarks/SUMMARY.md so a reviewer sees ALL cases in one place.
+    Append the measured case-01 baseline row to docs/benchmarks/SUMMARY.md.
     """
     summary_path = REPO / "docs" / "benchmarks" / "SUMMARY.md"
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     if not summary_path.exists():
         summary_path.write_text(
             "# Benchmark Summary\n\n"
-            "Accuracy of Agentic-DART against internal (case-01 to 07) "
-            "and external (case-08 to 10) DFIR datasets.\n\n"
+            "Accuracy of Agentic-DART against measured bundled and external DFIR datasets.\n\n"
             "| Date | Case | Findings | GT | Strict Recall | Lenient Recall | Hallucinations | Audit |\n"
             "|------|------|---------:|---:|--------------:|---------------:|---------------:|:-----:|\n"
         )
 
     today = dt.date.today().isoformat()
+    case_name = f"{LAYER_1_BASELINE_CASE} ({variant})"
 
-    # Dup guard: if this (date, case) combination is already present in
-    # SUMMARY.md (e.g. running run_all twice in the same day), skip
-    # rewriting the row. The intent is rolling-ledger semantics, but
-    # multiple runs in a single day should not bloat the summary.
     existing_keys = set()
     if summary_path.exists():
         for line in summary_path.read_text().split("\n"):
@@ -139,35 +137,30 @@ def _mirror_layer_1_into_summary(variant: str) -> None:
                 if len(cells) >= 3:
                     existing_keys.add((cells[1], cells[2]))
 
+    if (today, case_name) in existing_keys:
+        print(f"  → summary row already present for {case_name} on {today}")
+        return
+
+    recall_pct = float(measurement.get("recall", 0.0)) * 100
+    hallucinations = int(measurement.get("hallucination_count", 0))
+    findings = int(measurement.get("reported_count", 0))
+    gt = int(measurement.get("ground_truth_count", 0))
+    halluc_rate = (hallucinations / findings * 100) if findings else 0.0
+    audit_ok = "✓" if measurement.get("evidence_integrity_preserved") else "!"
+
     with summary_path.open("a") as f:
-        for case_dir_name in LAYER_1_CASES:
-            # Skip if this case is already logged today
-            if (today, case_dir_name) in existing_keys:
-                continue
-            gt_path = REPO / "examples" / "case-studies" / case_dir_name / "ground-truth.json"
-            if not gt_path.exists():
-                continue
-            try:
-                d = json.loads(gt_path.read_text())
-                gt_count = len(d.get("ground_truth_findings", d.get("findings", [])))
-            except Exception:
-                gt_count = 0
-            # The previously-measured numbers from docs/accuracy-report.md
-            # are Recall 1.000 / FPR 0.000 / Hallucination 0 / audit ✓.
-            # We mirror those as the canonical L1 values. A live re-measure
-            # would refresh them through measure_accuracy.py's own path.
-            f.write(
-                f"| {today} "
-                f"| {case_dir_name} "
-                f"| {gt_count} "
-                f"| {gt_count} "
-                f"| 100.00% "
-                f"| 100.00% "
-                f"| 0 (0.0%) "
-                f"| ✓ "
-                f"|\n"
-            )
-    print(f"  → mirrored layer-1 rows into {summary_path}")
+        f.write(
+            f"| {today} "
+            f"| {case_name} "
+            f"| {findings} "
+            f"| {gt} "
+            f"| {recall_pct:.2f}% "
+            f"| {recall_pct:.2f}% "
+            f"| {hallucinations} ({halluc_rate:.1f}%) "
+            f"| {audit_ok} "
+            f"|\n"
+        )
+    print(f"  → appended measured layer-1 row to {summary_path}")
 
 
 # ─── Layer 2: external cases (08-10) ─────────────────────────────────────────

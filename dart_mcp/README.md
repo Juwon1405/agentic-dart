@@ -47,7 +47,10 @@ The SIFT adapter layer brings agentic-dart into explicit alignment with the SANS
 | `sift_yara_scan_file` / `sift_yara_scan_dir` | YARA |
 | `sift_plaso_log2timeline` / `sift_plaso_psort` | Plaso |
 
-All functions return cursor-paginated JSON. None accept arbitrary file paths outside `DART_EVIDENCE_ROOT`.
+All functions return structured JSON, with cursor/limit arguments on high-volume
+readers. Evidence inputs are constrained to `DART_EVIDENCE_ROOT`; Plaso
+storage outputs are constrained to `DART_DERIVED_ROOT` so generated timelines
+do not modify evidence.
 
 ## Status
 

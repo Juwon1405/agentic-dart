@@ -8,7 +8,7 @@
 #   1. Verifies prerequisites (Python 3.10+, git, curl, RAM, disk)
 #   2. Clones agentic-dart into ~/agentic-dart
 #   3. Creates an isolated Python venv
-#   4. Installs the dart_mcp package (72 typed read-only tools)
+#   4. Installs all local Agentic-DART packages in editable mode
 #   5. Probes for SIFT Workstation tool binaries (Volatility 3, MFTECmd,
 #      EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) and prints
 #      the env-var overrides needed for any binary not found on PATH
@@ -68,12 +68,13 @@ fi
 # shellcheck disable=SC1091
 source .venv/bin/activate
 pip install --upgrade pip wheel >/dev/null
-log "Installing dart_mcp package (editable)"
-pip install -e ./dart_mcp/ >/dev/null
-ok "dart_mcp installed in venv"
-log "Installing dart_corr package (editable) — correlation engine + DuckDB"
-pip install -e ./dart_corr/ >/dev/null
-ok "dart_corr installed in venv"
+log "Installing Agentic-DART packages (editable)"
+pip install \
+  -e ./dart_audit/ \
+  -e './dart_mcp[stdio]' \
+  -e ./dart_corr/ \
+  -e './dart_agent[live]' >/dev/null
+ok "dart_audit, dart_mcp, dart_corr, and dart_agent installed in venv"
 
 # --- 4. SIFT Workstation tool detection ---
 sect "4. SIFT Workstation tool detection"
@@ -159,17 +160,14 @@ else
   warn "(at least one count is zero — check your install)"
 fi
 
-# --- 6. Claude credentials (3-tier: API key OR OAuth subscription) ---
+# --- 6. Claude credentials ---
 sect "6. Claude credentials"
 if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-  ok "ANTHROPIC_API_KEY is set (length: ${#ANTHROPIC_API_KEY}) — pay-as-you-go API."
-elif [[ -f "$HOME/.claude/.credentials.json" ]]; then
-  ok "Claude Code OAuth credentials found — runs on subscription (zero API cost)."
+  ok "ANTHROPIC_API_KEY is set (length: ${#ANTHROPIC_API_KEY})."
 else
-  warn "No API key and no Claude Code OAuth credentials found."
-  warn "Either log in with Claude Code (Pro/Max — zero API cost),"
-  warn "or export an API key:  export ANTHROPIC_API_KEY=sk-ant-..."
-  warn "Without either, live mode runs the offline mock."
+  warn "ANTHROPIC_API_KEY is not set."
+  warn "Real live mode needs: export ANTHROPIC_API_KEY=sk-ant-..."
+  warn "For offline reproduction, run live mode with --dry-run."
 fi
 
 # --- 7. Next steps ---
@@ -190,9 +188,12 @@ Next steps:
   # Run the full test suite
   for t in tests/test_*.py; do python3 "$t"; done
 
-  # Live mode — uses Claude Code OAuth (subscription, zero API cost) if logged in,
-  # else set ANTHROPIC_API_KEY for pay-as-you-go. Default model: claude-haiku-4-5.
+  # Live mode — set ANTHROPIC_API_KEY first.
+  # Default model: claude-haiku-4-5-20251001.
   python3 -m dart_agent --case my-case --out ./out/my-case --mode live
+
+  # Offline live-plumbing smoke test (no API key):
+  python3 -m dart_agent --case smoke --out ./out/smoke --mode live --dry-run
 
 Documentation:
   README          architecture + judging-criteria alignment

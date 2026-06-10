@@ -32,6 +32,7 @@ All read-only. Paths sandboxed via _safe_resolve.
 from __future__ import annotations
 
 import csv
+import copy
 import hashlib
 import json
 import os
@@ -119,10 +120,84 @@ def list_tools():
              "inputSchema": t.schema} for t in _REGISTRY.values()]
 
 
+def _schema_type_matches(expected, value) -> bool:
+    if isinstance(expected, list):
+        return any(_schema_type_matches(t, value) for t in expected)
+    if expected == "string":
+        return isinstance(value, str)
+    if expected == "integer":
+        return isinstance(value, int) and not isinstance(value, bool)
+    if expected == "number":
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    if expected == "boolean":
+        return isinstance(value, bool)
+    if expected == "array":
+        return isinstance(value, list)
+    if expected == "object":
+        return isinstance(value, dict)
+    if expected == "null":
+        return value is None
+    return True
+
+
+def _validate_arguments(tool_name: str, schema: dict, arguments: dict) -> dict:
+    """Validate the subset of JSON Schema used by dart-mcp tool schemas.
+
+    The MCP server advertises JSON Schema to clients, but clients are not the
+    security boundary. Validate again before dispatch so the in-process and
+    stdio paths reject malformed calls the same way.
+    """
+    if arguments is None:
+        arguments = {}
+    if not isinstance(arguments, dict):
+        raise TypeError(f"{tool_name}: arguments must be an object")
+
+    properties = schema.get("properties", {}) or {}
+    required = set(schema.get("required", []) or [])
+    validated = {}
+
+    for key in arguments:
+        if key not in properties and not schema.get("additionalProperties", False):
+            raise TypeError(f"{tool_name}: unexpected argument {key!r}")
+
+    for key in required:
+        if key not in arguments:
+            raise TypeError(f"{tool_name}: missing required argument {key!r}")
+
+    for key, prop_schema in properties.items():
+        if key in arguments:
+            value = arguments[key]
+        elif "default" in prop_schema:
+            value = copy.deepcopy(prop_schema["default"])
+        else:
+            continue
+
+        expected_type = prop_schema.get("type")
+        if expected_type and not _schema_type_matches(expected_type, value):
+            raise TypeError(
+                f"{tool_name}.{key}: expected {expected_type}, got "
+                f"{type(value).__name__}"
+            )
+        if "enum" in prop_schema and value not in prop_schema["enum"]:
+            raise ValueError(f"{tool_name}.{key}: value {value!r} not in enum")
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            if "minimum" in prop_schema and value < prop_schema["minimum"]:
+                raise ValueError(f"{tool_name}.{key}: below minimum {prop_schema['minimum']}")
+            if "maximum" in prop_schema and value > prop_schema["maximum"]:
+                raise ValueError(f"{tool_name}.{key}: above maximum {prop_schema['maximum']}")
+        validated[key] = value
+
+    if schema.get("additionalProperties", False):
+        for key, value in arguments.items():
+            validated.setdefault(key, value)
+    return validated
+
+
 def call_tool(name, arguments):
     if name not in _REGISTRY:
         raise KeyError(f"ToolNotFound: '{name}' is not exposed by dart-mcp")
-    return _REGISTRY[name].handler(**arguments)
+    spec = _REGISTRY[name]
+    return spec.handler(**_validate_arguments(name, spec.schema, arguments))
 
 
 _TS_FORMATS = (

@@ -25,10 +25,16 @@ sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
 sys.path.insert(0, str(REPO / "dart_audit" / "src"))
 sys.path.insert(0, str(REPO / "dart_agent" / "src"))
 os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+_existing_pythonpath = os.environ.get("PYTHONPATH")
+_repo_pythonpath = os.pathsep.join([
+    str(REPO / "dart_mcp" / "src"),
+    str(REPO / "dart_audit" / "src"),
+    str(REPO / "dart_agent" / "src"),
+    str(REPO / "dart_corr" / "src"),
+])
 os.environ["PYTHONPATH"] = (
-    f"{REPO / 'dart_mcp' / 'src'}:"
-    f"{REPO / 'dart_audit' / 'src'}:"
-    f"{REPO / 'dart_agent' / 'src'}"
+    _repo_pythonpath if not _existing_pythonpath
+    else os.pathsep.join([_repo_pythonpath, _existing_pythonpath])
 )
 
 
@@ -63,6 +69,34 @@ def test_live_mode_subprocess_dryrun():
         assert summary["iterations"] > 0
         assert summary["tool_call_count"] > 0
         assert len(summary["findings"]) > 0, "dry-run should produce at least one finding"
+
+
+def test_dryrun_mock_does_not_emit_uncorroborated_finding():
+    """The scripted mock must not claim a finding the tools did not support."""
+    from dart_agent.live import LiveRunState, _run_with_mock_claude
+
+    class Content:
+        def __init__(self, text: str):
+            self.text = text
+
+    class Result:
+        def __init__(self, payload: dict):
+            self.content = [Content(json.dumps(payload))]
+
+    class NoCorrelationSession:
+        async def call_tool(self, name, args):
+            if name == "analyze_usb_history":
+                return Result({"ip_kvm_indicators": [{"vid": "0557", "pid": "2419"}]})
+            if name == "correlate_timeline":
+                return Result({"kvm_precedes_logon": []})
+            return Result({})
+
+    with tempfile.TemporaryDirectory() as td:
+        state = LiveRunState(case="dryrun-no-corr", out_dir=Path(td), max_iterations=4)
+        transcript = asyncio.run(_run_with_mock_claude("prompt", state, NoCorrelationSession()))
+
+        assert state.findings == []
+        assert "No dry-run finding emitted" in transcript
 
 
 def test_live_mcp_server_advertises_correct_surface():

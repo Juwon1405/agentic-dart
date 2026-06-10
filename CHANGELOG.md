@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.0.1] — 2026-06-10 — Evidence isolation, schema validation, and documentation cleanup
+
+### Fixed
+- Enforced advertised MCP JSON Schema constraints in `call_tool()` before
+  dispatch so malformed arguments cannot bypass the documented surface.
+- Moved Plaso `log2timeline` storage outputs out of `DART_EVIDENCE_ROOT` and
+  into `DART_DERIVED_ROOT` (or a temp-derived root), while allowing `psort` to
+  read storage from either evidence or derived roots.
+- Fixed live MCP subprocess tests so they preserve the caller's `PYTHONPATH`.
+- Corrected Layer-1 benchmark summarization so it records only the measured
+  case-01 baseline instead of fabricating rows for unexecuted case studies.
+- Tightened hallucination scoring so reported `audit_id` values must resolve
+  in the generated audit map.
+
+### Changed
+- Public docs now document live mode through `ANTHROPIC_API_KEY` and `--dry-run`;
+  local credential fallback support remains in code but is not presented as a
+  contest-facing setup path.
+- Install guidance now installs `dart_audit`, `dart_mcp[stdio]`, `dart_corr`,
+  and `dart_agent[live]` together.
+- Current test surface updated to 119 tests (105 root tests + 14 `dart_corr`).
+
 ## [1.0.0] — 2026-06-05 — First stable release (SANS FIND EVIL! 2026)
 
 First stable, competition-submission release. Consolidates every dated entry
@@ -13,8 +35,8 @@ below into a single versioned baseline.
 - `dart_agent` live-mode Anthropic client now retries transient API errors
   (429 / 5xx): `max_retries` 0 -> 4. Deterministic mode, CI, and the test
   suite are mock-backed and unaffected.
-- `dart_agent` declares `requests` in `optional-dependencies[live]` — the
-  OAuth refresh-token path calls `requests.post` directly.
+- `dart_agent` declares `requests` in `optional-dependencies[live]` for the
+  local credential refresh path.
 - `README` test listing completed to all 15 test files; per-test count
   comments dropped in favor of the `pytest` command as the single source of
   truth. ATT&CK coverage restated as "108 references across 69 unique

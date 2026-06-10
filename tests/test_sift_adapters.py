@@ -29,6 +29,7 @@ from dart_mcp.sift_adapters._common import (  # noqa: E402
     SiftToolNotFoundError,
     safe_evidence_input,
 )
+from dart_mcp.sift_adapters.plaso import _safe_derived_path  # noqa: E402
 from dart_mcp import PathTraversalAttempt  # noqa: E402
 
 
@@ -122,6 +123,28 @@ def test_null_byte_blocked_in_sift_adapters():
         raise AssertionError("null byte path accepted")
     except PathTraversalAttempt:
         pass
+
+
+def test_plaso_storage_uses_derived_root_not_evidence_root(tmp_path):
+    """Persistent Plaso output must not be written into evidence."""
+    old = os.environ.get("DART_DERIVED_ROOT")
+    os.environ["DART_DERIVED_ROOT"] = str(tmp_path / "derived")
+    try:
+        out = _safe_derived_path("case-01/timeline.plaso")
+        assert out == (tmp_path / "derived" / "case-01" / "timeline.plaso").resolve()
+        assert not str(out).startswith(str((REPO / "examples" / "sample-evidence").resolve()))
+
+        for bad in ("../timeline.plaso", "/tmp/outside.plaso"):
+            try:
+                _safe_derived_path(bad)
+                raise AssertionError(f"derived path accepted unsafe value: {bad!r}")
+            except PathTraversalAttempt:
+                pass
+    finally:
+        if old is None:
+            os.environ.pop("DART_DERIVED_ROOT", None)
+        else:
+            os.environ["DART_DERIVED_ROOT"] = old
 
 
 def test_missing_tool_raises_clean_error():

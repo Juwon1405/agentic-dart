@@ -18,19 +18,17 @@ python3 --version
 
 If the SIFT Workstation default is older, use pyenv or a system-level install.
 
-### No credentials (live mode falls back to mock)
+### Live mode credentials
 
-`dart-agent` resolves credentials 3-tier: `ANTHROPIC_API_KEY` → OAuth file
-(`~/.claude/.credentials.json`) → macOS Keychain. If **none** are present, live
-mode runs the scripted mock instead of real Claude.
-
-- **Have a Claude subscription (Pro/Max)?** Just log in with Claude Code — the
-  OAuth credentials are picked up automatically. No API key needed (zero API cost).
-- **Pay-as-you-go instead?** Export an API key:
+For real Claude calls, export an Anthropic API key before running live mode:
 
 ```bash
 export ANTHROPIC_API_KEY="sk-ant-..."
 ```
+
+For CI or offline reproduction, use `--dry-run` instead of providing
+credentials. Dry-run still exercises the MCP subprocess, stdio handshake, and
+real tool calls with a scripted mock model.
 
 ## Runtime
 
@@ -66,7 +64,7 @@ claude mcp list
 If `dart-mcp` is not listed, re-run the registration step:
 
 ```bash
-claude mcp add dart-mcp --transport stdio --command dart-mcp-server
+claude mcp add agentic-dart -s user -- python3 -m dart_mcp.server_stdio
 ```
 
 ## Evidence

@@ -4,22 +4,20 @@ Connects Claude to dart-mcp over a stdio subprocess. Claude sees only the
 typed forensic tools registered in dart-mcp; it cannot execute arbitrary
 code because there is no execute_shell for it to call.
 
-Authentication (3-tier, resolved by dart_agent.auth):
-    1. ANTHROPIC_API_KEY      — pay-as-you-go API, if set
-    2. OAuth file             — ~/.claude/.credentials.json (Claude subscription)
-    3. macOS Keychain         — fallback, auto-refreshes near expiry
-With no API key it runs on the Claude Code subscription (OAuth) at zero API cost.
+Authentication is resolved by dart_agent.auth. The documented path for real
+Claude calls is ANTHROPIC_API_KEY; --dry-run exercises the same MCP plumbing
+with a scripted model and no external credential.
 
-Usage (subscription / OAuth — default, zero cost):
+Usage:
     python3 -m dart_agent --mode live --case my-case --out /tmp/out \\
         --prompt "Investigate the bundled IP-KVM evidence"
 
-Default model is claude-haiku-4-5. Override with --model or DART_MODEL env:
+Default model is claude-haiku-4-5-20251001. Override with --model or DART_MODEL env:
     python3 -m dart_agent --mode live --model claude-sonnet-4-6 ...
 
-If no credentials (no API key AND no OAuth) are available, or --dry-run is
-given, the controller executes a scripted fake-LLM that simulates the same
-tool-calling sequence. This lets CI exercise the live plumbing with no creds.
+If --dry-run is given, the controller executes a scripted fake-LLM that
+simulates the same tool-calling sequence. This lets CI exercise the live
+plumbing with no credentials.
 """
 from __future__ import annotations
 
@@ -170,15 +168,12 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
                                  session) -> str:
     """Drive the conversation with the real Anthropic API.
 
-    Uses the flexible three-tier auth flow: explicit API key when set,
-    otherwise OAuth credentials (file first, then Keychain). With no API
-    key configured the agent runs on the Claude Code subscription via
-    OAuth at zero per-call cost.
+    Uses the configured Anthropic credential source from dart_agent.auth.
     """
     from .auth import build_anthropic_client
     client = build_anthropic_client()
     if client is None:
-        raise RuntimeError("No Anthropic credentials (API key or OAuth) available.")
+        raise RuntimeError("No Anthropic credentials available.")
 
     state.messages.append({"role": "user", "content": prompt})
 
@@ -282,15 +277,16 @@ async def _run_with_mock_claude(prompt: str, state: LiveRunState,
         ("correlate_timeline",
          {"events": [
              {"ts": "2026-03-15 14:19:47", "source": "usb",
-              "type": "usb_insert", "target": "ATEN-0557"},
+              "type": "usb_insert", "target": "DESKTOP-7K2L"},
              {"ts": "2026-03-15 14:22:00", "source": "security_log",
-              "type": "logon", "actor": "analyst"},
+              "type": "logon", "actor": "analyst", "target": "DESKTOP-7K2L"},
          ], "window_seconds": 600}),
         ("parse_shimcache",
          {"system_hive": "disk/Windows/System32/config/SYSTEM"}),
     ]
 
     findings_log = []
+    tool_outputs = {}
     for tool_name, args in scripted_calls:
         if state.iteration >= state.max_iterations:
             break
@@ -310,23 +306,35 @@ async def _run_with_mock_claude(prompt: str, state: LiveRunState,
             "input": args,
             "output_preview": result_text[:200],
         })
+        tool_outputs[tool_name] = result
         findings_log.append(
             f"[mock] iter {state.iteration}: {tool_name} → "
             f"{'OK' if 'error' not in result else 'ERR'}"
         )
 
-    # Produce a plausible final finding derived from real tool output
-    state.findings = [{
-        "id": "F-013",
-        "title": "IP-KVM inserted 3 min before operator logon",
-        "confidence": 0.82,
-        "evidence_summary": "USB analyzer flagged VID 0557/PID 2419 (ATEN), "
-                            "correlate_timeline confirmed kvm→logon pattern.",
-        "tool_calls": [c["tool"] for c in state.tool_call_log],
-    }]
+    usb_result = tool_outputs.get("analyze_usb_history", {})
+    corr_result = tool_outputs.get("correlate_timeline", {})
+    usb_hits = usb_result.get("ip_kvm_indicators", []) if isinstance(usb_result, dict) else []
+    corr_hits = corr_result.get("kvm_precedes_logon", []) if isinstance(corr_result, dict) else []
+    if usb_hits and corr_hits:
+        state.findings = [{
+            "id": "F-013",
+            "title": "IP-KVM insertion preceded an operator logon",
+            "confidence": 0.82,
+            "evidence_summary": (
+                "analyze_usb_history returned IP-KVM indicators and "
+                "correlate_timeline returned a kvm_precedes_logon match."
+            ),
+            "tool_calls": [c["tool"] for c in state.tool_call_log],
+        }]
+    else:
+        state.findings = []
     return "\n".join(findings_log) + "\n\nREPORT: " + json.dumps({
         "findings": state.findings,
-        "primary_hypothesis": "Remote-hands insider via IP-KVM",
+        "primary_hypothesis": (
+            "Remote-hands insider via IP-KVM" if state.findings
+            else "No dry-run finding emitted without corroborating tool output"
+        ),
         "iterations": state.iteration,
     })
 
@@ -343,8 +351,7 @@ async def live_run(case: str, out_dir: str, prompt: str,
         return 2
 
     # Decide mode early so we can print a banner.
-    # Live mode is available when EITHER an API key OR OAuth credentials
-    # exist (the subscription path gives zero per-call cost).
+    # Live mode is available when a configured credential source exists.
     try:
         from .auth import has_any_credentials
         _have_creds = has_any_credentials()
