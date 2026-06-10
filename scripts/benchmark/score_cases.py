@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unified scorer - scores every case (internal 01-07,11 + external 08-10) via one interface.
+"""Unified scorer - scores every case (both tiers) via one interface.
 
 dart_agent output (report.json) carries no evidence_path, so each finding's
 audit_ids are joined against audit.jsonl to recover (tool_name, inputs paths),
@@ -13,8 +13,8 @@ the finding_id scheme mismatch (F-001 vs F-AUTH-xxx).
   FPR           : findings matched by neither / total findings
 
 Usage:
-  python3 scripts/benchmark/score_cases.py --case case-05-authentication-lateral --run-dir <out_dir>
-  python3 scripts/benchmark/score_cases.py --case <case> --report r.json --audit a.jsonl
+  python3 scripts/benchmark/score_cases.py --case self-evaluation/case-05 --run-dir <out_dir>
+  python3 scripts/benchmark/score_cases.py --case <tier>/case-NN --report r.json --audit a.jsonl
 """
 import argparse
 import json
@@ -68,7 +68,7 @@ def normalize_findings(report_path, amap):
 
 
 def load_gt(case):
-    gt = json.loads((CS / case / "ground-truth.json").read_text(encoding="utf-8"))
+    gt = json.loads((CS / case / "truth.json").read_text(encoding="utf-8"))
     rows = []
     for f in gt.get("ground_truth_findings", []):
         if f.get("artifact_type") in DERIVED:

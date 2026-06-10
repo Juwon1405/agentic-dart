@@ -11,7 +11,7 @@ Pipeline (per dataset):
        back to a thin internal extraction otherwise.
     3. Run dart_agent against evidence_root with the senior-analyst-v3
        playbook.
-    4. Diff dart_agent's findings.json against the dataset's ground-truth.json:
+    4. Diff dart_agent's findings.json against the dataset's truth.json:
          - true positive  (TP): finding matches a ground-truth entry
          - false negative (FN): ground-truth entry not raised by the agent
          - false positive (FP): finding with no ground-truth match

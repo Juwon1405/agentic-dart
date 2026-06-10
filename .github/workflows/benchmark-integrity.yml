@@ -4,14 +4,16 @@ name: benchmark-integrity
 on:
   push:
     paths:
-      - 'examples/case-studies/**/ground-truth.json'
-      - 'examples/sample-evidence**/**'
+      - 'examples/case-studies/**/truth.json'
+      - 'examples/case-studies/self-evaluation/case-01/evidence_root/**'
+      - 'examples/sample-evidence/**'
       - 'dart_mcp/**'
       - 'scripts/benchmark/**'
   pull_request:
     paths:
-      - 'examples/case-studies/**/ground-truth.json'
-      - 'examples/sample-evidence**/**'
+      - 'examples/case-studies/**/truth.json'
+      - 'examples/case-studies/self-evaluation/case-01/evidence_root/**'
+      - 'examples/sample-evidence/**'
       - 'dart_mcp/**'
       - 'scripts/benchmark/**'
 
@@ -34,7 +36,7 @@ jobs:
         # output, so strict recall must reproduce a known value.
         env:
           PYTHONPATH: dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src
-          DART_EVIDENCE_ROOT: examples/sample-evidence-realistic
+          DART_EVIDENCE_ROOT: examples/case-studies/self-evaluation/case-01/evidence_root
         run: |
-          python3 -m dart_agent --case case-01-ipkvm-insider --out /tmp/c01 --mode deterministic
-          python3 scripts/benchmark/score_cases.py --case case-01-ipkvm-insider --run-dir /tmp/c01 --json
+          python3 -m dart_agent --case self-evaluation/case-01 --out /tmp/c01 --mode deterministic
+          python3 scripts/benchmark/score_cases.py --case self-evaluation/case-01 --run-dir /tmp/c01 --json
