@@ -1,9 +1,9 @@
 {
   "case_metadata": {
-    "case_id": "m57-patents-jean-2009",
-    "source": "Digital Corpora M57-Patents Scenario — Jean's PC subset",
+    "case_id": "m57-patents-jo-2009",
+    "source": "Digital Corpora M57-Patents Scenario — Jo's PC subset",
     "url": "https://digitalcorpora.org/corpora/scenarios/m57-patents-scenario/",
-    "subject": "M57.biz IP-theft narrative — Jean exfiltrates patent research data",
+    "subject": "M57.biz IP-theft narrative — Jo exfiltrates patent research data",
     "operating_system": "Windows XP",
     "image_format": [
       "AFF",
@@ -17,15 +17,15 @@
     {
       "finding_id": "F-M57J-001",
       "category": "host_attribution",
-      "claim": "Primary user account identified as 'Jean'",
-      "evidence_path": "Users/jean/NTUSER.DAT",
+      "claim": "Primary user account identified as 'Jo'",
+      "evidence_path": "Users/jo/NTUSER.DAT",
       "artifact_type": "registry_hive",
-      "host_path": "Users/Jean/NTUSER.DAT",
+      "host_path": "Users/Jo/NTUSER.DAT",
       "expected_dart_mcp_function": "parse_registry_hive",
       "mitre_attack": [
         "T1087.001"
       ],
-      "rationale": "SAM hive enumerates local user accounts. Jean is the workstation owner. Secondary evidence: Windows/system32/config/SAM.",
+      "rationale": "SAM hive enumerates local user accounts. Jo is the workstation owner. Secondary evidence: Windows/system32/config/SAM.",
       "severity": "medium"
     },
     {
@@ -34,7 +34,7 @@
       "claim": "Recent files reveal patent-research documents accessed",
       "evidence_path": "NTUSER.DAT Run/RunOnce",
       "artifact_type": "registry_hive",
-      "host_path": "Users/Jean/NTUSER.DAT",
+      "host_path": "Users/Jo/NTUSER.DAT",
       "expected_dart_mcp_function": "parse_registry_hive",
       "mitre_attack": [
         "T1083"
@@ -48,7 +48,7 @@
       "claim": "Email correspondence with external recipient (m57.biz competitor)",
       "evidence_path": "Outlook Express *.dbx / Thunderbird Mail",
       "artifact_type": "email_artifact",
-      "host_path": "Users/Jean/Local Settings/Application Data/Identities/",
+      "host_path": "Users/Jo/Local Settings/Application Data/Identities/",
       "expected_dart_mcp_function": "parse_outlook_dbx",
       "mitre_attack": [
         "T1114.001"
@@ -60,9 +60,9 @@
       "finding_id": "F-M57J-004",
       "category": "exfiltration",
       "claim": "Sensitive documents sent as email attachments",
-      "evidence_path": "Users/jean/Local Settings/Application Data/Identities/{...}/Microsoft/Outlook Express/Sent Items.dbx",
+      "evidence_path": "Users/jo/Local Settings/Application Data/Identities/{...}/Microsoft/Outlook Express/Sent Items.dbx",
       "artifact_type": "email_attachment",
-      "host_path": "Users/Jean/Local Settings/Application Data/Identities/",
+      "host_path": "Users/Jo/Local Settings/Application Data/Identities/",
       "expected_dart_mcp_function": "parse_outlook_dbx",
       "mitre_attack": [
         "T1048.003"
@@ -76,7 +76,7 @@
       "claim": "External SMTP / webmail connections from workstation",
       "evidence_path": "Browser history",
       "artifact_type": "browser_history",
-      "host_path": "Users/Jean/Local Settings/History/",
+      "host_path": "Users/Jo/Local Settings/History/",
       "expected_dart_mcp_function": "parse_ie_history",
       "mitre_attack": [
         "T1071.003"
@@ -128,9 +128,9 @@
       "finding_id": "F-M57J-009",
       "category": "credential_access",
       "claim": "Browser-stored credentials extractable from profile",
-      "evidence_path": "Users/jean/NTUSER.DAT (HKCU\\Software\\Microsoft\\Protected Storage System Provider)",
+      "evidence_path": "Users/jo/NTUSER.DAT (HKCU\\Software\\Microsoft\\Protected Storage System Provider)",
       "artifact_type": "browser_credentials",
-      "host_path": "Users/Jean/AppData/",
+      "host_path": "Users/Jo/AppData/",
       "expected_dart_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1555.003"
@@ -142,14 +142,14 @@
       "finding_id": "F-M57J-010",
       "category": "lateral_movement",
       "claim": "Mapped network drives and shared folders",
-      "evidence_path": "Users/jean/NTUSER.DAT (HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Map Network Drive MRU)",
+      "evidence_path": "Users/jo/NTUSER.DAT (HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Map Network Drive MRU)",
       "artifact_type": "registry_hive",
-      "host_path": "Users/Jean/NTUSER.DAT",
+      "host_path": "Users/Jo/NTUSER.DAT",
       "expected_dart_mcp_function": "parse_registry_hive",
       "mitre_attack": [
         "T1021.002"
       ],
-      "rationale": "Shows whether Jean accessed shared file servers as part of the data-collection step. Secondary evidence: SYSTEM hive Shares.",
+      "rationale": "Shows whether Jo accessed shared file servers as part of the data-collection step. Secondary evidence: SYSTEM hive Shares.",
       "severity": "medium"
     }
   ]

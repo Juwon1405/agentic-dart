@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "dart_mcp" / "src"))
-os.environ["DART_EVIDENCE_ROOT"] = str(ROOT / "examples" / "sample-evidence-realistic")
+os.environ["DART_EVIDENCE_ROOT"] = str(ROOT / "examples" / "case-studies" / "self-evaluation" / "case-01" / "evidence_root")
 
 from dart_mcp import call_tool  # noqa: E402
 import dart_mcp as _dm  # noqa: E402
@@ -44,7 +44,7 @@ def test_parse_linux_text_log_missing_file():
 
 def test_parse_linux_text_log_http_access_format(tmp_path, monkeypatch):
     """Apache combined log shape — must parse src/method/uri/status."""
-    log = ROOT / "examples" / "sample-evidence-realistic" / "linux" / "_pytest_http.log"
+    log = ROOT / "examples" / "case-studies" / "self-evaluation" / "case-01" / "evidence_root" / "linux" / "_pytest_http.log"
     log.parent.mkdir(parents=True, exist_ok=True)
     log.write_text(
         '10.0.0.1 - - [15/Mar/2026:14:15:08 +0900] "GET /admin/../../etc/passwd HTTP/1.1" 200 4096 "-" "Nikto/2.1.6"\n'
@@ -98,7 +98,7 @@ def test_parse_linux_shell_history_each_entry_has_required_keys():
 
 def test_parse_linux_text_log_path_traversal_rejected():
     """Should refuse paths that escape DART_EVIDENCE_ROOT."""
-    os.environ["DART_EVIDENCE_ROOT"] = str(ROOT / "examples" / "sample-evidence-realistic")
+    os.environ["DART_EVIDENCE_ROOT"] = str(ROOT / "examples" / "case-studies" / "self-evaluation" / "case-01" / "evidence_root")
     from dart_mcp import PathTraversalAttempt, call_tool as _ct
     try:
         _ct("parse_linux_text_log", {"log_path": "../../../../../etc/passwd"})

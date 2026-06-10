@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Enrich the two IOC-only logs in the realistic sample-evidence variant.
+Enrich the two IOC-only logs in the canonical bundled evidence tree.
 
 examples/sample-evidence/ is the deterministic reference set (stable hashes,
-small, fully IOC-loaded). examples/sample-evidence-realistic/ is a parallel,
+small, fully IOC-loaded) used as a CI fixture. The canonical bundled evidence
+lives as examples/case-studies/self-evaluation/case-01/evidence_root/ — a
 hand-curated tree carrying the same ground-truth IOCs at production volume on
 most surfaces (Windows Security EventLog ~11,530 lines, supply-chain, RDP
 brute-force, USB setupapi, memory triage, etc.).
@@ -31,7 +32,9 @@ random.seed(20260508)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC = REPO_ROOT / "examples" / "sample-evidence"
-DST = REPO_ROOT / "examples" / "sample-evidence-realistic"
+# Canonical bundled evidence lives as the self-evaluation case-01 evidence_root.
+DST = (REPO_ROOT / "examples" / "case-studies" / "self-evaluation"
+       / "case-01" / "evidence_root")
 
 
 # ---------- Benign synthesizers ---------------------------------------------

@@ -1,4 +1,4 @@
-# Case Study 03 — macOS Remote-Admin Infection + Exfiltration
+# Self-Evaluation Case 03 — macOS Remote-Admin Infection + Exfiltration
 
 **Scenario class:** macOS insider threat, unsigned "remote admin" app + staged exfil
 **Evidence:** bundled at `examples/sample-evidence/mac/`

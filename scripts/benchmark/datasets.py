@@ -49,7 +49,7 @@ DATASETS = {
         "joined_md5": "aee4fcd9301c03b3b054623ca261959a",
         "joined_name": "SCHARDT.dd",
         "log_file": "SCHARDT.LOG",
-        "ground_truth_path": "examples/case-studies/case-08-cfreds-hacking-case/ground-truth.json",
+        "ground_truth_path": "examples/case-studies/external-evaluation/case-01/truth.json",
         "scenario": (
             "Dell CPi notebook found abandoned along with a wireless PCMCIA card "
             "and homemade 802.11b antenna. Owner suspected of WiFi sniffing for "
@@ -93,7 +93,7 @@ DATASETS = {
         "reassemble_cmd": None,  # single E01, no reassembly
         "joined_md5": None,
         "joined_name": "Case1-Webserver.E01",
-        "ground_truth_path": "examples/case-studies/case-09-hadi-challenge-1/ground-truth.json",
+        "ground_truth_path": "examples/case-studies/external-evaluation/case-02/truth.json",
         "scenario": (
             "Windows Server 2008 web server (Apache + MySQL + PHP via XAMPP) "
             "was reported as compromised. Forensic team arrived in time to take "
@@ -140,7 +140,7 @@ DATASETS = {
         "reassemble_cmd": None,  # single E01
         "joined_md5": None,
         "joined_name": "jo-2009-12-10.E01",
-        "ground_truth_path": "examples/case-studies/case-10-m57-jean/ground-truth.json",
+        "ground_truth_path": "examples/case-studies/external-evaluation/case-03/truth.json",
         "scenario": (
             "M57.biz is a small patent-research company. Four employees "
             "(charlie, jo, pat, terry) use company laptops over a 17-day "

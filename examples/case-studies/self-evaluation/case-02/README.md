@@ -1,4 +1,4 @@
-# Case Study 02 — Living-Off-the-Land (LOTL) PowerShell Attack
+# Self-Evaluation Case 02 — Living-Off-the-Land (LOTL) PowerShell Attack
 
 **Scenario class:** LOTL attack using signed Windows binaries to evade AV
 **Evidence:** bundled in `examples/sample-evidence/` alongside Case 01

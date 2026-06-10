@@ -1,4 +1,4 @@
-# Case Study 05 — Authentication, AD, and Lateral Movement
+# Self-Evaluation Case 05 — Authentication, AD, and Lateral Movement
 
 **Scenario class:** The "WHO" investigation — stolen cred + AD attack chain
 **Evidence:** bundled across `examples/sample-evidence/disk/` (Windows logons, Kerberos events) and `examples/sample-evidence/linux/` (auth.log)

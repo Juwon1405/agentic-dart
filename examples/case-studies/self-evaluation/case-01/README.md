@@ -1,4 +1,4 @@
-# Case Study 01 — IP-KVM Remote-Hands Insider Pattern
+# Self-Evaluation Case 01 — IP-KVM Remote-Hands Insider Pattern
 
 **Scenario class:** Insider threat with remote-hands physical access vector
 **Evidence:** `examples/sample-evidence/` (bundled, reproducible)

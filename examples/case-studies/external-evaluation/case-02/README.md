@@ -1,4 +1,4 @@
-# Case 09 — Ali Hadi DFIR Challenge #1 (Web Server Case)
+# External Case 02 — Ali Hadi DFIR Challenge #1 (Web Server Case)
 
 > **Why this case exists.** Cases 01-07 use synthetic Windows / macOS /
 > Linux evidence authored by this project. Case 08 added the first

@@ -1,4 +1,4 @@
-# Case 08 — NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil")
+# External Case 01 — NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil")
 
 > **Why this case exists.** Cases 01-07 use synthetic evidence authored
 > by the project. This case is the first integration with a

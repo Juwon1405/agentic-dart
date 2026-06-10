@@ -26,54 +26,34 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 
-# Evidence variant selection. Two variants ship:
+# Canonical bundled evidence: the realistic, production-volume tree shipped as
+# the self-evaluation case-01 evidence_root
+# (examples/case-studies/self-evaluation/case-01/evidence_root/). It carries
+# security-events (~11k lines), supply-chain, RDP brute, USB setupapi, etc. The
+# web-access and unix-auth logs ship IOC-only and are enriched with
+# deterministic benign noise (~1:30) at measure time to exercise
+# needle-in-haystack recall.
 #
-#   examples/sample-evidence/             — the deterministic reference set.
-#                                           Small (≤30 lines/file), fully
-#                                           IOC-loaded, used for byte-stable
-#                                           regression / CI assertions.
-#
-#   examples/sample-evidence-realistic/   — hand-curated, production-volume
-#                                           evidence (security-events ~11k
-#                                           lines, supply-chain, RDP brute,
-#                                           USB setupapi, ...). The web access
-#                                           and unix auth logs ship IOC-only
-#                                           and are enriched with benign noise
-#                                           (~1:30) at measure time, to exercise
-#                                           needle-in-haystack recall.
-#
-# Pass --variant realistic to score the agent against the noise-injected set;
-# the default (--variant reference) preserves CI determinism.
-_variant = "reference"
-if "--variant" in sys.argv:
-    idx = sys.argv.index("--variant")
-    if idx + 1 < len(sys.argv):
-        _variant = sys.argv[idx + 1]
-        del sys.argv[idx : idx + 2]
-if _variant not in ("reference", "realistic"):
-    print(f"unknown variant {_variant!r}; expected 'reference' or 'realistic'",
+# There is no public evidence-set selector any more: this harness always scores
+# against the one canonical evidence root. (examples/sample-evidence/ remains
+# only as a small, byte-stable CI fixture imported directly by the unit tests;
+# it is not an evidence set the user ever selects.)
+_evidence_dir = Path("examples") / "case-studies" / "self-evaluation" / "case-01" / "evidence_root"
+# Re-derive the two IOC-only logs (web access and unix auth) with deterministic
+# benign noise before scoring, so the needle-in-haystack measurement always
+# reflects the current reference IOCs. The generator only touches those two
+# logs; all other hand-curated evidence is left untouched, and its output is
+# byte-identical across runs, so this leaves git clean.
+_gen = REPO / "scripts" / "generate_realistic_evidence.py"
+_r = subprocess.run(
+    [sys.executable, str(_gen)], cwd=str(REPO),
+    capture_output=True, text=True,
+)
+if _r.returncode != 0:
+    print(f"generate_realistic_evidence.py failed:\n{_r.stderr}",
           file=sys.stderr)
     sys.exit(2)
-_evidence_dir = (
-    "sample-evidence-realistic" if _variant == "realistic" else "sample-evidence"
-)
-# For the realistic variant, re-derive the two IOC-only logs (web access and
-# unix auth) with deterministic benign noise before scoring, so the
-# needle-in-haystack measurement always reflects the current reference IOCs.
-# The generator only touches those two logs — all other hand-curated realistic
-# evidence (security-events, supply-chain, etc.) is left untouched — and its
-# output is byte-identical across runs, so this leaves git clean.
-if _variant == "realistic":
-    _gen = REPO / "scripts" / "generate_realistic_evidence.py"
-    _r = subprocess.run(
-        [sys.executable, str(_gen)], cwd=str(REPO),
-        capture_output=True, text=True,
-    )
-    if _r.returncode != 0:
-        print(f"generate_realistic_evidence.py failed:\n{_r.stderr}",
-              file=sys.stderr)
-        sys.exit(2)
-os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / _evidence_dir)
+os.environ["DART_EVIDENCE_ROOT"] = str(REPO / _evidence_dir)
 sys.path.insert(0, str(REPO / "dart_audit" / "src"))
 sys.path.insert(0, str(REPO / "dart_mcp"   / "src"))
 sys.path.insert(0, str(REPO / "dart_agent" / "src"))

@@ -1,4 +1,4 @@
-# Case Study 04 — Phishing → Browser Download → Execution → Exfiltration
+# Self-Evaluation Case 04 — Phishing → Browser Download → Execution → Exfiltration
 
 **Scenario class:** Classic data-theft chain (the 80% case)
 **Evidence:** bundled at `examples/sample-evidence/disk/Users/analyst/`

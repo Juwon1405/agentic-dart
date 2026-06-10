@@ -5,11 +5,11 @@ run_all.py — single-command benchmark runner for measured benchmark layers.
 Splits work into two layers:
 
   LAYER 1 BASELINE (case-01)
-    Evaluated against examples/sample-evidence-realistic/ — bundled with
+    Evaluated against the canonical bundled evidence_root (self-evaluation/case-01) — bundled with
     the repository, no external download needed. Uses the existing
     scripts/measure_accuracy.py harness and records only that measured case.
 
-  LAYER 2 (case-08 to case-10)
+  LAYER 2 (external-evaluation/case-01 to case-03)
     Evaluated against externally-hosted third-party datasets (NIST CFReDS,
     Ali Hadi, Digital Corpora M57). Requires one-time ~13 GB download
     via benchmark/download.py.
@@ -62,29 +62,29 @@ REPO = Path(__file__).resolve().parents[2]
 
 
 # ─── Layer 1: measured bundled baseline ─────────────────────────────────────
-LAYER_1_BASELINE_CASE = "case-01-ipkvm-insider"
+LAYER_1_BASELINE_CASE = "self-evaluation/case-01"
 
 
-def run_layer_1(variant: str = "realistic") -> int:
+CANONICAL_EVIDENCE = REPO / "examples" / "case-studies" / "self-evaluation" / "case-01" / "evidence_root"
+
+
+def run_layer_1() -> int:
     """
-    Run measure_accuracy.py against the bundled evidence tree. Returns 0 on
-    success, non-zero on harness failure.
+    Run measure_accuracy.py against the canonical bundled evidence tree.
+    Returns 0 on success, non-zero on harness failure.
     """
     print("\n" + "=" * 72)
-    print("  LAYER 1 — measured bundled baseline (case-01)")
-    print(f"  evidence: examples/sample-evidence-{variant}/")
+    print("  LAYER 1 — measured bundled baseline (self-evaluation/case-01)")
+    print("  evidence: examples/case-studies/self-evaluation/case-01/evidence_root/")
     print("=" * 72)
 
-    if not (REPO / f"examples/sample-evidence-{variant}").exists():
-        print(f"\n[FAIL] examples/sample-evidence-{variant}/ not found.")
+    if not CANONICAL_EVIDENCE.exists():
+        print(f"\n[FAIL] {CANONICAL_EVIDENCE} not found.")
         print(f"       Either you are in the wrong directory or the")
         print(f"       repository was cloned incompletely.")
         return 1
 
-    cmd = [
-        sys.executable, "scripts/measure_accuracy.py",
-        "--variant", variant,
-    ]
+    cmd = [sys.executable, "scripts/measure_accuracy.py"]
     print(f"  $ {' '.join(cmd)}")
     proc = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True)
     if proc.stdout:
@@ -101,7 +101,7 @@ def run_layer_1(variant: str = "realistic") -> int:
         print(f"\n[FAIL] could not parse measure_accuracy.py JSON: {e}")
         return 1
 
-    _append_layer_1_summary(variant, measurement)
+    _append_layer_1_summary(measurement)
     return 0
 
 
@@ -112,7 +112,7 @@ def _extract_json_summary(stdout: str) -> dict:
     return json.loads(stdout[start:])
 
 
-def _append_layer_1_summary(variant: str, measurement: dict) -> None:
+def _append_layer_1_summary(measurement: dict) -> None:
     """
     Append the measured case-01 baseline row to docs/benchmarks/SUMMARY.md.
     """
@@ -127,7 +127,7 @@ def _append_layer_1_summary(variant: str, measurement: dict) -> None:
         )
 
     today = dt.date.today().isoformat()
-    case_name = f"{LAYER_1_BASELINE_CASE} ({variant})"
+    case_name = LAYER_1_BASELINE_CASE
 
     existing_keys = set()
     if summary_path.exists():
@@ -173,7 +173,7 @@ def run_layer_2(*, auto_download: bool, skip_hash: bool) -> int:
     Returns 0 if all succeeded, non-zero if any failed.
     """
     print("\n" + "=" * 72)
-    print("  LAYER 2 — external cases (case-08 to case-10)")
+    print("  LAYER 2 — external cases (external-evaluation/case-01 to case-03)")
     print(f"  datasets: {', '.join(LAYER_2_DATASETS)}")
     print("=" * 72)
 
@@ -220,10 +220,6 @@ def main() -> int:
         help="which layer to run (default: both)"
     )
     p.add_argument(
-        "--variant", choices=["reference", "realistic"], default="realistic",
-        help="layer-1 evidence variant (default: realistic — production noise ratio)"
-    )
-    p.add_argument(
         "--download", action="store_true",
         help="auto-fetch layer-2 datasets if missing (~13 GB on first run)"
     )
@@ -242,7 +238,7 @@ def main() -> int:
     ran_any = False
 
     if args.layer in ("1", "both"):
-        rc = run_layer_1(args.variant)
+        rc = run_layer_1()
         rc_total |= rc
         ran_any = True
 

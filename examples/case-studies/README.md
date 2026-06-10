@@ -1,44 +1,73 @@
 # Case studies
 
-Eleven end-to-end DFIR investigations used to exercise the agent loop and
-benchmark per-case detection. Each `case-NN-*/` directory ships a `README.md`
-(incident narrative + reasoning hooks) and a `ground-truth.json` (expected
-findings, IOCs, ATT&CK mapping). Per-case scoring lives in
+End-to-end DFIR investigations used to exercise the agent loop and benchmark
+per-case detection. Cases are split into two tiers; every case directory is
+**self-contained**:
+
+```
+case-studies/
+├── self-evaluation/        # synthetic scenarios authored for this project
+│   ├── case-01/  README.md  truth.json  evidence_root/   <- bundled evidence
+│   ├── case-02/  README.md  truth.json
+│   └── ... case-08/
+└── external-evaluation/    # public third-party datasets (downloaded on demand)
+    ├── case-01/  README.md  truth.json
+    ├── case-02/  README.md  truth.json
+    └── case-03/  README.md  truth.json
+```
+
+Folder names are **index-only** (`case-01`, `case-02`, …); the human title
+lives in each case's `README.md`. Each case ships a `README.md` (incident
+narrative + reasoning hooks) and a `truth.json` (expected findings, IOCs,
+ATT&CK mapping). The agent resolves a case's evidence from its own
+`case-XX/evidence_root/`. Per-case scoring lives in
 `../../scripts/benchmark/score_cases.py`.
 
-## Layer 1 — synthetic (8 cases)
+Run a case with the primary CLI:
 
-Curated incidents on the bundled `../sample-evidence/` and
-`../sample-evidence-realistic/` trees. Used as the deterministic regression
-baseline.
+```bash
+python3 run_eval.py --case self-evaluation/case-01
+python3 run_eval.py --case external-evaluation/case-01 --download
+```
 
-| Case | Title |
-|---|---|
-| 01 | IP-KVM insider |
-| 02 | LotL PowerShell |
-| 03 | macOS remote admin |
-| 04 | Phishing to exfil |
-| 05 | Authentication / lateral movement |
-| 06 | Web attack to RDP pivot |
-| 07 | Ransomware full chain |
-| 11 | Supply-chain + AD zero-day |
+## Tier 1 — self-evaluation (synthetic)
 
-## Layer 2 — external community datasets (3 cases)
+Curated incidents authored for this project. `case-01` ships the **canonical
+bundled evidence** (`evidence_root/`, the production-volume realistic tree) and
+is the measured regression baseline (recall 1.0, hallucination 0). The other
+self-evaluation cases are scenario specifications (narrative + ground truth)
+that share the same canonical evidence model; they are documentation-grade and
+are not separately bundled with their own evidence tree.
 
-Built on community-verified public datasets. Downloaded on demand by
-`../../scripts/benchmark/run_all.py --download`; not bundled in the repo to
-keep the clone size down and to defer dataset licensing to the original
-publishers.
+| Tier | Case | Title | Dataset source | Evidence type | Expected findings |
+|------|------|-------|----------------|---------------|------------------:|
+| self | case-01 | IP-KVM remote-hands insider pattern | Authored (bundled `evidence_root/`) | Multi-platform host triage | 5 |
+| self | case-02 | Living-off-the-land PowerShell | Authored scenario spec | Windows event logs / PowerShell | 7 |
+| self | case-03 | macOS remote-admin infection + exfiltration | Authored scenario spec | macOS unified logs / artifacts | 8 |
+| self | case-04 | Phishing → download → execution → exfiltration | Authored scenario spec | Browser / disk / network | 6 |
+| self | case-05 | Authentication, AD, and lateral movement | Authored scenario spec | Security event logs / AD | 8 |
+| self | case-06 | Web attack + RDP brute force (dual entry) | Authored scenario spec | Web logs / RDP / event logs | 10 |
+| self | case-07 | Full ransomware chain (ATT&CK coverage) | Authored scenario spec | Host triage / timeline | 13 |
+| self | case-08 | Supply-chain → AD CS abuse → lateral movement | Authored scenario spec | AD CS / registry / event logs | 12 |
 
-| Case | Title | Dataset |
-|---|---|---|
-| 08 | CFReDS hacking case | NIST CFReDS |
-| 09 | Hadi challenge 1 | Ali Hadi DFIR challenges |
-| 10 | M57 Jean | M57 Patents Corpora |
+## Tier 2 — external-evaluation (public datasets)
 
-## Scoring
+Built on community-verified public datasets. Evidence is **not bundled** (size
+and third-party licensing); download on demand. `run_eval.py --case
+external-evaluation/case-XX --download` prints/runs the exact fetch command.
 
-Per-case results are produced by `score_cases.py` against each
-`ground-truth.json`. The headline reference / realistic numbers in
-`../../docs/accuracy-report.md` (recall 1.000 on F-001, F-013) are limited to
-case-01; cross-case scoring is what `score_cases.py` provides.
+| Tier | Case | Title | Dataset source | Evidence type | Expected findings |
+|------|------|-------|----------------|---------------|------------------:|
+| external | case-01 | NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil") | [NIST CFReDS](https://cfreds-archive.nist.gov/all/NIST/HackingCase) | NTFS dd image (Windows XP) | 10 |
+| external | case-02 | Ali Hadi DFIR Challenge #1 (Web Server Case) | [ashemery.com](https://www.ashemery.com/dfir.html) | E01 image (Win Server 2008 + XAMPP) | 10 |
+| external | case-03 | Digital Corpora M57-Patents — Jo's PC | [Digital Corpora](https://digitalcorpora.org/corpora/scenarios/m57-patents-scenario/) | E01 image (Windows XP, subject **Jo**) | 10 |
+
+> **M57 subject note.** This benchmark uses the **M57-Patents** scenario, subject
+> **Jo (Joanne)** — image `jo-2009-12-10.E01`, employees charlie/jo/pat/terry.
+> It is *not* the separate single-machine "M57-Jean" scenario; an earlier draft
+> mislabelled it "Jean". The download registry, README, truth file, and host
+> paths now all agree on **Jo**.
+
+External dataset registry, checksums, and download commands:
+`../../scripts/benchmark/datasets.py` and
+`python3 -m scripts.benchmark.download --help`.

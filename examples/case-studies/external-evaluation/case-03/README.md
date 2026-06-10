@@ -1,6 +1,6 @@
-# Case 10 — Digital Corpora M57-Patents Scenario (Jean's PC)
+# External Case 03 — Digital Corpora M57-Patents Scenario (Jo's PC)
 
-> **Why this case exists.** Cases 08 and 09 added the first two
+> **Why this case exists.** External cases 01 and 02 added the first two
 > third-party benchmark datasets (NIST CFReDS, Ali Hadi). This case
 > adds the **most realistic corporate scenario in public DFIR
 > datasets** — the M57-Patents scenario, jointly authored by the Naval
@@ -9,7 +9,7 @@
 >
 > The point of this case is to measure dart-mcp against an
 > **insider-threat / corporate-IP-theft** scenario rather than the
-> external-intrusion patterns of Cases 08-09. The threat model is
+> external-intrusion patterns of external cases 01-02. The threat model is
 > different: legitimate user, legitimate credentials, illegitimate
 > intent. The forensic surface that matters most is *user activity
 > reconstruction*, not malware detection.
@@ -21,20 +21,20 @@
   Joachim Metz (Google) — with funding support from NIST
 - **License:** CC-BY-3.0 (academic and commercial use)
 - **Scenario:** M57.biz, a fictional patent-research firm, over 17 days
-  with 4 employees (Jean, Pat, Charlie, Terry)
-- **This case targets:** Jean's PC subset only (~10 GB E01/AFF) — the
+  with 4 employees (Jo, Pat, Charlie, Terry)
+- **This case targets:** Jo's PC subset only (~10 GB E01/AFF) — the
   PC at the centre of the corporate IP-theft narrative
 - **Operating system:** Windows XP Professional
 - **Full scenario size:** ~50 GB (4 PCs + network captures + USB drives)
-  — we deliberately restrict to Jean's PC for tractable benchmarking
+  — we deliberately restrict to Jo's PC for tractable benchmarking
 
 ## The attack pattern
 
 M57.biz is a small patent-research company. Four employees use company
 laptops over a 17-day period. Two scenarios run in parallel:
 
-1. **Primary thread (Jean's PC):** Jean exfiltrates patent-research
-   documents to an external party. Evidence is on Jean's workstation:
+1. **Primary thread (Jo's PC):** Jo exfiltrates patent-research
+   documents to an external party. Evidence is on Jo's workstation:
    email, browser history, recently-used files, USB activity.
 
 2. **Background thread:** Unrelated employee-conduct issue — useful as
@@ -43,7 +43,7 @@ laptops over a 17-day period. Two scenarios run in parallel:
 
 Forensic diagnostics in this dataset:
 
-- **NTUSER.DAT** — Jean's RecentDocs MRU, TypedPaths, MUICache
+- **NTUSER.DAT** — Jo's RecentDocs MRU, TypedPaths, MUICache
 - **Outlook Express `.dbx` files** — sent emails to external recipient
   with attached patent documents
 - **IE browser history** — webmail logins, file-drop service visits
@@ -77,7 +77,7 @@ What this case **does** ship:
 ## How to fetch and run
 
 ```bash
-# 1. Download Jean's PC subset (one-time, ~10 GB)
+# 1. Download Jo's PC subset (one-time, ~10 GB)
 cd ~/agentic-dart
 python3 -m scripts.benchmark.download m57 ./datasets
 
@@ -85,7 +85,7 @@ python3 -m scripts.benchmark.download m57 ./datasets
 python3 -m scripts.benchmark.run_benchmark m57
 
 # 3. Inspect the report
-cat docs/benchmarks/m57_jean_*.json
+cat docs/benchmarks/m57_jo_*.json
 cat docs/benchmarks/SUMMARY.md
 ```
 
@@ -112,7 +112,7 @@ already in the MCP catalogue.
 - Strict (full detection only): ~0.40
 - Lenient (full + partial): ~0.80
 
-The 0.40 strict number is **lower** than Case 09's expected 0.50
+The 0.40 strict number is **lower** than external case 02's expected 0.50
 because the Outlook Express `.dbx` format requires a custom parser
 that dart-mcp does not ship yet. That's a Phase 2 gap, not a design
 flaw.
@@ -146,11 +146,11 @@ also unlock value for legacy mail-format cases beyond M57.
 
 ## Comparison — three benchmark cases side by side
 
-| Aspect | Case 08 CFReDS | Case 09 Hadi | Case 10 M57 |
+| Aspect | external case 01 CFReDS | external case 02 Hadi | external case 03 M57 |
 |---|---|---|---|
 | OS | Windows XP | Linux | Windows XP |
 | Threat | WiFi sniffing tools | Web compromise | Insider IP theft |
-| Size | ~5 GB | ~1.5 GB | ~10 GB (Jean only) |
+| Size | ~5 GB | ~1.5 GB | ~10 GB (Jo only) |
 | Era | 2004 | 2014 | 2009 |
 | Primary surface | AmCache + Prefetch + registry | Apache + auth.log + bash | NTUSER + Email + USN |
 | Predicted strict recall | 0.10 | 0.50 | 0.40 |

@@ -1,4 +1,4 @@
-# Case Study 11 — Supply-Chain Entry → AD Certificate Services Abuse → Lateral Movement
+# Self-Evaluation Case 08 — Supply-Chain Entry → AD Certificate Services Abuse → Lateral Movement
 
 **Scenario class:** The "HOW DID THEY GET DOMAIN ADMIN" investigation — trojanized signed vendor binary + ESC8 + DCSync + Golden Ticket
 **Evidence:** bundled across `examples/sample-evidence-realistic/disk/` (supplychain-security-events.json, supplychain-processes.csv, supplychain-network.json)

@@ -1,4 +1,4 @@
-# Case Study 06 — Web Attack + RDP Brute Force (Dual Entry Vectors)
+# Self-Evaluation Case 06 — Web Attack + RDP Brute Force (Dual Entry Vectors)
 
 **Scenario class:** Initial access via two most common enterprise paths
 **Evidence:** bundled at `examples/sample-evidence/web/` (Apache logs + uploaded webshells)

@@ -25,9 +25,10 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 CS = REPO / "examples" / "case-studies"
-REALISTIC = REPO / "examples" / "sample-evidence-realistic"
+REALISTIC = (REPO / "examples" / "case-studies" / "self-evaluation"
+             / "case-01" / "evidence_root")
 
-EXTERNAL = {"case-08", "case-09", "case-10"}
+EXTERNAL_TIER = "external-evaluation"
 DERIVED = {"self_correction_event", "audit_chain", "correlation_finding"}
 
 
@@ -40,8 +41,8 @@ def mcp_tools():
     return set(dart_mcp._REGISTRY.keys())
 
 
-def is_external(case):
-    return any(case.startswith(e) for e in EXTERNAL)
+def is_external(tier):
+    return tier == EXTERNAL_TIER
 
 
 def path_exists(rel):
@@ -71,9 +72,10 @@ def main():
     print(f"Validating against {len(tools)} registered MCP tools\n")
 
     total_fail = total_warn = 0
-    for gt in sorted(CS.glob("case-*/ground-truth.json")):
-        case = gt.parent.name
-        ext = is_external(case)
+    for gt in sorted(CS.glob("*/case-*/truth.json")):
+        tier = gt.parent.parent.name
+        case = f"{tier}/{gt.parent.name}"
+        ext = is_external(tier)
         d = json.loads(gt.read_text(encoding="utf-8"))
         findings = d.get("ground_truth_findings", [])
 

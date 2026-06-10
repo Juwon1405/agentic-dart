@@ -222,10 +222,12 @@ docs/DEMO_STORYBOARD_v2.md
 # would cause spurious dirty-tree noise on every demo invocation).
 examples/out/
 
-# 로컬 작업 지침 (Claude Code 전용, 원격 비공개)
+# Runtime output from run_eval.py (out/<tier>/<case>/<timestamp>/).
+/out/
+
+# Local working notes (Claude Code only, kept off the remote).
 CLAUDE.local.md
 
-# Case-study synthetic evidence (합성 증거 — 범용 *.log 등에서 예외 처리)
+# Case-study synthetic evidence (force-included past the generic *.log etc. rules).
 !examples/sample-evidence/**
-!examples/sample-evidence-realistic/**
 !examples/case-studies/**
