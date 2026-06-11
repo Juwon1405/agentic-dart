@@ -126,18 +126,12 @@ def _layout():
 
 # 7. run_eval is live-only and fails fast without a key
 def _fail_fast():
-    # Neutralise BOTH credential sources (env key + any local Claude login) so
-    # the fail-fast path is exercised deterministically on developer machines
-    # that happen to be logged in.
-    import tempfile
     env = dict(os.environ)
     env.pop("ANTHROPIC_API_KEY", None)
-    env["HOME"] = tempfile.mkdtemp(prefix="dart-hc-nohome-")
-    env["CLAUDE_CREDENTIALS_FILE"] = "/nonexistent/dart-healthcheck/creds.json"
     r = subprocess.run([sys.executable, "run_eval.py", "--case", "self-evaluation/case-01"],
                        cwd=REPO, capture_output=True, text=True, env=env)
-    assert r.returncode != 0, "run_eval did not fail fast without credentials"
-    assert "no Claude credentials found" in r.stderr, "missing fail-fast message"
+    assert r.returncode != 0, "run_eval did not fail fast without ANTHROPIC_API_KEY"
+    assert "ANTHROPIC_API_KEY is not set" in r.stderr, "missing fail-fast message"
     import run_eval
     opts = {a.option_strings[0] for a in run_eval.build_parser()._actions
             if a.option_strings}
@@ -169,7 +163,7 @@ def main() -> int:
 
     print("\n[OK] Healthcheck completed. The system is ready.")
     print("Next steps:")
-    print("1. Authenticate: export ANTHROPIC_API_KEY='sk-...'   (or: claude login)")
+    print("1. export ANTHROPIC_API_KEY='sk-...'")
     print("2. python3 run_eval.py --case self-evaluation/case-01")
     return 0
 

@@ -252,9 +252,7 @@ sect "Install complete"
 cat <<'EOF'
 
 Next steps:
-  1. Authenticate (pick one):
-       export ANTHROPIC_API_KEY='sk-...'    # an API key, or
-       claude login                         # sign in with Claude Code
+  1. export ANTHROPIC_API_KEY='sk-...'
   2. python3 run_eval.py --case self-evaluation/case-01
 
 Docs:

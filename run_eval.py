@@ -8,9 +8,9 @@ run_eval.py — the primary, user-facing Agentic-DART evaluation command.
     python3 run_eval.py --model claude-sonnet-4-6
 
 This is **live mode only**: it drives the real Claude reasoning loop over the
-read-only MCP forensic tools. It authenticates with either an ANTHROPIC_API_KEY
-or a local Claude Code login (`claude login`); if neither is present it fails
-fast, before any expensive work, with an actionable message. There is no public
+read-only MCP forensic tools, authenticating via the ANTHROPIC_API_KEY
+environment variable. If ANTHROPIC_API_KEY is not set it fails fast, before any
+expensive work, with an actionable message. There is no public
 deterministic / dry-run / fake mode here — those remain low-level developer
 commands (`python3 -m dart_agent ...`, `scripts/measure_accuracy.py`).
 
@@ -48,27 +48,10 @@ EXTERNAL_DATASET_BY_CASE = {
     "external-evaluation/case-03": "m57",
 }
 
-NO_CREDS_MESSAGE = (
-    "Error: no Claude credentials found. Do one of:\n"
-    "  export ANTHROPIC_API_KEY='sk-...'   # an Anthropic API key, or\n"
-    "  claude login                        # sign in with Claude Code"
+NO_KEY_MESSAGE = (
+    "Error: ANTHROPIC_API_KEY is not set. Export it first:\n"
+    "  export ANTHROPIC_API_KEY='sk-...'"
 )
-
-
-def _have_credentials() -> bool:
-    """True when live mode can authenticate: an ANTHROPIC_API_KEY env var, or a
-    local Claude Code login (`claude login` -> ~/.claude/.credentials.json)."""
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        return True
-    for pkg in ("dart_audit", "dart_mcp", "dart_agent", "dart_corr"):
-        p = str(REPO / pkg / "src")
-        if p not in sys.path:
-            sys.path.insert(0, p)
-    try:
-        from dart_agent.auth import has_any_credentials
-        return bool(has_any_credentials())
-    except Exception:  # noqa: BLE001 — any import/lookup failure => treat as no creds
-        return False
 
 
 @dataclass
@@ -128,6 +111,17 @@ def _download_hint(case: Case) -> str:
 def _resolve_evidence(case: Case, *, allow_download: bool) -> int:
     """Validate a case is runnable. Returns 0 if ready, non-zero otherwise,
     printing fail-fast diagnostics with clear remediation."""
+    if case.tier == "custom":
+        # Real investigations: an arbitrary evidence_root, no ground truth.
+        if case.has_evidence:
+            return 0
+        print(f"Error: --evidence {case.evidence_root} does not exist or is "
+              f"empty.\nProduce it with the collector adapter first, e.g.:\n"
+              f"    python3 -m dart_collector_adapter --source zip "
+              f"--input evidence.zip --output {case.evidence_root} "
+              f"--case-id {case.case_id}", file=sys.stderr)
+        return 3
+
     if not case.truth_path.is_file():
         print(f"Error: {case.ref} is missing truth.json at {case.truth_path}. "
               f"This is a configuration error.", file=sys.stderr)
@@ -247,6 +241,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--case", default=None,
                    help="Case to run, e.g. self-evaluation/case-01. "
                         "Omit to run all bundled self-evaluation cases.")
+    p.add_argument("--evidence", default=None, metavar="PATH",
+                   help="Real-investigation mode: analyse an arbitrary "
+                        "evidence_root directory (as produced by the collector "
+                        "adapter) instead of a bundled case. No ground truth "
+                        "needed; output goes to out/custom/<case-id>/.")
+    p.add_argument("--case-id", default=None,
+                   help="Label for --evidence runs (default: the evidence "
+                        "directory's parent name).")
     p.add_argument("--model", default=os.environ.get("DART_MODEL", DEFAULT_MODEL),
                    help=f"Anthropic model id (default: {DEFAULT_MODEL}).")
     p.add_argument("--download", action="store_true",
@@ -272,12 +274,27 @@ def main(argv: list[str] | None = None) -> int:
     if args.list:
         return _print_case_list()
 
-    # Fail fast BEFORE any expensive work if no credentials are present.
-    if not _have_credentials():
-        print(NO_CREDS_MESSAGE, file=sys.stderr)
+    # Fail fast BEFORE any expensive work if no API key is present.
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        print(NO_KEY_MESSAGE, file=sys.stderr)
         return 1
 
-    if args.case:
+    if args.evidence:
+        if args.case:
+            print("Error: --case and --evidence are mutually exclusive.",
+                  file=sys.stderr)
+            return 2
+        evidence_root = Path(args.evidence).expanduser().resolve()
+        case_id = args.case_id or evidence_root.parent.name or "investigation"
+        targets = [Case(
+            tier="custom",
+            case_id=case_id,
+            ref=f"custom/{case_id}",
+            path=evidence_root.parent,
+            truth_path=evidence_root.parent / "truth.json",  # optional, unused
+            evidence_root=evidence_root,
+        )]
+    elif args.case:
         targets = [get_case(args.case)]
     else:
         # Default: every self-evaluation case that has bundled evidence.

@@ -181,9 +181,8 @@ git clone https://github.com/Juwon1405/agentic-dart.git
 cd agentic-dart
 bash scripts/install.sh
 
-# 2. Authenticate — pick ONE
-export ANTHROPIC_API_KEY='sk-...'     # an Anthropic API key, or
-claude login                          # sign in with Claude Code
+# 2. Authenticate with an Anthropic API key
+export ANTHROPIC_API_KEY='sk-...'
 
 # 3. Run a case
 python3 run_eval.py --case self-evaluation/case-01
@@ -198,8 +197,8 @@ bash scripts/install.sh --full
 
 ## Demo & benchmarks
 
-`run_eval.py` is live mode only — it needs auth (API key or `claude login`) and
-fails fast otherwise. Everything else below runs with no credentials.
+`run_eval.py` is live mode only — it needs an `ANTHROPIC_API_KEY` and fails fast
+otherwise. Everything else below runs with no credentials.
 
 | What it does | Command | Needs |
 |---|---|---|
@@ -259,8 +258,7 @@ When artifacts disagree, `dart-corr` flags the contradiction as `UNRESOLVED` and
 
 - Python 3.10 or newer.
 - `git`, `pip`, and `venv`.
-- For live mode: **either** an `ANTHROPIC_API_KEY` **or** a Claude Code login
-  (`claude login`).
+- For live mode: an `ANTHROPIC_API_KEY`.
 - Optional for SIFT-adapter calls: SANS SIFT Workstation binaries on `PATH`
   or the corresponding `DART_*_BIN` override environment variables.
 
@@ -498,7 +496,7 @@ Coverage = **11 / 12** with one tactic explicitly partial. We do not claim 12/12
 
 ## Live mode (real Claude API + MCP stdio)
 
-Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. Live mode authenticates with **either** an `ANTHROPIC_API_KEY` **or** a local Claude Code login (`claude login`); `run_eval.py` is the user-facing entry point. Developers can use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
+Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. Live mode authenticates with an `ANTHROPIC_API_KEY`; `run_eval.py` is the user-facing entry point. Developers can use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
