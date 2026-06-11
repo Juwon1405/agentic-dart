@@ -33,6 +33,7 @@
 - [Repository layout](#repository-layout)
 - [**Quick start**](#quick-start)
 - [Demo & benchmarks](#demo--benchmarks)
+- [Real-world investigations (your own evidence)](#real-world-investigations-your-own-evidence)
 - [Install and requirements](#install-and-requirements)
 - [Running the tests](#running-the-tests)
 - [Target case class](#target-case-class)
@@ -251,6 +252,58 @@ The demo walks the full senior-analyst loop against sample evidence, triggers a 
 When artifacts disagree, `dart-corr` flags the contradiction as `UNRESOLVED` and the agent is forced to revise — no prompt instruction needed. Architecture-first, not prompt-first.
 
 > *Representative SIFT Workstation stills. A live screencast replaces these in the hackathon submission video (June 2026).*
+
+## Real-world investigations (your own evidence)
+
+Two machines, clean separation:
+
+- **Incident host** (the box you're investigating) — gets **nothing installed**.
+  It runs the **Velociraptor offline collector**: a single standalone binary,
+  one-time execution, no agent, no install. It writes one `evidence.zip`.
+- **Analysis server** (your SIFT/workstation) — has Agentic-DART **and** the
+  collector adapter. All reasoning happens here, never on the evidence host.
+
+You bring evidence in one of two ways, then analyse it with `run_eval.py
+--evidence`:
+
+**A) Live triage — Velociraptor offline collector → ZIP** (the common case)
+
+```bash
+# 1. On the incident host (no install): run the collector binary once.
+#    Windows:  velociraptor.exe -i artifacts collect Windows.KapeFiles.Targets --output evidence.zip
+#    Linux:    ./velociraptor   -i artifacts collect Linux.Search.FileFinder   --output evidence.zip
+#    ...then copy evidence.zip back to the analysis server.
+
+# 2. On the analysis server: normalise the ZIP into an evidence_root.
+python3 -m dart_collector_adapter --source zip \
+    --input evidence.zip --output ./case-001/evidence_root --case-id case-001
+
+# 3. Analyse it.
+export ANTHROPIC_API_KEY='sk-...'
+python3 run_eval.py --evidence ./case-001/evidence_root --case-id case-001 --max-iterations 25
+```
+
+**B) Dead disk — forensic image (`.dd`/`.raw`/`.E01`) → ZIP → evidence_root**
+
+The adapter drives Velociraptor's dead-disk remapping on the analysis server,
+so you never run anything on the original media:
+
+```bash
+python3 -m dart_collector_adapter --source image \
+    --input /evidence/disk.E01 --output ./case-001/evidence_root --case-id case-001
+python3 run_eval.py --evidence ./case-001/evidence_root --case-id case-001 --max-iterations 25
+```
+
+Notes:
+
+- The adapter writes `evidence_root/manifest.json` (SHA-256 index +
+  `source_members` provenance) as the chain-of-custody seed; Agentic-DART
+  continues that chain in `audit.jsonl`.
+- Real cases need more iterations than the bundled demos — start around
+  `--max-iterations 25`.
+- Full collection detail (which Velociraptor artifacts to use per OS, shipping
+  responder binaries, the `--source image` limitations) is in the
+  [collector-adapter README](https://github.com/Juwon1405/agentic-dart-collector-adapter#readme).
 
 ## Install and requirements
 
