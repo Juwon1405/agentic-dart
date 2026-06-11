@@ -9,7 +9,13 @@
 # Usage:
 #   bash scripts/install.sh [options]
 #
+# Common cases:
+#   bash scripts/install.sh           # Agentic-DART + adapter (no SIFT). Easiest.
+#   bash scripts/install.sh --full    # the above + SIFT toolchain + EZ Tools.
+#
 # Options:
+#   --full                          One-shot full setup: --install-sift
+#                                   --install-eztools --yes (Ubuntu/SIFT).
 #   --os auto|ubuntu|centos|macos   Target OS (default: auto-detect).
 #   --install-sift                  Install the SIFT toolchain via `cast`.
 #   --skip-sift                     Do not touch SIFT (default).
@@ -38,11 +44,12 @@ warn() { printf '\033[1;33m[warn]\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[1;31m[fatal]\033[0m %s\n' "$*" >&2; exit 1; }
 sect() { printf '\n\033[1;36m=== %s ===\033[0m\n' "$*"; }
 
-usage() { sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,27p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 # ---- argument parser -------------------------------------------------------
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --full)           DO_SIFT=1; DO_EZTOOLS=1; ASSUME_YES=1; shift ;;
     --os)             OS_TARGET="${2:-}"; shift 2 ;;
     --install-sift)   DO_SIFT=1; shift ;;
     --skip-sift)      DO_SIFT=0; shift ;;
@@ -245,7 +252,9 @@ sect "Install complete"
 cat <<'EOF'
 
 Next steps:
-  1. export ANTHROPIC_API_KEY='sk-...'
+  1. Authenticate (pick one):
+       export ANTHROPIC_API_KEY='sk-...'    # an API key, or
+       claude login                         # sign in with Claude Code
   2. python3 run_eval.py --case self-evaluation/case-01
 
 Docs:

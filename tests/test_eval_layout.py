@@ -81,9 +81,13 @@ def test_get_case_unknown_fails():
 # run_eval.py CLI contracts
 # --------------------------------------------------------------------------- #
 
-def _run(args, *, key=False):
+def _run(args, *, key=False, tmp_path=None):
     env = dict(os.environ)
     env.pop("ANTHROPIC_API_KEY", None)
+    # Neutralise any local Claude login so no-credential tests are deterministic
+    # even when the developer/CI host is logged in.
+    env["HOME"] = str(tmp_path) if tmp_path else "/nonexistent/dart-test-home"
+    env["CLAUDE_CREDENTIALS_FILE"] = "/nonexistent/dart-test/creds.json"
     if key:
         env["ANTHROPIC_API_KEY"] = "sk-test-not-real"
     return subprocess.run([sys.executable, "run_eval.py", *args],
@@ -103,20 +107,19 @@ def test_list_needs_no_key():
     assert "external-evaluation/case-03" in r.stdout
 
 
-def test_fail_fast_without_key_exact_message():
+def test_fail_fast_without_credentials_message():
     r = _run([])
     assert r.returncode == 1
-    assert r.stderr.rstrip("\n") == (
-        "Error: ANTHROPIC_API_KEY is not set. Export it first:\n"
-        "  export ANTHROPIC_API_KEY='sk-...'"
-    )
+    out = r.stderr
+    assert "no Claude credentials found" in out
+    assert "ANTHROPIC_API_KEY" in out and "claude login" in out
 
 
 def test_fail_fast_happens_before_work():
-    # even with a valid case selected, no key -> fail fast, no out/ dir created
+    # even with a valid case selected, no creds -> fail fast, no out/ dir created
     r = _run(["--case", "self-evaluation/case-01"])
     assert r.returncode == 1
-    assert "ANTHROPIC_API_KEY is not set" in r.stderr
+    assert "no Claude credentials found" in r.stderr
 
 
 def test_external_without_download_gives_remediation():

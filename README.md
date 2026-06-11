@@ -32,6 +32,7 @@
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
 - [**Quick start**](#quick-start)
+- [Demo & benchmarks](#demo--benchmarks)
 - [Install and requirements](#install-and-requirements)
 - [Running the tests](#running-the-tests)
 - [Target case class](#target-case-class)
@@ -172,42 +173,54 @@ Each package has its own `README.md` with deeper detail (wire surface for `dart_
 
 ## Quick start
 
+Three steps: **install → authenticate → run.**
+
 ```bash
+# 1. Install — Agentic-DART + the collector adapter (auto-detects your OS)
 git clone https://github.com/Juwon1405/agentic-dart.git
 cd agentic-dart
-bash scripts/install.sh --os ubuntu --skip-sift
-export ANTHROPIC_API_KEY='sk-...'
+bash scripts/install.sh
+
+# 2. Authenticate — pick ONE
+export ANTHROPIC_API_KEY='sk-...'     # an Anthropic API key, or
+claude login                          # sign in with Claude Code
+
+# 3. Run a case
 python3 run_eval.py --case self-evaluation/case-01
 ```
 
-`run_eval.py` is live mode only: with no `ANTHROPIC_API_KEY` it fails fast,
-before any work, with an actionable message. Discover cases with
-`python3 run_eval.py --list`; run an external dataset case (downloaded on
-demand) with `python3 run_eval.py --case external-evaluation/case-01 --download`.
-
-**Full SIFT Workstation path** (stages the SIFT toolchain via `cast` and the
-Eric Zimmerman Tools .NET 9 builds):
+Full SANS SIFT Workstation setup (adds the SIFT toolchain via `cast` plus the
+Eric Zimmerman Tools) is a single flag:
 
 ```bash
-bash scripts/install.sh --os ubuntu --install-sift --install-eztools --yes
+bash scripts/install.sh --full
 ```
 
-Verify a clone without an API key at any time:
+## Demo & benchmarks
 
-```bash
-python3 scripts/healthcheck.py
-```
+`run_eval.py` is live mode only — it needs auth (API key or `claude login`) and
+fails fast otherwise. Everything else below runs with no credentials.
 
-### Low-level offline demo (no API key)
+| What it does | Command | Needs |
+|---|---|---|
+| **Health check** — verify the install | `python3 scripts/healthcheck.py` | nothing |
+| **Offline demo** — full loop + audit chain + the `execute_shell` bypass test | `bash examples/demo-run.sh` | nothing |
+| **List cases** in both tiers | `python3 run_eval.py --list` | nothing |
+| **Self-evaluation** — bundled evidence, the measured baseline | `python3 run_eval.py --case self-evaluation/case-01` | auth |
+| **External dataset** — download a public image, then analyse it | `python3 run_eval.py --case external-evaluation/case-01 --download` | auth + disk |
 
-For a fully offline, API-free walkthrough of the senior-analyst loop, audit
-chain, and the architectural `execute_shell` bypass test:
+Notes:
 
-```bash
-bash examples/demo-run.sh
-```
+- `self-evaluation/case-01` is the only case with **bundled** evidence (recall
+  1.0, hallucination 0). The other self-evaluation cases are scenario
+  specifications (README + ground truth).
+- External cases are public third-party datasets, downloaded on demand:
+  `case-01` NIST CFReDS, `case-02` Ali Hadi web-server, `case-03` Digital
+  Corpora M57-Patents (Jo). The first run fetches several GB.
+- Output for each run lands in `out/<tier>/<case-id>/<timestamp>/`
+  (`findings.json`, `report.json`, `summary.json`, `audit.jsonl`).
 
-Expected output:
+Expected offline-demo output:
 
 ```
 [dart-agent] iterations: 5
@@ -246,13 +259,14 @@ When artifacts disagree, `dart-corr` flags the contradiction as `UNRESOLVED` and
 
 - Python 3.10 or newer.
 - `git`, `pip`, and `venv`.
+- For live mode: **either** an `ANTHROPIC_API_KEY` **or** a Claude Code login
+  (`claude login`).
 - Optional for SIFT-adapter calls: SANS SIFT Workstation binaries on `PATH`
   or the corresponding `DART_*_BIN` override environment variables.
-- Optional for real live mode: `ANTHROPIC_API_KEY`.
 
-Core Python requirements are declared in each package's `pyproject.toml`:
-`duckdb`, `PyYAML`, `python-registry`, and, for MCP/live mode, `mcp`,
-`anthropic`, and `requests`.
+Third-party Python dependencies are pinned in the root **`requirements.txt`**
+(`anthropic`, `mcp`, `requests`, `duckdb`, `python-registry`, `PyYAML`) — the
+installer uses it; the manual path below installs it explicitly.
 
 ### Fresh-clone install
 
@@ -262,7 +276,7 @@ collector adapter in the same venv; optional SIFT / EZ Tools):
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git
 cd agentic-dart
-bash scripts/install.sh --os ubuntu --skip-sift   # add --install-sift --install-eztools for the full toolchain
+bash scripts/install.sh          # add --full for the SIFT toolchain + EZ Tools
 ```
 
 Manual editable install (equivalent core, without the toolchain staging):
@@ -484,7 +498,7 @@ Coverage = **11 / 12** with one tactic explicitly partial. We do not claim 12/12
 
 ## Live mode (real Claude API + MCP stdio)
 
-Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. The documented credential path is an Anthropic API key through `ANTHROPIC_API_KEY`; use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
+Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. Live mode authenticates with **either** an `ANTHROPIC_API_KEY` **or** a local Claude Code login (`claude login`); `run_eval.py` is the user-facing entry point. Developers can use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...

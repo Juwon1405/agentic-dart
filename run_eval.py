@@ -8,8 +8,9 @@ run_eval.py — the primary, user-facing Agentic-DART evaluation command.
     python3 run_eval.py --model claude-sonnet-4-6
 
 This is **live mode only**: it drives the real Claude reasoning loop over the
-read-only MCP forensic tools. If ANTHROPIC_API_KEY is not set it fails fast,
-before any expensive work, with an actionable message. There is no public
+read-only MCP forensic tools. It authenticates with either an ANTHROPIC_API_KEY
+or a local Claude Code login (`claude login`); if neither is present it fails
+fast, before any expensive work, with an actionable message. There is no public
 deterministic / dry-run / fake mode here — those remain low-level developer
 commands (`python3 -m dart_agent ...`, `scripts/measure_accuracy.py`).
 
@@ -47,10 +48,27 @@ EXTERNAL_DATASET_BY_CASE = {
     "external-evaluation/case-03": "m57",
 }
 
-NO_KEY_MESSAGE = (
-    "Error: ANTHROPIC_API_KEY is not set. Export it first:\n"
-    "  export ANTHROPIC_API_KEY='sk-...'"
+NO_CREDS_MESSAGE = (
+    "Error: no Claude credentials found. Do one of:\n"
+    "  export ANTHROPIC_API_KEY='sk-...'   # an Anthropic API key, or\n"
+    "  claude login                        # sign in with Claude Code"
 )
+
+
+def _have_credentials() -> bool:
+    """True when live mode can authenticate: an ANTHROPIC_API_KEY env var, or a
+    local Claude Code login (`claude login` -> ~/.claude/.credentials.json)."""
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return True
+    for pkg in ("dart_audit", "dart_mcp", "dart_agent", "dart_corr"):
+        p = str(REPO / pkg / "src")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+    try:
+        from dart_agent.auth import has_any_credentials
+        return bool(has_any_credentials())
+    except Exception:  # noqa: BLE001 — any import/lookup failure => treat as no creds
+        return False
 
 
 @dataclass
@@ -255,8 +273,8 @@ def main(argv: list[str] | None = None) -> int:
         return _print_case_list()
 
     # Fail fast BEFORE any expensive work if no credentials are present.
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        print(NO_KEY_MESSAGE, file=sys.stderr)
+    if not _have_credentials():
+        print(NO_CREDS_MESSAGE, file=sys.stderr)
         return 1
 
     if args.case:
