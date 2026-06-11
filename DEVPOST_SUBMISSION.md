@@ -36,18 +36,29 @@ Agentic-DART is an autonomous DFIR (Digital Forensics and Incident
 Response) agent that runs on the SANS SIFT Workstation. It exposes
 **72 typed, read-only forensic functions** to Claude via a custom MCP
 (Model Context Protocol) server, executes a structured **10-phase
-playbook**, and emits:
+playbook**, and emits — into `out/<tier>/<case>/<timestamp>/`:
 
 - `findings.json` — typed evidence findings with provenance
 - `audit.jsonl` — tamper-evident SHA-256-chained record of every MCP
   call made
-- `report.md` — human-readable case report suitable for handing to a
-  manager or attorney
+- `report.json` + `summary.json` — the case report and run metadata,
+  suitable for handing to a manager or an attorney
 
 The agent runs end-to-end with no human intervention on a clean
 SIFT VM, and produces output a senior DFIR analyst would recognise as
 their own — because the playbook codifies how a senior analyst
 actually walks a case.
+
+**One command, real evidence.** `python3 run_eval.py --case
+self-evaluation/case-01` runs the whole live senior-analyst loop; point
+it at your own case with `--evidence <evidence_root>`. And the evidence
+is *real*: the companion **collector adapter** (a separate repo —
+stdlib-only, no LLM, no API key) ingests either a Velociraptor offline
+collection ZIP **or a raw forensic disk image** (`--source image`, dead-disk
+via Velociraptor remapping) and normalises it to a SHA-256 manifest.
+Collection never reasons; the agent never collects — so the boundary
+between *what was collected* and *what was concluded* is explicit and
+auditable. This is a deployable two-machine IR pipeline, not a notebook demo.
 
 ---
 
@@ -293,9 +304,10 @@ Three properties verified by the test suite on every CI run:
 
 ## Accomplishments we're proud of
 
-- **Single-developer end-to-end project** — autonomous agent + MCP
-  server + SIFT adapter + collector adapter + benchmark suite + 11
-  case studies + demo video, shipped by one person in six weeks.
+- **Single-developer end-to-end platform** — autonomous agent + MCP
+  server + SIFT adapter + collector adapter (ZIP **and** dead-disk image)
+  + one-command `run_eval` CLI + OS-aware installer + benchmark suite +
+  11 case studies, shipped by one person in six weeks.
 - **Minimal dependency surface in the core MCP layer.** Only two
   third-party Python packages — `duckdb` for the audit-trail query
   store and `python-registry` for offline hive parsing. The reasoning
