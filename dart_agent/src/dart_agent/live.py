@@ -25,6 +25,7 @@ import argparse
 import asyncio
 import json
 import os
+import re
 import sys
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
@@ -141,6 +142,57 @@ JSON block starting with "REPORT:" containing:
                  "evidence_summary": "...", "tool_calls": [...]}],
    "primary_hypothesis": "...", "iterations": N}
 """
+
+
+def _extract_findings(final_text: str) -> list[dict]:
+    """Recover the findings list from the model's final 'REPORT:' JSON block.
+
+    The system prompt asks for `REPORT:` followed by a JSON object carrying a
+    "findings" array. Models routinely wrap that JSON in a ```json fence, so
+    accept both fenced and bare forms. Returns [] when no parseable report is
+    present (e.g. the run hit max_iterations before the final message)."""
+    if not final_text:
+        return []
+    marker = final_text.rfind("REPORT:")
+    blob = final_text[marker + len("REPORT:"):] if marker >= 0 else final_text
+    # Strip a leading markdown fence (```json ... ```), if present.
+    fence = re.search(r"```(?:json)?\s*(.*?)```", blob, flags=re.DOTALL)
+    if fence:
+        blob = fence.group(1)
+    start = blob.find("{")
+    if start < 0:
+        return []
+    # Walk to the matching close brace so trailing prose doesn't break parsing.
+    depth = 0
+    end = -1
+    in_str = False
+    esc = False
+    for i, ch in enumerate(blob[start:], start):
+        if esc:
+            esc = False
+            continue
+        if ch == "\\":
+            esc = True
+        elif ch == '"':
+            in_str = not in_str
+        elif not in_str:
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+    if end < 0:
+        return []
+    try:
+        data = json.loads(blob[start:end])
+    except json.JSONDecodeError:
+        return []
+    findings = data.get("findings")
+    if not isinstance(findings, list):
+        return []
+    return [f for f in findings if isinstance(f, dict)]
 
 
 @dataclass
@@ -395,6 +447,10 @@ async def live_run(case: str, out_dir: str, prompt: str,
             final_text = await _run_with_real_claude(
                 prompt, state, model, anthropic_tools, session,
             )
+            # The mock path fills state.findings itself; the real path must
+            # recover them from the model's final "REPORT:" JSON block.
+            if not state.findings:
+                state.findings = _extract_findings(final_text)
         else:
             final_text = await _run_with_mock_claude(prompt, state, session)
 
