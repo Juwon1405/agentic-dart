@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.0.2] — 2026-06-11 — Stable release (SANS FIND EVIL! 2026 submission)
+
+The stable submission build. v1.0.0 shipped with bugs and rough edges and was
+not efficient; v1.0.1 reworked the platform, and v1.0.2 finalises it as the
+**stable, efficient** release for the contest.
+
+### Summary of what changed since v1.0.0
+- **One-command UX** — `run_eval.py` (live mode) replaces the old multi-flag
+  flow; `--evidence` analyses your own adapter-produced `evidence_root`.
+- **Self-contained, tiered case studies** — `self-evaluation/` +
+  `external-evaluation/`, index-only names, per-case `truth.json`; removed the
+  confusing `--variant` selector and the duplicate evidence trees.
+- **Collector adapter** — module entrypoint + `--source {zip,image}`: ingests a
+  Velociraptor offline-collector ZIP *or a raw forensic disk image*; explicit
+  collection/analysis trust boundary.
+- **Installer & checks** — OS-aware `install.sh` (`--full` one-shot),
+  root `requirements.txt`, API-free `healthcheck.py`.
+- **Correctness/efficiency fixes** — MCP call-arg schema validation, Plaso
+  evidence isolation, honest benchmark reporting (no fabricated rows),
+  downloader browser headers + streaming image reassembly, and live-mode
+  findings extraction.
+- **Quality** — full pytest suite green; recall 1.0 / hallucination 0 on the
+  canonical bundled case; CI (benchmark-integrity + matrix) green.
+
 ## [1.0.1] — 2026-06-10 — Evidence isolation, schema validation, platform overhaul
 
 ### Added
