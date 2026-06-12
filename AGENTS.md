@@ -68,9 +68,9 @@ no network, no API key. `dart_corr/tests/` runs as its own pytest step.
   measurement over pinning a figure. If a number must appear in prose, sweep
   every surface (README, docs, CHANGELOG, folder READMEs, wiki) so none drifts.
 
-## Data safety — no trades, no writes
+## Data safety — read-only, no evidence writes
 
-This repo never trades or writes. The standing rule: **never** commit real
+This repo never writes to or mutates the evidence tree. The standing rule: **never** commit real
 evidence, credentials, tokens, internal hostnames, company names, colleague
 names, or internal codenames. Intentional and allowed: the demo persona
 `yushin@siftworkstation`, `/home/yushin/...`, and the author handle
