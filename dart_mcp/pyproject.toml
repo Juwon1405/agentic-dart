@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dart-mcp"
-version = "1.0.0"
+version = "1.0.2"
 description = "Agentic-DART typed, read-only forensic MCP server (72 tools: 47 native + 25 SIFT Workstation adapters). Pair with dart-corr (sibling package) for correlation-engine functions."
 requires-python = ">=3.10"
 dependencies = [
