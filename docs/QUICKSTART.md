@@ -74,16 +74,21 @@ Each run writes to `out/<tier>/<case>/<timestamp>/`
 
 ## C. Real evidence — your own host or disk image
 
-Three steps: **collect → adapt → analyze.**
+Two machines: **collect on the incident host → adapt + analyze on the analysis
+server.** The adapter and Agentic-DART install once on the analysis server
+(`scripts/install.sh` does both); the incident host gets **only** a Velociraptor
+collector binary — nothing is installed on it.
 
-### 1. Collect
+### 1. Collect — on the incident host
 
-On the incident host, run a Velociraptor offline collector (no agent install)
-to produce an `evidence.zip` — or just start from a raw disk image you already
-have (`.dd` / `.raw` / `.E01`). Full collector recipe:
+Copy the standalone Velociraptor binary to the host and run it once as an
+offline collector (no install, no agent, no Python) to produce `evidence.zip`;
+copy the ZIP back to the analysis server. Velociraptor makes the ZIP — the
+adapter is not involved here. (Or skip this and start from a raw disk image you
+already have: `.dd` / `.raw` / `.E01`.) Full collector recipe:
 [collector-adapter README](https://github.com/Juwon1405/agentic-dart-collector-adapter#1-on-the-incident-host--collect).
 
-### 2. Adapt — normalize into an `evidence_root/`
+### 2. Adapt — on the analysis server (normalize into an `evidence_root/`)
 
 ```bash
 # from a Velociraptor offline-collector ZIP
@@ -98,7 +103,7 @@ python3 -m dart_collector_adapter --source image --input disk.E01 \
 This writes a flat, categorized `evidence_root/` plus a `manifest.json`
 (SHA-256 chain of custody).
 
-### 3. Analyze
+### 3. Analyze — on the analysis server
 
 ```bash
 export ANTHROPIC_API_KEY='sk-...'
