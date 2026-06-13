@@ -21,10 +21,6 @@
 **License:** MIT
 **Status:** 🟢 MVP runs end-to-end; self-correction path validated. Active development through June 15, 2026.
 
-> 🚀 **New here? Start with [`docs/QUICKSTART.md`](docs/QUICKSTART.md)** — copy-paste
-> paths for (A) a no-key deterministic test, (B) a live run with a real key +
-> downloaded datasets, and (C) analyzing your own disk image / host collection.
-
 ---
 
 ## Table of contents
