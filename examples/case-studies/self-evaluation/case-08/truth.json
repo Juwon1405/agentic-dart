@@ -3,7 +3,7 @@
     "case_id": "case-11-supplychain-ad-zeroday",
     "title": "Supply-Chain Entry → AD Certificate Services Abuse → Lateral Movement",
     "scenario_class": "The 'HOW DID THEY GET DOMAIN ADMIN' investigation — trojanized vendor binary + ESC8 + DCSync + Golden Ticket",
-    "evidence_path": "examples/sample-evidence-realistic/disk/ (supplychain-*.json + supplychain-*.csv)",
+    "evidence_path": "examples/case-studies/self-evaluation/case-01/evidence_root/disk/ (supplychain-*.json + supplychain-*.csv)",
     "platform": "Windows + Active Directory",
     "ground_truth_provenance": "Synthetic scenario; all hosts (MGMT-VELO-01, DC01, CA01, FS-DATA-02, WS-FIN-09), IPs (10.50.0.0/16 RFC1918, 198.51.100.0/24 + 203.0.113.0/24 RFC5737 documentation ranges) and domain (ent.example.local — RFC2606 reserved 'example' TLD) are deterministically generated and have no cross-reference to any real environment. Attack chain composed entirely from public references: SolarWinds SUNBURST (CISA AA20-352A, 2020-12); APT29 / Cozy Bear TTP (Mandiant white paper, 2020); ESC8 NTLM-relay-to-ADCS (SpecterOps 'Certified Pre-Owned', 2021); PetitPotam MS-EFSRPC coercion (CVE-2021-36942); BloodHound attack-path mapping; AdminSDHolder ACL abuse (Microsoft KB 232199); Golden Ticket TTP (MITRE T1558.001).",
     "differentiation_from_case_05": "case-05 entry vector is stolen-credential brute force + Kerberoasting RC4 TGS abuse. case-11 entry vector is supply-chain trojanized signed binary + ADCS template misconfiguration (ESC8) + PKINIT-based DA impersonation. No shared host, IP, account, timestamp, or domain."

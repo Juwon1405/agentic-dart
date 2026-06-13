@@ -3,7 +3,7 @@
     "case_id": "case-05-authentication-lateral",
     "title": "Authentication, AD, and Lateral Movement",
     "scenario_class": "The 'WHO' investigation — stolen cred + AD attack chain",
-    "evidence_path": "examples/sample-evidence-realistic/disk/ + linux/",
+    "evidence_path": "examples/case-studies/self-evaluation/case-01/evidence_root/disk/ + linux/",
     "platform": "Windows + Linux",
     "ground_truth_provenance": "Authored alongside the bundled SECURITY.evtx events, Kerberos TGS/TGT records, and Linux auth.log; the attack timeline is encoded deterministically."
   },

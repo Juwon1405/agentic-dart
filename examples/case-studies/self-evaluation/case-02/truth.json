@@ -3,7 +3,7 @@
     "case_id": "case-02-lotl-powershell",
     "title": "Living-Off-the-Land (LOTL) PowerShell Attack",
     "scenario_class": "LOTL attack using signed Windows binaries to evade AV",
-    "evidence_path": "examples/sample-evidence-realistic/disk/",
+    "evidence_path": "examples/case-studies/self-evaluation/case-01/evidence_root/disk/",
     "platform": "Windows",
     "ground_truth_provenance": "Authored alongside the bundled sample evidence; the process tree, event log entries, and persistence artefacts are deterministic in the fixture."
   },

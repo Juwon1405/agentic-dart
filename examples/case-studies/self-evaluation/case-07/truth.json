@@ -3,7 +3,7 @@
     "case_id": "case-07-ransomware-full-chain",
     "title": "Full Ransomware Chain (MITRE ATT&CK Coverage)",
     "scenario_class": "Post-foothold ransomware deployment — credential access + discovery + defense evasion + impact",
-    "evidence_path": "examples/sample-evidence-realistic/disk/",
+    "evidence_path": "examples/case-studies/self-evaluation/case-01/evidence_root/disk/",
     "platform": "Windows",
     "ground_truth_provenance": "Authored alongside the bundled creds-processes, discovery-processes, security-events, and log-clearing-events fixtures. Threat intel basis: The DFIR Report 2025, Red Canary 2025, Mandiant M-Trends 2026 — 80%+ of modern intrusions end in this pattern."
   },

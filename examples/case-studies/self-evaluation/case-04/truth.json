@@ -3,7 +3,7 @@
     "case_id": "case-04-phishing-to-exfil",
     "title": "Phishing → Browser Download → Execution → Exfiltration",
     "scenario_class": "Classic data-theft chain (the 80% case)",
-    "evidence_path": "examples/sample-evidence-realistic/disk/Users/analyst/",
+    "evidence_path": "examples/case-studies/self-evaluation/case-01/evidence_root/disk/Users/analyst/",
     "platform": "Windows",
     "ground_truth_provenance": "Authored alongside the bundled browser history, downloads database, and network artefacts in the disk/Users/analyst fixture."
   },

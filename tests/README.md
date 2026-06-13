@@ -45,7 +45,8 @@ individually plus `python3 -m pytest dart_corr/tests/`.
 
 ## What about the evidence trees?
 
-Per-case scoring of `examples/case-studies/case-NN-*` against
-`examples/sample-evidence{,-realistic}/` is **not** part of `pytest`. That
+Per-case scoring of the cases under
+`examples/case-studies/{self-evaluation,external-evaluation}/` is **not**
+part of `pytest`. That
 lives under `scripts/benchmark/` (`score_cases.py`, `run_all.py`) and runs
 separately as the `benchmark-integrity` workflow.

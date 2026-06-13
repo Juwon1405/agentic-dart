@@ -3,7 +3,7 @@
     "case_id": "case-01-ipkvm-insider",
     "title": "IP-KVM Remote-Hands Insider Pattern",
     "scenario_class": "Insider threat with remote-hands physical access vector",
-    "evidence_path": "examples/sample-evidence-realistic/",
+    "evidence_path": "examples/case-studies/self-evaluation/case-01/evidence_root/",
     "platform": "Windows",
     "incident_window": "2026-03-15 14:19 - 14:30 UTC",
     "ground_truth_provenance": "Authored alongside the bundled sample evidence; the IP-KVM ATEN VID/PID and timeline are encoded directly in setupapi.dev.log and SECURITY.evtx in the sample-evidence fixture."

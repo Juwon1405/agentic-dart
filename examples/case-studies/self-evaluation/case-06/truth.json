@@ -3,7 +3,7 @@
     "case_id": "case-06-web-attack-to-rdp-pivot",
     "title": "Web Attack + RDP Brute Force (Dual Entry Vectors)",
     "scenario_class": "Initial access via two most common enterprise paths",
-    "evidence_path": "examples/sample-evidence-realistic/web/",
+    "evidence_path": "examples/case-studies/self-evaluation/case-01/evidence_root/web/",
     "platform": "Linux (web) + Windows (RDP)",
     "ground_truth_provenance": "Authored alongside the bundled Apache access.log and uploaded webshell files. The sqlmap session, webshell signatures, and RDP brute force pattern are deterministic in the fixture."
   },
