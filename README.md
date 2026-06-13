@@ -690,7 +690,7 @@ Reproduce with `python3 scripts/measure_cfreds.py`. Remaining gaps (F-CFR-006 IE
 |---|---|
 | `parse_macos_quarantine` | `LSQuarantineEvent` SQLite — download provenance, non-browser downloader flag, pastesite/raw-IP/darknet URL flags (T1204, T1566.002) |
 | `parse_linux_cron_jobs` | `/etc/crontab`, `cron.d`, `cron.{hourly,daily,weekly,monthly}`, `/var/spool/cron/` — attacker-pattern flagging: curl-pipe-shell, base64 decode, `@reboot` triggers, /tmp/*.sh, raw-IP URLs (T1053.003) |
-| `detect_dns_tunneling` | DNS query log analysis — Shannon-entropy + long-label + rare-qtype + volume + tool-signature (Iodine, dnscat2) heuristics. Opens TA0011 C2 coverage (T1071.004, T1568.002, T1572) |
+| `detect_dns_tunneling` | DNS query log analysis — Shannon-entropy + long-label + rare-qtype + volume + tool-signature (Iodine, dnscat2) heuristics. DNS-tunneling C2 indicators (T1071.004 / T1568.002 / T1572) — partial TA0011; full C2 (PCAP) is Phase-2 |
 
 **Native — cross-artifact reasoning**
 
