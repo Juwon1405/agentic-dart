@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Agentic-DART — SIFT adapter layer demonstration.
 #
-# This script proves that the v0.5 SIFT adapter layer is correctly wired
+# This script proves that the SIFT adapter layer is correctly wired
 # up by exercising it from end to end:
 #
 #   1. Confirms the full MCP tool surface is registered (native + SIFT adapters)
@@ -29,7 +29,7 @@ B='\033[1;34m'; G='\033[1;32m'; Y='\033[1;33m'; R='\033[1;31m'; C='\033[1;36m'; 
 
 echo ""
 echo -e "${C}╔══════════════════════════════════════════════════════════════════╗${N}"
-echo -e "${C}║   Agentic-DART v0.5 — SIFT adapter layer demonstration           ║${N}"
+echo -e "${C}║   Agentic-DART — SIFT adapter layer demonstration                ║${N}"
 echo -e "${C}║   FIND EVIL! 2026 Custom MCP Server pattern alignment            ║${N}"
 echo -e "${C}╚══════════════════════════════════════════════════════════════════╝${N}"
 echo ""
