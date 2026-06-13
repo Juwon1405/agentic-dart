@@ -410,8 +410,10 @@ collection source that can produce `evidence_root/` plugs in.
   + one-command `run_eval` CLI + OS-aware installer + benchmark suite +
   11 case studies, shipped by one person in six weeks.
 - **Minimal dependency surface in the core MCP layer.** Only two
-  third-party Python packages — `duckdb` for the audit-trail query
-  store and `python-registry` for offline hive parsing. The reasoning
+  third-party Python packages — `duckdb` for the cross-artifact
+  timeline-correlation engine and `python-registry` for offline hive
+  parsing (the audit trail itself is stdlib-only SHA-256-linked JSONL).
+  The reasoning
   loop adds the official `anthropic` SDK on top. Auditable in a
   single sitting.
 - **Measured MITRE ATT&CK coverage.** 10 of the 12 in-scope Enterprise
@@ -536,4 +538,4 @@ python3 run_eval.py --case self-evaluation/case-01
 
 ---
 
-**Contact:** open an issue on https://github.com/Juwon1405/agentic-dart/issues — issue templates are configured for `feature-request`, `bug`, `question`, and `dataset-suggestion`.
+**Contact:** open an issue on https://github.com/Juwon1405/agentic-dart/issues — issue templates are configured for `bug_report`, `mcp_function_proposal`, and `accuracy_regression`.
