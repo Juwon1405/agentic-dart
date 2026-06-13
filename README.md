@@ -539,12 +539,12 @@ The native functions are not invented from scratch. Each one is grounded in a pu
 | TA0006 | Credential Access | `detect_credential_access`, `analyze_windows_logons`, `analyze_kerberos_events`, `analyze_unix_auth`, `detect_brute_force_rdp` |
 | TA0007 | Discovery | `detect_discovery`, `parse_shellbags`, `parse_knowledgec` |
 | TA0008 | Lateral Movement | `detect_lateral_movement` (PsExec / WMIExec / WinRM / SMB) |
-| TA0009 | Collection | `parse_browser_history`, `analyze_downloads`, `parse_fsevents` |
+| **TA0009** | **Collection** | ⚠ **Partial** — parsers present (`parse_fsevents`, `extract_mft_timeline`) but no scoped Collection detection rule yet; **deferred to Phase 2** |
 | TA0010 | Exfiltration | `detect_exfiltration`, `correlate_download_to_execution` |
 | **TA0011** | **Command and Control** | ⚠ **Partial** — process-side indicators only. Full PCAP-based C2 detection is **deferred to Phase 2** (honest scope) |
 | TA0040 | Impact | `detect_ransomware_behavior` (mass-rename + shadow-copy delete + ransom notes) |
 
-Coverage = **11 / 12** with one tactic explicitly partial. We do not claim 12/12 because doing so would require reading PCAPs end-to-end, which is a Phase-2 deliverable. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for the per-technique mapping that includes specific T-IDs.
+Coverage = **10 / 12** actively detected by scoped rules. Two tactics are **deferred to Phase 2** and are not claimed as covered: Collection (parsers present, no scoped rule yet) and Command & Control (process-side only; full PCAP-based detection). This matches the measured table in [`docs/accuracy-report.md`](./docs/accuracy-report.md); we do not claim 12/12. See it for the per-technique T-ID mapping.
 
 
 ## Live mode (real Claude API + MCP stdio)
