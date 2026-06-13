@@ -236,6 +236,10 @@ examples/out/
 # Runtime output from run_eval.py (out/<tier>/<case>/<timestamp>/).
 /out/
 
+# log2timeline/Plaso drops a timestamped log in its cwd on every run
+# (e.g. examples/log2timeline-*.log.gz left by sift-adapter-demo.sh).
+log2timeline-*.log.gz
+
 # Local working notes (Claude Code only, kept off the remote).
 CLAUDE.local.md
 
