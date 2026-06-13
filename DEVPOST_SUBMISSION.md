@@ -49,6 +49,12 @@ SIFT VM, and produces output a senior DFIR analyst would recognise as
 their own — because the playbook codifies how a senior analyst
 actually walks a case.
 
+**Machine speed, evidence-grade.** A first manual pass over a single
+host costs an analyst days. Agentic-DART's measured end-to-end runtime
+is ~30 seconds on the bundled case and ~5-10 minutes against a 5 GB
+CFReDS image — minutes instead of days, with the full audit chain
+intact.
+
 **One command, real evidence.** `python3 run_eval.py --case
 self-evaluation/case-01` runs the whole live senior-analyst loop; point
 it at your own case with `--evidence <evidence_root>`. And the evidence
@@ -156,12 +162,77 @@ engine **decoupled from any single collection vendor**.
 
 ---
 
-## Mapping to SANS FIND EVIL! 2026 evaluation criteria
+## Mapping to the official evaluation criteria
 
-### 1. IR Accuracy
+The six headings below use the official criterion names, in the official
+order. All criteria are equally weighted; **Autonomous Execution Quality
+is the tiebreaker**.
 
-Agentic-DART is evaluated against **11 case studies** spanning two
-evidence tiers:
+### 1. Autonomous Execution Quality
+
+*Criterion: can the agent reason about next steps, handle failures, and
+self-correct in real time?*
+
+The full 10-phase playbook runs end-to-end with no human in the loop:
+
+```bash
+# One command, no prompts, no human interaction
+python3 run_eval.py --case self-evaluation/case-01
+```
+
+Measured runtime on a clean SIFT VM: ~30 seconds on the bundled case,
+~5-10 minutes on a 5 GB CFReDS image.
+
+**Self-correction is the headline behaviour — and it is graded, not
+anecdotal.** case-04's ground truth encodes it as a finding of its own
+(`F-PHISH-006`, category `self_correction`): the agent forms an initial
+hypothesis ("OneDriveStartup persistence", confidence 0.62), runs
+`parse_registry_hive`, sees the path resolve to a legitimate Microsoft
+component, **retracts the hypothesis**, re-correlates, and lands on the
+actual persistence mechanism (`HKCU\...\Run\WinUpdate`) at confidence
+0.91. The hypothesis revision is written to `progress.jsonl` after the
+iteration, and the MCP calls that forced it are SHA-256-chained in
+`audit.jsonl` — a reviewer can replay exactly why the agent changed its
+mind. `scripts/measure_accuracy.py` asserts `self_correction_observed`
+as a hard metric, and the bundled case-01 exercises the same loop on a
+USB/logon contradiction: flagged `UNRESOLVED`, hypothesis replaced after
+the time window is widened.
+
+**Failure handling is structural, not hopeful.** Every tool dispatch in
+the live loop is wrapped: a failing tool call comes back to the model as
+a structured `{"error", "detail"}` tool result instead of crashing the
+run, so the loop continues and the model routes around the failure —
+pivoting to the next artefact that can confirm or kill the current
+hypothesis. Oversized tool output is truncated before it reaches the
+model (heavy data is the tool's job; meaning is the LLM's job), and
+`--max-iterations` caps the loop.
+
+### 2. IR Accuracy
+
+*Criterion: are hallucinations caught and flagged? Are confirmed
+findings distinguished from inferences?*
+
+**Reproducible measured baseline** (self-evaluation/case-01, canonical
+bundled evidence; `docs/accuracy-report.md`):
+
+- Recall: **1.000**
+- False positive rate: **0.000**
+- Hallucinations: **0**
+- Evidence integrity preserved: **true** (SHA-256 pre/post match across 67 files)
+
+**Hallucination management is mechanical.** Any finding lacking an
+`audit_id` reference to a chained MCP call is counted as a hallucination
+— no softer definition is used. The benchmark suite reports the count as
+a hard column in `docs/benchmarks/SUMMARY.md`.
+
+**Confirmed vs inferred is a typed field, not prose.** Every finding
+carries `status: confirmed | unresolved | false_positive` plus a numeric
+`confidence`. When sources contradict, `dart_corr` emits the
+contradiction with `status: UNRESOLVED` — and unresolved records are
+never auto-resolved. The agent must surface them or revise its
+hypothesis; it cannot smooth them over.
+
+Ground truth spans **11 case studies** across two evidence tiers:
 
 | Tier | Cases | Evidence | Total findings |
 |---|---|---|---:|
@@ -173,13 +244,6 @@ authoring bodies (US NIST, Champlain College, Naval Postgraduate
 School) to avoid source bias. All three predate dart-mcp by 10-20
 years — they cannot represent in-distribution training data.
 
-**Reproducible measured baseline** (self-evaluation/case-01, canonical bundled
-evidence; `docs/accuracy-report.md`):
-- Recall: **1.000**
-- False positive rate: **0.000**
-- Hallucinations: **0**
-- Evidence integrity preserved: **true** (SHA-256 pre/post match across 67 files)
-
 Per-case ground truth exists for all bundled case studies, but benchmark
 summary rows are only written for cases actually executed by the harness.
 External-tier datasets are downloaded on demand:
@@ -188,28 +252,76 @@ External-tier datasets are downloaded on demand:
 python3 run_eval.py --case external-evaluation/case-01 --download
 ```
 
-### 2. Hallucination management
+### 3. Breadth and Depth of Analysis
 
-The headline demonstration is **Scene 4 of the demo video** and
-**case-04 finding F-PHISH-006**: the agent forms an initial hypothesis
-("OneDriveStartup persistence"), runs `parse_registry_hive`, sees that
-the path actually points to a legitimate Microsoft component, and
-**retracts the hypothesis**. Confidence drops from 0.62 to 0.43, the
-agent then re-correlates and lands on the actual persistence mechanism
-(`HKCU\...\Run\WinUpdate`), confidence rises to 0.91.
+*Criterion: how much case data does the agent analyse? Depth on fewer
+artefact types beats shallow coverage of many.*
 
-The retraction is recorded in `audit.jsonl` as a separate event with
-its own SHA-256 hash. A reviewer can re-derive the corrected
-conclusion deterministically.
+The surface is broad — **72 typed read-only functions (47 native + 25
+SIFT adapters)** across Windows, macOS, and Linux artefact classes —
+but the evaluation is built to prove **depth on real attack chains**,
+not shallow coverage of many types:
 
-**Mechanical hallucination metric:** any finding lacking an `audit_id`
-reference is counted as hallucination. The benchmark suite reports
-hallucination rate as a hard column in `SUMMARY.md`. No softer
-definition is used.
+- **99 ground-truth findings across 11 cases, scored per finding.** A
+  case is never just "passed"; each finding is individually recalled or
+  missed, so partial depth is visible.
+- **Single cases chain many stages deep.** `self-evaluation/case-08`
+  (12 findings) walks supply-chain compromise → ADCS ESC8 NTLM relay →
+  DCSync → Golden Ticket; `self-evaluation/case-07` (13 findings)
+  covers a full ransomware chain from initial access to impact.
+- **Depth is enforced by correlation, not narration.** `dart_corr`
+  (DuckDB) joins timelines across disk, memory, and network sources;
+  findings that cannot survive the join are flagged, not kept.
+- **Coverage claims are measured.** `docs/accuracy-report.md` documents
+  10 of the 12 in-scope Enterprise tactics actively covered by scoped
+  detection rules, with **108 MITRE ATT&CK technique references across
+  69 unique techniques** attached to ground truth. TA0009 (parsers
+  present, scoped rules in Phase 2) and TA0011 (needs PCAP primitives)
+  are tracked as roadmap, not claimed.
 
-### 3. Audit trail quality
+### 4. Constraint Implementation
 
-Every MCP call is hashed into `audit.jsonl` with three fields:
+*Criterion: are the constraints architectural or prompt-based — and are
+they tested for bypass?*
+
+**Architectural, not prompt-based.** The read-only guarantee is not a
+rule the model is asked to follow: destructive primitives **do not exist
+in the MCP registry**, so there is nothing to jailbreak and nothing to
+"convince". The boundary is the set of function names on the wire.
+
+It is tested for bypass on every CI push — `tests/test_mcp_bypass.py`
+holds **7 adversarial tests**:
+
+- Calling any of **9 destructive names** (`execute_shell`, `write_file`,
+  `mount`, `umount`, `network_egress`, `eval`, `exec_python`,
+  `delete_file`, `system`) raises `ToolNotFound` at the dispatcher.
+- The registered surface is asserted as an **exact set** — a positive
+  list *and* an 11-name negative list (the 9 above plus
+  `spawn_process`, `kill_process`) — so adding a tool can never silently
+  widen the boundary.
+- Relative path traversal, absolute path escape, and null-byte
+  truncation are each blocked by `_safe_resolve` before any function
+  body runs.
+- SQL-injection payloads against the DuckDB correlation engine are
+  rejected by a character allowlist plus a forbidden-keyword block.
+- A write probe confirms handlers cannot create files outside the
+  evidence root.
+
+The CI packaging job re-verifies that the installed package exposes no
+forbidden name (`execute_shell`, `write_file`, `eval`, `mount`, `rm`,
+`system`) after a clean install. The SIFT adapter layer is covered by
+the same tests — wrapping Volatility 3 or MFTECmd does not weaken the
+boundary.
+
+### 5. Audit Trail Quality
+
+*Criterion: can any finding be traced back to the specific tool
+execution that produced it?*
+
+Yes — by ID, in one command: `dart_audit trace F-NNN` resolves any
+finding back to the exact MCP call that produced it.
+
+Every MCP call is hashed into `audit.jsonl` with:
 
 - `prev_hash` — SHA-256 of the previous entry
 - `entry_hash` — SHA-256 of this entry's canonical JSON
@@ -219,45 +331,34 @@ The chain is verified by `dart_audit verify` (and re-verified
 automatically in CI). The benchmark suite reports
 `audit_chain_intact: true|false` as a column.
 
-A reviewer can trace any finding ID back to the exact MCP call that
-produced it via `dart_audit trace F-NNN`.
+### 6. Usability and Documentation
 
-### 4. Autonomous execution
+*Criterion: can another practitioner deploy this and build on it?*
 
-The full 10-phase playbook runs end-to-end with no human in the loop:
+Another practitioner deploys in four steps on a stock SIFT VM (or any
+Linux/macOS with Python 3.10+):
 
 ```bash
-# One command, no prompts, no human interaction
-python3 -m dart_agent --evidence-root ./evidence --output ./out
+git clone https://github.com/Juwon1405/agentic-dart.git && cd agentic-dart
+bash scripts/install.sh --os auto        # venv-first; also installs the collector adapter
+python3 scripts/healthcheck.py           # API-free readiness check
+python3 run_eval.py --case self-evaluation/case-01
 ```
 
-Typical runtime on a clean SIFT VM with bundled sample evidence:
-~30 seconds. On a 5 GB CFReDS image: ~5-10 minutes.
-
-### 5. Architectural guardrails
-
-Three properties verified by the test suite on every CI run:
-
-- **No destructive primitives on the wire.** `bypass_tests/` confirms
-  `execute_shell`, `write_file`, `mount`, `eval` are not registered as
-  MCP tools, even after the SIFT adapter layer is loaded.
-- **Path traversal blocked at the MCP boundary.** Attempts to access
-  paths outside `evidence_root/` are refused by the typed path
-  validator before any function body executes.
-- **The boundary is the canonical name set.** Adding new tools cannot
-  weaken the boundary because the boundary is enforced by which
-  function names exist, not by per-function checks.
-
-### 6. Documentation
+Building on it is the design intent: the playbook is YAML — swap in your
+own methodology without touching agent code; the MCP surface is typed
+and asserted as an exact set — adding a tool forces a test declaring it;
+the collector adapter keeps the evidence contract explicit, so any
+collection source that can produce `evidence_root/` plugs in.
 
 | Surface | Path |
 |---|---|
 | Top-level overview | `README.md` |
-| Per-case walkthroughs | `examples/case-studies/case-NN/README.md` (11 cases) |
-| Per-case machine-readable ground truth | `examples/case-studies/case-NN/ground-truth.json` |
+| Per-case walkthroughs | `examples/case-studies/<tier>/case-NN/README.md` (11 cases) |
+| Per-case machine-readable ground truth | `examples/case-studies/<tier>/case-NN/truth.json` |
 | Benchmark suite operator guide | `scripts/benchmark/README.md` |
-| Accuracy report (Layer 1) | `docs/accuracy-report.md` |
-| Accuracy report (Layer 2) | `docs/benchmarks/SUMMARY.md` |
+| Accuracy report (self-evaluation) | `docs/accuracy-report.md` |
+| Accuracy report (external) | `docs/benchmarks/SUMMARY.md` |
 | Architecture | `docs/architecture.md` |
 | Playbook | `dart_playbook/senior-analyst-v3.yaml` |
 | Audit format | `dart_audit/README.md` |
@@ -313,12 +414,12 @@ Three properties verified by the test suite on every CI run:
   store and `python-registry` for offline hive parsing. The reasoning
   loop adds the official `anthropic` SDK on top. Auditable in a
   single sitting.
-- **MITRE ATT&CK coverage: 13 of 14 Enterprise tactics** across the
-  72 typed functions, spanning Reconnaissance through Impact
-  (TA0001/02/03/04/05/06/07/08/09/10/11/40/43). 108 distinct technique
-  references mapped to 99 ground-truth findings across the 11 case
-  studies.
-- **External-dataset honesty.** Layer 2 evaluation against three
+- **Measured MITRE ATT&CK coverage.** 10 of the 12 in-scope Enterprise
+  tactics actively covered by scoped detection rules (per
+  `docs/accuracy-report.md`; TA0009 and TA0011 are tracked as Phase-2
+  roadmap, not claimed). 108 distinct technique references mapped to 99
+  ground-truth findings across the 11 case studies.
+- **External-dataset honesty.** External-tier evaluation against three
   independent third-party datasets that the project's author did not
   create or have influence over. Numbers are what they are.
 
@@ -431,7 +532,6 @@ python3 run_eval.py --case self-evaluation/case-01
 - [x] Audit-chain verification utility (`dart_audit verify`)
 - [x] Architectural guardrail test pack (`tests/test_mcp_bypass.py` — 7 bypass tests)
 - [x] Single-source-of-truth count discipline (no hardcoded drift)
-- [x] CI green at submission (full pytest suite passing across dart_mcp, dart_agent, dart_audit, dart_corr)
 - [x] Companion collector-adapter repo: https://github.com/Juwon1405/agentic-dart-collector-adapter
 
 ---
