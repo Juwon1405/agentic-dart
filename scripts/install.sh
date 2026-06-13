@@ -90,7 +90,10 @@ install_os_deps() {
   case "${OS}" in
     ubuntu)
       if command -v apt-get >/dev/null; then
-        local pkgs=(python3 python3-venv python3-pip git curl unzip)
+        # yara is a small, apt-available SIFT-adapter tool (sift_yara_*); the
+        # other adapter binaries (Volatility 3, EZ Tools, Plaso) are heavier and
+        # stay opt-in under --install-sift / --install-eztools.
+        local pkgs=(python3 python3-venv python3-pip git curl unzip yara)
         log "apt-get install: ${pkgs[*]}"
         if [[ "${ASSUME_YES}" == 1 ]]; then sudo apt-get update -qq || warn "apt update failed (continuing)"; fi
         sudo apt-get install -y "${pkgs[@]}" || warn "some apt packages failed (optional ones are non-fatal)"
