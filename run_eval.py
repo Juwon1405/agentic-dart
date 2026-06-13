@@ -263,7 +263,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _print_case_list() -> int:
     for c in discover_cases():
-        evid = "bundled" if c.has_evidence else "download"
+        if c.has_evidence:
+            evid = "bundled"
+        elif c.ref in EXTERNAL_DATASET_BY_CASE:
+            evid = "download"
+        else:
+            evid = "spec-only"
         print(f"  {c.ref:32s} evidence={evid}")
     return 0
 
