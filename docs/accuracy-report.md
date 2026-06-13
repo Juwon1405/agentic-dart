@@ -291,13 +291,13 @@ native parse_evtx, issue #10 for Sigma rule synthesis).
 
 | Case | Layer | Findings | Notes |
 |---|---|---:|---|
-| case-01-ipkvm-insider | 1 | 5 | IP-KVM insider, USB indicator, scheduled task |
-| case-02-lotl-powershell | 1 | 7 | Encoded PS, LOLBin, Run key persistence |
-| case-03-macos-remote-admin | 1 | 8 | macOS Gatekeeper bypass, LaunchAgent, FSEvents |
-| case-04-phishing-to-exfil | 1 | 6 | MOTW, double-extension, cloud upload |
-| case-05-authentication-lateral | 1 | 8 | Brute-force survivor, Kerberoasting, Linux pivot |
-| case-06-web-attack-to-rdp-pivot | 1 | 10 | Webshell, SQLi, RDP pivot |
-| case-07-ransomware-full-chain | 1 | 13 | Shadow-copy delete, mass rename, ransom note |
+| self-evaluation/case-01 (IP-KVM insider) | 1 | 5 | IP-KVM insider, USB indicator, scheduled task |
+| self-evaluation/case-02 (LOTL PowerShell) | 1 | 7 | Encoded PS, LOLBin, Run key persistence |
+| self-evaluation/case-03 (macOS remote-admin) | 1 | 8 | macOS Gatekeeper bypass, LaunchAgent, FSEvents |
+| self-evaluation/case-04 (phishing to exfil) | 1 | 6 | MOTW, double-extension, cloud upload |
+| self-evaluation/case-05 (auth + lateral) | 1 | 8 | Brute-force survivor, Kerberoasting, Linux pivot |
+| self-evaluation/case-06 (web + RDP pivot) | 1 | 10 | Webshell, SQLi, RDP pivot |
+| self-evaluation/case-07 (ransomware chain) | 1 | 13 | Shadow-copy delete, mass rename, ransom note |
 | external-evaluation/case-01 (CFReDS) | 2 | 10 | NIST CFReDS (Greg Schardt / Mr. Evil) |
 | external-evaluation/case-02 (Hadi) | 2 | 10 | Ali Hadi web-server challenge |
 | external-evaluation/case-03 (M57) | 2 | 10 | Digital Corpora M57-Patents (Jo) |

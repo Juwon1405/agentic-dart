@@ -18,7 +18,7 @@ welcomed.
   observed-in-wild reference in the PR description.
 - **Documentation and cases** — case studies under
   `examples/case-studies/` following the pattern of
-  `case-01-ipkvm-insider/`.
+  `self-evaluation/case-01/`.
 
 ## What we will not accept
 
