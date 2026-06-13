@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """
-run_eval.py — the primary, user-facing Agentic-DART evaluation command.
+run_eval.py — the primary, user-facing Agentic-DART run command.
+
+Despite the name it does double duty: it **evaluates** the bundled/known case
+studies (whose findings can be scored against each case's truth.json) AND
+**runs a real investigation** against your own evidence (`--evidence`, which has
+no ground truth). It is the same agent + engine either way; the name is a
+legacy of the project starting life as a case-study evaluation harness.
 
     python3 run_eval.py                                  # all bundled self-eval cases
-    python3 run_eval.py --case self-evaluation/case-01
+    python3 run_eval.py --case self-evaluation/case-01   # a known case (scored vs truth.json)
     python3 run_eval.py --case external-evaluation/case-01 --download
+    python3 run_eval.py --evidence ./evidence_root --case-id CASE-001   # your own real evidence
     python3 run_eval.py --model claude-sonnet-4-6
 
 This is **live mode only**: it drives the real Claude reasoning loop over the
