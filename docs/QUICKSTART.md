@@ -40,7 +40,10 @@ python3 scripts/measure_accuracy.py
 python3 -m dart_audit verify examples/out/find-evil-ref-01/audit.jsonl
 python3 -m dart_audit trace  examples/out/find-evil-ref-01/audit.jsonl F-013
 
-# 4) Exercise the real live loop WITHOUT a key (mock LLM, no network).
+# 4) Smoke-test the live path WITHOUT a key. The real MCP wire + tool-use loop
+#    run end to end, but a SCRIPTED stand-in plays Claude (no network, no real
+#    reasoning). Proves the live pipeline is wired correctly; real analysis
+#    needs an API key — see section B.
 python3 -m dart_agent --case self-evaluation/case-01 --out /tmp/out --mode live --dry-run
 
 # 5) Full test suite, and the SIFT-adapter demo (degrades gracefully if a
