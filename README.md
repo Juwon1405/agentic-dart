@@ -178,27 +178,27 @@ Each package has its own `README.md` with deeper detail (wire surface for `dart_
 
 ## Quick start
 
-Three steps: **install → authenticate → run.**
+The full copy-paste, three-path guide is **[`docs/QUICKSTART.md`](docs/QUICKSTART.md)**.
+The short version:
 
 ```bash
-# 1. Install — Agentic-DART + the collector adapter (auto-detects your OS)
+# 1. Install — Agentic-DART + the collector adapter (auto-detects your OS).
+#    Add --full for the SIFT toolchain (via cast) + Eric Zimmerman Tools.
 git clone https://github.com/Juwon1405/agentic-dart.git
 cd agentic-dart
 bash scripts/install.sh
 
-# 2. Authenticate with an Anthropic API key
-export ANTHROPIC_API_KEY='sk-...'
+# 2. Test it now — no API key, deterministic, ~5 s.
+bash examples/demo-run.sh
 
-# 3. Run a case
+# 3. Real analysis — add a key, then run a case.
+export ANTHROPIC_API_KEY='sk-...'
 python3 run_eval.py --case self-evaluation/case-01
 ```
 
-Full SANS SIFT Workstation setup (adds the SIFT toolchain via `cast` plus the
-Eric Zimmerman Tools) is a single flag:
-
-```bash
-bash scripts/install.sh --full
-```
+Downloading the external datasets, or analyzing your own disk image / host
+collection (collect → adapt → analyze), are in
+[`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 ## Demo & benchmarks
 
