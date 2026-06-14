@@ -37,7 +37,7 @@ not efficient; v1.0.1 reworked the platform, and v1.0.2 finalises it as the
   fail-fast).
 - OS-aware `scripts/install.sh` (`--os auto|ubuntu|centos|macos`,
   `--install-sift/--skip-sift`, `--install-eztools/--skip-eztools`,
-  `--adapter-dir`, `--yes`, `--help`); venv-first; clones+installs the collector
+  `--adapter-dir`, `--yes`, `--help`); installs into the active interpreter; clones+installs the collector
   adapter; stages Eric Zimmerman Tools from the .NET 9 builds; SIFT via `cast`
   only when present.
 - Downloader: shared browser-like `DEFAULT_HTTP_HEADERS` on every request

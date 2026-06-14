@@ -342,7 +342,7 @@ Linux/macOS with Python 3.10+):
 
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git && cd agentic-dart
-bash scripts/install.sh --os auto        # venv-first; also installs the collector adapter
+bash scripts/install.sh --os auto        # installs into active interpreter; also installs the collector adapter
 python3 scripts/healthcheck.py           # API-free readiness check
 python3 run_eval.py --case self-evaluation/case-01
 ```
@@ -491,8 +491,10 @@ bash scripts/install.sh --os ubuntu --skip-sift          # add --install-sift --
 python3 scripts/healthcheck.py                           # API-free readiness check
 ```
 
-The installer is OS-aware (`--os auto|ubuntu|centos|macos`), venv-first, clones
-and installs the collector adapter in the same venv, and only stages SIFT (via
+The installer is OS-aware (`--os auto|ubuntu|centos|macos`), installs into
+whatever Python environment is active (activate a venv first if you want
+isolation — it is never forced), clones and installs the collector adapter
+into that same interpreter, and only stages SIFT (via
 `cast`) / Eric Zimmerman Tools (.NET 9) when asked — never pretending a tool is
 present when it is not.
 

@@ -30,7 +30,7 @@ runtime package surface — they are repository tooling.
 
 ## Installation / setup
 
-- **`install.sh`** — OS-aware (`--os auto|ubuntu|centos|macos`), venv-first
+- **`install.sh`** — OS-aware (`--os auto|ubuntu|centos|macos`), installs into the active interpreter
   installer; installs the packages editable, clones+installs the collector
   adapter, and optionally stages SIFT (`--install-sift`, via `cast`) and the
   Eric Zimmerman Tools (`--install-eztools`, .NET 9). See `install.sh --help`.
