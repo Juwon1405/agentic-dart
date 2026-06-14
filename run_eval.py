@@ -19,7 +19,7 @@ read-only MCP forensic tools, authenticating via the ANTHROPIC_API_KEY
 environment variable. If ANTHROPIC_API_KEY is not set it fails fast, before any
 expensive work, with an actionable message. There is no public
 deterministic / dry-run / fake mode here — those remain low-level developer
-commands (`python3 -m dart_agent ...`, `scripts/measure_accuracy.py`).
+commands (`python3 -m dart_agent ...`, `python3 -m scripts.bench.demo`).
 
 Cases are discovered dynamically from examples/case-studies/<tier>/case-*/.
 Each case is self-contained: README.md + truth.json + (bundled or downloaded)
@@ -147,12 +147,9 @@ def _resolve_evidence(case: Case, *, allow_download: bool) -> int:
         return 3
 
     print(f"Error: {case.ref} has no bundled evidence_root at "
-          f"{case.evidence_root}.\nOnly self-evaluation/case-01 ships bundled "
-          f"evidence; the other self-evaluation cases are scenario "
-          f"specifications (README.md + truth.json) without a packaged "
-          f"evidence tree.\nThese cases are exercised by direct MCP invocation "
-          f"against the shared examples/sample-evidence/ tree (see each case "
-          f"README's 'How to invoke'); they are not run_eval auto-targets.",
+          f"{case.evidence_root}.\nEvery self-evaluation case now ships a "
+          f"self-contained evidence_root. If it's missing, rebuild the per-case "
+          f"trees:\n    python3 scripts/build_self_evidence.py",
           file=sys.stderr)
     return 3
 

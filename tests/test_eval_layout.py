@@ -136,7 +136,10 @@ def test_no_sample_evidence_realistic_dir():
 
 
 def test_variant_flag_removed_from_public_runners():
-    for rel in ("scripts/measure_accuracy.py", "scripts/benchmark/run_all.py"):
+    # The --variant / sample-evidence-realistic runtime concept is gone. Check
+    # the current public entry points (the bench trio) don't reintroduce it.
+    for rel in ("scripts/bench/demo.py", "scripts/bench/self.py",
+                "scripts/bench/external.py"):
         text = (REPO / rel).read_text()
         assert "--variant" not in text, f"{rel} still references --variant"
 

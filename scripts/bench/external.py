@@ -1,0 +1,283 @@
+#!/usr/bin/env python3
+"""
+external.py — measure the LLM on public third-party DFIR images (needs a key).
+
+This proves Agentic-DART runs on real, externally-authored evidence, not just
+our own synthetic cases. It drives the external-evaluation cases, which map to
+public datasets:
+
+  external-evaluation/case-01  ->  NIST CFReDS Hacking Case   (cfreds)
+  external-evaluation/case-02  ->  Ali Hadi Web-Server #1     (hadi1)
+  external-evaluation/case-03  ->  Digital Corpora M57 / Jo   (m57)
+
+Per case it follows the flow you'd run by hand:
+
+  1. IMAGE      — if the dataset image is already under ./datasets/<short>/,
+                  use it; otherwise download it (resumable) and MD5-verify.
+  2. EVIDENCE   — if the case's evidence_root already exists, run on it as-is.
+                  Otherwise, once the image hash checks out, adapt the image
+                  into the evidence_root tree (collector adapter if installed,
+                  thin sleuthkit extraction otherwise) and STOP at a sorted tree
+                  unless we're also analysing this pass.
+  3. ANALYSE    — run the live agent over the evidence_root and score against
+                  truth.json over the tool-reachable subset (most external
+                  answers need tools that are still on the roadmap, so recall is
+                  reported over what the current toolset can actually reach).
+
+Heads-up: these images are large (CFReDS ~5 GB, M57 ~10 GB) and the adapt step
+is I/O heavy. Use --prepare-only to fetch + hash + materialise the tree without
+calling the API.
+
+Usage
+-----
+  export ANTHROPIC_API_KEY=sk-ant-...
+
+  # one external case, one model (download/adapt if needed, then analyse)
+  python3 -m scripts.bench.external --case external-evaluation/case-01
+
+  # all three, comparison matrix
+  python3 -m scripts.bench.external \\
+      --models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8
+
+  # just stage the data (no API calls)
+  python3 -m scripts.bench.external --prepare-only
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+CASE_ROOT = REPO / "examples" / "case-studies"
+EXT = CASE_ROOT / "external-evaluation"
+DATASETS_DIR = REPO / "datasets"
+DEFAULT_MODEL = os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001")
+MATRIX_MD = REPO / "docs" / "benchmarks" / "EXTERNAL-COMPARISON.md"
+
+# external case ref -> dataset short key (from scripts/benchmark/datasets.py)
+CASE_TO_SHORT = {
+    "external-evaluation/case-01": "cfreds",
+    "external-evaluation/case-02": "hadi1",
+    "external-evaluation/case-03": "m57",
+}
+
+
+def discover_external_cases() -> list[str]:
+    cases = []
+    for d in sorted(EXT.iterdir()):
+        if d.is_dir() and (d / "truth.json").is_file():
+            cases.append(f"external-evaluation/{d.name}")
+    return cases
+
+
+def latest_out_dir(case_ref: str) -> Path | None:
+    base = REPO / "out" / case_ref
+    if not base.is_dir():
+        return None
+    runs = sorted([p for p in base.iterdir() if p.is_dir()], reverse=True)
+    return runs[0] if runs else None
+
+
+def _fmt_recall(r) -> str:
+    return "—" if r is None else f"{r*100:.0f}%"
+
+
+def _fmt_int(n) -> str:
+    return "—" if n is None else f"{n:,}"
+
+
+def prepare(case_ref: str, *, dry_run: bool) -> bool:
+    """Ensure the case's evidence_root exists: download+verify image, then adapt.
+
+    run_eval --download already does fetch + hash + adapt for external cases,
+    so we lean on it with a no-API 'prepare' by invoking the downloader path
+    directly. Returns True if evidence_root ends up present.
+    """
+    case_dir = CASE_ROOT / case_ref
+    evidence_root = case_dir / "evidence_root"
+    if evidence_root.is_dir() and any(evidence_root.iterdir()):
+        print(f"  [{case_ref}] evidence_root present — reusing")
+        return True
+
+    short = CASE_TO_SHORT.get(case_ref)
+    if not short:
+        print(f"  [{case_ref}] no dataset mapping", file=sys.stderr)
+        return False
+
+    if dry_run:
+        print(f"  DRY-RUN: would download '{short}' to {DATASETS_DIR}, verify, adapt")
+        return False
+
+    # Fetch + MD5-verify the image (idempotent; resumes / skips if present).
+    print(f"  [{case_ref}] staging dataset '{short}' …")
+    sys.path.insert(0, str(REPO / "scripts"))
+    try:
+        from benchmark.download import download as fetch
+        fetch(short, DATASETS_DIR, verify=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"  [{case_ref}] download failed: {e}", file=sys.stderr)
+        return False
+
+    # Adapt image -> evidence_root via run_eval's own --download path, which
+    # invokes the collector adapter / extraction and lands a sorted tree.
+    cmd = [sys.executable, str(REPO / "run_eval.py"),
+           "--case", case_ref, "--download", "--prepare-only"]
+    proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
+    # --prepare-only may not exist on older run_eval; fall back to a normal
+    # resolve that stops before the API when no key is set.
+    if proc.returncode != 0 and "--prepare-only" in (proc.stderr or ""):
+        env = dict(os.environ)
+        env.pop("ANTHROPIC_API_KEY", None)
+        subprocess.run([sys.executable, str(REPO / "run_eval.py"),
+                        "--case", case_ref, "--download"],
+                       cwd=str(REPO), env=env, capture_output=True, text=True)
+
+    return evidence_root.is_dir() and any(evidence_root.iterdir())
+
+
+def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
+    row = {"case": case_ref, "model": model, "ok": False, "recall": None,
+           "gt_detected": None, "gt_scorable": None, "model_findings": None,
+           "tokens_in": None, "tokens_out": None, "error": None}
+
+    cmd = [sys.executable, str(REPO / "run_eval.py"),
+           "--case", case_ref, "--model", model, "--download"]
+    if dry_run:
+        print("  DRY-RUN:", " ".join(cmd))
+        row["error"] = "dry-run"
+        return row
+
+    print(f"  → {case_ref}  [{model}]")
+    proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
+    if proc.returncode != 0:
+        tail = (proc.stderr or proc.stdout or "").strip().splitlines()
+        row["error"] = tail[-1] if tail else f"exit {proc.returncode}"
+        print(f"     FAILED: {row['error']}")
+        return row
+
+    out_dir = latest_out_dir(case_ref)
+    if not out_dir:
+        row["error"] = "no output dir"
+        return row
+
+    findings_path = out_dir / "findings.json"
+    truth_path = CASE_ROOT / case_ref / "truth.json"
+
+    try:
+        summ = json.loads((out_dir / "summary.json").read_text())
+        usage = summ.get("usage", {})
+        row["tokens_in"] = usage.get("input_tokens")
+        row["tokens_out"] = usage.get("output_tokens")
+        row["model_findings"] = summ.get("findings_count")
+    except Exception:
+        pass
+
+    if truth_path.is_file():
+        score_cmd = [sys.executable, str(REPO / "scripts" / "score_against_truth.py"),
+                     "--findings", str(findings_path), "--truth", str(truth_path), "--json"]
+        sp = subprocess.run(score_cmd, cwd=str(REPO), capture_output=True, text=True)
+        if sp.returncode == 0 and sp.stdout.strip():
+            try:
+                s = json.loads(sp.stdout.strip())
+                row["recall"] = s.get("recall")
+                row["gt_detected"] = s.get("gt_detected")
+                row["gt_scorable"] = s.get("gt_scorable")
+                if row["model_findings"] is None:
+                    row["model_findings"] = s.get("model_findings")
+            except Exception:
+                pass
+
+    row["ok"] = True
+    print(f"     recall={_fmt_recall(row['recall'])} "
+          f"({row['gt_detected']}/{row['gt_scorable']} scorable)  "
+          f"findings={row['model_findings']}  tok={row['tokens_in']}/{row['tokens_out']}")
+    return row
+
+
+def build_markdown(rows: list[dict], models: list[str]) -> str:
+    today = dt.date.today().isoformat()
+    by_case: dict[str, list[dict]] = {}
+    for r in rows:
+        by_case.setdefault(r["case"], []).append(r)
+
+    out = [
+        "# Model comparison — external datasets",
+        "",
+        f"_Generated {today}. Public third-party images (NIST CFReDS, Ali Hadi, "
+        "Digital Corpora M57). Recall is over the tool-reachable subset of each "
+        "dataset's ground truth — many external answers require tools still on "
+        "the roadmap, so a low number reflects tool coverage, not model skill._",
+        "",
+    ]
+    for case in sorted(by_case):
+        short = CASE_TO_SHORT.get(case, "?")
+        out.append(f"## {case}  (`{short}`)")
+        out.append("")
+        out.append("| Model | Recall | Detected/Scorable | Model findings | Tokens in | Tokens out |")
+        out.append("|---|---|---|---|---|---|")
+        for model in models:
+            r = next((x for x in by_case[case] if x["model"] == model), None)
+            if not r:
+                continue
+            if r.get("error") and r["error"] != "dry-run":
+                out.append(f"| `{model}` | _err_ | — | — | — | — |")
+                continue
+            det = "—" if r["gt_detected"] is None else f"{r['gt_detected']}/{r['gt_scorable']}"
+            out.append(f"| `{model}` | {_fmt_recall(r['recall'])} | {det} | "
+                       f"{_fmt_int(r['model_findings'])} | {_fmt_int(r['tokens_in'])} | "
+                       f"{_fmt_int(r['tokens_out'])} |")
+        out.append("")
+    return "\n".join(out) + "\n"
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--case", help="one case ref, e.g. external-evaluation/case-01 "
+                                   "(default: all 3 external cases)")
+    ap.add_argument("--models", nargs="+", default=[DEFAULT_MODEL])
+    ap.add_argument("--out", type=Path, default=MATRIX_MD)
+    ap.add_argument("--prepare-only", action="store_true",
+                    help="fetch + verify + materialise evidence_root, no API calls")
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args(argv)
+
+    cases = [args.case] if args.case else discover_external_cases()
+
+    if args.prepare_only:
+        print(f"prepare-only: staging {len(cases)} external case(s)\n")
+        ok = sum(1 for c in cases if prepare(c, dry_run=args.dry_run))
+        print(f"\nStaged {ok}/{len(cases)} evidence trees.")
+        return 0 if ok == len(cases) else 1
+
+    if not args.dry_run and not os.environ.get("ANTHROPIC_API_KEY"):
+        print("ERROR: ANTHROPIC_API_KEY is not set.", file=sys.stderr)
+        return 2
+
+    print(f"external-evaluation: {len(cases)} case(s) × {len(args.models)} model(s)\n")
+    rows = []
+    for case in cases:
+        for model in args.models:
+            rows.append(run_one(case, model, dry_run=args.dry_run))
+
+    if args.dry_run:
+        return 0
+
+    if len(args.models) > 1:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(build_markdown(rows, args.models))
+        args.out.with_suffix(".rows.json").write_text(json.dumps(rows, indent=2))
+        print(f"\nMatrix written: {args.out.relative_to(REPO)}")
+
+    ok = sum(1 for r in rows if r["ok"])
+    print(f"\nDone: {ok}/{len(rows)} runs succeeded.")
+    return 0 if ok == len(rows) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

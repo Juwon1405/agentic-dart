@@ -171,7 +171,7 @@ def sift_mftecmd_timestomp(
         # Pattern 3 — $SI.modified < $FN.modified (the most common timestomp
         # signature in the wild) — is parsed but currently unused. Activating
         # it would expand detection coverage but also shift the baseline
-        # finding count for measure_accuracy.py. Deferred until after SANS
+        # finding count for the demo harness. Deferred until after SANS
         # FIND EVIL! 2026 (June 15) so the hackathon submission ships with
         # a stable baseline. Tracked in repo issue (post-sans label).
         _fn_mt_deferred = _parse_ts_safe(row.get("LastModified0x30", ""))  # noqa: F841

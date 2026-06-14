@@ -3,7 +3,7 @@
 score_against_truth.py — score a run_eval findings.json against a case's
 truth.json, for any self-evaluation case (not just case-01).
 
-run_eval.py produces findings.json but does not score it. measure_accuracy.py
+run_eval.py produces findings.json but does not score it. scripts/bench/demo.py
 scores, but only the bundled case-01 with its hardcoded harness. This fills the
 gap: a model-agnostic, case-agnostic scorer so the same comparison table can be
 built across every case and every model.
