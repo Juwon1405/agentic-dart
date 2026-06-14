@@ -21,6 +21,8 @@
 #   --skip-sift                     Do not touch SIFT (default).
 #   --install-eztools               Stage Eric Zimmerman Tools (.NET 9) to ./bin/zimmerman/.
 #   --skip-eztools                  Do not stage EZ Tools (default).
+#   --skip-velociraptor             Do not let the adapter fetch Velociraptor.
+#                                   (--source image needs it; --source zip does not.)
 #   --adapter-dir <path>            Where to clone the collector adapter
 #                                   (default: ../agentic-dart-collector-adapter).
 #   --yes                           Non-interactive; assume yes to prompts.
@@ -31,6 +33,7 @@ set -euo pipefail
 OS_TARGET="auto"
 DO_SIFT=0
 DO_EZTOOLS=0
+SKIP_VELOCIRAPTOR=0
 ASSUME_YES=0
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ADAPTER_DIR="$(cd "${REPO_ROOT}/.." && pwd)/agentic-dart-collector-adapter"
@@ -55,6 +58,7 @@ while [[ $# -gt 0 ]]; do
     --skip-sift)      DO_SIFT=0; shift ;;
     --install-eztools) DO_EZTOOLS=1; shift ;;
     --skip-eztools)   DO_EZTOOLS=0; shift ;;
+    --skip-velociraptor) SKIP_VELOCIRAPTOR=1; shift ;;
     --adapter-dir)    ADAPTER_DIR="${2:-}"; shift 2 ;;
     --yes|-y)         ASSUME_YES=1; shift ;;
     --help|-h)        usage; exit 0 ;;
@@ -82,7 +86,7 @@ detect_os() {
 }
 OS="$(detect_os)"
 
-sect "Agentic-DART installer (os=${OS}, sift=${DO_SIFT}, eztools=${DO_EZTOOLS})"
+sect "Agentic-DART installer (os=${OS}, sift=${DO_SIFT}, eztools=${DO_EZTOOLS}, velociraptor=$([ "${SKIP_VELOCIRAPTOR}" == 1 ] && echo skip || echo auto))"
 
 # ---- 1. system dependencies ------------------------------------------------
 sect "1. System dependencies"
@@ -161,17 +165,37 @@ fi
 if [[ -d "${ADAPTER_DIR}" ]]; then
   pip_install -e "${ADAPTER_DIR}" || warn "adapter editable install failed"
   ok "adapter installed: python3 -m dart_collector_adapter --help"
-  # Stage / verify the Velociraptor binary used by --source image.
-  if command -v velociraptor >/dev/null; then
-    ok "Velociraptor on PATH: $(command -v velociraptor)"
+
+  # Chain into the adapter's own installer to stage Velociraptor (and verify
+  # its SHA-256). The adapter repo is the single source of truth for which
+  # Velociraptor version to fetch and how to verify it; this script only
+  # decides whether to call it at all. Skip cleanly when the user passed
+  # --skip-velociraptor, or when --source image is already satisfied by an
+  # existing binary on PATH / DART_VELOCIRAPTOR_BIN / ${ADAPTER_DIR}/bin.
+  if [[ "${SKIP_VELOCIRAPTOR}" == 1 ]]; then
+    log "Velociraptor staging skipped (--skip-velociraptor)."
+    log "--source image will fail until you stage one manually; --source zip"
+    log "does not require Velociraptor."
+  elif command -v velociraptor >/dev/null; then
+    ok "Velociraptor on PATH: $(command -v velociraptor) (adapter installer skipped)"
   elif [[ -n "${DART_VELOCIRAPTOR_BIN:-}" && -x "${DART_VELOCIRAPTOR_BIN}" ]]; then
-    ok "Velociraptor via DART_VELOCIRAPTOR_BIN=${DART_VELOCIRAPTOR_BIN}"
+    ok "Velociraptor via DART_VELOCIRAPTOR_BIN=${DART_VELOCIRAPTOR_BIN} (adapter installer skipped)"
   elif [[ -x "${ADAPTER_DIR}/bin/velociraptor" ]]; then
-    ok "Velociraptor staged at ${ADAPTER_DIR}/bin/velociraptor"
+    ok "Velociraptor already staged at ${ADAPTER_DIR}/bin/velociraptor (adapter installer skipped)"
+  elif [[ -x "${ADAPTER_DIR}/scripts/install.sh" ]]; then
+    log "Running adapter installer to stage Velociraptor (SHA-256 verified upstream)..."
+    if ( cd "${ADAPTER_DIR}" && bash scripts/install.sh --install-dir "${ADAPTER_DIR}/bin" ); then
+      ok "Velociraptor staged at ${ADAPTER_DIR}/bin/velociraptor"
+    else
+      warn "adapter installer failed; --source image will be unavailable until you"
+      warn "rerun: ( cd ${ADAPTER_DIR} && bash scripts/install.sh )"
+      warn "(--source zip does not require Velociraptor.)"
+    fi
   else
-    warn "Velociraptor binary not found. --source image needs it; stage a release"
-    warn "binary into ${ADAPTER_DIR}/bin/ or export DART_VELOCIRAPTOR_BIN. (The"
-    warn "default --source zip path does not require Velociraptor.)"
+    warn "Adapter installer not found at ${ADAPTER_DIR}/scripts/install.sh."
+    warn "Velociraptor binary missing; --source image will be unavailable until"
+    warn "you stage one into ${ADAPTER_DIR}/bin/ or export DART_VELOCIRAPTOR_BIN."
+    warn "(--source zip does not require Velociraptor.)"
   fi
 fi
 

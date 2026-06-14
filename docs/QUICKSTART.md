@@ -18,8 +18,11 @@ bash scripts/install.sh                 # minimal: agent + adapter (deterministi
 python3 scripts/healthcheck.py          # sanity check — no API key needed
 ```
 
-`install.sh` also clones and installs the collector adapter into the same venv,
-so `dart-collector-adapter` (path C) is ready too.
+`install.sh` also clones the collector adapter into the same venv **and**
+chains into the adapter's installer to stage a SHA-256-verified Velociraptor
+binary, so `dart-collector-adapter` (path C) is ready end-to-end — including
+`--source image` analysis. Pass `--skip-velociraptor` to opt out (e.g. when
+you only ever use `--source zip`).
 
 ---
 
@@ -91,8 +94,11 @@ Each run writes to `out/<tier>/<case>/<timestamp>/`
 
 Two machines: **collect on the incident host → adapt + analyze on the analysis
 server.** The adapter and Agentic-DART install once on the analysis server
-(`scripts/install.sh` does both); the incident host gets **only** a Velociraptor
-collector binary — nothing is installed on it.
+(`scripts/install.sh` clones the adapter into the same venv and chains into
+the adapter's installer to stage a SHA-256-verified Velociraptor binary; pass
+`--skip-velociraptor` to opt out, e.g. when only `--source zip` is needed);
+the incident host gets **only** a Velociraptor collector binary — nothing is
+installed on it.
 
 ### 1. Collect — on the incident host
 
