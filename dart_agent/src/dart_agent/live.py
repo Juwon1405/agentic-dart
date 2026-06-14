@@ -262,7 +262,7 @@ def _salvage_findings_array(blob: str) -> list[dict]:
 class LiveRunState:
     case: str
     out_dir: Path
-    max_iterations: int = 8
+    max_iterations: int = 12
     iteration: int = 0
     messages: list[dict] = field(default_factory=list)
     tool_call_log: list[dict] = field(default_factory=list)
@@ -378,7 +378,49 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
 
         state.messages.append({"role": "user", "content": tool_results})
 
-    return "(max_iterations reached)"
+    # Iteration budget exhausted while the model was still calling tools. Give
+    # it one final turn WITHOUT tools and an explicit instruction to stop
+    # investigating and synthesize the REPORT from the evidence gathered so far.
+    # Without this, a model that spends all max_iterations exploring (common on
+    # evidence-rich cases) returns no REPORT at all and scores zero findings —
+    # not because it found nothing, but because it never got asked to conclude.
+    state.messages.append({
+        "role": "user",
+        "content": (
+            "You have reached the investigation step limit. Do NOT request any "
+            "more tools. Based on the evidence you have already collected in "
+            "this conversation, produce your final analysis now as the "
+            "'REPORT:' JSON block specified in your instructions (findings "
+            "array with id/title/severity/mitre_tactics, plus timeline, "
+            "attack_chain, and remediation). Report only what the evidence so "
+            "far supports."
+        ),
+    })
+    final_resp = client.messages.create(
+        model=model,
+        max_tokens=16384,
+        system=[{
+            "type": "text",
+            "text": SYSTEM_PROMPT,
+            "cache_control": {"type": "ephemeral"},
+        }],
+        # No tools on the synthesis turn: force a text REPORT, not another
+        # tool call.
+        messages=state.messages,
+    )
+    usage = getattr(final_resp, "usage", None)
+    if usage is not None:
+        state.input_tokens += getattr(usage, "input_tokens", 0) or 0
+        state.output_tokens += getattr(usage, "output_tokens", 0) or 0
+        state.cache_read_tokens += getattr(usage, "cache_read_input_tokens", 0) or 0
+        state.cache_creation_tokens += getattr(usage, "cache_creation_input_tokens", 0) or 0
+    final_text = "\n".join(b.text for b in final_resp.content if b.type == "text")
+    state.messages.append({
+        "role": "assistant",
+        "content": [b.model_dump() if hasattr(b, "model_dump") else b
+                    for b in final_resp.content],
+    })
+    return final_text or "(max_iterations reached, no final report)"
 
 
 async def _run_with_mock_claude(prompt: str, state: LiveRunState,
@@ -572,7 +614,7 @@ def main(argv=None):
                                         "report any findings with high severity.")
     ap.add_argument("--model",
                     default=os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001"))
-    ap.add_argument("--max-iterations", type=int, default=8)
+    ap.add_argument("--max-iterations", type=int, default=12)
     ap.add_argument("--dry-run", action="store_true",
                     help="Use scripted mock Claude (no API key needed).")
     args = ap.parse_args(argv)

@@ -272,8 +272,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--download", action="store_true",
                    help="Fetch the external dataset first if its evidence_root "
                         "is not present.")
-    p.add_argument("--max-iterations", type=int, default=8,
-                   help="Max agent iterations per case (default: 8).")
+    p.add_argument("--max-iterations", type=int, default=12,
+                   help="Max agent iterations per case (default: 12).")
     p.add_argument("--list", action="store_true",
                    help="List discovered cases and exit (no API key required).")
     return p
