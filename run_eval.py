@@ -205,6 +205,17 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool) -> 
         if p not in sys.path:
             sys.path.insert(0, p)
 
+    import getpass
+    import platform
+    import socket
+    host = socket.gethostname()
+    try:
+        user = getpass.getuser()
+    except Exception:
+        user = os.environ.get("USER", "?")
+    print(f"[run_eval] host={user}@{host} "
+          f"os={platform.system()} {platform.release()} "
+          f"py={platform.python_version()}")
     print(f"[run_eval] case={case.ref} model={model}")
     print(f"[run_eval] evidence_root={case.evidence_root}")
     print(f"[run_eval] out={out_dir}")
@@ -235,9 +246,19 @@ def _normalize_outputs(case: Case, out_dir: Path, model: str) -> None:
         iters = data.get("iterations")
         (out_dir / "report.json").write_text(json.dumps(data, indent=2))
     (out_dir / "findings.json").write_text(json.dumps(findings, indent=2))
+    import getpass as _gp
+    import platform as _pl
+    import socket as _sk
+    try:
+        _user = _gp.getuser()
+    except Exception:
+        _user = os.environ.get("USER", "?")
     (out_dir / "summary.json").write_text(json.dumps({
         "case": case.ref,
         "model": model,
+        "host": f"{_user}@{_sk.gethostname()}",
+        "os": f"{_pl.system()} {_pl.release()}",
+        "python": _pl.python_version(),
         "evidence_root": str(case.evidence_root),
         "findings_count": len(findings),
         "iterations": iters,
