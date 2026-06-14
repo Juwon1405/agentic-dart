@@ -11,20 +11,23 @@
 # Usage:
 #   bash scripts/install.sh [options]
 #
-# Common cases:
-#   bash scripts/install.sh           # Agentic-DART + adapter (no SIFT). Easiest.
-#   bash scripts/install.sh --full    # the above + SIFT toolchain + EZ Tools.
+# Default (no options) does a COMPLETE, IDEMPOTENT setup:
+#   - Agentic-DART packages + collector adapter + Velociraptor
+#   - SIFT core tools (yara/vol/plaso): probes first, installs only what's
+#     missing (yara via apt, Volatility3 + Plaso via pip)
+#   - Eric Zimmerman Tools (net9 self-contained) staged into ./bin/zimmerman/
+#   Re-running is safe: anything already present and working is skipped.
+#   After install the SIFT adapters find staged tools automatically (no env
+#   vars or PATH edits needed).
 #
 # Options:
-#   --full                          One-shot full setup: --install-sift
-#                                   --install-eztools --yes (Ubuntu/SIFT).
 #   --os auto|ubuntu|centos|macos   Target OS (default: auto-detect).
-#   --install-sift                  Install the SIFT toolchain via `cast`.
-#   --skip-sift                     Do not touch SIFT (default).
-#   --install-eztools               Stage Eric Zimmerman Tools (.NET 9) to ./bin/zimmerman/.
-#   --skip-eztools                  Do not stage EZ Tools (default).
+#   --skip-sift                     Don't install SIFT core tools (still probes).
+#   --skip-eztools                  Don't stage EZ Tools.
 #   --skip-velociraptor             Do not let the adapter fetch Velociraptor.
 #                                   (--source image needs it; --source zip does not.)
+#   --full                          Back-compat alias; same as the default now,
+#                                   plus --yes.
 #   --adapter-dir <path>            Where to clone the collector adapter
 #                                   (default: ../agentic-dart-collector-adapter).
 #   --yes                           Non-interactive; assume yes to prompts.
@@ -32,9 +35,12 @@
 set -euo pipefail
 
 # ---- defaults --------------------------------------------------------------
+# Complete setup by default. Use --skip-* to opt out of a piece. This is the
+# behavior change: a first `bash scripts/install.sh` now produces a fully
+# working SIFT-adapter toolchain instead of leaving it to the operator.
 OS_TARGET="auto"
-DO_SIFT=0
-DO_EZTOOLS=0
+DO_SIFT=1
+DO_EZTOOLS=1
 SKIP_VELOCIRAPTOR=0
 ASSUME_YES=0
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -193,30 +199,59 @@ fi
 
 # ---- 4. SIFT toolchain (optional) -----------------------------------------
 sect "4. SIFT toolchain"
+# Per-tool, idempotent. We check each backing binary the adapters actually
+# call and install ONLY what's missing — yara via apt, Volatility3 and Plaso
+# via pip. On a SANS SIFT box these are usually already present, so this is a
+# no-op there; on a bare Ubuntu it brings the toolchain up without the
+# operator hand-installing anything. (Velociraptor + EZ Tools handled in their
+# own sections.)
 SIFT_CORE=(vol log2timeline.py psort.py yara)
 detect_sift() {
   local found=0
   for b in "${SIFT_CORE[@]}"; do command -v "${b}" >/dev/null 2>&1 && found=$((found+1)); done
   echo "${found}"
 }
+
+_have() { command -v "$1" >/dev/null 2>&1; }
+
 if [[ "${DO_SIFT}" == 1 ]]; then
-  if [[ "${OS}" != "ubuntu" ]]; then
-    warn "SIFT install via cast is supported on Ubuntu/SIFT only; skipping on ${OS}."
-  elif command -v cast >/dev/null; then
-    log "Installing SIFT via: sudo cast install teamdfir/sift-saltstack"
-    sudo cast install teamdfir/sift-saltstack || warn "cast install returned non-zero"
+  # yara (CLI binary) — apt on Ubuntu, brew on macOS.
+  if _have yara; then
+    ok "yara already present: $(command -v yara)"
   else
-    warn "SIFT full install not run: 'cast' is not installed."
-    warn "Prerequisite: install cast first ->"
-    warn "  curl -L https://github.com/ekristen/cast/releases/latest/download/cast-linux-amd64 -o /usr/local/bin/cast && chmod +x /usr/local/bin/cast"
-    warn "then re-run with --install-sift."
+    if [[ "${OS}" == "ubuntu" ]]; then
+      log "Installing yara (apt)..."
+      sudo apt-get install -y yara || warn "yara apt install failed"
+    elif [[ "${OS}" == "macos" ]] && _have brew; then
+      log "Installing yara (brew)..."
+      brew install yara || warn "yara brew install failed"
+    else
+      warn "yara missing and no known package manager for ${OS}; skipping"
+    fi
+  fi
+
+  # Volatility 3 (provides the 'vol' entry point) — pip.
+  if _have vol; then
+    ok "Volatility3 already present: $(command -v vol)"
+  else
+    log "Installing Volatility3 (pip)..."
+    pip_install volatility3 || warn "volatility3 pip install failed"
+  fi
+
+  # Plaso (provides log2timeline.py + psort.py) — pip.
+  if _have log2timeline.py && _have psort.py; then
+    ok "Plaso already present: $(command -v log2timeline.py)"
+  else
+    log "Installing Plaso (pip)... (large; pulls many forensic parsers)"
+    pip_install plaso || warn "plaso pip install failed (may need system libs: liblzma, libbde)"
   fi
 else
-  log "SIFT install skipped (--skip-sift). Probing for existing SIFT core tools..."
+  log "SIFT core install skipped (--skip-sift). Probing existing tools..."
 fi
+
 FOUND_SIFT="$(detect_sift)"
 if [[ "${FOUND_SIFT}" -gt 0 ]]; then
-  ok "SIFT core tools detected on PATH: ${FOUND_SIFT}/${#SIFT_CORE[@]}"
+  ok "SIFT core tools on PATH: ${FOUND_SIFT}/${#SIFT_CORE[@]}"
 else
   warn "No SIFT core tools (vol/log2timeline/psort/yara) on PATH."
   warn "SIFT adapters will raise SiftToolNotFoundError; native tools still work."
@@ -251,22 +286,20 @@ if [[ "${DO_EZTOOLS}" == 1 ]]; then
     log "Fetching ${tool} (.NET 9) ..."
     if curl -fsSL "${url}" -o "${EZ_DIR}/${tool}.zip"; then
       unzip -oq "${EZ_DIR}/${tool}.zip" -d "${EZ_DIR}/${tool}" || warn "${tool}: unzip failed"
+      rm -f "${EZ_DIR}/${tool}.zip"
+      # net9 builds are self-contained single-file executables; make every
+      # staged binary executable so the adapter can run it directly.
+      find "${EZ_DIR}/${tool}" -maxdepth 2 -iname "${tool}*" -type f \
+        -exec chmod +x {} \; 2>/dev/null || true
       ok "${tool} staged -> ${EZ_DIR}/${tool}/"
     else
       warn "${tool}: download failed"
     fi
   done
-  # Print env-var overrides for the adapters that consume these binaries.
-  echo ""
-  log "Export these so dart_mcp SIFT adapters find the staged EZ Tools:"
-  declare -A EZ_ENV=(
-    [EvtxECmd]=DART_EVTXECMD_BIN [MFTECmd]=DART_MFTECMD_BIN [PECmd]=DART_PECMD_BIN
-    [RECmd]=DART_RECMD_BIN [AmcacheParser]=DART_AMCACHEPARSER_BIN [SBECmd]=DART_SBECMD_BIN
-  )
-  for tool in "${EZ_TOOLS[@]}"; do
-    bin="$(find "${EZ_DIR}/${tool}" -maxdepth 2 -iname "${tool}*" -type f 2>/dev/null | head -1 || true)"
-    [[ -n "${bin}" ]] && printf "  export %s=%s\n" "${EZ_ENV[$tool]}" "${bin}"
-  done
+  # No env-var export needed: the SIFT adapters auto-discover binaries under
+  # bin/zimmerman/ (see _which in dart_mcp/.../sift_adapters/_common.py). The
+  # operator doesn't have to set DART_*_BIN or touch PATH.
+  ok "EZ Tools staged under ${EZ_DIR}/ — adapters will find them automatically"
 else
   log "EZ Tools staging skipped (--skip-eztools). Source: ${EZ_BASE}/<TOOL>.zip"
 fi
@@ -278,6 +311,13 @@ if python3 scripts/healthcheck.py; then
 else
   warn "Healthcheck reported issues above; review before running live."
 fi
+
+sect "7. SIFT adapter tool availability"
+# Final report: which of the 9 adapter backing binaries are now runnable.
+# Honors env overrides AND the bin/ auto-discovery, so this reflects exactly
+# what the agent will see at runtime. Missing tools are informational (native
+# tools cover them); this never fails the install.
+python3 scripts/check_sift_tools.py || true
 
 sect "Install complete"
 cat <<'EOF'

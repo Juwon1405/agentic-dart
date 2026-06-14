@@ -72,6 +72,47 @@ class SubprocessResult:
     output_files: dict[str, str]  # name -> sha256 hash
 
 
+def _repo_bin_dirs() -> list[Path]:
+    """Directories the installer stages tool binaries into, searched after
+    PATH so an explicit system install or env override always wins. Covers
+    both the EZ Tools staging dir (bin/zimmerman/<Tool>/) and the adapter's
+    own bin/ (Velociraptor). Resolved relative to this file so it works from
+    any CWD and from a fresh clone without environment setup."""
+    # _common.py lives at .../dart_mcp/src/dart_mcp/sift_adapters/_common.py
+    # repo root is five parents up.
+    here = Path(__file__).resolve()
+    repo = here.parents[4]
+    dirs = [
+        repo / "bin",
+        repo / "bin" / "zimmerman",
+        # adapter checkout sits beside the main repo
+        repo.parent / "agentic-dart-collector-adapter" / "bin",
+    ]
+    return [d for d in dirs if d.is_dir()]
+
+
+def _search_repo_bins(binary: str) -> str | None:
+    """Look for `binary` (or binary.dll / a single-file build) under the
+    installer-staged bin dirs. EZ Tools land at bin/zimmerman/<Tool>/<Tool>
+    (net9 self-contained single file) so we glob a couple levels deep."""
+    names = [binary, f"{binary}.exe", f"{binary}.dll"]
+    for d in _repo_bin_dirs():
+        # direct child
+        for n in names:
+            cand = d / n
+            if cand.is_file() and os.access(cand, os.X_OK):
+                return str(cand)
+        # one/two levels deep (bin/zimmerman/MFTECmd/MFTECmd)
+        for n in names:
+            for cand in d.glob(f"*/{n}"):
+                if cand.is_file() and os.access(cand, os.X_OK):
+                    return str(cand)
+            for cand in d.glob(f"*/*/{n}"):
+                if cand.is_file() and os.access(cand, os.X_OK):
+                    return str(cand)
+    return None
+
+
 def _which(binary: str, env_var: str | None = None) -> str:
     """
     Resolve a SIFT tool binary.
@@ -79,10 +120,12 @@ def _which(binary: str, env_var: str | None = None) -> str:
     Resolution order:
         1. Environment variable override (e.g. DART_VOLATILITY3_BIN=/opt/vol)
         2. shutil.which() lookup on PATH
-        3. raise SiftToolNotFoundError
+        3. installer-staged repo bin dirs (bin/, bin/zimmerman/, adapter bin/)
+        4. raise SiftToolNotFoundError
 
     This indirection lets users override paths when SIFT tools live outside
-    PATH (e.g. virtualenv, custom install location).
+    PATH (e.g. virtualenv, custom install location), and lets a fresh install
+    that staged EZ Tools into bin/zimmerman/ work with no env setup at all.
     """
     if env_var:
         override = os.environ.get(env_var)
@@ -96,10 +139,13 @@ def _which(binary: str, env_var: str | None = None) -> str:
     found = shutil.which(binary)
     if found:
         return found
+    staged = _search_repo_bins(binary)
+    if staged:
+        return staged
     raise SiftToolNotFoundError(
-        f"SIFT tool {binary!r} not found on PATH. "
-        f"Set {env_var or 'a tool-specific env var'} to its absolute path "
-        f"or install on the SIFT Workstation."
+        f"SIFT tool {binary!r} not found on PATH or in the installer-staged "
+        f"bin/ dirs. Set {env_var or 'a tool-specific env var'} to its "
+        f"absolute path, or run scripts/install.sh to stage it."
     )
 
 
