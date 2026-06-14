@@ -20,7 +20,7 @@ sequence:
       evaporates on reboot is examined before anything that persists.
       When a memory image is available, prefer the SIFT volatility3
       adapters; when only disk + Sysmon CSV is available (the default
-      sample-evidence path), get_process_tree gives the parent-child
+      CI fixture evidence path), get_process_tree gives the parent-child
       chain without a full memory dump.
     mcp_calls:
       - sift_vol3_windows_pstree    # process tree (memory image)

@@ -6,16 +6,16 @@ on:
     paths:
       - 'examples/case-studies/**/truth.json'
       - 'examples/case-studies/self-evaluation/case-01/evidence_root/**'
-      - 'examples/sample-evidence/**'
+      - 'tests/fixtures/evidence/**'
       - 'dart_mcp/**'
-      - 'scripts/benchmark/**'
+      - 'scripts/eval/**'
   pull_request:
     paths:
       - 'examples/case-studies/**/truth.json'
       - 'examples/case-studies/self-evaluation/case-01/evidence_root/**'
-      - 'examples/sample-evidence/**'
+      - 'tests/fixtures/evidence/**'
       - 'dart_mcp/**'
-      - 'scripts/benchmark/**'
+      - 'scripts/eval/**'
 
 jobs:
   integrity:
@@ -29,14 +29,14 @@ jobs:
       - name: Validate ground-truth integrity
         # evidence_path existence + expected_function registration + host/evidence
         # consistency. Non-zero exit on FAIL blocks the merge.
-        run: python3 scripts/benchmark/validate_ground_truth.py
+        run: python3 scripts/eval/validate_ground_truth.py
 
       - name: Regression - score case-01 (deterministic)
-        # Guard the scorer against breakage. deterministic emits a fixed case-01
-        # output, so strict recall must reproduce a known value.
+        # Guard the scorer against breakage. demo runs the deterministic case-01
+        # walk and asserts a fixed result (recall 1.0, zero hallucinations,
+        # evidence integrity, containment), so any scorer/pipeline regression
+        # fails CI here.
         env:
           PYTHONPATH: dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src
-          DART_EVIDENCE_ROOT: examples/case-studies/self-evaluation/case-01/evidence_root
         run: |
-          python3 -m dart_agent --case self-evaluation/case-01 --out /tmp/c01 --mode deterministic
-          python3 scripts/benchmark/score_cases.py --case self-evaluation/case-01 --run-dir /tmp/c01 --json
+          python3 -m scripts.eval.demo --json

@@ -223,7 +223,7 @@ docs/DEMO_STORYBOARD_v2.md
 # would cause spurious dirty-tree noise on every demo invocation).
 examples/out/
 
-# Runtime output from run_eval.py (out/<tier>/<case>/<timestamp>/).
+# Runtime output from analyze.py (out/<tier>/<case>/<timestamp>/).
 /out/
 
 # log2timeline/Plaso drops a timestamped log in its cwd on every run
@@ -240,7 +240,7 @@ CLAUDE.local.md
 # Downloaded external-tier dataset images + their materialized evidence_root
 # (large, third-party — never committed). These re-ignore patterns MUST come
 # AFTER the !examples/case-studies/** negation above, otherwise the negation
-# unignores them. run_eval.py --download fetches into the external case
+# unignores them. analyze.py --download fetches into the external case
 # directory; keep only README.md / truth.json under git.
 examples/case-studies/external-evaluation/*/cfreds_hacking_case/
 examples/case-studies/external-evaluation/*/hadi_challenge_1/

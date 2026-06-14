@@ -113,14 +113,26 @@ py_pkgs() {
        -e "${REPO_ROOT}/dart_corr" \
        -e "${REPO_ROOT}/dart_agent[live]"
 }
-run_step "Agentic-DART Python packages" py_pkgs || true
+# Skip the pip pass entirely if all four packages already import — pip would
+# otherwise spend ~40s re-resolving an already-satisfied environment.
+if python3 -c "import dart_audit, dart_mcp, dart_corr, dart_agent" 2>/dev/null; then
+  skip_step "Agentic-DART Python packages" "already importable"
+else
+  run_step "Agentic-DART Python packages" py_pkgs || true
+fi
 
 # ---- 4. collector adapter --------------------------------------------------
 adapter_pkg() {
   [[ -d "${ADAPTER_DIR}" ]] || { echo "adapter dir missing"; return 1; }
   _pip -e "${ADAPTER_DIR}"
 }
-run_step "Collector adapter package" adapter_pkg || true
+if python3 -c "import dart_collector_adapter" 2>/dev/null; then
+  skip_step "Collector adapter package" "already importable"
+elif [[ -d "${ADAPTER_DIR}" ]]; then
+  run_step "Collector adapter package" adapter_pkg || true
+else
+  skip_step "Collector adapter package" "adapter dir absent — skipped"
+fi
 
 # ---- 5. Velociraptor (staged + SHA-256 verified by adapter installer) ------
 velo_stage() {
@@ -204,4 +216,4 @@ rm -rf "${LOGDIR}" 2>/dev/null || true
 
 printf "\n${BOLD}Done.${RST}"
 [[ "${WARNINGS}" -gt 0 ]] && printf " ${YEL}(%d warning(s) above)${RST}" "${WARNINGS}"
-printf "\n  Next: ${DIM}export ANTHROPIC_API_KEY='sk-ant-...' && python3 run_eval.py --case self-evaluation/case-01${RST}\n\n"
+printf "\n  Next: ${DIM}export ANTHROPIC_API_KEY='sk-ant-...' && python3 analyze.py --case self-evaluation/case-01${RST}\n\n"

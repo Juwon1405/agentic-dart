@@ -103,7 +103,7 @@ jobs:
       - name: Accuracy measurement (canonical bundled evidence)
         env:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
-        run: python3 scripts/measure_accuracy.py
+        run: python3 -m scripts.eval.demo
 
   url-reachability:
     name: URL reachability — verify every external reference in docs + case studies resolves

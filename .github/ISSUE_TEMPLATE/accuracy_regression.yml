@@ -20,7 +20,7 @@ body:
         - Ali Hadi Memory Forensic Challenge #1
         - Digital Corpora M57
         - Bundled IP-KVM case
-        - Bundled synthetic sample-evidence
+        - Bundled synthetic evidence (per-case evidence_root)
         - Other (specify in description)
     validations:
       required: true

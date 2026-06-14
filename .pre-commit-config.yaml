@@ -5,7 +5,7 @@ repos:
     hooks:
       - id: validate-ground-truth
         name: Validate ground-truth <-> MCP integrity
-        entry: python3 scripts/benchmark/validate_ground_truth.py
+        entry: python3 scripts/eval/validate_ground_truth.py
         language: system
         pass_filenames: false
         files: '(examples/case-studies/.*ground-truth\.json|dart_mcp/.*\.py)$'

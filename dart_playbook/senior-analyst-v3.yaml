@@ -9,7 +9,7 @@
 #  executes today. Runtime activation of the scaffolds in dart_agent /
 #  dart_corr is a post-SANS work item (tracked at issue #44 on GitHub) —
 #  activating any of them mid-window would shift the baseline measured
-#  by scripts/measure_accuracy.py.
+#  by scripts/eval/demo.py.
 #
 #    +  Palantir ADS (Alerting & Detection Strategy) Framework
 #       — every detection rule must have: Goal, Categorization, Strategy

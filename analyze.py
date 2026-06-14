@@ -149,10 +149,11 @@ def _resolve_evidence(case: Case, *, allow_download: bool) -> int:
               f"{_download_hint(case)}", file=sys.stderr)
         return 3
 
-    print(f"Error: {case.ref} has no bundled evidence_root at "
-          f"{case.evidence_root}.\nEvery self-evaluation case now ships a "
-          f"self-contained evidence_root. If it's missing, rebuild the per-case "
-          f"trees:\n    python3 scripts/build_self_evidence.py",
+    print(f"Error: {case.ref} has no evidence_root at "
+          f"{case.evidence_root}.\nEvery self-evaluation case ships a "
+          f"self-contained evidence_root committed to the repo. If it's "
+          f"missing, restore it from git:\n    git checkout -- "
+          f"{case.evidence_root.relative_to(REPO)}",
           file=sys.stderr)
     return 3
 
