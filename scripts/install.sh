@@ -155,12 +155,52 @@ else
 fi
 
 # ---- 6. yara ---------------------------------------------------------------
-if have yara; then
-  skip_step "yara" "already present"
+# Resolve yara EXACTLY the way the adapters do (DART_YARA_BIN -> PATH ->
+# repo bin/ dirs), so this step and the SIFT availability table below can never
+# disagree. If the adapter can already find it, skip. Otherwise install it and
+# then make sure the adapter can find it — staging a symlink into bin/ if the
+# package put yara somewhere that isn't on this shell's PATH.
+yara_adapter_path() {
+  python3 - <<'PY' 2>/dev/null
+import sys
+sys.path.insert(0, "dart_mcp/src")
+try:
+    from dart_mcp.sift_adapters._common import _which
+    print(_which("yara", env_var="DART_YARA_BIN"))
+except Exception:
+    sys.exit(1)
+PY
+}
+_stage_yara_into_bin() {
+  # Find a real yara binary anywhere sensible and symlink it into repo bin/ so
+  # the adapter's _search_repo_bins() finds it with no PATH/env setup needed.
+  local found
+  found="$(command -v yara 2>/dev/null || true)"
+  if [[ -z "${found}" ]]; then
+    for c in /usr/bin/yara /usr/local/bin/yara /opt/yara/bin/yara /snap/bin/yara; do
+      [[ -x "${c}" ]] && { found="${c}"; break; }
+    done
+  fi
+  if [[ -n "${found}" ]]; then
+    mkdir -p "${REPO_ROOT}/bin"
+    ln -sf "${found}" "${REPO_ROOT}/bin/yara"
+    return 0
+  fi
+  return 1
+}
+if yara_adapter_path >/dev/null; then
+  skip_step "yara" "adapter resolves: $(yara_adapter_path)"
 else
-  if have apt-get; then run_step "yara (apt)" _apt yara || true
-  elif have brew; then run_step "yara (brew)" brew install yara || true
-  else skip_step "yara" "no package manager — skipped"; fi
+  yara_install() {
+    if have apt-get; then _apt yara
+    elif have brew; then brew install yara
+    else echo "no package manager for yara"; return 1; fi
+    # After install, guarantee the adapter can see it (stage into bin/ if the
+    # binary isn't on this shell's PATH).
+    yara_adapter_path >/dev/null || _stage_yara_into_bin
+    yara_adapter_path >/dev/null   # final verification; nonzero -> step fails
+  }
+  run_step "yara (install + verify adapter can resolve)" yara_install || true
 fi
 
 # ---- 7. Volatility 3 + Plaso ----------------------------------------------

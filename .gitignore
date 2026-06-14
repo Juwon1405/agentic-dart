@@ -249,3 +249,8 @@ examples/case-studies/external-evaluation/*/evidence_root/
 examples/case-studies/external-evaluation/*/*.E01
 examples/case-studies/external-evaluation/*/*.dd
 examples/case-studies/external-evaluation/*/SCHARDT.0[0-9]
+
+# Installer-staged tool binaries (EZ Tools, Velociraptor, yara symlink).
+# These are downloaded/symlinked by scripts/install.sh, never committed —
+# the adapters auto-discover them via _search_repo_bins().
+/bin/
