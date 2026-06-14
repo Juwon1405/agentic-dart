@@ -1,4 +1,4 @@
-"""End-to-end tests for the tiered case-study layout and run_eval.py.
+"""End-to-end tests for the tiered case-study layout and analyze.py.
 
 These assert the *structure and contracts* of the overhauled platform; they do
 not call the Anthropic API (live runs need a key and are out of scope for CI).
@@ -14,7 +14,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
-import run_eval  # noqa: E402
+import analyze  # noqa: E402
 
 CASE_ROOT = REPO / "examples" / "case-studies"
 TIERS = ("self-evaluation", "external-evaluation")
@@ -30,7 +30,7 @@ def test_tier_directories_exist():
 
 
 def test_every_case_has_readme_and_truth():
-    cases = run_eval.discover_cases()
+    cases = analyze.discover_cases()
     assert len(cases) >= 11
     for c in cases:
         assert (c.path / "README.md").is_file(), f"{c.ref} missing README.md"
@@ -39,13 +39,13 @@ def test_every_case_has_readme_and_truth():
 
 
 def test_index_only_folder_names():
-    for c in run_eval.discover_cases():
+    for c in analyze.discover_cases():
         # folder names are case-NN only (no descriptive suffix)
         assert c.case_id[:5] == "case-" and c.case_id[5:].isdigit(), c.case_id
 
 
 def test_external_numbering_resets():
-    ext = sorted(c.case_id for c in run_eval.discover_cases()
+    ext = sorted(c.case_id for c in analyze.discover_cases()
                  if c.tier == "external-evaluation")
     assert ext == ["case-01", "case-02", "case-03"]
     # no carryover of the old case-08/09/10 names anywhere
@@ -58,7 +58,7 @@ def test_ground_truth_json_renamed_to_truth_json():
 
 
 def test_case01_has_bundled_evidence():
-    c = run_eval.get_case("self-evaluation/case-01")
+    c = analyze.get_case("self-evaluation/case-01")
     assert c.has_evidence
     assert (c.evidence_root / "linux").is_dir() or any(c.evidence_root.iterdir())
 
@@ -68,17 +68,17 @@ def test_case01_has_bundled_evidence():
 # --------------------------------------------------------------------------- #
 
 def test_discovery_covers_both_tiers():
-    tiers = {c.tier for c in run_eval.discover_cases()}
+    tiers = {c.tier for c in analyze.discover_cases()}
     assert tiers == set(TIERS)
 
 
 def test_get_case_unknown_fails():
     with pytest.raises(SystemExit):
-        run_eval.get_case("self-evaluation/case-99")
+        analyze.get_case("self-evaluation/case-99")
 
 
 # --------------------------------------------------------------------------- #
-# run_eval.py CLI contracts
+# analyze.py CLI contracts
 # --------------------------------------------------------------------------- #
 
 def _run(args, *, key=False):
@@ -86,7 +86,7 @@ def _run(args, *, key=False):
     env.pop("ANTHROPIC_API_KEY", None)
     if key:
         env["ANTHROPIC_API_KEY"] = "sk-test-not-real"
-    return subprocess.run([sys.executable, "run_eval.py", *args],
+    return subprocess.run([sys.executable, "analyze.py", *args],
                           cwd=REPO, capture_output=True, text=True, env=env)
 
 
@@ -124,7 +124,7 @@ def test_external_without_download_gives_remediation():
     r = _run(["--case", "external-evaluation/case-01"], key=True)
     assert r.returncode == 3
     assert "download" in r.stderr.lower()
-    assert "scripts.benchmark.download cfreds" in r.stderr
+    assert "scripts.eval.download cfreds" in r.stderr
 
 
 # --------------------------------------------------------------------------- #
@@ -138,8 +138,8 @@ def test_no_sample_evidence_realistic_dir():
 def test_variant_flag_removed_from_public_runners():
     # The --variant / sample-evidence-realistic runtime concept is gone. Check
     # the current public entry points (the bench trio) don't reintroduce it.
-    for rel in ("scripts/bench/demo.py", "scripts/bench/self.py",
-                "scripts/bench/external.py"):
+    for rel in ("scripts/eval/demo.py", "scripts/eval/self.py",
+                "scripts/eval/external.py"):
         text = (REPO / rel).read_text()
         assert "--variant" not in text, f"{rel} still references --variant"
 

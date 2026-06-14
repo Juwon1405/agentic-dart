@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 """
-demo.py — pipeline integrity check, no LLM / no API key required.
+demo.py — fast pipeline sanity check (no API key needed).
 
-This is the "does the machine work end to end" check. It runs the agent over
-case-01's self-contained evidence in DETERMINISTIC mode (scripted reasoning,
-no model calls), then proves the three things a reviewer wants to see before
-trusting any LLM numbers:
+This is the quick "is the machine wired up correctly" check you run right after
+a clone, before spending tokens. It drives the agent over case-01's
+self-contained evidence in deterministic mode (scripted reasoning, so it needs
+no key and is instant) and proves the three properties a reviewer wants to see:
 
-  1. ACCURACY   — the deterministic walk recovers both ground-truth findings
-                  (F-001 unusual binary, F-013 IP-KVM insertion) with recall
-                  1.0 and zero hallucinations (every finding chains to a real
-                  MCP call in audit.jsonl).
-  2. INTEGRITY  — the SHA-256 of every evidence file is identical before and
-                  after the run (the agent reads, never writes, evidence), and
-                  the audit chain verifies.
-  3. CONTAINMENT— a destructive call that isn't registered (execute_shell) is
-                  refused by dart-mcp, demonstrating the allow-list boundary.
+  1. ACCURACY    — recovers both ground-truth findings (F-001 unusual binary,
+                   F-013 IP-KVM insertion): recall 1.0, zero hallucinations
+                   (every finding chains to a real MCP call in audit.jsonl).
+  2. INTEGRITY   — every evidence file's SHA-256 is identical before and after
+                   (the agent reads, never writes), and the audit chain verifies.
+  3. CONTAINMENT — an unregistered destructive call (execute_shell) is refused,
+                   demonstrating the allow-list boundary.
 
-Same evidence in -> same numbers out, so this doubles as the reproducible
-figure committed to docs/. Run it first; if this is green the toolchain is
-sound and any later self/external recall difference is the model, not the rig.
+It is not a benchmark and it is not where model quality is measured — that's
+`scripts.eval.self` (our cases) and `scripts.eval.external` (public datasets),
+both of which require an API key and run the real model. demo just confirms the
+rig is sound; if demo is green, any recall difference there is the model, not
+the toolchain.
 
 Usage:
-  python3 -m scripts.bench.demo
-  python3 -m scripts.bench.demo --json     # machine-readable summary line
+  python3 -m scripts.eval.demo
+  python3 -m scripts.eval.demo --json     # machine-readable summary line
 """
 from __future__ import annotations
 

@@ -12,7 +12,7 @@ fabricated findings:
   4. MCP tool surface count (native + SIFT split, > 0)
   5. Collector-adapter CLI (`python3 -m dart_collector_adapter --help`)
   6. Tiered case-study layout (both tiers discoverable; case-01 evidence bundled)
-  7. run_eval.py is live-only and fails fast without a key (no fake mode)
+  7. analyze.py is live-only and fails fast without a key (no fake mode)
 
 Exit code 0 and the success banner only when every check passes.
 """
@@ -113,31 +113,31 @@ def _adapter_cli():
 
 # 6. case-study layout
 def _layout():
-    import run_eval
-    cases = run_eval.discover_cases()
+    import analyze
+    cases = analyze.discover_cases()
     tiers = {c.tier for c in cases}
     assert tiers == {"self-evaluation", "external-evaluation"}, f"tiers={tiers}"
     for c in cases:
         assert c.truth_path.is_file(), f"{c.ref} missing truth.json"
-    c01 = run_eval.get_case("self-evaluation/case-01")
+    c01 = analyze.get_case("self-evaluation/case-01")
     assert c01.has_evidence, "self-evaluation/case-01 evidence_root not bundled"
     return f"{len(cases)} cases across both tiers; case-01 evidence bundled"
 
 
-# 7. run_eval is live-only and fails fast without a key
+# 7. analyze is live-only and fails fast without a key
 def _fail_fast():
     env = dict(os.environ)
     env.pop("ANTHROPIC_API_KEY", None)
-    r = subprocess.run([sys.executable, "run_eval.py", "--case", "self-evaluation/case-01"],
+    r = subprocess.run([sys.executable, "analyze.py", "--case", "self-evaluation/case-01"],
                        cwd=REPO, capture_output=True, text=True, env=env)
-    assert r.returncode != 0, "run_eval did not fail fast without ANTHROPIC_API_KEY"
+    assert r.returncode != 0, "analyze did not fail fast without ANTHROPIC_API_KEY"
     assert "ANTHROPIC_API_KEY is not set" in r.stderr, "missing fail-fast message"
-    import run_eval
-    opts = {a.option_strings[0] for a in run_eval.build_parser()._actions
+    import analyze
+    opts = {a.option_strings[0] for a in analyze.build_parser()._actions
             if a.option_strings}
     forbidden = {"--mode", "--dry-run", "--deterministic", "--fake"}
     leaked = forbidden & opts
-    assert not leaked, f"run_eval exposes a non-live public flag: {leaked}"
+    assert not leaked, f"analyze exposes a non-live public flag: {leaked}"
     return "live-only; fails fast without a key; no fake-findings mode"
 
 
@@ -186,7 +186,7 @@ def main() -> int:
     _check("MCP tool surface", _mcp_surface)
     _check("collector adapter CLI", _adapter_cli)
     _check("case-study layout", _layout)
-    _check("run_eval fail-fast", _fail_fast)
+    _check("analyze fail-fast", _fail_fast)
     _check("SIFT tool binaries", _sift_tools)
 
     for line in _ok:
@@ -202,7 +202,7 @@ def main() -> int:
     print("\n[OK] Healthcheck completed. The system is ready.")
     print("Next steps:")
     print("1. export ANTHROPIC_API_KEY='sk-...'")
-    print("2. python3 run_eval.py --case self-evaluation/case-01")
+    print("2. python3 analyze.py --case self-evaluation/case-01")
     return 0
 
 

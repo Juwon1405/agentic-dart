@@ -13,7 +13,7 @@ cost. With one model it reads as a simple per-case list; with several it writes
 the comparison matrix to docs/benchmarks/MODEL-COMPARISON.md so a future model
 can be dropped in and re-measured identically.
 
-Run `python3 -m scripts.bench.demo` first to confirm the toolchain — if demo is
+Run `python3 -m scripts.eval.demo` first to confirm the toolchain — if demo is
 green, any low recall here is the model, not the rig.
 
 Usage
@@ -21,13 +21,13 @@ Usage
   export ANTHROPIC_API_KEY=sk-ant-...
 
   # all 8 self cases, one model (quick)
-  python3 -m scripts.bench.self
+  python3 -m scripts.eval.self
 
   # one case
-  python3 -m scripts.bench.self --case self-evaluation/case-01
+  python3 -m scripts.eval.self --case self-evaluation/case-01
 
   # full model comparison -> docs/benchmarks/MODEL-COMPARISON.md
-  python3 -m scripts.bench.self \\
+  python3 -m scripts.eval.self \\
       --models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8
 
   --dry-run prints the plan without calling the API.
@@ -66,7 +66,7 @@ def latest_out_dir(case_ref: str) -> Path | None:
 
 
 def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
-    cmd = [sys.executable, str(REPO / "run_eval.py"), "--case", case_ref, "--model", model]
+    cmd = [sys.executable, str(REPO / "analyze.py"), "--case", case_ref, "--model", model]
     row = {"case": case_ref, "model": model, "ok": False, "recall": None,
            "gt_detected": None, "gt_scorable": None, "model_findings": None,
            "tokens_in": None, "tokens_out": None, "error": None}
@@ -102,7 +102,7 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
         pass
 
     if truth_path.is_file():
-        score_cmd = [sys.executable, str(REPO / "scripts" / "score_against_truth.py"),
+        score_cmd = [sys.executable, str(REPO / "scripts" / "eval" / "score.py"),
                      "--findings", str(findings_path), "--truth", str(truth_path), "--json"]
         sp = subprocess.run(score_cmd, cwd=str(REPO), capture_output=True, text=True)
         if sp.returncode == 0 and sp.stdout.strip():
@@ -141,8 +141,8 @@ def build_markdown(rows: list[dict], models: list[str]) -> str:
     out = [
         "# Model comparison — self-evaluation",
         "",
-        f"_Generated {today}. Each (case, model) cell is one live `run_eval.py` "
-        "run scored by `scripts/score_against_truth.py` over the tool-reachable "
+        f"_Generated {today}. Each (case, model) cell is one live `analyze.py` "
+        "run scored by `scripts/eval/score.py` over the tool-reachable "
         "ground truth. Recall is detected / scorable findings._",
         "",
     ]

@@ -33,14 +33,14 @@ Usage
   export ANTHROPIC_API_KEY=sk-ant-...
 
   # one external case, one model (download/adapt if needed, then analyse)
-  python3 -m scripts.bench.external --case external-evaluation/case-01
+  python3 -m scripts.eval.external --case external-evaluation/case-01
 
   # all three, comparison matrix
-  python3 -m scripts.bench.external \\
+  python3 -m scripts.eval.external \\
       --models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8
 
   # just stage the data (no API calls)
-  python3 -m scripts.bench.external --prepare-only
+  python3 -m scripts.eval.external --prepare-only
 """
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ DATASETS_DIR = REPO / "datasets"
 DEFAULT_MODEL = os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001")
 MATRIX_MD = REPO / "docs" / "benchmarks" / "EXTERNAL-COMPARISON.md"
 
-# external case ref -> dataset short key (from scripts/benchmark/datasets.py)
+# external case ref -> dataset short key (from scripts/eval/datasets.py)
 CASE_TO_SHORT = {
     "external-evaluation/case-01": "cfreds",
     "external-evaluation/case-02": "hadi1",
@@ -91,15 +91,60 @@ def _fmt_int(n) -> str:
     return "—" if n is None else f"{n:,}"
 
 
-def prepare(case_ref: str, *, dry_run: bool) -> bool:
-    """Ensure the case's evidence_root exists: download+verify image, then adapt.
+def _adapt_image_to_evidence_root(image: Path, evidence_root: Path, case_id: str) -> bool:
+    """Turn a raw disk image into the evidence_root tree dart_mcp reads.
 
-    run_eval --download already does fetch + hash + adapt for external cases,
-    so we lean on it with a no-API 'prepare' by invoking the downloader path
-    directly. Returns True if evidence_root ends up present.
+    Preferred path is the collector adapter (agentic-dart-collector-adapter),
+    which knows how to carve the registry hives, browser history, prefetch,
+    etc. into the layout the tools expect. If it isn't installed we fall back
+    to a thin sleuthkit extraction. Either way the result is a sorted tree
+    under evidence_root.
     """
-    case_dir = CASE_ROOT / case_ref
-    evidence_root = case_dir / "evidence_root"
+    evidence_root.mkdir(parents=True, exist_ok=True)
+
+    # 1) collector adapter, if importable
+    try:
+        import dart_collector_adapter  # noqa: F401
+        print(f"    adapting via collector adapter → {evidence_root}")
+        proc = subprocess.run(
+            [sys.executable, "-m", "dart_collector_adapter",
+             "--source", "image", "--input", str(image),
+             "--output", str(evidence_root), "--case-id", case_id.upper()],
+            cwd=str(REPO), capture_output=True, text=True)
+        if proc.returncode == 0 and any(evidence_root.iterdir()):
+            return True
+        print(f"    collector adapter did not populate the tree: "
+              f"{(proc.stderr or proc.stdout or '').strip()[:200]}")
+    except ImportError:
+        pass
+
+    # 2) thin sleuthkit fallback (tsk_recover) — best-effort
+    from shutil import which
+    if which("tsk_recover"):
+        print(f"    adapting via sleuthkit tsk_recover → {evidence_root}")
+        proc = subprocess.run(["tsk_recover", "-a", str(image), str(evidence_root)],
+                              capture_output=True, text=True)
+        if proc.returncode == 0 and any(evidence_root.iterdir()):
+            return True
+        print(f"    tsk_recover failed: {(proc.stderr or '').strip()[:200]}")
+
+    print("    no image adapter available (install agentic-dart-collector-adapter "
+          "or sleuthkit); evidence_root not built.")
+    return False
+
+
+def prepare(case_ref: str, *, dry_run: bool) -> bool:
+    """One-shot: make this case's evidence_root exist, end to end.
+
+    Idempotent and self-contained — no detour through analyze.py:
+      1. evidence_root already populated   -> reuse, done.
+      2. image already under datasets/      -> skip download.
+         image missing                      -> download it (resumable).
+      3. MD5-verify the image (when a hash is registered).
+      4. adapt the image into evidence_root (collector adapter / sleuthkit).
+    Returns True iff evidence_root ends up populated.
+    """
+    evidence_root = CASE_ROOT / case_ref / "evidence_root"
     if evidence_root.is_dir() and any(evidence_root.iterdir()):
         print(f"  [{case_ref}] evidence_root present — reusing")
         return True
@@ -109,34 +154,40 @@ def prepare(case_ref: str, *, dry_run: bool) -> bool:
         print(f"  [{case_ref}] no dataset mapping", file=sys.stderr)
         return False
 
+    sys.path.insert(0, str(REPO / "scripts"))
+    from eval.datasets import DATASETS
+    spec = next((v for v in DATASETS.values() if v.get("short") == short), None)
+    image = DATASETS_DIR / short / (spec or {}).get("joined_name", f"{short}.img")
+
     if dry_run:
-        print(f"  DRY-RUN: would download '{short}' to {DATASETS_DIR}, verify, adapt")
+        action = "reuse" if image.exists() else "download"
+        print(f"  DRY-RUN [{case_ref}]: image {action} ({image.name}), verify, "
+              f"adapt → {evidence_root}")
         return False
 
-    # Fetch + MD5-verify the image (idempotent; resumes / skips if present).
-    print(f"  [{case_ref}] staging dataset '{short}' …")
-    sys.path.insert(0, str(REPO / "scripts"))
+    # 2 + 3: download (skips if present) and MD5-verify in one call.
+    if image.exists():
+        print(f"  [{case_ref}] image present ({image.name}) — skipping download")
+    else:
+        print(f"  [{case_ref}] downloading '{short}' …")
+    from eval.download import download as fetch
     try:
-        from benchmark.download import download as fetch
         fetch(short, DATASETS_DIR, verify=True)
     except Exception as e:  # noqa: BLE001
-        print(f"  [{case_ref}] download failed: {e}", file=sys.stderr)
+        print(f"  [{case_ref}] download/verify failed: {e}", file=sys.stderr)
         return False
 
-    # Adapt image -> evidence_root via run_eval's own --download path, which
-    # invokes the collector adapter / extraction and lands a sorted tree.
-    cmd = [sys.executable, str(REPO / "run_eval.py"),
-           "--case", case_ref, "--download", "--prepare-only"]
-    proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
-    # --prepare-only may not exist on older run_eval; fall back to a normal
-    # resolve that stops before the API when no key is set.
-    if proc.returncode != 0 and "--prepare-only" in (proc.stderr or ""):
-        env = dict(os.environ)
-        env.pop("ANTHROPIC_API_KEY", None)
-        subprocess.run([sys.executable, str(REPO / "run_eval.py"),
-                        "--case", case_ref, "--download"],
-                       cwd=str(REPO), env=env, capture_output=True, text=True)
+    if not image.exists():
+        print(f"  [{case_ref}] expected image not found after download: {image}",
+              file=sys.stderr)
+        return False
 
+    # 4: adapt image -> evidence_root.
+    print(f"  [{case_ref}] building evidence_root …")
+    ok = _adapt_image_to_evidence_root(image, evidence_root,
+                                       case_ref.split("/")[-1])
+    if not ok:
+        return False
     return evidence_root.is_dir() and any(evidence_root.iterdir())
 
 
@@ -145,8 +196,15 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
            "gt_detected": None, "gt_scorable": None, "model_findings": None,
            "tokens_in": None, "tokens_out": None, "error": None}
 
-    cmd = [sys.executable, str(REPO / "run_eval.py"),
-           "--case", case_ref, "--model", model, "--download"]
+    # Unified prep: ensure evidence_root exists (download+verify+adapt as needed)
+    # before any analysis. analyze.py then just reads the prepared tree.
+    if not dry_run and not prepare(case_ref, dry_run=False):
+        row["error"] = "evidence_root unavailable (prepare failed)"
+        print(f"     SKIP: {row['error']}")
+        return row
+
+    cmd = [sys.executable, str(REPO / "analyze.py"),
+           "--case", case_ref, "--model", model]
     if dry_run:
         print("  DRY-RUN:", " ".join(cmd))
         row["error"] = "dry-run"
@@ -178,7 +236,7 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
         pass
 
     if truth_path.is_file():
-        score_cmd = [sys.executable, str(REPO / "scripts" / "score_against_truth.py"),
+        score_cmd = [sys.executable, str(REPO / "scripts" / "eval" / "score.py"),
                      "--findings", str(findings_path), "--truth", str(truth_path), "--json"]
         sp = subprocess.run(score_cmd, cwd=str(REPO), capture_output=True, text=True)
         if sp.returncode == 0 and sp.stdout.strip():

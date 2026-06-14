@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_eval.py — the primary, user-facing Agentic-DART run command.
+analyze.py — the primary, user-facing Agentic-DART run command.
 
 Despite the name it does double duty: it **evaluates** the bundled/known case
 studies (whose findings can be scored against each case's truth.json) AND
@@ -8,22 +8,25 @@ studies (whose findings can be scored against each case's truth.json) AND
 no ground truth). It is the same agent + engine either way; the name is a
 legacy of the project starting life as a case-study evaluation harness.
 
-    python3 run_eval.py                                  # all bundled self-eval cases
-    python3 run_eval.py --case self-evaluation/case-01   # a known case (scored vs truth.json)
-    python3 run_eval.py --case external-evaluation/case-01 --download
-    python3 run_eval.py --evidence ./evidence_root --case-id CASE-001   # your own real evidence
-    python3 run_eval.py --model claude-sonnet-4-6
+    python3 analyze.py                                  # all bundled self-eval cases
+    python3 analyze.py --case self-evaluation/case-01   # a known case (scored vs truth.json)
+    python3 analyze.py --evidence ./evidence_root --case-id CASE-001   # your own real evidence
+    python3 analyze.py --model claude-sonnet-4-6
 
 This is **live mode only**: it drives the real Claude reasoning loop over the
 read-only MCP forensic tools, authenticating via the ANTHROPIC_API_KEY
 environment variable. If ANTHROPIC_API_KEY is not set it fails fast, before any
-expensive work, with an actionable message. There is no public
-deterministic / dry-run / fake mode here — those remain low-level developer
-commands (`python3 -m dart_agent ...`, `python3 -m scripts.bench.demo`).
+expensive work, with an actionable message.
 
-Cases are discovered dynamically from examples/case-studies/<tier>/case-*/.
-Each case is self-contained: README.md + truth.json + (bundled or downloaded)
-evidence_root/. Output for each run is written to:
+It analyses a prepared evidence_root and does not fetch or build one. For the
+public external datasets (which ship as raw disk images), let the external
+evaluator do the one-shot download + verify + adapt:
+
+    python3 -m scripts.eval.external --case external-evaluation/case-01
+
+then analyze.py reads the evidence_root it produced. Cases are discovered
+dynamically from examples/case-studies/<tier>/case-*/. Each case is
+self-contained: README.md + truth.json + evidence_root/. Output per run:
 
     out/<tier>/<case-id>/<timestamp>/
         findings.json  report.json  summary.json
@@ -110,7 +113,7 @@ def get_case(ref: str, root: Path = CASE_ROOT) -> Case:
 def _download_hint(case: Case) -> str:
     short = EXTERNAL_DATASET_BY_CASE.get(case.ref)
     if short:
-        return (f"    python3 -m scripts.benchmark.download {short} "
+        return (f"    python3 -m scripts.eval.download {short} "
                 f"{case.evidence_root.parent}")
     return f"    (populate {case.evidence_root}/ with the case evidence)"
 
@@ -160,7 +163,7 @@ def _run_download(case: Case) -> int:
         print(f"Error: no downloader mapping for {case.ref}.", file=sys.stderr)
         return 3
     sys.path.insert(0, str(REPO / "scripts"))
-    from benchmark.download import download as fetch  # noqa: WPS433
+    from eval.download import download as fetch  # noqa: WPS433
     print(f"[download] fetching {short} into {case.evidence_root.parent}/ ...")
     print(f"[download] note: this downloads the RAW disk image only (large — "
           f"this can take a while). It does not analyze. After it completes, "
@@ -169,7 +172,7 @@ def _run_download(case: Case) -> int:
     print(f"    python3 -m dart_collector_adapter --source image "
           f"--input <downloaded image> "
           f"--output {case.evidence_root} --case-id {case.case_id.upper()}")
-    print(f"    python3 run_eval.py --case {case.ref}")
+    print(f"    python3 analyze.py --case {case.ref}")
     try:
         fetch(short, case.evidence_root.parent)
     except Exception as e:  # noqa: BLE001
@@ -227,12 +230,12 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool) -> 
         user = getpass.getuser()
     except Exception:
         user = os.environ.get("USER", "?")
-    print(f"[run_eval] host={user}@{host} "
+    print(f"[analyze] host={user}@{host} "
           f"os={platform.system()} {platform.release()} "
           f"py={platform.python_version()}")
-    print(f"[run_eval] case={case.ref} model={model}")
-    print(f"[run_eval] evidence_root={case.evidence_root}")
-    print(f"[run_eval] out={out_dir}")
+    print(f"[analyze] case={case.ref} model={model}")
+    print(f"[analyze] evidence_root={case.evidence_root}")
+    print(f"[analyze] out={out_dir}")
 
     from dart_agent import main as agent_main
     rc = agent_main([
@@ -245,7 +248,7 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool) -> 
     ])
 
     _normalize_outputs(case, out_dir, model)
-    print(f"[run_eval] done: {out_dir}")
+    print(f"[analyze] done: {out_dir}")
     return rc
 
 
@@ -284,13 +287,13 @@ def _normalize_outputs(case: Case, out_dir: Path, model: str) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="run_eval.py",
+        prog="analyze.py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="Agentic-DART evaluation runner (live mode only).",
         epilog="examples:\n"
-               "  python3 run_eval.py\n"
-               "  python3 run_eval.py --case self-evaluation/case-01\n"
-               "  python3 run_eval.py --case external-evaluation/case-01 --download\n",
+               "  python3 analyze.py\n"
+               "  python3 analyze.py --case self-evaluation/case-01\n"
+               "  python3 analyze.py --case external-evaluation/case-01 --download\n",
     )
     p.add_argument("--case", default=None,
                    help="Case to run, e.g. self-evaluation/case-01. "
@@ -370,7 +373,7 @@ def main(argv: list[str] | None = None) -> int:
         skipped = [c.ref for c in discover_cases()
                    if c.tier == "self-evaluation" and not c.has_evidence]
         if skipped:
-            print(f"[run_eval] skipping {len(skipped)} self-eval scenario "
+            print(f"[analyze] skipping {len(skipped)} self-eval scenario "
                   f"spec(s) without bundled evidence: {', '.join(skipped)}")
 
     rc_total = 0

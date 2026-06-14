@@ -15,8 +15,8 @@ roadmap items, so missing paths / unimplemented functions are WARN only
 (structural errors remain FAIL).
 
 Usage:
-  python3 scripts/benchmark/validate_ground_truth.py            # FAIL blocks; WARN allowed
-  python3 scripts/benchmark/validate_ground_truth.py --strict   # WARN also blocks (CI)
+  python3 scripts/eval/validate_ground_truth.py            # FAIL blocks; WARN allowed
+  python3 scripts/eval/validate_ground_truth.py --strict   # WARN also blocks (CI)
 """
 import json
 import re

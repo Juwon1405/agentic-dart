@@ -1,4 +1,4 @@
-"""Offline unit tests for scripts/benchmark/download.py.
+"""Offline unit tests for scripts/eval/download.py.
 
 No network is touched: the HTTP boundary (`_download`) is monkeypatched to
 write dummy bytes, so we can exercise the pure-Python split-concat, the
@@ -12,7 +12,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 
-from benchmark import download as dl  # noqa: E402
+from eval import download as dl  # noqa: E402
 
 
 # --------------------------------------------------------------------------- #

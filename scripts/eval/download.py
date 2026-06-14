@@ -3,13 +3,13 @@
 download.py — fetch a registered DFIR dataset to a local directory.
 
 Usage:
-    python3 -m scripts.benchmark.download cfreds /path/to/datasets/
-    python3 -m scripts.benchmark.download hadi1  /path/to/datasets/
-    python3 -m scripts.benchmark.download m57    /path/to/datasets/
+    python3 -m scripts.eval.download cfreds /path/to/datasets/
+    python3 -m scripts.eval.download hadi1  /path/to/datasets/
+    python3 -m scripts.eval.download m57    /path/to/datasets/
 
     # inspect without downloading anything
-    python3 -m scripts.benchmark.download cfreds /tmp --dry-run
-    python3 -m scripts.benchmark.download all    /tmp --check-urls
+    python3 -m scripts.eval.download cfreds /tmp --dry-run
+    python3 -m scripts.eval.download all    /tmp --check-urls
 
 The script verifies checksums where available, joins split parts (CFReDS) using
 a pure-Python streaming concatenation (no shell), and prints the final image
@@ -30,7 +30,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-# Make this importable as a module (scripts.benchmark.download) or runnable directly
+# Make this importable as a module (scripts.eval.download) or runnable directly
 try:
     from .datasets import DATASETS
 except ImportError:

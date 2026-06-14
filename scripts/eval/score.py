@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-score_against_truth.py — score a run_eval findings.json against a case's
+score.py — score a analyze findings.json against a case's
 truth.json, for any self-evaluation case (not just case-01).
 
-run_eval.py produces findings.json but does not score it. scripts/bench/demo.py
+analyze.py produces findings.json but does not score it. scripts/eval/demo.py
 scores, but only the bundled case-01 with its hardcoded harness. This fills the
 gap: a model-agnostic, case-agnostic scorer so the same comparison table can be
 built across every case and every model.
@@ -32,12 +32,12 @@ Metrics
 
 Usage
 -----
-  python3 scripts/score_against_truth.py \
+  python3 scripts/eval/score.py \
       --findings out/self-evaluation/case-02/<ts>/findings.json \
       --truth   examples/case-studies/self-evaluation/case-02/truth.json
 
   # JSON line for table aggregation:
-  python3 scripts/score_against_truth.py --findings ... --truth ... --json
+  python3 scripts/eval/score.py --findings ... --truth ... --json
 """
 from __future__ import annotations
 
@@ -206,7 +206,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--findings", required=True, type=Path,
-                    help="path to run_eval findings.json")
+                    help="path to analyze findings.json")
     ap.add_argument("--truth", required=True, type=Path,
                     help="path to the case's truth.json")
     ap.add_argument("--json", action="store_true",
