@@ -21,8 +21,6 @@ cd agentic-dart
 pip3 install duckdb
 # If you see "externally-managed-environment" on macOS 12.3+:
 pip3 install duckdb --break-system-packages
-# OR use a venv (cleaner):
-# python3 -m venv .venv && source .venv/bin/activate && pip install duckdb
 
 # 4. Run the bundled demo
 export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"

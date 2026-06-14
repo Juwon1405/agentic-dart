@@ -2,8 +2,8 @@
 # Agentic-DART installer.
 #
 # OS-aware installer for Agentic-DART and its collector adapter. Installs into
-# the currently-active Python environment (respects an activated venv/conda env;
-# never forces a private .venv).
+# the current Python interpreter (see the Troubleshooting wiki page if you want
+# to install inside a virtual environment instead).
 # Optionally stages the SANS SIFT toolchain (via `cast`) and the Eric Zimmerman
 # Tools (.NET 9 builds). Nothing is silently faked: every optional component
 # reports clearly whether it was installed, skipped, or unavailable.
@@ -129,32 +129,14 @@ ok "python3 ${PYV}, git present"
 sect "2. Python packages"
 cd "${REPO_ROOT}"
 
-# Install into whatever Python environment is currently active. If the user
-# has already activated a virtualenv/conda env, packages land there; otherwise
-# they go to the user/system interpreter. We do NOT create or force a private
-# .venv — managing the environment is the operator's call, not the installer's.
-# (Want isolation? Activate a venv before running this script.)
-if [[ -n "${VIRTUAL_ENV:-}" ]]; then
-  ok "using active virtualenv: ${VIRTUAL_ENV}"
-  IN_VENV=1
-elif [[ -n "${CONDA_PREFIX:-}" ]]; then
-  ok "using active conda env: ${CONDA_PREFIX}"
-  IN_VENV=1
-else
-  log "no active virtualenv detected; installing into the current interpreter"
-  log "(activate a venv first if you want isolation)"
-  IN_VENV=0
-fi
-
+# Install into the current Python interpreter. Try a plain install first; on
+# interpreters that PEP 668 marks externally-managed (e.g. newer Debian/Ubuntu)
+# pip refuses and we retry with --break-system-packages. Isolation is the
+# operator's choice, not the installer's job — see the Troubleshooting page if
+# you want to install inside a virtual environment.
 pip_install() {
-  if [[ "${IN_VENV}" == 1 ]]; then
-    # Inside a managed env — plain install, nothing to protect.
-    python3 -m pip install "$@"
-  else
-    # System/user interpreter — PEP 668 may mark it externally-managed, so
-    # pass --break-system-packages. Do not touch OS-managed pip/wheel.
-    python3 -m pip install --break-system-packages "$@"
-  fi
+  python3 -m pip install "$@" 2>/dev/null \
+    || python3 -m pip install --break-system-packages "$@"
 }
 
 log "Installing third-party requirements (requirements.txt)"
@@ -312,9 +294,8 @@ Next steps:
   4. Single external case end-to-end (download + adapt + analyze):
        python3 run_eval.py --case external-evaluation/case-01 --download
 
-  Tip: run the commands above with the SAME python3 this installer used
-  (packages were installed into it). If you activated a venv before
-  running install.sh, activate that same venv before running these.
+  Tip: run the commands above with the SAME python3 this installer used —
+  the packages were installed into it.
 
 Docs:
   README          quickstart + architecture

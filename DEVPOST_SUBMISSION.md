@@ -492,9 +492,8 @@ python3 scripts/healthcheck.py                           # API-free readiness ch
 ```
 
 The installer is OS-aware (`--os auto|ubuntu|centos|macos`), installs into
-whatever Python environment is active (activate a venv first if you want
-isolation — it is never forced), clones and installs the collector adapter
-into that same interpreter, and only stages SIFT (via
+the current Python interpreter, clones and installs the collector adapter,
+and only stages SIFT (via
 `cast`) / Eric Zimmerman Tools (.NET 9) when asked — never pretending a tool is
 present when it is not.
 

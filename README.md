@@ -35,6 +35,7 @@
 - [Demo & benchmarks](#demo--benchmarks)
 - [Real-world investigations (your own evidence)](#real-world-investigations-your-own-evidence)
 - [Install and requirements](#install-and-requirements)
+- [Troubleshooting](#troubleshooting)
 - [Running the tests](#running-the-tests)
 - [Target case class](#target-case-class)
 - [Judging-criteria alignment (SANS FIND EVIL!)](#judging-criteria-alignment-sans-find-evil)
@@ -315,9 +316,7 @@ Notes:
 ### Prerequisites
 
 - Python 3.10 or newer.
-- `git` and `pip`. (A virtualenv is optional — activate one before
-  installing if you want isolation; the installer respects it but never
-  forces one.)
+- `git` and `pip`.
 - For live mode: an `ANTHROPIC_API_KEY`.
 - Optional for SIFT-adapter calls: SANS SIFT Workstation binaries on `PATH`
   or the corresponding `DART_*_BIN` override environment variables.
@@ -328,11 +327,10 @@ installer uses it; the manual path below installs it explicitly.
 
 ### Fresh-clone install
 
-The installer is the supported path. It installs into whatever Python
-environment is currently active (activate a venv first if you want
-isolation — it is never forced), clones and installs the collector
-adapter into that same interpreter, stages a SHA-256-verified
-Velociraptor binary, and optionally adds the SIFT toolchain / EZ Tools:
+The installer is the supported path. It installs into your current Python
+interpreter, clones and installs the collector adapter, stages a
+SHA-256-verified Velociraptor binary, and optionally adds the SIFT
+toolchain / EZ Tools:
 
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git
@@ -340,15 +338,17 @@ cd agentic-dart
 bash scripts/install.sh          # add --full for the SIFT toolchain + EZ Tools
 ```
 
-Manual editable install (equivalent core, without the toolchain staging).
-The venv line is optional — drop it to install into your current interpreter:
+Manual editable install (equivalent core, without the toolchain staging):
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate   # optional: isolation
 pip install --upgrade pip wheel
 pip install -r requirements.txt
 pip install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_agent[live]'
 ```
+
+> Prefer an isolated environment? Create and activate a virtualenv before
+> running either path above — see [Troubleshooting](#troubleshooting). The
+> installer neither creates nor requires one.
 
 Each case resolves its own evidence from `case-XX/evidence_root/`, so no global
 `DART_EVIDENCE_ROOT` export is needed for `run_eval.py`. For the low-level
@@ -359,6 +359,50 @@ should live outside the evidence tree:
 ```bash
 export DART_DERIVED_ROOT="${TMPDIR:-/tmp}/agentic-dart-derived"
 ```
+
+## Troubleshooting
+
+### Installing inside a virtual environment (optional)
+
+The installer and every entry-point script run against your current Python
+interpreter. They neither create nor require a virtualenv. If you prefer to
+keep Agentic-DART's dependencies isolated, create and activate one *before*
+installing, then run everything from that activated shell:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate         # Windows: .venv\Scripts\activate
+bash scripts/install.sh           # installs into the activated venv
+python3 run_eval.py --case self-evaluation/case-01
+```
+
+The key rule is consistency: install and run with the *same* interpreter.
+If you install inside a venv, keep that venv activated when you run
+`run_eval.py`, `scripts/healthcheck.py`, or the benchmark scripts.
+
+### `No module named dart_mcp.server_stdio`
+
+The agent launches `dart_mcp` as an MCP subprocess using the *same* Python
+that started the run. This error means the packages were installed into a
+different interpreter than the one you invoked. Fix it by installing and
+running with one interpreter — e.g. re-run `bash scripts/install.sh` from
+the same shell (and the same activated venv, if any) you use to launch
+`run_eval.py`.
+
+### `Velociraptor binary not found` (external benchmarks)
+
+`--source image` needs the Velociraptor binary staged by the collector
+adapter. Re-run the adapter's installer, which downloads and SHA-256-verifies
+it into `./bin/`:
+
+```bash
+( cd ../agentic-dart-collector-adapter && bash scripts/install.sh )
+```
+
+Then re-run the benchmark. Alternatively, point the adapter at an existing
+binary with `DART_VELOCIRAPTOR_BIN=/path/to/velociraptor` or
+`--velociraptor-bin /path/to/velociraptor`. (`--source zip` does not need
+Velociraptor at all.)
 
 ## Running the tests
 
