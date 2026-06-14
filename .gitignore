@@ -209,16 +209,6 @@ __marimo__/
 # Benchmark dataset images (large, downloaded separately)
 datasets/
 
-# Downloaded external-tier dataset images + their materialized evidence_root
-# (large, third-party — never committed). run_eval.py --download fetches into
-# the external case directory; keep only README.md / truth.json under git.
-examples/case-studies/external-evaluation/*/cfreds_hacking_case/
-examples/case-studies/external-evaluation/*/hadi_challenge_1/
-examples/case-studies/external-evaluation/*/m57_jo/
-examples/case-studies/external-evaluation/*/evidence_root/
-*.E01
-*.dd
-SCHARDT.0[0-9]
 
 # Demo recording assets — kept locally, NOT in repo
 # Videos, voiceover scripts, slide generators, storyboards
@@ -246,3 +236,16 @@ CLAUDE.local.md
 # Case-study synthetic evidence (force-included past the generic *.log etc. rules).
 !examples/sample-evidence/**
 !examples/case-studies/**
+
+# Downloaded external-tier dataset images + their materialized evidence_root
+# (large, third-party — never committed). These re-ignore patterns MUST come
+# AFTER the !examples/case-studies/** negation above, otherwise the negation
+# unignores them. run_eval.py --download fetches into the external case
+# directory; keep only README.md / truth.json under git.
+examples/case-studies/external-evaluation/*/cfreds_hacking_case/
+examples/case-studies/external-evaluation/*/hadi_challenge_1/
+examples/case-studies/external-evaluation/*/m57_jo/
+examples/case-studies/external-evaluation/*/evidence_root/
+examples/case-studies/external-evaluation/*/*.E01
+examples/case-studies/external-evaluation/*/*.dd
+examples/case-studies/external-evaluation/*/SCHARDT.0[0-9]
