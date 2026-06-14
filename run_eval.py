@@ -190,6 +190,39 @@ def _timestamp() -> str:
     return _dt.datetime.now().strftime("%Y%m%dT%H%M%S")
 
 
+def _case_brief(case: Case) -> str:
+    """Turn a case's README scenario into a focused investigation directive.
+
+    Why this matters: the bundled evidence_root is a SHARED forensic corpus —
+    it carries artifacts for several scenarios at once (phishing/RAT,
+    ransomware, supply-chain, RDP brute force, AND the IP-KVM insider pattern
+    case-01 is actually about). With only a generic 'investigate the evidence'
+    prompt, the model reasonably surfaces whichever attack is most prominent in
+    the whole corpus, which may not be the scenario this case's truth.json
+    scores. Real analysts always get a tasking ('investigate the suspected
+    X'); giving the agent the same scenario context is the correct fix, not a
+    crutch. We pull the scenario line(s) from the case README so each case
+    steers the agent at the behavior it's meant to find — without ever naming
+    the specific findings (that would be teaching to the test)."""
+    readme = case.path / "README.md"
+    scenario = ""
+    if readme.is_file():
+        for line in readme.read_text(errors="replace").splitlines():
+            s = line.strip()
+            if s.lower().startswith("**scenario") or s.lower().startswith("scenario class"):
+                # "**Scenario class:** Insider threat ..." -> the text after ':'
+                if ":" in s:
+                    scenario = s.split(":", 1)[1].strip().strip("*").strip()
+                break
+    base = ("You are investigating a single security incident. Examine the "
+            "evidence, form and cross-validate hypotheses, and report findings "
+            "with their ATT&CK techniques. Note: the evidence tree may contain "
+            "artifacts from unrelated activity — focus on the incident below.")
+    if scenario:
+        return f"{base}\n\nIncident under investigation: {scenario}"
+    return base
+
+
 def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool) -> int:
     rc = _resolve_evidence(case, allow_download=allow_download)
     if rc != 0:
@@ -227,6 +260,7 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool) -> 
         "--mode", "live",
         "--model", model,
         "--max-iterations", str(max_iter),
+        "--prompt", _case_brief(case),
     ])
 
     _normalize_outputs(case, out_dir, model)
