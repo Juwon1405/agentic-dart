@@ -24,7 +24,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
 sys.path.insert(0, str(REPO / "dart_audit" / "src"))
 sys.path.insert(0, str(REPO / "dart_agent" / "src"))
-os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
 _existing_pythonpath = os.environ.get("PYTHONPATH")
 _repo_pythonpath = os.pathsep.join([
     str(REPO / "dart_mcp" / "src"),

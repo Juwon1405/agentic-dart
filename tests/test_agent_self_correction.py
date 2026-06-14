@@ -11,7 +11,7 @@ for p in ["dart_audit/src", "dart_mcp/src", "dart_agent/src"]:
 
 
 def test_full_run_produces_self_correction():
-    os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+    os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
     # Re-import with new env var
     if "dart_mcp" in sys.modules:
         del sys.modules["dart_mcp"]

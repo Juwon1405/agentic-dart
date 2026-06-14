@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task>
+  <RegistrationInfo>
+    <Date>2026-03-15T14:22:03</Date>
+    <Author>NT AUTHORITY\SYSTEM</Author>
+    <Description>Sync helper (suspicious — created 3 min after IP-KVM insertion)</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <LogonTrigger><Enabled>true</Enabled></LogonTrigger>
+  </Triggers>
+  <Actions>
+    <Exec><Command>C:\Users\analyst\Downloads\remote-admin.exe</Command></Exec>
+  </Actions>
+</Task>

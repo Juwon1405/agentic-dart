@@ -30,7 +30,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "dart_audit" / "src"))
 sys.path.insert(0, str(REPO_ROOT / "dart_mcp" / "src"))
-os.environ.setdefault("DART_EVIDENCE_ROOT", str(REPO_ROOT / "examples" / "sample-evidence"))
+os.environ.setdefault("DART_EVIDENCE_ROOT", str(REPO_ROOT / "tests" / "fixtures" / "evidence"))
 
 from dart_audit import AuditLogger
 from dart_mcp import _safe_resolve, PathTraversalAttempt

@@ -19,7 +19,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
-os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "examples" / "sample-evidence")
+os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
 
 # Force adapter package import (triggers @tool registration)
 from dart_mcp import call_tool, list_tools  # noqa: E402
@@ -132,7 +132,7 @@ def test_plaso_storage_uses_derived_root_not_evidence_root(tmp_path):
     try:
         out = _safe_derived_path("case-01/timeline.plaso")
         assert out == (tmp_path / "derived" / "case-01" / "timeline.plaso").resolve()
-        assert not str(out).startswith(str((REPO / "examples" / "sample-evidence").resolve()))
+        assert not str(out).startswith(str((REPO / "tests" / "fixtures" / "evidence").resolve()))
 
         for bad in ("../timeline.plaso", "/tmp/outside.plaso"):
             try:
@@ -155,7 +155,7 @@ def test_missing_tool_raises_clean_error():
     try:
         # Need a valid evidence path for this test, otherwise PathTraversalAttempt
         # fires first. Use the sample evidence dir.
-        sample_evtx = REPO / "examples" / "sample-evidence"
+        sample_evtx = REPO / "tests" / "fixtures" / "evidence"
         # Pick any volatility plugin
         try:
             call_tool("sift_vol3_windows_pslist",

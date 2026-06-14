@@ -1,0 +1,14 @@
+type=SYSCALL msg=audit(1764000000.123:1001): arch=c000003e syscall=59 success=yes exit=0 a0=7ffe0123 a1=7ffe0234 a2=7ffe0345 a3=0 items=2 ppid=1234 pid=5678 auid=1001 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts0 ses=2 comm="bash" exe="/bin/bash" key="suspicious_exec"
+type=USER_LOGIN msg=audit(1764000010.456:1002): pid=2222 uid=0 auid=1001 ses=2 msg='op=login id=1001 exe="/usr/sbin/sshd" hostname=evil.example.com addr=192.168.1.100 terminal=ssh res=success' key="auth_log"
+type=SYSCALL msg=audit(1764000020.789:1003): syscall=257 success=yes exe="/bin/cat" comm="cat" auid=1001 uid=0 key="sensitive_file_read"
+type=PATH msg=audit(1764000020.789:1003): item=0 name="/etc/shadow" inode=12345 dev=08:01 mode=0100640 ouid=0 ogid=42 key="sensitive_file_read"
+type=SYSCALL msg=audit(1764000030.111:1004): syscall=2 success=yes exe="/bin/cat" comm="cat" auid=1001 uid=0 key="sensitive_file_read"
+type=PATH msg=audit(1764000030.111:1004): item=0 name="/etc/passwd" inode=2001 dev=08:01 mode=0100644 ouid=0 ogid=0 key="sensitive_file_read"
+type=SYSCALL msg=audit(1764000040.222:1005): syscall=59 success=yes exe="/usr/bin/curl" comm="curl" auid=1001 uid=0 key="network_exec"
+type=USER_CMD msg=audit(1764000050.333:1006): pid=3333 uid=1001 auid=1001 msg='cwd="/home/yushin" cmd=7375646F20737520726F6F74 terminal=pts0 res=success'
+type=SYSCALL msg=audit(1764000060.444:1007): syscall=105 success=yes exe="/usr/bin/sudo" comm="sudo" auid=1001 uid=0 euid=0 key="privilege_escalation"
+type=CRED_ACQ msg=audit(1764000060.444:1007): pid=3333 uid=0 auid=1001 ses=2 msg='op=PAM:setcred acct="root" exe="/usr/bin/sudo" res=success'
+type=SYSCALL msg=audit(1764000070.555:1008): syscall=257 success=yes exe="/bin/cat" comm="cat" auid=1001 uid=0 key="sensitive_file_read"
+type=PATH msg=audit(1764000070.555:1008): item=0 name="/root/.ssh/id_rsa" inode=3050 dev=08:01 mode=0100600 ouid=0 ogid=0 key="sensitive_file_read"
+type=SYSCALL msg=audit(1764000080.666:1009): syscall=87 success=yes exe="/bin/rm" comm="rm" auid=1001 uid=0 key="file_deletion"
+type=USER_END msg=audit(1764000090.777:1010): pid=2222 uid=0 auid=1001 ses=2 msg='op=login id=1001 exe="/usr/sbin/sshd" res=success'

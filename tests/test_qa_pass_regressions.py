@@ -22,7 +22,7 @@ REPO = Path(__file__).resolve().parents[1]
 for p in ["dart_audit/src", "dart_mcp/src", "dart_agent/src"]:
     sys.path.insert(0, str(REPO / p))
 os.environ.setdefault("DART_EVIDENCE_ROOT",
-                       str(REPO / "examples" / "sample-evidence"))
+                       str(REPO / "tests" / "fixtures" / "evidence"))
 
 
 def test_short_max_iterations_does_not_crash_report():
