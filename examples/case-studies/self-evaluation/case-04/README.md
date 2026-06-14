@@ -3,7 +3,7 @@
 **Tier:** self-evaluation (synthetic scenario)
 
 **Scenario class:** Classic data-theft chain (the 80% case)
-**Evidence:** bundled at `examples/sample-evidence/disk/Users/analyst/`
+**Evidence:** bundled at `examples/case-studies/self-evaluation/case-04/evidence_root/disk/Users/analyst/`
 **Functions used:** `parse_browser_history`, `analyze_downloads`,
   `correlate_download_to_execution`, `detect_exfiltration`
 **Reproduce:** the bundled `bash examples/demo-run.sh` covers Case 01; Case 04 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
@@ -164,7 +164,7 @@ print(f'MOTW: {motw[\"total_downloads\"]} Internet-zone files')
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-04/evidence_root"
 
 python3 - <<'PY'
 from dart_mcp import call_tool

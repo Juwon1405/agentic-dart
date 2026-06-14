@@ -3,7 +3,7 @@
 **Tier:** self-evaluation (synthetic scenario)
 
 **Scenario class:** The "WHO" investigation — stolen cred + AD attack chain
-**Evidence:** bundled across `examples/sample-evidence/disk/` (Windows logons, Kerberos events) and `examples/sample-evidence/linux/` (auth.log)
+**Evidence:** bundled across `examples/case-studies/self-evaluation/case-05/evidence_root/disk/` (Windows logons, Kerberos events) and `examples/case-studies/self-evaluation/case-05/evidence_root/linux/` (auth.log)
 **Functions used:** `analyze_windows_logons`, `detect_lateral_movement`,
   `analyze_kerberos_events`, `analyze_unix_auth`, `detect_privilege_escalation`
 **Reproduce:** Case 01 ships in the bundled demo; Case 05 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
@@ -180,7 +180,7 @@ This is the missing DFIR dimension the user explicitly flagged:
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-05/evidence_root"
 
 python3 - <<'PY'
 from dart_mcp import call_tool

@@ -3,7 +3,7 @@
 **Tier:** self-evaluation (synthetic scenario)
 
 **Scenario class:** The "HOW DID THEY GET DOMAIN ADMIN" investigation — trojanized signed vendor binary + ESC8 + DCSync + Golden Ticket
-**Evidence:** bundled across `examples/case-studies/self-evaluation/case-01/evidence_root/disk/` (supplychain-security-events.json, supplychain-processes.csv, supplychain-network.json)
+**Evidence:** bundled across `examples/case-studies/self-evaluation/case-08/evidence_root/disk/` (supplychain-security-events.json, supplychain-processes.csv, supplychain-network.json)
 **Functions used:** `get_process_tree`, `analyze_windows_logons`,
   `analyze_kerberos_events`, `detect_lateral_movement`,
   `detect_credential_access`, `detect_persistence`,
@@ -343,14 +343,14 @@ password.
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-01/evidence_root"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-08/evidence_root"
 
 python3 - <<'PY'
 import csv, json
 from pathlib import Path
 from dart_mcp import call_tool
 
-ROOT = Path("examples/case-studies/self-evaluation/case-01/evidence_root")
+ROOT = Path("examples/case-studies/self-evaluation/case-08/evidence_root")
 
 # Load processes & network as in-memory lists for functions that
 # expect parsed input (detect_lateral_movement / detect_credential_access

@@ -3,7 +3,7 @@
 **Tier:** self-evaluation (synthetic scenario)
 
 **Scenario class:** Post-foothold ransomware deployment with full MITRE
-**Evidence:** bundled at `examples/sample-evidence/disk/` (creds-processes, discovery-processes, security-events, log-clearing-events)
+**Evidence:** bundled at `examples/case-studies/self-evaluation/case-07/evidence_root/disk/` (creds-processes, discovery-processes, security-events, log-clearing-events)
 **Functions used:** `detect_credential_access`, `detect_discovery`,
   `detect_defense_evasion`, `detect_ransomware_behavior`
 **Reproduce:** Case 01 ships in the bundled demo; Case 07 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
@@ -168,12 +168,12 @@ def load(path):
                 for r in csv.DictReader(f)]
 
 creds = call_tool("detect_credential_access",
-    {"processes": load("examples/sample-evidence/disk/creds-processes.csv")})
+    {"processes": load("examples/case-studies/self-evaluation/case-07/evidence_root/disk/creds-processes.csv")})
 print(f"Credential Access: {creds['finding_count']} findings, "
       f"max={creds['max_severity']}")
 
 ransom = call_tool("detect_ransomware_behavior", {
-    "processes": load("examples/sample-evidence/disk/ransomware-processes.csv"),
+    "processes": load("examples/case-studies/self-evaluation/case-07/evidence_root/disk/ransomware-processes.csv"),
     "fsevents_or_mft": [
         {"path": f"C:/file{i}.locked", "flags": ["Created"],
          "ts": f"2026-03-15 14:31:{i:02d}"} for i in range(30)
@@ -183,13 +183,13 @@ print(f"Ransomware: {ransom['finding_count']} findings, stats={ransom['stats']}"
 
 evasion = call_tool("detect_defense_evasion", {
     "events_json": "disk/log-clearing-events.json",
-    "processes": load("examples/sample-evidence/disk/ransomware-processes.csv"),
+    "processes": load("examples/case-studies/self-evaluation/case-07/evidence_root/disk/ransomware-processes.csv"),
 })
 print(f"Defense Evasion: {evasion['finding_count']} findings, "
       f"max={evasion['max_severity']}")
 
 disc = call_tool("detect_discovery",
-    {"processes": load("examples/sample-evidence/disk/discovery-processes.csv")})
+    {"processes": load("examples/case-studies/self-evaluation/case-07/evidence_root/disk/discovery-processes.csv")})
 print(f"Discovery: {disc['hit_count']} hits, {disc['ad_recon_count']} AD recon, "
       f"{len(disc['recon_bursts'])} bursts")
 PY
@@ -205,7 +205,7 @@ The detection functions in this case (`detect_credential_access`, `detect_discov
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-07/evidence_root"
 
 python3 - <<'PY'
 from dart_mcp import call_tool

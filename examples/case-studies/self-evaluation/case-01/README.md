@@ -3,7 +3,7 @@
 **Tier:** self-evaluation (synthetic scenario)
 
 **Scenario class:** Insider threat with remote-hands physical access vector
-**Evidence:** `examples/sample-evidence/` (bundled, reproducible)
+**Evidence:** `examples/case-studies/self-evaluation/case-01/evidence_root/` (self-contained)
 **Command:** `bash examples/demo-run.sh`
 **Expected runtime:** under 5 seconds on any Python 3.10+ host
 

@@ -3,7 +3,7 @@
 **Tier:** self-evaluation (synthetic scenario)
 
 **Scenario class:** Initial access via two most common enterprise paths
-**Evidence:** bundled at `examples/sample-evidence/web/` (Apache logs + uploaded webshells)
+**Evidence:** bundled at `examples/case-studies/self-evaluation/case-06/evidence_root/web/` (Apache logs + uploaded webshells)
 **Functions used:** `analyze_web_access_log`, `detect_webshell`, `detect_brute_force_rdp`
 **Reproduce:** Case 01 ships in the bundled demo; Case 06 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
 
@@ -131,7 +131,7 @@ smoking-gun attribution.
 ## What the judges should run
 
 ```bash
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-06/evidence_root"
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 
 python3 << 'PY'
@@ -178,7 +178,7 @@ This closes the initial-access vector gap that remained after Cases 01-05.
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-06/evidence_root"
 
 python3 - <<'PY'
 from dart_mcp import call_tool

@@ -3,10 +3,10 @@
 **Tier:** self-evaluation (synthetic scenario)
 
 **Scenario class:** macOS insider threat, unsigned "remote admin" app + staged exfil
-**Evidence:** bundled at `examples/sample-evidence/mac/`
+**Evidence:** bundled at `examples/case-studies/self-evaluation/case-03/evidence_root/mac/`
 **Functions used:** `parse_unified_log`, `parse_knowledgec`, `parse_fsevents`
 **Platform proof:** this case runs identically on Linux and macOS
-**Reproduce:** the bundled `bash examples/demo-run.sh` covers Case 01; Case 03 is exercised by direct MCP invocation against `examples/sample-evidence/mac/`. See "How to invoke" at the end of this page.
+**Reproduce:** the bundled `bash examples/demo-run.sh` covers Case 01; Case 03 is exercised by direct MCP invocation against `examples/case-studies/self-evaluation/case-03/evidence_root/mac/`. See "How to invoke" at the end of this page.
 
 ## The attack pattern
 
@@ -118,7 +118,7 @@ for name, args in [
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-03/evidence_root"
 
 python3 - <<'PY'
 from dart_mcp import call_tool

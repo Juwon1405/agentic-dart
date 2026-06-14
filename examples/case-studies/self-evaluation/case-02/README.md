@@ -3,7 +3,7 @@
 **Tier:** self-evaluation (synthetic scenario)
 
 **Scenario class:** LOTL attack using signed Windows binaries to evade AV
-**Evidence:** bundled in `examples/sample-evidence/` alongside Case 01
+**Evidence:** bundled in `examples/case-studies/self-evaluation/case-02/evidence_root/` alongside Case 01
 **Detection path:** process tree → event logs → persistence → correlate
 **Reproduce:** Case 01 ships in the bundled demo (`bash examples/demo-run.sh`); Case 02 is exercised by direct MCP invocation. See "How to invoke" at the end of this page.
 
@@ -99,7 +99,7 @@ All return real data from the bundled evidence tree in <1 second.
 ```bash
 # From the repo root
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-02/evidence_root"
 
 python3 - <<'PY'
 from dart_mcp import call_tool
