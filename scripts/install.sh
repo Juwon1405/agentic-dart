@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Agentic-DART installer.
 #
-# OS-aware, venv-first installer for Agentic-DART and its collector adapter.
+# OS-aware installer for Agentic-DART and its collector adapter. Installs into
+# the currently-active Python environment (respects an activated venv/conda env;
+# never forces a private .venv).
 # Optionally stages the SANS SIFT toolchain (via `cast`) and the Eric Zimmerman
 # Tools (.NET 9 builds). Nothing is silently faked: every optional component
 # reports clearly whether it was installed, skipped, or unavailable.
@@ -123,27 +125,35 @@ PYV="$(python3 -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]
 [[ "${PYV}" =~ ^3\.(1[0-9]|[2-9][0-9])$ ]] || warn "Python 3.10+ recommended; found ${PYV}"
 ok "python3 ${PYV}, git present"
 
-# ---- 2. Python venv + packages --------------------------------------------
-sect "2. Python virtualenv + packages (venv-first)"
+# ---- 2. Python packages ---------------------------------------------------
+sect "2. Python packages"
 cd "${REPO_ROOT}"
-VENV_OK=0
-if python3 -m venv .venv 2>/dev/null; then
-  # shellcheck disable=SC1091
-  source .venv/bin/activate
-  python3 -m pip install --upgrade pip wheel >/dev/null
-  VENV_OK=1
-  ok "virtualenv ready: ${REPO_ROOT}/.venv"
+
+# Install into whatever Python environment is currently active. If the user
+# has already activated a virtualenv/conda env, packages land there; otherwise
+# they go to the user/system interpreter. We do NOT create or force a private
+# .venv — managing the environment is the operator's call, not the installer's.
+# (Want isolation? Activate a venv before running this script.)
+if [[ -n "${VIRTUAL_ENV:-}" ]]; then
+  ok "using active virtualenv: ${VIRTUAL_ENV}"
+  IN_VENV=1
+elif [[ -n "${CONDA_PREFIX:-}" ]]; then
+  ok "using active conda env: ${CONDA_PREFIX}"
+  IN_VENV=1
 else
-  warn "python3 -m venv failed (python3-venv missing?)."
-  warn "Falling back to a CONTROLLED system install. Never uninstalling OS pip/wheel."
+  log "no active virtualenv detected; installing into the current interpreter"
+  log "(activate a venv first if you want isolation)"
+  IN_VENV=0
 fi
 
 pip_install() {
-  if [[ "${VENV_OK}" == 1 ]]; then
+  if [[ "${IN_VENV}" == 1 ]]; then
+    # Inside a managed env — plain install, nothing to protect.
     python3 -m pip install "$@"
   else
-    # Controlled non-venv fallback: do not disturb OS-managed pip/wheel.
-    python3 -m pip install --break-system-packages --ignore-installed wheel pip "$@"
+    # System/user interpreter — PEP 668 may mark it externally-managed, so
+    # pass --break-system-packages. Do not touch OS-managed pip/wheel.
+    python3 -m pip install --break-system-packages "$@"
   fi
 }
 
@@ -153,7 +163,7 @@ log "Installing Agentic-DART packages (editable)"
 pip_install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_agent[live]'
 ok "dart_audit, dart_mcp, dart_corr, dart_agent installed"
 
-# ---- 3. collector adapter (same venv) -------------------------------------
+# ---- 3. collector adapter (same interpreter) -----------------------------
 sect "3. Collector adapter"
 if [[ -d "${ADAPTER_DIR}/.git" ]]; then
   log "Updating adapter checkout at ${ADAPTER_DIR}"
@@ -302,12 +312,9 @@ Next steps:
   4. Single external case end-to-end (download + adapt + analyze):
        python3 run_eval.py --case external-evaluation/case-01 --download
 
-Notes:
-  • Entry-point scripts (run_eval.py, scripts/healthcheck.py,
-    scripts/benchmark/run_all.py, scripts/measure_accuracy.py) auto-
-    activate the .venv via a re-exec guard. You can also activate
-    it yourself: `source .venv/bin/activate`.
-  • Set DART_VENV_REEXEC=0 to disable the auto-activation.
+  Tip: run the commands above with the SAME python3 this installer used
+  (packages were installed into it). If you activated a venv before
+  running install.sh, activate that same venv before running these.
 
 Docs:
   README          quickstart + architecture

@@ -315,7 +315,9 @@ Notes:
 ### Prerequisites
 
 - Python 3.10 or newer.
-- `git`, `pip`, and `venv`.
+- `git` and `pip`. (A virtualenv is optional — activate one before
+  installing if you want isolation; the installer respects it but never
+  forces one.)
 - For live mode: an `ANTHROPIC_API_KEY`.
 - Optional for SIFT-adapter calls: SANS SIFT Workstation binaries on `PATH`
   or the corresponding `DART_*_BIN` override environment variables.
@@ -326,8 +328,11 @@ installer uses it; the manual path below installs it explicitly.
 
 ### Fresh-clone install
 
-The installer is the supported path (venv-first; clones and installs the
-collector adapter in the same venv; optional SIFT / EZ Tools):
+The installer is the supported path. It installs into whatever Python
+environment is currently active (activate a venv first if you want
+isolation — it is never forced), clones and installs the collector
+adapter into that same interpreter, stages a SHA-256-verified
+Velociraptor binary, and optionally adds the SIFT toolchain / EZ Tools:
 
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git
@@ -335,10 +340,11 @@ cd agentic-dart
 bash scripts/install.sh          # add --full for the SIFT toolchain + EZ Tools
 ```
 
-Manual editable install (equivalent core, without the toolchain staging):
+Manual editable install (equivalent core, without the toolchain staging).
+The venv line is optional — drop it to install into your current interpreter:
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate   # optional: isolation
 pip install --upgrade pip wheel
 pip install -r requirements.txt
 pip install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_agent[live]'

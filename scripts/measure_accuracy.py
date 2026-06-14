@@ -16,20 +16,6 @@ Metrics:
   hallucination     = findings lacking any audit_id → MCP call chain
   evidence_integrity= SHA-256(evidence) pre vs post
 """
-
-# Venv self-rexec guard (see run_eval.py for full rationale).
-import os as _os
-import sys as _sys
-from pathlib import Path as _Path
-if _os.environ.get("DART_VENV_REEXEC") not in ("1", "0"):
-    _venv_py = _Path(__file__).resolve().parents[1] / ".venv" / "bin" / "python3"
-    # scripts/benchmark/*.py is two levels deep — use parents[2] there.
-    if not _venv_py.exists():
-        _venv_py = _Path(__file__).resolve().parents[2] / ".venv" / "bin" / "python3"
-    if _venv_py.exists() and _Path(_sys.executable).resolve() != _venv_py.resolve():
-        _os.environ["DART_VENV_REEXEC"] = "1"
-        _os.execv(str(_venv_py), [str(_venv_py), __file__] + _sys.argv[1:])
-
 import hashlib
 import json
 import os
