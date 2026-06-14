@@ -183,16 +183,79 @@ def _extract_findings(final_text: str) -> list[dict]:
                 if depth == 0:
                     end = i + 1
                     break
-    if end < 0:
+    # Primary path: the whole REPORT object is well-formed and closed.
+    if end >= 0:
+        try:
+            data = json.loads(blob[start:end])
+            findings = data.get("findings")
+            if isinstance(findings, list):
+                return [f for f in findings if isinstance(f, dict)]
+        except json.JSONDecodeError:
+            pass  # fall through to the salvage path below
+
+    # Salvage path: the model produced a valid findings array but the OUTER
+    # object was truncated (e.g. max_tokens cut off the trailing timeline/
+    # remediation sections, so the closing braces never arrived). A truncated
+    # report with ten perfectly-good findings must not score as zero. Locate
+    # the "findings" key, then brace/bracket-match just its array value so a
+    # cut-off tail does not discard everything before it.
+    return _salvage_findings_array(blob)
+
+
+def _salvage_findings_array(blob: str) -> list[dict]:
+    """Best-effort recovery of the findings array from a truncated REPORT.
+
+    Finds the '"findings": [' key and walks to the matching ']' (string- and
+    escape-aware). If even the array itself is truncated, progressively drops
+    the last comma-separated element until the prefix parses, so a report cut
+    off in the middle of finding N still yields findings 1..N-1.
+    """
+    key = re.search(r'"findings"\s*:\s*\[', blob)
+    if not key:
         return []
-    try:
-        data = json.loads(blob[start:end])
-    except json.JSONDecodeError:
-        return []
-    findings = data.get("findings")
-    if not isinstance(findings, list):
-        return []
-    return [f for f in findings if isinstance(f, dict)]
+    arr_start = key.end() - 1  # index of the '['
+    depth = 0
+    in_str = False
+    esc = False
+    arr_end = -1
+    for i, ch in enumerate(blob[arr_start:], arr_start):
+        if esc:
+            esc = False
+            continue
+        if ch == "\\":
+            esc = True
+        elif ch == '"':
+            in_str = not in_str
+        elif not in_str:
+            if ch == "[":
+                depth += 1
+            elif ch == "]":
+                depth -= 1
+                if depth == 0:
+                    arr_end = i + 1
+                    break
+    if arr_end >= 0:
+        # The array closed cleanly even though the outer object did not.
+        try:
+            arr = json.loads(blob[arr_start:arr_end])
+            if isinstance(arr, list):
+                return [f for f in arr if isinstance(f, dict)]
+        except json.JSONDecodeError:
+            pass
+
+    # The array itself was truncated. Peel back to the last complete object by
+    # trimming after successive '}' boundaries until a prefix + ']' parses.
+    tail = blob[arr_start:]
+    close_positions = [i for i, ch in enumerate(tail) if ch == "}"]
+    for cut in reversed(close_positions):
+        candidate = tail[: cut + 1] + "]"
+        try:
+            arr = json.loads(candidate)
+            if isinstance(arr, list):
+                return [f for f in arr if isinstance(f, dict)]
+        except json.JSONDecodeError:
+            continue
+    return []
 
 
 @dataclass
@@ -233,7 +296,13 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
         state.iteration += 1
         resp = client.messages.create(
             model=model,
-            max_tokens=4096,
+            # The final turn emits the full REPORT JSON: a findings array plus
+            # timeline, attack_chain, remediation, and a MITRE tactic summary.
+            # At 4096 a rich multi-finding report was being truncated mid-JSON,
+            # which made _extract_findings fall back to [] (a present-but-
+            # unparseable report scored as zero findings). 16384 leaves ample
+            # headroom for the largest reports the agent produces here.
+            max_tokens=16384,
             # Prompt caching: the system prompt and the
             # tool definitions are large and IDENTICAL on every iteration of
             # the forensic reasoning loop. Marking the last one with
