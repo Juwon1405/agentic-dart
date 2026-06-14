@@ -191,19 +191,51 @@ def _timestamp() -> str:
     return _dt.datetime.now().strftime("%Y%m%dT%H%M%S")
 
 
-def _case_brief(case: Case) -> str:
-    """A neutral investigation directive — deliberately scenario-agnostic.
+def _evidence_tree(root: Path, limit: int = 200) -> str:
+    """List the evidence files available under root, relative to it.
 
-    Earlier this injected the case's README scenario into the prompt so the
-    agent would focus on the right incident. That was a crutch for a broken
-    setup: every case shared one evidence tree containing all eight scenarios,
-    so without a hint the agent couldn't know which to work. Now each case has
-    its OWN evidence_root containing only its scenario's artifacts (plus benign
-    noise), so the agent discovers the incident from the evidence itself — no
-    hint, no teaching to the test. This keeps the prompt identical across cases
-    so the benchmark measures the model, not the prompt."""
-    return ("You are investigating a security incident on this host. Examine "
-            "the available evidence, form and cross-validate hypotheses against "
+    A real analyst is always handed an inventory of what was collected — they
+    don't guess blindly whether the image is Windows, macOS or Linux. Giving
+    the model the file list is that inventory, NOT a hint about the incident:
+    it says what evidence exists, not what happened or which artifact is
+    malicious. Without it the agent wastes iterations probing for Windows
+    artifacts on a macOS image (and vice-versa) and can miss the evidence
+    entirely. The scenario itself still has to be discovered from the data.
+    """
+    if not root.is_dir():
+        return "(no evidence files found)"
+    files = sorted(p.relative_to(root).as_posix()
+                   for p in root.rglob("*") if p.is_file())
+    if not files:
+        return "(no evidence files found)"
+    shown = files[:limit]
+    out = "\n".join(f"  - {f}" for f in shown)
+    if len(files) > limit:
+        out += f"\n  ... and {len(files) - limit} more"
+    return out
+
+
+def _case_brief(case: Case) -> str:
+    """A neutral investigation directive plus an inventory of the collected
+    evidence — deliberately scenario-agnostic.
+
+    We do NOT inject the case's README scenario (that would teach the test).
+    What we DO provide is the list of evidence files present under the
+    evidence_root, because that is exactly what a real analyst receives: an
+    inventory of what was collected. It tells the model the platform and which
+    artifacts exist (so it reaches for parse_unified_log on a macOS tree
+    instead of blindly probing for Windows registry hives), without revealing
+    the incident or which artifact is malicious. The scenario is still
+    discovered from the data; only the 'what evidence exists' question is
+    answered up front. This keeps the comparison fair across cases — every
+    model gets the same inventory — while removing the blind-probing failure
+    that let platform-mismatched runs score zero."""
+    tree = _evidence_tree(case.evidence_root)
+    return ("You are investigating a security incident on this host. The "
+            "following evidence has been collected and is available to your "
+            "tools (paths are relative to the evidence root):\n\n"
+            f"{tree}\n\n"
+            "Examine this evidence, form and cross-validate hypotheses against "
             "multiple data sources, and report your findings with their MITRE "
             "ATT&CK technique IDs. Report only what the evidence supports.")
 
