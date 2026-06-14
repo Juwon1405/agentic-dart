@@ -98,6 +98,17 @@ def _model_techniques(finding: dict) -> set[str]:
     return _techniques(json.dumps(finding))
 
 
+# Common words to ignore when matching technique-less external claims by
+# keyword. Keeps the match anchored on distinctive nouns (tool names, account
+# names, file names) rather than filler.
+_STOP = {
+    "the", "and", "for", "with", "from", "this", "that", "have", "has", "was",
+    "were", "are", "his", "her", "their", "system", "user", "account", "file",
+    "files", "found", "shows", "show", "registered", "primary", "installed",
+    "evidence", "indicates", "present", "used", "using", "into", "onto",
+}
+
+
 def score(findings_path: Path, truth_path: Path) -> dict:
     truth = json.loads(truth_path.read_text())
     gt = truth.get("ground_truth_findings") or truth.get("findings") or []
@@ -110,27 +121,64 @@ def score(findings_path: Path, truth_path: Path) -> dict:
         model = model.get("findings", [])
 
     model_tech_sets = [_with_parents(_model_techniques(f)) for f in model]
+    # For external cases the ground truth often carries no ATT&CK technique
+    # (NIST CFReDS answers like "registered owner is Greg Schardt" are facts,
+    # not techniques). Those cases instead flag which findings are reachable
+    # with the current toolset via directly_detectable_v053. We pre-compute a
+    # lowercased text blob per model finding so technique-less ground truth can
+    # still be matched by claim keywords.
+    model_text = [
+        " ".join(str(f.get(k, "")) for k in
+                 ("title", "claim", "evidence_summary", "summary", "finding")).lower()
+        for f in model
+    ]
 
     detected = 0
-    scorable = 0          # GT findings that actually carry a technique
+    scorable = 0          # GT findings we can fairly score against this toolset
     per_gt = []
     matched_model_idx: set[int] = set()
     for g in gt:
         g_tech = _with_parents(_gt_techniques(g))
         has_tech = bool(g_tech)
+        # A finding is scorable if it carries a technique OR is explicitly
+        # marked reachable by the current tools. External truth uses the flag;
+        # self truth uses techniques. When the flag is present and False, the
+        # finding needs a tool we haven't built yet -> not scorable (excluded
+        # from the denominator, not counted as a miss). When the flag is
+        # absent (self cases), fall back to technique presence.
+        flag = g.get("directly_detectable_v053")
+        if flag is True:
+            is_scorable = True
+        elif flag is False:
+            is_scorable = False
+        else:
+            is_scorable = has_tech
+
         hit = False
-        if has_tech:
+        if is_scorable:
             scorable += 1
-            for i, m_tech in enumerate(model_tech_sets):
-                if g_tech & m_tech:
-                    hit = True
-                    matched_model_idx.add(i)
+            if has_tech:
+                for i, m_tech in enumerate(model_tech_sets):
+                    if g_tech & m_tech:
+                        hit = True
+                        matched_model_idx.add(i)
+            else:
+                # technique-less but detectable (external): match by the
+                # distinctive nouns in the ground-truth claim.
+                claim = (g.get("claim") or g.get("title") or "").lower()
+                import re as _re
+                keys = [w for w in _re.findall(r"[a-z0-9.\\-]{4,}", claim)
+                        if w not in _STOP]
+                for i, mt in enumerate(model_text):
+                    if keys and sum(1 for k in keys if k in mt) >= max(2, len(keys) // 3):
+                        hit = True
+                        matched_model_idx.add(i)
             detected += 1 if hit else 0
         per_gt.append({
             "finding_id": g.get("finding_id") or g.get("id") or "?",
             "techniques": sorted(g_tech),
             "detected": hit,
-            "scorable": has_tech,
+            "scorable": is_scorable,
         })
 
     gt_total = len(gt)
@@ -175,13 +223,13 @@ def main() -> int:
 
     print(f"case            : {result['case']}")
     print(f"ground truth    : {result['gt_total']} findings "
-          f"({result['gt_scorable']} scorable by ATT&CK technique, "
-          f"{result['gt_total'] - result['gt_scorable']} unscorable)")
+          f"({result['gt_scorable']} scorable with current tools, "
+          f"{result['gt_total'] - result['gt_scorable']} need unbuilt tools / no technique)")
     if result['recall'] is not None:
         print(f"detected        : {result['gt_detected']}/{result['gt_scorable']} "
               f"scorable (recall {result['recall']:.0%})")
     else:
-        print("detected        : n/a (no scorable ground truth)")
+        print("detected        : n/a (no scorable ground truth for this toolset)")
     print(f"model findings  : {result['model_findings']}")
     print(f"unmatched model : {result['unmatched_model']} "
           f"(informational — synthetic cases are not exhaustively labelled)")
@@ -189,15 +237,16 @@ def main() -> int:
     print("per ground-truth finding:")
     for g in result["per_gt"]:
         if not g["scorable"]:
-            mark = "–"  # excluded from scoring (no technique)
+            mark = "–"  # excluded: needs an unbuilt tool, or no technique
         elif g["detected"]:
             mark = "✓"
         else:
             mark = "·"
-        techs = ",".join(g["techniques"]) or "(no technique — excluded from recall)"
+        techs = ",".join(g["techniques"]) or "(matched by claim keywords)"
         print(f"  [{mark}] {g['finding_id']:16s} {techs}")
     print()
-    print("  legend: ✓ detected   · missed   – not scorable (no ATT&CK technique)")
+    print("  legend: ✓ detected   · missed   – not scorable "
+          "(needs unbuilt tool / no ATT&CK technique)")
     return 0
 
 
