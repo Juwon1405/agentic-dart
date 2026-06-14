@@ -88,6 +88,11 @@ update_repos() {
   fi
 }
 run_step "Repositories (pull/clone)" update_repos || true
+# Show what HEAD is now on, so you can see at a glance you're on the latest
+# commit without having to run `git log` yourself.
+if [[ -d "${REPO_ROOT}/.git" ]]; then
+  note "HEAD: $(git -C "${REPO_ROOT}" log --oneline -1 2>/dev/null)"
+fi
 
 # ---- 2. OS base packages ---------------------------------------------------
 os_base() {
