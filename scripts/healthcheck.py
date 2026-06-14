@@ -141,6 +141,43 @@ def _fail_fast():
     return "live-only; fails fast without a key; no fake-findings mode"
 
 
+# 8. SIFT adapter tool availability (informational — native tools cover gaps)
+def _sift_tools():
+    """Report how many SIFT adapter backing binaries are runnable. Never fails:
+    a missing tool just means that adapter raises SiftToolNotFoundError and the
+    native dart_mcp equivalent is used instead. Run scripts/check_sift_tools.py
+    for the full per-tool table."""
+    try:
+        from dart_mcp.sift_adapters._common import _which, SiftToolNotFoundError
+    except Exception as e:  # noqa: BLE001
+        return f"could not import SIFT adapter resolver ({e})"
+    tools = [
+        ("yara", "DART_YARA_BIN"),
+        ("vol", "DART_VOLATILITY3_BIN"),
+        ("log2timeline.py", "DART_LOG2TIMELINE_BIN"),
+        ("psort.py", "DART_PSORT_BIN"),
+        ("MFTECmd", "DART_MFTECMD_BIN"),
+        ("EvtxECmd", "DART_EVTXECMD_BIN"),
+        ("PECmd", "DART_PECMD_BIN"),
+        ("RECmd", "DART_RECMD_BIN"),
+        ("AmcacheParser", "DART_AMCACHEPARSER_BIN"),
+    ]
+    avail = 0
+    missing = []
+    for binary, env_var in tools:
+        try:
+            _which(binary, env_var=env_var)
+            avail += 1
+        except SiftToolNotFoundError:
+            missing.append(binary)
+    total = len(tools)
+    if avail == total:
+        return f"{avail}/{total} SIFT tool binaries runnable (all sift_* adapters live)"
+    return (f"{avail}/{total} SIFT tool binaries runnable; missing: "
+            f"{', '.join(missing)} (native tools cover these; see "
+            f"scripts/check_sift_tools.py)")
+
+
 def main() -> int:
     print("Agentic-DART healthcheck (API-free)\n")
     _check("python version", _py_version)
@@ -150,6 +187,7 @@ def main() -> int:
     _check("collector adapter CLI", _adapter_cli)
     _check("case-study layout", _layout)
     _check("run_eval fail-fast", _fail_fast)
+    _check("SIFT tool binaries", _sift_tools)
 
     for line in _ok:
         print(line)
