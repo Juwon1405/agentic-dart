@@ -292,7 +292,22 @@ cat <<'EOF'
 
 Next steps:
   1. export ANTHROPIC_API_KEY='sk-...'
-  2. python3 run_eval.py --case self-evaluation/case-01
+
+  2. Self-evaluation case-01 (bundled evidence — recall 1.0 baseline):
+       python3 run_eval.py --case self-evaluation/case-01
+
+  3. External-tier benchmark (auto-downloads + adapts + analyzes):
+       python3 -m scripts.benchmark.run_all --download
+
+  4. Single external case end-to-end (download + adapt + analyze):
+       python3 run_eval.py --case external-evaluation/case-01 --download
+
+Notes:
+  • Entry-point scripts (run_eval.py, scripts/healthcheck.py,
+    scripts/benchmark/run_all.py, scripts/measure_accuracy.py) auto-
+    activate the .venv via a re-exec guard. You can also activate
+    it yourself: `source .venv/bin/activate`.
+  • Set DART_VENV_REEXEC=0 to disable the auto-activation.
 
 Docs:
   README          quickstart + architecture

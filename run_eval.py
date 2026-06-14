@@ -31,6 +31,27 @@ evidence_root/. Output for each run is written to:
 """
 from __future__ import annotations
 
+# Venv self-rexec guard.
+# scripts/install.sh creates a virtualenv at <repo>/.venv and installs every
+# Agentic-DART package into it. If the user invokes this script with the
+# system python (e.g. `python3 run_eval.py ...`) the system interpreter has
+# no dart_mcp / dart_agent / etc. installed and the agent's MCP subprocess
+# `<sys.executable> -m dart_mcp.server_stdio` fails with "No module named
+# dart_mcp.server_stdio" before any analysis can begin. Detect that case
+# here and re-exec ourselves with the venv interpreter exactly once
+# (DART_VENV_REEXEC sentinel prevents an infinite loop if the venv is
+# itself broken). No-op when already inside the venv, when the venv
+# does not exist (manual install path), or when the user explicitly
+# opted out via DART_VENV_REEXEC=0.
+import os as _os
+import sys as _sys
+from pathlib import Path as _Path
+if _os.environ.get("DART_VENV_REEXEC") != "1" and _os.environ.get("DART_VENV_REEXEC") != "0":
+    _venv_py = _Path(__file__).resolve().parent / ".venv" / "bin" / "python3"
+    if _venv_py.exists() and _Path(_sys.executable).resolve() != _venv_py.resolve():
+        _os.environ["DART_VENV_REEXEC"] = "1"
+        _os.execv(str(_venv_py), [str(_venv_py), __file__] + _sys.argv[1:])
+
 import argparse
 import datetime as _dt
 import json
