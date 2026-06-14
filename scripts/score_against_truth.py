@@ -112,20 +112,25 @@ def score(findings_path: Path, truth_path: Path) -> dict:
     model_tech_sets = [_with_parents(_model_techniques(f)) for f in model]
 
     detected = 0
+    scorable = 0          # GT findings that actually carry a technique
     per_gt = []
     matched_model_idx: set[int] = set()
     for g in gt:
         g_tech = _with_parents(_gt_techniques(g))
+        has_tech = bool(g_tech)
         hit = False
-        for i, m_tech in enumerate(model_tech_sets):
-            if g_tech & m_tech:
-                hit = True
-                matched_model_idx.add(i)
-        detected += 1 if hit else 0
+        if has_tech:
+            scorable += 1
+            for i, m_tech in enumerate(model_tech_sets):
+                if g_tech & m_tech:
+                    hit = True
+                    matched_model_idx.add(i)
+            detected += 1 if hit else 0
         per_gt.append({
             "finding_id": g.get("finding_id") or g.get("id") or "?",
             "techniques": sorted(g_tech),
             "detected": hit,
+            "scorable": has_tech,
         })
 
     gt_total = len(gt)
@@ -135,8 +140,14 @@ def score(findings_path: Path, truth_path: Path) -> dict:
         "case": truth.get("case_metadata", {}).get("case_id")
                 or truth_path.parent.name,
         "gt_total": gt_total,
+        "gt_scorable": scorable,
         "gt_detected": detected,
-        "recall": round(detected / gt_total, 4) if gt_total else None,
+        # recall is over the SCORABLE ground truth (findings that carry an
+        # ATT&CK technique). Findings with no technique (investigative
+        # conclusions, audit-chain notes) can't be matched by technique overlap
+        # and are excluded from the denominator rather than counted as misses.
+        "recall": round(detected / scorable, 4) if scorable else None,
+        "recall_over_all": round(detected / gt_total, 4) if gt_total else None,
         "model_findings": len(model),
         "unmatched_model": unmatched_model,
         "per_gt": per_gt,
@@ -163,18 +174,30 @@ def main() -> int:
         return 0
 
     print(f"case            : {result['case']}")
-    print(f"ground truth    : {result['gt_total']} findings")
-    print(f"detected        : {result['gt_detected']} "
-          f"(recall {result['recall']:.0%})" if result['recall'] is not None
-          else "detected        : n/a")
+    print(f"ground truth    : {result['gt_total']} findings "
+          f"({result['gt_scorable']} scorable by ATT&CK technique, "
+          f"{result['gt_total'] - result['gt_scorable']} unscorable)")
+    if result['recall'] is not None:
+        print(f"detected        : {result['gt_detected']}/{result['gt_scorable']} "
+              f"scorable (recall {result['recall']:.0%})")
+    else:
+        print("detected        : n/a (no scorable ground truth)")
     print(f"model findings  : {result['model_findings']}")
     print(f"unmatched model : {result['unmatched_model']} "
           f"(informational — synthetic cases are not exhaustively labelled)")
     print()
     print("per ground-truth finding:")
     for g in result["per_gt"]:
-        mark = "✓" if g["detected"] else "·"
-        print(f"  [{mark}] {g['finding_id']:16s} {','.join(g['techniques']) or '(no technique)'}")
+        if not g["scorable"]:
+            mark = "–"  # excluded from scoring (no technique)
+        elif g["detected"]:
+            mark = "✓"
+        else:
+            mark = "·"
+        techs = ",".join(g["techniques"]) or "(no technique — excluded from recall)"
+        print(f"  [{mark}] {g['finding_id']:16s} {techs}")
+    print()
+    print("  legend: ✓ detected   · missed   – not scorable (no ATT&CK technique)")
     return 0
 
 

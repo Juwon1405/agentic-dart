@@ -139,8 +139,14 @@ Your playbook:
 Produce findings with ids like F-001, F-013. When you are done, emit a
 JSON block starting with "REPORT:" containing:
   {"findings": [{"id": "F-013", "title": "...", "confidence": 0.82,
+                 "mitre_attack": ["T1053.005"],
                  "evidence_summary": "...", "tool_calls": [...]}],
    "primary_hypothesis": "...", "iterations": N}
+
+For each finding, populate "mitre_attack" with the relevant ATT&CK technique
+IDs (e.g. "T1200", "T1059", "T1053.005"). Use the exact technique ID format
+Txxxx or Txxxx.xxx. If a finding is an investigative conclusion or a
+cross-source validation note with no single technique, use an empty list.
 """
 
 
