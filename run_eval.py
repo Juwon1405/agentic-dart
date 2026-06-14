@@ -150,7 +150,10 @@ def _resolve_evidence(case: Case, *, allow_download: bool) -> int:
           f"{case.evidence_root}.\nOnly self-evaluation/case-01 ships bundled "
           f"evidence; the other self-evaluation cases are scenario "
           f"specifications (README.md + truth.json) without a packaged "
-          f"evidence tree.", file=sys.stderr)
+          f"evidence tree.\nThese cases are exercised by direct MCP invocation "
+          f"against the shared examples/sample-evidence/ tree (see each case "
+          f"README's 'How to invoke'); they are not run_eval auto-targets.",
+          file=sys.stderr)
     return 3
 
 
@@ -162,6 +165,14 @@ def _run_download(case: Case) -> int:
     sys.path.insert(0, str(REPO / "scripts"))
     from benchmark.download import download as fetch  # noqa: WPS433
     print(f"[download] fetching {short} into {case.evidence_root.parent}/ ...")
+    print(f"[download] note: this downloads the RAW disk image only (large — "
+          f"this can take a while). It does not analyze. After it completes, "
+          f"adapt the image into an evidence_root, then re-run without "
+          f"--download:")
+    print(f"    python3 -m dart_collector_adapter --source image "
+          f"--input <downloaded image> "
+          f"--output {case.evidence_root} --case-id {case.case_id.upper()}")
+    print(f"    python3 run_eval.py --case {case.ref}")
     try:
         fetch(short, case.evidence_root.parent)
     except Exception as e:  # noqa: BLE001

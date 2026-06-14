@@ -206,17 +206,22 @@ otherwise. Everything else below runs with no credentials.
 | **Health check** — verify the install | `python3 scripts/healthcheck.py` | nothing |
 | **Offline demo** — full loop + audit chain + the `execute_shell` bypass test | `bash examples/demo-run.sh` | nothing |
 | **List cases** in both tiers | `python3 run_eval.py --list` | nothing |
-| **Self-evaluation** — bundled evidence, the measured baseline | `python3 run_eval.py --case self-evaluation/case-01` | auth |
-| **External dataset** — download a public image, then analyse it | `python3 run_eval.py --case external-evaluation/case-01 --download` | auth + disk |
+| **Auto-reproducible** — `case-01` only: bundled evidence, the measured baseline | `python3 run_eval.py --case self-evaluation/case-01` | auth |
+| **Scenario specs** — `case-02`–`08`: direct MCP on shared `sample-evidence/`; not `run_eval` auto-targets | see each case's README | nothing |
+| **External datasets** — `case-01`–`03`: `--download` fetches the raw image only (large), then adapt → analyse | `--download`, then adapt, then `--case …` | auth + disk |
 
 Notes:
 
 - `self-evaluation/case-01` is the only case with **bundled** evidence (recall
-  1.0, hallucination 0). The other self-evaluation cases are scenario
-  specifications (README + ground truth).
-- External cases are public third-party datasets, downloaded on demand:
-  `case-01` NIST CFReDS, `case-02` Ali Hadi web-server, `case-03` Digital
-  Corpora M57-Patents (Jo). The first run fetches several GB.
+  1.0, hallucination 0). The other self-evaluation cases (`case-02`–`08`) are
+  scenario specifications (README + ground truth), exercised by direct MCP
+  invocation against the shared `examples/sample-evidence/` tree — not
+  `run_eval` auto-targets.
+- External cases are public third-party datasets: `case-01` NIST CFReDS,
+  `case-02` Ali Hadi web-server, `case-03` Digital Corpora M57-Patents (Jo).
+  `--download` fetches the **raw disk image only** (several GB — can take a
+  while); it does not analyse. Adapt the image into an `evidence_root/` with
+  the collector adapter (`--source image`), then re-run without `--download`.
 - Output for each run lands in `out/<tier>/<case-id>/<timestamp>/`
   (`findings.json`, `report.json`, `summary.json`, `audit.jsonl`).
 

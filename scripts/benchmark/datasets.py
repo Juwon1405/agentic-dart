@@ -33,16 +33,18 @@ DATASETS = {
         "homepage": "https://cfreds-archive.nist.gov/all/NIST/HackingCase",
         "download_base": "https://cfreds-archive.nist.gov/images/hacking-dd/",
         "parts": [
-            ("SCHARDT.001", "md5", "c7227e7eea82d2186632573976179a7c4"),  # part 1
-            ("SCHARDT.002", "md5", "c7227e7eea82d21866325739767679a7c4"),  # part 2 (best effort — see SCHARDT.LOG)
-            # full hash table in SCHARDT.LOG; we keep this list short
-            # and verify only the joined image hash below.
-            ("SCHARDT.003", "md5", None),
-            ("SCHARDT.004", "md5", None),
-            ("SCHARDT.005", "md5", None),
-            ("SCHARDT.006", "md5", None),
-            ("SCHARDT.007", "md5", None),
-            ("SCHARDT.008", "md5", None),
+            # MD5 values transcribed from SCHARDT.LOG (the FORENSIC MD5
+            # acquisition log shipped with the case). Verified 2026-06 against
+            # freshly downloaded parts — all 8 match byte-for-byte.
+            ("SCHARDT.001", "md5", "28a9b613d6eefe8a0515ef0a675bdebd"),
+            ("SCHARDT.002", "md5", "c7227e7eea82d218663257397679a7c4"),
+            ("SCHARDT.003", "md5", "ebba35acd7b8aa85a5a7c13f3dd733d2"),
+            ("SCHARDT.004", "md5", "669b6636dcb4783fd5509c4710856c59"),
+            ("SCHARDT.005", "md5", "c46e5760e3821522ee81e675422025bb"),
+            ("SCHARDT.006", "md5", "99511901da2dea772005b5d0d764e750"),
+            # .007 is identical to .006 in the NIST original (confirmed in SCHARDT.LOG)
+            ("SCHARDT.007", "md5", "99511901da2dea772005b5d0d764e750"),
+            ("SCHARDT.008", "md5", "8194a79a5356df79883ae2dc7415929f"),
         ],
         "reassemble_cmd": "cat SCHARDT.001 SCHARDT.002 SCHARDT.003 SCHARDT.004 "
                           "SCHARDT.005 SCHARDT.006 SCHARDT.007 SCHARDT.008 > SCHARDT.dd",
@@ -86,7 +88,12 @@ DATASETS = {
         "homepage": "https://www.ashemery.com/dfir.html",
         "download_base": "https://archive.org/download/dfir-case1",
         "parts": [
-            ("Case1-Webserver.E01", "sha1", None),  # 2.91 GB main disk image
+            # md5 of the archived E01 container file (verified 2026-06 against the
+            # archive.org copy). For forensic integrity, the E01-internal
+            # acquisition hash can be verified with `ewfverify` — the original
+            # acquisition MD5 recorded by the examiner is
+            # 03e4a40ebaf6071b346fb2bf217a9f3b (see Case1-Webserver.E01.txt).
+            ("Case1-Webserver.E01", "md5", "dd19d88de593ea88b5ba24518e19bac3"),
             # Optional second part — memory dump for memory forensics
             # ("memdump.7z", "sha1", None),  # 0.11 GB
         ],
@@ -135,7 +142,11 @@ DATASETS = {
             # 12-10 is the last day that exists as a single E01 (5.16 GB).
             # 12-11 (the very last day) is split into -001 + -002 (~11 GB total).
             # Picking 12-10 gives full post-exfiltration state in a smaller image.
-            ("jo-2009-12-10.E01", "sha1", None),  # 5.16 GB
+            # md5 of the archived E01 container (verified 2026-06 against the
+            # digitalcorpora S3 copy). For forensic integrity, verify the
+            # E01-internal acquisition hash with `ewfverify` against the value
+            # published on digitalcorpora ("Show File Hashes").
+            ("jo-2009-12-10.E01", "md5", "d1291e34f2cdcc485506c7873a3a9e93"),
         ],
         "reassemble_cmd": None,  # single E01
         "joined_md5": None,
@@ -160,6 +171,40 @@ DATASETS = {
         ],
     },
 }
+
+
+def _validate_checksums() -> None:
+    """Fail fast at import time if any registered checksum is malformed.
+
+    Guards against the class of bug that previously shipped here: a hand-copied
+    MD5 that was off by a character (a 33-char value, and the wrong part's hash
+    in the wrong slot). A checksum that is not exactly the right length of hex
+    is never a valid checksum, so reject it loudly instead of letting it
+    silently fail every download verification.
+    """
+    import string
+
+    _HEXLEN = {"md5": 32, "sha1": 40, "sha256": 64}
+    hexset = set(string.hexdigits.lower())
+    for short, d in DATASETS.items():
+        checks = list(d.get("parts", []))
+        if d.get("joined_md5"):
+            checks.append((d.get("joined_name", "<joined>"), "md5", d["joined_md5"]))
+        for name, algo, value in checks:
+            if value is None:
+                continue
+            want = _HEXLEN.get(algo)
+            if want is None:
+                raise ValueError(f"{short}/{name}: unknown checksum algo {algo!r}")
+            v = value.strip().lower()
+            if len(v) != want or not set(v) <= hexset:
+                raise ValueError(
+                    f"{short}/{name}: malformed {algo} checksum "
+                    f"({len(v)} chars, expected {want} hex): {value!r}"
+                )
+
+
+_validate_checksums()
 
 
 def list_datasets() -> None:

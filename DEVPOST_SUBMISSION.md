@@ -246,7 +246,9 @@ years — they cannot represent in-distribution training data.
 
 Per-case ground truth exists for all bundled case studies, but benchmark
 summary rows are only written for cases actually executed by the harness.
-External-tier datasets are downloaded on demand:
+External-tier datasets are downloaded on demand. `--download` fetches the raw
+disk image only; adapt it into an `evidence_root/` with the collector adapter
+(`--source image`), then re-run without `--download` to analyze:
 
 ```bash
 python3 run_eval.py --case external-evaluation/case-01 --download
@@ -499,7 +501,7 @@ present when it is not.
 ```bash
 export ANTHROPIC_API_KEY='sk-...'
 python3 run_eval.py --case self-evaluation/case-01            # bundled evidence
-python3 run_eval.py --case external-evaluation/case-01 --download   # public dataset
+python3 run_eval.py --case external-evaluation/case-01 --download   # fetch raw image (then adapt + analyze)
 python3 run_eval.py --list                                   # discover all cases (no key needed)
 ```
 

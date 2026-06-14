@@ -34,6 +34,8 @@ Everything here is deterministic — same input, same output, no network.
 bash examples/demo-run.sh
 
 # 2) Score it: recall / false-positive / hallucination on bundled evidence.
+#    Deterministic regression baseline: a scripted analyst, not LLM reasoning;
+#    detection-skill numbers come from live runs on the external datasets.
 python3 scripts/measure_accuracy.py
 
 # 3) Trace any finding back to the exact tool call that produced it.
@@ -62,8 +64,21 @@ export ANTHROPIC_API_KEY='sk-...'
 python3 run_eval.py --list                              # see all cases
 python3 run_eval.py --case self-evaluation/case-01      # live run, bundled evidence
 
-# Download a real public dataset, then analyze it:
+# External datasets ship as raw disk images — three steps (--download does NOT analyze):
+#
+# 1) Download the raw image only (large — can take a while; downloads, no analysis).
 python3 run_eval.py --case external-evaluation/case-01 --download   # NIST CFReDS
+#    → prints the downloaded image path under
+#      examples/case-studies/external-evaluation/case-01/<dataset>/
+#
+# 2) Adapt that raw image into an evidence_root (same adapter as path C):
+python3 -m dart_collector_adapter --source image \
+    --input <image path printed in step 1> \
+    --output examples/case-studies/external-evaluation/case-01/evidence_root \
+    --case-id CFREDS-01
+#
+# 3) Analyze the adapted evidence_root:
+python3 run_eval.py --case external-evaluation/case-01
 #   external-evaluation/case-02 = Ali Hadi · case-03 = Digital Corpora M57
 ```
 
