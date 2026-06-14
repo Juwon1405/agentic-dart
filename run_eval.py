@@ -297,8 +297,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.list:
         return _print_case_list()
 
+    # --download is a pure fetch step (no LLM, no MCP, no analysis): when the
+    # user is only fetching, do not require a key. The key check still runs
+    # for any path that will actually invoke the agent.
+    download_only = bool(args.download and args.case and not args.evidence)
+
     # Fail fast BEFORE any expensive work if no API key is present.
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not download_only and not os.environ.get("ANTHROPIC_API_KEY"):
         print(NO_KEY_MESSAGE, file=sys.stderr)
         return 1
 
@@ -334,9 +339,21 @@ def main(argv: list[str] | None = None) -> int:
 
     rc_total = 0
     for case in targets:
-        rc_total |= run_case(case, model=args.model,
-                             max_iter=args.max_iterations,
-                             allow_download=args.download)
+        if download_only:
+            # Pure fetch: do not invoke the agent, do not require a key, do not
+            # try to score. Just download the raw image(s) for this case.
+            rc = _resolve_evidence(case, allow_download=True)
+            # _resolve_evidence returns 3 when the image has been downloaded
+            # but not yet adapted into an evidence_root (the expected state
+            # right after a fresh --download). In that case the download
+            # itself was successful, so treat it as success here.
+            if rc == 3 and case.tier == "external-evaluation":
+                rc = 0
+            rc_total |= rc
+        else:
+            rc_total |= run_case(case, model=args.model,
+                                 max_iter=args.max_iterations,
+                                 allow_download=args.download)
     return rc_total
 
 
