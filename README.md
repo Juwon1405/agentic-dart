@@ -158,10 +158,10 @@ agentic-dart/
 │   ├── demo-run.sh                 low-level reproducible demo (native tools, no API key)
 │   └── sift-adapter-demo.sh        SIFT-adapter demo (needs SIFT binaries on PATH)
 │
-├── run_eval.py           primary user-facing command (live mode; fail-fast without a key)
+├── analyze.py           primary user-facing command (live mode; fail-fast without a key)
 ├── requirements.txt      third-party deps (mirrors the package pyproject lower bounds)
 ├── tests/                pytest suite (run it for the authoritative count)
-├── scripts/              install.sh, healthcheck.py, benchmark/, measure_accuracy.py, generate_realistic_evidence.py
+├── scripts/              install.sh, healthcheck.py, benchmark/, scripts/eval/demo.py, generate_realistic_evidence.py
 ├── docs/                 architecture.md, accuracy-report.md, case walkthroughs
 ├── .github/workflows/    CI matrix (Python 3.10–3.13) + URL reachability
 │
@@ -190,7 +190,7 @@ bash examples/demo-run.sh
 
 # 3. Real analysis — add a key, then run a case.
 export ANTHROPIC_API_KEY='sk-...'
-python3 run_eval.py --case self-evaluation/case-01
+python3 analyze.py --case self-evaluation/case-01
 ```
 
 Downloading the external datasets, or analyzing your own disk image / host
@@ -199,16 +199,16 @@ collection (collect → adapt → analyze), are in
 
 ## Demo & benchmarks
 
-`run_eval.py` is live mode only — it needs an `ANTHROPIC_API_KEY` and fails fast
+`analyze.py` is live mode only — it needs an `ANTHROPIC_API_KEY` and fails fast
 otherwise. Everything else below runs with no credentials.
 
 | What it does | Command | Needs |
 |---|---|---|
 | **Health check** — verify the install | `python3 scripts/healthcheck.py` | nothing |
 | **Offline demo** — full loop + audit chain + the `execute_shell` bypass test | `bash examples/demo-run.sh` | nothing |
-| **List cases** in both tiers | `python3 run_eval.py --list` | nothing |
-| **Auto-reproducible** — `case-01` only: bundled evidence, the measured baseline | `python3 run_eval.py --case self-evaluation/case-01` | auth |
-| **Scenario specs** — `case-02`–`08`: direct MCP on shared `sample-evidence/`; not `run_eval` auto-targets | see each case's README | nothing |
+| **List cases** in both tiers | `python3 analyze.py --list` | nothing |
+| **Auto-reproducible** — `case-01` only: bundled evidence, the measured baseline | `python3 analyze.py --case self-evaluation/case-01` | auth |
+| **Scenario specs** — `case-02`–`08`: direct MCP on shared `sample-evidence/`; not `analyze` auto-targets | see each case's README | nothing |
 | **External datasets** — `case-01`–`03`: `--download` fetches the raw image only (large), then adapt → analyse | `--download`, then adapt, then `--case …` | auth + disk |
 
 Notes:
@@ -217,7 +217,7 @@ Notes:
   1.0, hallucination 0). The other self-evaluation cases (`case-02`–`08`) are
   scenario specifications (README + ground truth), exercised by direct MCP
   invocation against the shared `examples/sample-evidence/` tree — not
-  `run_eval` auto-targets.
+  `analyze` auto-targets.
 - External cases are public third-party datasets: `case-01` NIST CFReDS,
   `case-02` Ali Hadi web-server, `case-03` Digital Corpora M57-Patents (Jo).
   `--download` fetches the **raw disk image only** (several GB — can take a
@@ -269,7 +269,7 @@ Two machines, clean separation:
 - **Analysis server** (your SIFT/workstation) — has Agentic-DART **and** the
   collector adapter. All reasoning happens here, never on the evidence host.
 
-You bring evidence in one of two ways, then analyse it with `run_eval.py
+You bring evidence in one of two ways, then analyse it with `analyze.py
 --evidence`:
 
 **A) Live triage — Velociraptor offline collector → ZIP** (the common case)
@@ -286,7 +286,7 @@ python3 -m dart_collector_adapter --source zip \
 
 # 3. Analyse it.
 export ANTHROPIC_API_KEY='sk-...'
-python3 run_eval.py --evidence ./case-001/evidence_root --case-id case-001 --max-iterations 25
+python3 analyze.py --evidence ./case-001/evidence_root --case-id case-001 --max-iterations 25
 ```
 
 **B) Dead disk — forensic image (`.dd`/`.raw`/`.E01`) → ZIP → evidence_root**
@@ -297,7 +297,7 @@ so you never run anything on the original media:
 ```bash
 python3 -m dart_collector_adapter --source image \
     --input /evidence/disk.E01 --output ./case-001/evidence_root --case-id case-001
-python3 run_eval.py --evidence ./case-001/evidence_root --case-id case-001 --max-iterations 25
+python3 analyze.py --evidence ./case-001/evidence_root --case-id case-001 --max-iterations 25
 ```
 
 Notes:
@@ -351,7 +351,7 @@ pip install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_age
 > installer neither creates nor requires one.
 
 Each case resolves its own evidence from `case-XX/evidence_root/`, so no global
-`DART_EVIDENCE_ROOT` export is needed for `run_eval.py`. For the low-level
+`DART_EVIDENCE_ROOT` export is needed for `analyze.py`. For the low-level
 developer commands, `DART_EVIDENCE_ROOT` must point to read-only evidence and
 `DART_DERIVED_ROOT` (for generated Plaso storage and other derived artifacts)
 should live outside the evidence tree:
@@ -373,12 +373,12 @@ installing, then run everything from that activated shell:
 python3 -m venv .venv
 source .venv/bin/activate         # Windows: .venv\Scripts\activate
 bash scripts/install.sh           # installs into the activated venv
-python3 run_eval.py --case self-evaluation/case-01
+python3 analyze.py --case self-evaluation/case-01
 ```
 
 The key rule is consistency: install and run with the *same* interpreter.
 If you install inside a venv, keep that venv activated when you run
-`run_eval.py`, `scripts/healthcheck.py`, or the benchmark scripts.
+`analyze.py`, `scripts/healthcheck.py`, or the benchmark scripts.
 
 ### `No module named dart_mcp.server_stdio`
 
@@ -387,7 +387,7 @@ that started the run. This error means the packages were installed into a
 different interpreter than the one you invoked. Fix it by installing and
 running with one interpreter — e.g. re-run `bash scripts/install.sh` from
 the same shell (and the same activated venv, if any) you use to launch
-`run_eval.py`.
+`analyze.py`.
 
 ### `Velociraptor binary not found` (external benchmarks)
 
@@ -604,7 +604,7 @@ Coverage = **10 / 12** actively detected by scoped rules. Two tactics are **defe
 
 ## Live mode (real Claude API + MCP stdio)
 
-Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. Live mode authenticates with an `ANTHROPIC_API_KEY`; `run_eval.py` is the user-facing entry point. Developers can use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
+Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. Live mode authenticates with an `ANTHROPIC_API_KEY`; `analyze.py` is the user-facing entry point. Developers can use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
@@ -643,7 +643,7 @@ Evidence integrity:        preserved (62 files, all SHA-256 hashes match pre/pos
 Self-correction observed:  true
 ```
 
-Produced by `python3 scripts/measure_accuracy.py`. The harness scores against the one canonical bundled evidence tree (`examples/case-studies/self-evaluation/case-01/evidence_root/`), where the two IOC-only logs are enriched with deterministic benign traffic (web access 1027 lines ~1:37, unix auth 517 ~1:29) while every other surface is committed hand-curated at production volume (security EventLog ~11,530 lines, supply-chain, RDP brute, USB setupapi, etc.). It produces recall=1.0 / FPR=0.0 / hallucination=0 on the case-01 reference findings (F-001, F-013); per-case scoring is provided by `scripts/benchmark/score_cases.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and explicit limitations (third-party dataset benchmarking is the `external-evaluation/` tier, downloaded on demand).
+Produced by `python3 scripts/scripts/eval/demo.py`. The harness scores against the one canonical bundled evidence tree (`examples/case-studies/self-evaluation/case-01/evidence_root/`), where the two IOC-only logs are enriched with deterministic benign traffic (web access 1027 lines ~1:37, unix auth 517 ~1:29) while every other surface is committed hand-curated at production volume (security EventLog ~11,530 lines, supply-chain, RDP brute, USB setupapi, etc.). It produces recall=1.0 / FPR=0.0 / hallucination=0 on the case-01 reference findings (F-001, F-013); per-case scoring is provided by `scripts/eval/score.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and explicit limitations (third-party dataset benchmarking is the `external-evaluation/` tier, downloaded on demand).
 
 ### Supply-chain + AD certificate-services attack chain (self-evaluation/case-08)
 

@@ -24,10 +24,10 @@ For all three, the full image is downloaded on demand (size + licensing keep it
 out of git):
 
 ```bash
-python3 run_eval.py --case external-evaluation/case-01 --download
+python3 analyze.py --case external-evaluation/case-01 --download
 ```
 
 Dataset registry, checksums, and fetch commands:
-`../../scripts/benchmark/datasets.py` and
-`python3 -m scripts.benchmark.download --help`. The full case table is in
+`../../scripts/eval/datasets.py` and
+`python3 -m scripts.eval.download --help`. The full case table is in
 [`../README.md`](../README.md).

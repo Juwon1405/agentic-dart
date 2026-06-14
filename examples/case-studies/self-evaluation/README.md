@@ -31,10 +31,10 @@ copies — which keeps the layout realistic (one noisy disk, many attacks) and
 avoids duplicating the tree eight times.
 
 `case-01` is the measured regression baseline
-(`scripts/measure_accuracy.py` → recall 1.0, hallucination 0). The full case
+(`scripts/scripts/eval/demo.py` → recall 1.0, hallucination 0). The full case
 table is in [`../README.md`](../README.md).
 
 ```bash
-python3 run_eval.py --case self-evaluation/case-01   # bundled, deterministic, no key
-python3 run_eval.py --list                           # shows: bundled / spec-only / download
+python3 analyze.py --case self-evaluation/case-01   # bundled, deterministic, no key
+python3 analyze.py --list                           # shows: bundled / spec-only / download
 ```

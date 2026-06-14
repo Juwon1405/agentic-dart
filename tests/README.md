@@ -48,5 +48,5 @@ individually plus `python3 -m pytest dart_corr/tests/`.
 Per-case scoring of the cases under
 `examples/case-studies/{self-evaluation,external-evaluation}/` is **not**
 part of `pytest`. That
-lives under `scripts/benchmark/` (`score_cases.py`, `run_all.py`) and runs
+lives under `scripts/eval/` (`scripts/eval/score.py`, `scripts/eval/demo.py`) and runs
 separately as the `benchmark-integrity` workflow.

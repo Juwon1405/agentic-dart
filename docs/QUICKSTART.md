@@ -39,7 +39,7 @@ bash examples/demo-run.sh
 # 2) Score it: recall / false-positive / hallucination on bundled evidence.
 #    Deterministic regression baseline: a scripted analyst, not LLM reasoning;
 #    detection-skill numbers come from live runs on the external datasets.
-python3 scripts/measure_accuracy.py
+python3 scripts/scripts/eval/demo.py
 
 # 3) Trace any finding back to the exact tool call that produced it.
 python3 -m dart_audit verify examples/out/find-evil-ref-01/audit.jsonl
@@ -64,13 +64,13 @@ bash examples/sift-adapter-demo.sh
 ```bash
 export ANTHROPIC_API_KEY='sk-...'
 
-python3 run_eval.py --list                              # see all cases
-python3 run_eval.py --case self-evaluation/case-01      # live run, bundled evidence
+python3 analyze.py --list                              # see all cases
+python3 analyze.py --case self-evaluation/case-01      # live run, bundled evidence
 
 # External datasets ship as raw disk images — three steps (--download does NOT analyze):
 #
 # 1) Download the raw image only (large — can take a while; downloads, no analysis).
-python3 run_eval.py --case external-evaluation/case-01 --download   # NIST CFReDS
+python3 analyze.py --case external-evaluation/case-01 --download   # NIST CFReDS
 #    → prints the downloaded image path under
 #      examples/case-studies/external-evaluation/case-01/<dataset>/
 #
@@ -81,7 +81,7 @@ python3 -m dart_collector_adapter --source image \
     --case-id CFREDS-01
 #
 # 3) Analyze the adapted evidence_root:
-python3 run_eval.py --case external-evaluation/case-01
+python3 analyze.py --case external-evaluation/case-01
 #   external-evaluation/case-02 = Ali Hadi · case-03 = Digital Corpora M57
 ```
 
@@ -128,7 +128,7 @@ This writes a flat, categorized `evidence_root/` plus a `manifest.json`
 
 ```bash
 export ANTHROPIC_API_KEY='sk-...'
-python3 run_eval.py --evidence ./evidence_root --case-id CASE-001
+python3 analyze.py --evidence ./evidence_root --case-id CASE-001
 ```
 
 Output lands in `out/custom/CASE-001/<timestamp>/`, same shape as above.

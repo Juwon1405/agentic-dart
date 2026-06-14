@@ -55,7 +55,7 @@ is ~30 seconds on the bundled case and ~5-10 minutes against a 5 GB
 CFReDS image — minutes instead of days, with the full audit chain
 intact.
 
-**One command, real evidence.** `python3 run_eval.py --case
+**One command, real evidence.** `python3 analyze.py --case
 self-evaluation/case-01` runs the whole live senior-analyst loop; point
 it at your own case with `--evidence <evidence_root>`. And the evidence
 is *real*: the companion **collector adapter** (a separate repo —
@@ -177,7 +177,7 @@ The full 10-phase playbook runs end-to-end with no human in the loop:
 
 ```bash
 # One command, no prompts, no human interaction
-python3 run_eval.py --case self-evaluation/case-01
+python3 analyze.py --case self-evaluation/case-01
 ```
 
 Measured runtime on a clean SIFT VM: ~30 seconds on the bundled case,
@@ -193,7 +193,7 @@ actual persistence mechanism (`HKCU\...\Run\WinUpdate`) at confidence
 0.91. The hypothesis revision is written to `progress.jsonl` after the
 iteration, and the MCP calls that forced it are SHA-256-chained in
 `audit.jsonl` — a reviewer can replay exactly why the agent changed its
-mind. `scripts/measure_accuracy.py` reports `self_correction_observed:
+mind. `scripts/scripts/eval/demo.py` reports `self_correction_observed:
 true` on the bundled case-01, which exercises the same loop on a
 USB/logon contradiction: flagged `UNRESOLVED`, hypothesis replaced after
 the time window is widened.
@@ -251,7 +251,7 @@ disk image only; adapt it into an `evidence_root/` with the collector adapter
 (`--source image`), then re-run without `--download` to analyze:
 
 ```bash
-python3 run_eval.py --case external-evaluation/case-01 --download
+python3 analyze.py --case external-evaluation/case-01 --download
 ```
 
 ### 3. Breadth and Depth of Analysis
@@ -344,7 +344,7 @@ Linux/macOS with Python 3.10+):
 git clone https://github.com/Juwon1405/agentic-dart.git && cd agentic-dart
 bash scripts/install.sh --os auto        # installs into active interpreter; also installs the collector adapter
 python3 scripts/healthcheck.py           # API-free readiness check
-python3 run_eval.py --case self-evaluation/case-01
+python3 analyze.py --case self-evaluation/case-01
 ```
 
 Building on it is the design intent: the playbook is YAML — swap in your
@@ -358,7 +358,7 @@ collection source that can produce `evidence_root/` plugs in.
 | Top-level overview | `README.md` |
 | Per-case walkthroughs | `examples/case-studies/<tier>/case-NN/README.md` (11 cases) |
 | Per-case machine-readable ground truth | `examples/case-studies/<tier>/case-NN/truth.json` |
-| Benchmark suite operator guide | `scripts/benchmark/README.md` |
+| Benchmark suite operator guide | `scripts/eval/README.md` |
 | Accuracy report (self-evaluation) | `docs/accuracy-report.md` |
 | Accuracy report (external) | `docs/benchmarks/SUMMARY.md` |
 | Architecture | `docs/architecture.md` |
@@ -409,7 +409,7 @@ collection source that can produce `evidence_root/` plugs in.
 
 - **Single-developer end-to-end platform** — autonomous agent + MCP
   server + SIFT adapter + collector adapter (ZIP **and** dead-disk image)
-  + one-command `run_eval` CLI + OS-aware installer + benchmark suite +
+  + one-command `analyze` CLI + OS-aware installer + benchmark suite +
   11 case studies, shipped by one person in six weeks.
 - **Minimal dependency surface in the core MCP layer.** Only two
   third-party Python packages — `duckdb` for the cross-artifact
@@ -478,7 +478,7 @@ Post-submission roadmap, scheduled for after 2026-06-15:
 ### Prerequisites
 
 - SIFT Workstation (or any Linux/macOS with Python 3.10+)
-- Anthropic API key (`ANTHROPIC_API_KEY`) — `run_eval.py` is live mode only and
+- Anthropic API key (`ANTHROPIC_API_KEY`) — `analyze.py` is live mode only and
   fails fast without it.
 - ~16 GB disk space (only if running external benchmarks)
 
@@ -501,9 +501,9 @@ present when it is not.
 
 ```bash
 export ANTHROPIC_API_KEY='sk-...'
-python3 run_eval.py --case self-evaluation/case-01            # bundled evidence
-python3 run_eval.py --case external-evaluation/case-01 --download   # fetch raw image (then adapt + analyze)
-python3 run_eval.py --list                                   # discover all cases (no key needed)
+python3 analyze.py --case self-evaluation/case-01            # bundled evidence
+python3 analyze.py --case external-evaluation/case-01 --download   # fetch raw image (then adapt + analyze)
+python3 analyze.py --list                                   # discover all cases (no key needed)
 ```
 
 ### Low-level offline demo (no API key)
@@ -520,7 +520,7 @@ with the collector adapter, drop it under a case folder, then run it:
 ```bash
 python3 -m dart_collector_adapter --source image --input disk.E01 \
     --output examples/case-studies/self-evaluation/case-01/evidence_root --case-id my-case
-python3 run_eval.py --case self-evaluation/case-01
+python3 analyze.py --case self-evaluation/case-01
 ```
 
 ---
@@ -532,7 +532,7 @@ python3 run_eval.py --case self-evaluation/case-01
 - [x] README with architecture overview and reproduction commands
 - [x] Demo video (submitted directly to Devpost form, not embedded in repo)
 - [x] 11 documented case studies with machine-readable ground truth
-- [x] Benchmark suite (`scripts/benchmark/`) covering internal + external evidence
+- [x] Benchmark suite (`scripts/eval/`) covering internal + external evidence
 - [x] CI green at submission (full pytest suite passing across dart_mcp, dart_agent, dart_audit, dart_corr)
 - [x] Audit-chain verification utility (`dart_audit verify`)
 - [x] Architectural guardrail test pack (`tests/test_mcp_bypass.py` — 7 bypass tests)

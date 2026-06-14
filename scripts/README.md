@@ -6,7 +6,7 @@ runtime package surface — they are repository tooling.
 
 ## Accuracy measurement
 
-- **`measure_accuracy.py`** — scores the case-01 findings (F-001 web shell,
+- **`scripts/eval/demo.py`** — scores the case-01 findings (F-001 web shell,
   F-013 USB setupapi) against the **canonical bundled evidence**
   (`examples/case-studies/self-evaluation/case-01/evidence_root/`). There is no
   `--variant` selector any more. Before scoring it re-derives the two IOC-only
@@ -14,7 +14,7 @@ runtime package surface — they are repository tooling.
   `generate_realistic_evidence.py`; output is byte-identical across runs, so the
   working tree stays clean.
 - **`healthcheck.py`** — API-free readiness check (imports, dependency versions,
-  MCP tool surface, adapter `--help`, tiered case layout, `run_eval` fail-fast).
+  MCP tool surface, adapter `--help`, tiered case layout, `analyze` fail-fast).
 - **`measure_cfreds.py`** — external CFReDS standalone scorer.
 
 ## Evidence enrichment
@@ -38,9 +38,9 @@ runtime package surface — they are repository tooling.
 ## Benchmarking
 
 - **`benchmark/`** — external-tier dataset orchestration (`download.py`,
-  `score_cases.py`, `validate_ground_truth.py`, and the lower-level
-  `run_all.py`). The primary user-facing runner is the repo-root
-  `run_eval.py`. See `benchmark/README.md`.
+  `scripts/eval/score.py`, `validate_ground_truth.py`, and the lower-level
+  `scripts/eval/demo.py`). The primary user-facing runner is the repo-root
+  `analyze.py`. See `benchmark/README.md`.
 
 ## Assets
 

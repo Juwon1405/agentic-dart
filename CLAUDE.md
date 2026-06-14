@@ -39,7 +39,7 @@ dart_agent/      Iteration controller, hypothesis tracker, deterministic + live 
 dart_corr/       Cross-artifact correlation engine — DuckDB joins, contradiction flagging
 dart_playbook/   Senior-analyst YAML playbooks — DATA, not a Python package
 examples/        case-studies/{self-evaluation,external-evaluation}/case-NN/ (README+truth.json+evidence_root), sample-evidence/ (CI fixture), demos
-scripts/         install.sh, benchmark/, measure_accuracy.py, generate_realistic_evidence.py
+scripts/         install.sh, benchmark/, scripts/eval/demo.py, generate_realistic_evidence.py
 tests/           the main pytest suite; dart_corr/tests/ holds the correlation-engine tests
 docs/            architecture, accuracy report, case walkthroughs
 ```
@@ -56,7 +56,7 @@ of YAML playbooks with no `pyproject.toml`; it is loaded by path, not imported.
 | **Live** | `--mode live` | Anthropic API credentials | real-Claude reasoning, fidelity runs |
 | **Dry-run** | `--dry-run` | none — exercises live plumbing with a mock LLM | smoke-testing the live path |
 
-CI and `scripts/measure_accuracy.py` run **deterministic only** — they never
+CI and `scripts/scripts/eval/demo.py` run **deterministic only** — they never
 touch the network. Anything you change in live mode (e.g. `dart_agent/auth.py`)
 does not affect CI, the accuracy numbers, or the test suite, which are
 mock-backed.
@@ -97,7 +97,7 @@ PYTHONPATH=dart_mcp/src python3 -c "import dart_mcp; t=dart_mcp._REGISTRY; \
 s=[k for k in t if k.startswith('sift_')]; print(len(t), len(t)-len(s), len(s))"
 
 # Accuracy — must not regress: recall stays 1.0, hallucination stays 0
-python3 scripts/measure_accuracy.py
+python3 scripts/scripts/eval/demo.py
 ```
 
 When you change a count, do not copy the new number into prose across the repo.

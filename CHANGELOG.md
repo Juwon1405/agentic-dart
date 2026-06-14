@@ -7,7 +7,7 @@ not efficient; v1.0.1 reworked the platform, and v1.0.2 finalises it as the
 **stable, efficient** release for the contest.
 
 ### Summary of what changed since v1.0.0
-- **One-command UX** — `run_eval.py` (live mode) replaces the old multi-flag
+- **One-command UX** — `analyze.py` (live mode) replaces the old multi-flag
   flow; `--evidence` analyses your own adapter-produced `evidence_root`.
 - **Self-contained, tiered case studies** — `self-evaluation/` +
   `external-evaluation/`, index-only names, per-case `truth.json`; removed the
@@ -27,13 +27,13 @@ not efficient; v1.0.1 reworked the platform, and v1.0.2 finalises it as the
 ## [1.0.1] — 2026-06-10 — Evidence isolation, schema validation, platform overhaul
 
 ### Added
-- `run_eval.py` — the primary user-facing command. Live mode only: fails fast,
+- `analyze.py` — the primary user-facing command. Live mode only: fails fast,
   before any work, with an exact actionable message when `ANTHROPIC_API_KEY` is
   unset. Discovers cases dynamically from both tiers, writes
   `out/<tier>/<case-id>/<timestamp>/{findings,report,summary}.json`.
 - `requirements.txt` at the repo root, mirroring the package pyproject bounds.
 - `scripts/healthcheck.py` — API-free readiness check (imports, dependency
-  versions, MCP tool surface, adapter `--help`, tiered case layout, run_eval
+  versions, MCP tool surface, adapter `--help`, tiered case layout, analyze.py
   fail-fast).
 - OS-aware `scripts/install.sh` (`--os auto|ubuntu|centos|macos`,
   `--install-sift/--skip-sift`, `--install-eztools/--skip-eztools`,
@@ -50,7 +50,7 @@ not efficient; v1.0.1 reworked the platform, and v1.0.2 finalises it as the
   `ground-truth.json` renamed to `truth.json`; per-case `evidence_root/`.
 - Canonical bundled evidence moved to
   `self-evaluation/case-01/evidence_root/`; removed the public evidence-variant
-  selector (`--variant`) from `measure_accuracy.py` and `run_all.py`. Recall
+  selector (`--variant`) from `scripts/eval/demo.py` and `scripts/eval/demo.py`. Recall
   stays 1.0 / hallucination 0 on the migrated tree.
 - Resolved the M57 naming inconsistency to the M57-Patents scenario, subject Jo
   (matching the download registry `jo-2009-12-10.E01`).
@@ -123,7 +123,7 @@ below into a single versioned baseline.
   and no longer `rmtree`/`copytree` the reference set over the realistic tree
   (which had destroyed hand-curated evidence with no reference counterpart,
   e.g. supply-chain events).
-- `measure_accuracy.py --variant realistic` re-derives those two logs before
+- `scripts/eval/demo.py --variant realistic` re-derives those two logs before
   scoring; byte-identical output keeps the working tree clean.
 - CI now scores both reference and realistic variants on every build.
 
@@ -525,7 +525,7 @@ Detection coverage is preserved across all cases:
 | case-03 fsevents | mac suspicious=4, macos suspicious=2 | improved |
 | case-11 supply | scattered_tgts=1, asrep=1 | unchanged |
 
-68 unit tests green; `measure_accuracy.py --variant realistic` confirms
+68 unit tests green; `scripts/eval/demo.py --variant realistic` confirms
 recall=1.000 / FPR=0.000 / hallucination=0 on F-001 + F-013.
 
 Schema enrichments:
@@ -783,7 +783,7 @@ production-shape detection capability.
   trees are not noise-injected (would collide PIDs with IOC entries and
   break `get_process_tree`'s recursive walk; the realistic-noise signal
   is demonstrated through the three log surfaces above).
-- `scripts/measure_accuracy.py --variant {reference,realistic}` — score
+- `scripts/scripts/eval/demo.py --variant {reference,realistic}` — score
   the agent on either variant. Both variants score the same ground
   truth and currently produce **identical recall=1.0 / FPR=0.0 /
   hallucination=0**, ruling out the "small-input over-fit" failure mode.
@@ -1153,7 +1153,7 @@ any third-party detection tool we cite as inspiration.
 ### Why deferred
 
 Activating these frameworks at runtime would shift the baseline measured
-by `scripts/measure_accuracy.py` (more findings → either spurious
+by `scripts/scripts/eval/demo.py` (more findings → either spurious
 "improvement" or new false positives that read as regressions). The
 hackathon submission ships with a stable, reproducible baseline.
 Post-SANS, all four runtime activations land together with a single
@@ -1411,7 +1411,7 @@ Scaffolded but not on the live surface (Phase 2):
 - `dart-audit` CLI with `verify`, `lookup`, `trace`, `summary`
   subcommands. Enables the "3 clicks from finding to raw evidence"
   claim to be executed, not just asserted.
-- `scripts/measure_accuracy.py` — deterministic accuracy measurement
+- `scripts/scripts/eval/demo.py` — deterministic accuracy measurement
   producing the numbers committed to `docs/accuracy-report.md`.
 - `tests/test_mcp_bypass.py` — six adversarial bypass scenarios
   (unregistered function, ../ traversal, absolute-path escape, NUL

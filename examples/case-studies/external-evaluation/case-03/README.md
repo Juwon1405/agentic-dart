@@ -74,17 +74,17 @@ What this case **does** ship:
   narrative, mapped to expected MCP functions and MITRE ATT&CK
   techniques
 - Reproducible benchmark integration via
-  `scripts/benchmark/run_benchmark.py m57`
+  `scripts/eval/external.py m57`
 
 ## How to fetch and run
 
 ```bash
 # 1. Download Jo's PC subset (one-time, ~10 GB)
 cd ~/agentic-dart
-python3 -m scripts.benchmark.download m57 ./datasets
+python3 -m scripts.eval.download m57 ./datasets
 
 # 2. Run the benchmark
-python3 -m scripts.benchmark.run_benchmark m57
+python3 -m scripts.eval.external m57
 
 # 3. Inspect the report
 cat docs/benchmarks/m57_jo_*.json
@@ -109,7 +109,7 @@ already in the MCP catalogue.
 | Partially detectable | **4** | F-M57J-005 (IE history via `parse_browser_history`), F-M57J-006 (Recycle Bin metadata — basic), F-M57J-008 (USN journal — exists, needs polish), F-M57J-009 (browser credentials) |
 | Phase 2 roadmap | **2** | F-M57J-003 (Outlook Express DBX parser), F-M57J-004 (DBX attachment extraction) |
 
-**Expected honest recall** (re-measured live by `run_benchmark.py`):
+**Expected honest recall** (re-measured live by `scripts/eval/external.py`):
 
 - Strict (full detection only): ~0.40
 - Lenient (full + partial): ~0.80

@@ -66,17 +66,17 @@ What this case **does** ship:
   through exfiltration, mapped to expected MCP functions and MITRE
   ATT&CK techniques
 - Reproducible benchmark integration via
-  `scripts/benchmark/run_benchmark.py hadi1`
+  `scripts/eval/external.py hadi1`
 
 ## How to fetch and run
 
 ```bash
 # 1. Download the dataset (one-time, ~1.5 GB)
 cd ~/agentic-dart
-python3 -m scripts.benchmark.download hadi1 ./datasets
+python3 -m scripts.eval.download hadi1 ./datasets
 
 # 2. Run the benchmark
-python3 -m scripts.benchmark.run_benchmark hadi1
+python3 -m scripts.eval.external hadi1
 
 # 3. Inspect the report
 cat docs/benchmarks/hadi_challenge_1_*.json
@@ -107,7 +107,7 @@ the bundled image with no manual preprocessing.
 | Partially detectable | **3** | F-HADI1-002 (web shell signatures — detect_webshell works on PHP), F-HADI1-006 (network artefacts via syslog), F-HADI1-010 (host identity) |
 | Phase 2 roadmap | **2** | F-HADI1-007 (filesystem staging in /tmp — needs `enumerate_filesystem_anomalies`), F-HADI1-008 (MySQL binary log parsing) |
 
-**Expected honest recall** (re-measured live by `run_benchmark.py`):
+**Expected honest recall** (re-measured live by `scripts/eval/external.py`):
 
 - Strict (full detection only): ~0.50
 - Lenient (full + partial): ~0.80

@@ -120,7 +120,7 @@ python3 tests/test_mcp_bypass.py
 python3 tests/test_agent_self_correction.py
 
 # Measure accuracy
-python3 scripts/measure_accuracy.py
+python3 scripts/scripts/eval/demo.py
 
 # Inspect audit chain
 python3 -m dart_audit verify examples/out/find-evil-ref-01/audit.jsonl

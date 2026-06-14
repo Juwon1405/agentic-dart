@@ -23,7 +23,7 @@ Python 3.10+, MIT, SANS FIND EVIL! 2026.
 - `dart_corr/` — DuckDB cross-artifact correlation engine (Python package)
 - `dart_playbook/` — senior-analyst YAML playbooks; **data, no `pyproject.toml`, loaded by path**
 - `examples/` — `case-studies/{self-evaluation,external-evaluation}/case-NN/` (README + truth.json + evidence_root), `sample-evidence/` (CI fixture), demos
-- `scripts/` — `install.sh`, `benchmark/`, `measure_accuracy.py`, `generate_realistic_evidence.py`
+- `scripts/` — `install.sh`, `benchmark/`, `scripts/eval/demo.py`, `generate_realistic_evidence.py`
 - `tests/` — main pytest suite; `dart_corr/tests/` — correlation-engine tests
 
 ## Preferred commands
@@ -47,7 +47,7 @@ s=[k for k in t if k.startswith('sift_')]; print(len(t), len(t)-len(s), len(s))"
 bash examples/demo-run.sh
 
 # Accuracy (deterministic; recall must stay 1.0, hallucination 0)
-python3 scripts/measure_accuracy.py
+python3 scripts/scripts/eval/demo.py
 ```
 
 CI mirrors these (`.github/workflows/ci.yml`) and runs **deterministic only** —
@@ -80,6 +80,6 @@ names, or internal codenames. Intentional and allowed: the demo persona
 
 1. `python3 -m pytest tests/ dart_corr/tests/ -q` → every test passes
 2. Tool surface still matches the set asserted by `tests/test_mcp_surface.py`
-3. `measure_accuracy.py` → recall 1.0 / hallucination 0 (no regression)
+3. `scripts/eval/demo.py` → recall 1.0 / hallucination 0 (no regression)
 4. English commit message + English code comments
 5. `grep` your touched surfaces for stale numbers/phrasing

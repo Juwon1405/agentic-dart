@@ -21,13 +21,13 @@ lives in each case's `README.md`. Each case ships a `README.md` (incident
 narrative + reasoning hooks) and a `truth.json` (expected findings, IOCs,
 ATT&CK mapping). The agent resolves a case's evidence from its own
 `case-XX/evidence_root/`. Per-case scoring lives in
-`../../scripts/benchmark/score_cases.py`.
+`../../scripts/eval/score.py`.
 
 Run a case with the primary CLI:
 
 ```bash
-python3 run_eval.py --case self-evaluation/case-01
-python3 run_eval.py --case external-evaluation/case-01 --download
+python3 analyze.py --case self-evaluation/case-01
+python3 analyze.py --case external-evaluation/case-01 --download
 ```
 
 ## Tier 1 — self-evaluation (synthetic)
@@ -53,7 +53,7 @@ are not separately bundled with their own evidence tree.
 ## Tier 2 — external-evaluation (public datasets)
 
 Built on community-verified public datasets. Evidence is **not bundled** (size
-and third-party licensing); download on demand. `run_eval.py --case
+and third-party licensing); download on demand. `analyze.py --case
 external-evaluation/case-XX --download` prints/runs the exact fetch command.
 
 | Tier | Case | Title | Dataset source | Evidence type | Expected findings |
@@ -69,5 +69,5 @@ external-evaluation/case-XX --download` prints/runs the exact fetch command.
 > paths now all agree on **Jo**.
 
 External dataset registry, checksums, and download commands:
-`../../scripts/benchmark/datasets.py` and
-`python3 -m scripts.benchmark.download --help`.
+`../../scripts/eval/datasets.py` and
+`python3 -m scripts.eval.download --help`.

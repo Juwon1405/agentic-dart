@@ -15,7 +15,7 @@
 ## Subdirectories
 
 - **`benchmarks/`** — supplementary benchmark write-ups and per-case detail
-  (read alongside `accuracy-report.md` and `scripts/benchmark/README.md`).
+  (read alongside `accuracy-report.md` and `scripts/eval/README.md`).
 - **`img/`** — diagrams (architecture, data flow, etc.) referenced from the
   Markdown above.
 - **`screenshots/`** — UI / CLI screenshots used in `README.md` and the

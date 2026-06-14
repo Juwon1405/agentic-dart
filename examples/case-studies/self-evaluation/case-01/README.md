@@ -88,7 +88,7 @@ refuses to conclude on confirmation-only evidence.
 bash examples/demo-run.sh
 
 # Measured accuracy (recall, FP rate, hallucination count)
-python3 scripts/measure_accuracy.py
+python3 scripts/scripts/eval/demo.py
 
 # Audit chain integrity
 python3 -m dart_audit verify examples/out/find-evil-ref-01/audit.jsonl
