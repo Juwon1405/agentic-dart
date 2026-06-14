@@ -10,8 +10,9 @@ We keep all of that. We only fix two real problems:
       That command does not exist in this package. Wipe and replace it with
       the documented module invocation.
 
-  (2) Stat-block numbers that drift between releases (35 / 11/12 /
-      20/20). Wipe and replace with evergreen design-principle words.
+  (2) Stat-block numbers that drift between releases (tool count,
+      tactic ratio, test count, etc.). Wipe and replace with evergreen
+      design-principle words.
 
 Then derive thumbnail (1280x720) and wiki-banner (1200x300) from the
 same hero, so the three surfaces share visual identity.

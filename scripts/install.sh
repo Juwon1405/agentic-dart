@@ -237,6 +237,18 @@ if [[ "${DO_EZTOOLS}" == 1 ]]; then
   mkdir -p "${EZ_DIR}"
   command -v unzip >/dev/null || warn "unzip not found; EZ Tools extraction may fail"
   for tool in "${EZ_TOOLS[@]}"; do
+    # Idempotency guard: if the tool's .dll/.exe is already present under the
+    # staged directory, skip the round-trip to the upstream server entirely.
+    # The unzip step lays the binary down at ${EZ_DIR}/${tool}/${tool}.dll
+    # (or .exe on Windows), so probing for the presence of either file is the
+    # cheapest correct check; treats an empty directory as a stale stage and
+    # falls through to re-download. (No version-pinning on the upstream side,
+    # so we cannot detect "newer release available" — by design.)
+    if compgen -G "${EZ_DIR}/${tool}/${tool}.dll" >/dev/null 2>&1 \
+       || compgen -G "${EZ_DIR}/${tool}/${tool}.exe" >/dev/null 2>&1; then
+      ok "${tool} already staged at ${EZ_DIR}/${tool}/ — skipping download"
+      continue
+    fi
     url="${EZ_BASE}/${tool}.zip"
     # Validate the URL with a real request before downloading.
     code="$(curl -s -o /dev/null -w '%{http_code}' -I "${url}" || echo 000)"
