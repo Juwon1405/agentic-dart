@@ -88,12 +88,12 @@ DATASETS = {
         "homepage": "https://www.ashemery.com/dfir.html",
         "download_base": "https://archive.org/download/dfir-case1",
         "parts": [
-            # md5 of the archived E01 container file (verified 2026-06 against the
-            # archive.org copy). For forensic integrity, the E01-internal
-            # acquisition hash can be verified with `ewfverify` — the original
-            # acquisition MD5 recorded by the examiner is
-            # 03e4a40ebaf6071b346fb2bf217a9f3b (see Case1-Webserver.E01.txt).
-            ("Case1-Webserver.E01", "md5", "dd19d88de593ea88b5ba24518e19bac3"),
+            # md5 of the archive.org E01 container copy (live-measured 2026-06).
+            # The archive.org mirror's container md5 differs from other mirrors;
+            # for forensic integrity the E01-internal acquisition md5 recorded
+            # by the examiner is 03e4a40ebaf6071b346fb2bf217a9f3b (per
+            # Case1-Webserver.E01.txt) and is independent of any container hash.
+            ("Case1-Webserver.E01", "md5", "c9fe31889e9750977f51054f73343c44"),
             # Optional second part — memory dump for memory forensics
             # ("memdump.7z", "sha1", None),  # 0.11 GB
         ],
