@@ -84,16 +84,17 @@
       "finding_id": "F-LOTL-006",
       "category": "correlation",
       "claim": "PowerShell script block + LSASS access correlated in 2-minute window",
-      "evidence_path": "audit.jsonl",
+      "evidence_path": "disk/processes.csv + disk/events.json",
       "artifact_type": "correlation_finding",
-      "host_path": "audit.jsonl",
+      "host_path": "disk/processes.csv + disk/events.json",
       "expected_dart_mcp_function": "correlate_timeline",
       "mitre_attack": [
         "T1003.001",
         "T1059.001"
       ],
       "severity": "high",
-      "rationale": "DuckDB scale engine cross-source correlation links script execution to credential dumping by same actor."
+      "rationale": "DuckDB scale engine cross-source correlation links script execution to credential dumping by same actor.",
+      "evidence_note": "Correlation finding: correlate_timeline joins the PowerShell script-block execution (processes.csv) with the LSASS access event (events.json). No standalone input file — the correlation is computed across these two sources."
     },
     {
       "finding_id": "F-LOTL-007",

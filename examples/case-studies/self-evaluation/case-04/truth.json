@@ -54,15 +54,16 @@
       "finding_id": "F-PHISH-004",
       "category": "execution",
       "claim": "Download → execution chain correlated within 6-minute window",
-      "evidence_path": "audit.jsonl",
+      "evidence_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History + disk/Windows/AppCompat/Programs/Amcache.hve",
       "artifact_type": "correlation_finding",
-      "host_path": "audit.jsonl",
+      "host_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History + disk/Windows/AppCompat/Programs/Amcache.hve",
       "expected_dart_mcp_function": "correlate_download_to_execution",
       "mitre_attack": [
         "T1204.002"
       ],
       "severity": "high",
-      "rationale": "Browser download record timestamps line up with Amcache/Prefetch execution by 6 min."
+      "rationale": "Browser download record timestamps line up with Amcache/Prefetch execution by 6 min.",
+      "evidence_note": "Correlation finding: correlate_download_to_execution joins the browser download record (History) with the Amcache execution entry. No standalone input file — the correlation is computed across these two sources."
     },
     {
       "finding_id": "F-PHISH-005",
