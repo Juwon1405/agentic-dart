@@ -160,11 +160,12 @@ else
 fi
 
 # ---- 6. yara ---------------------------------------------------------------
-# Resolve yara EXACTLY the way the adapters do (DART_YARA_BIN -> PATH ->
-# repo bin/ dirs), so this step and the SIFT availability table below can never
-# disagree. If the adapter can already find it, skip. Otherwise install it and
-# then make sure the adapter can find it — staging a symlink into bin/ if the
-# package put yara somewhere that isn't on this shell's PATH.
+# Resolve yara the same way the adapters do (DART_YARA_BIN -> PATH -> repo
+# bin/), so this step and the availability table can't disagree. If the adapter
+# can already find it, skip. Otherwise TRY to install it, but treat yara as
+# OPTIONAL: every yara-backed tool (sift_yara_*) has a native fallback, so a
+# failed install must NOT fail the installer — it warns and moves on, telling
+# you exactly how to add yara yourself.
 yara_adapter_path() {
   python3 - <<'PY' 2>/dev/null
 import sys
@@ -177,8 +178,6 @@ except Exception:
 PY
 }
 _stage_yara_into_bin() {
-  # Find a real yara binary anywhere sensible and symlink it into repo bin/ so
-  # the adapter's _search_repo_bins() finds it with no PATH/env setup needed.
   local found
   found="$(command -v yara 2>/dev/null || true)"
   if [[ -z "${found}" ]]; then
@@ -193,19 +192,45 @@ _stage_yara_into_bin() {
   fi
   return 1
 }
+_yara_try_install() {
+  # Best-effort install. Uses sudo only if available and passwordless; refreshes
+  # the apt index first (the usual reason 'apt-get install yara' fails on a
+  # fresh box is a stale/empty package list). Output is kept (no -qq) so the
+  # step log is actually useful when something goes wrong.
+  local SUDO=""
+  if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+    SUDO="sudo"
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+    ${SUDO} apt-get update -y || true
+    ${SUDO} apt-get install -y yara || return 1
+  elif command -v brew >/dev/null 2>&1; then
+    brew install yara || return 1
+  elif command -v dnf >/dev/null 2>&1; then
+    ${SUDO} dnf install -y yara || return 1
+  else
+    echo "no supported package manager (apt-get/brew/dnf) for yara"
+    return 1
+  fi
+}
+
+STEP=$((STEP+1))
 if yara_adapter_path >/dev/null; then
-  skip_step "yara" "adapter resolves: $(yara_adapter_path)"
+  printf "${CYN}[%d/%d]${RST} %-34s ${GRN}✓${RST} ${DIM}adapter resolves: %s${RST}\n" \
+    "${STEP}" "${TOTAL}" "yara" "$(yara_adapter_path)"
 else
-  yara_install() {
-    if have apt-get; then _apt yara
-    elif have brew; then brew install yara
-    else echo "no package manager for yara"; return 1; fi
-    # After install, guarantee the adapter can see it (stage into bin/ if the
-    # binary isn't on this shell's PATH).
-    yara_adapter_path >/dev/null || _stage_yara_into_bin
-    yara_adapter_path >/dev/null   # final verification; nonzero -> step fails
-  }
-  run_step "yara (install + verify adapter can resolve)" yara_install || true
+  printf "${CYN}[%d/%d]${RST} %-34s" "${STEP}" "${TOTAL}" "yara (optional)"
+  ylog="${LOGDIR}/step-${STEP}.log"
+  if { _yara_try_install && { yara_adapter_path >/dev/null || _stage_yara_into_bin; } \
+       && yara_adapter_path >/dev/null; } >"${ylog}" 2>&1; then
+    printf " ${GRN}✓${RST} ${DIM}installed: %s${RST}\n" "$(yara_adapter_path)"
+  else
+    # Not fatal: yara only powers sift_yara_*, which fall back to native tools.
+    printf " ${YEL}! skipped${RST}\n"
+    note "yara not installed — sift_yara_scan_* will fall back to native tools."
+    note "to enable it: sudo apt-get install yara   (or: export DART_YARA_BIN=/path/to/yara)"
+    WARNINGS=$((WARNINGS+1))
+  fi
 fi
 
 # ---- 7. Volatility 3 + Plaso ----------------------------------------------
@@ -257,7 +282,14 @@ run_step "Healthcheck" python3 "${REPO_ROOT}/scripts/healthcheck.py" || true
 printf "\n${BOLD}SIFT adapter tools${RST}\n"
 python3 "${REPO_ROOT}/scripts/check_sift_tools.py" 2>/dev/null | sed -n '1,13p' || true
 
-rm -rf "${LOGDIR}" 2>/dev/null || true
+# Keep the per-step logs around if anything failed or warned, so the paths
+# printed above (…/step-N.log) are still readable for debugging. Only clean up
+# on a fully clean run.
+if [[ "${WARNINGS}" -gt 0 ]]; then
+  printf "\n${DIM}Step logs kept for inspection in: %s${RST}\n" "${LOGDIR}"
+else
+  rm -rf "${LOGDIR}" 2>/dev/null || true
+fi
 
 printf "\n${BOLD}Done.${RST}"
 [[ "${WARNINGS}" -gt 0 ]] && printf " ${YEL}(%d warning(s) above)${RST}" "${WARNINGS}"
