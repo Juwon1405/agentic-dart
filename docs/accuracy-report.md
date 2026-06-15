@@ -77,6 +77,8 @@ all per-case detection counts are preserved across the enrichment.
 > source of record; representative per-case walkthroughs follow. Three models,
 > self-evaluation tier (8 planted cases) + external tier (3 third-party images).
 
+![Recall by model — self-evaluation vs external](benchmarks/recall-by-model.png)
+
 | Tier (cases) | claude-haiku-4-5 | claude-sonnet-4-6 | claude-opus-4-8 |
 |---|---|---|---|
 | self-evaluation (8) | 75.6% | 85.4% | **89.0%** |

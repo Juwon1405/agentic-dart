@@ -716,16 +716,23 @@ Every finding traces to the exact tool call that produced it. Pulled from the co
 
 ## Measured accuracy (reproducible)
 
+Three models, self-evaluation tier (8 planted cases) + external tier (3 third-party disk images). **Source of record: [`docs/benchmarks/ledger.json`](./docs/benchmarks/ledger.json)** — regenerated from runs, never transcribed.
+
+![Recall by model — self-evaluation vs external](./docs/benchmarks/recall-by-model.png)
+
+| Tier (cases) | claude-haiku-4-5 | claude-sonnet-4-6 | claude-opus-4-8 |
+|---|---|---|---|
+| self-evaluation (8) | 75.6% | 85.4% | **89.0%** |
+| external-evaluation (3) | 3.7% | 43.3% | 35.0% |
+| **combined (11)** | 56% | 74% | 74% |
+
 ```
-Recall — synthetic case-01:      1.000
-Recall — external NIST CFReDS:    0.50 strict / 0.80 lenient   (honest paradigm gap, actively closing — see below)
-False positive rate:             0.000
-Hallucination count:             0
-Evidence integrity:              preserved (62 files, all SHA-256 hashes match pre/post)
-Self-correction observed:        true
+Hallucination count:   0   — every finding traces to a tool-call audit_id; low recall is missed coverage, never invention
+Evidence integrity:    preserved — SHA-256 pre/post match on every input file
+Self-correction:       observable in logs — hypothesis revision + parameter-adjusted re-run
 ```
 
-The synthetic numbers come from `python3 -m scripts.eval.demo`; the external number comes from `python3 scripts/measure_cfreds.py` against the **NIST CFReDS Hacking Case** (a real, community-trusted third-party image). The synthetic harness scores against the one canonical bundled evidence tree (`examples/case-studies/self-evaluation/case-01/evidence_root/`), where the two IOC-only logs are enriched with deterministic benign traffic (web access 1027 lines ~1:37, unix auth 517 ~1:29) while every other surface is committed hand-curated at production volume (security EventLog ~11,530 lines, supply-chain, RDP brute, USB setupapi, etc.). It produces recall=1.0 / FPR=0.0 / hallucination=0 on the case-01 reference findings (F-001, F-013); per-case scoring is provided by `scripts/eval/score.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and explicit limitations (further third-party datasets — Ali Hadi, Digital Corpora — are the `external-evaluation/` tier, downloaded on demand).
+Reproduce the full matrix with `python3 -m scripts.eval.self` and `python3 -m scripts.eval.external`. External recall is low across **all** models — this is tool/parser coverage on large third-party disk images, not model reasoning (Sonnet and Opus both reach 80% on external case-02; Opus is the most stable on the planted cases, with no zero-finding runs). A separate dataset-specific probe, `python3 scripts/measure_cfreds.py`, scores the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil") at 0.50 strict / 0.80 lenient over 10 sampled findings. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and limitations.
 
 ### Supply-chain + AD certificate-services attack chain (self-evaluation/case-08)
 
