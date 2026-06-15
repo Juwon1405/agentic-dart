@@ -203,6 +203,15 @@ def _with_cache_breakpoint(tools: list[dict]) -> list[dict]:
     return out
 
 
+# Sampling temperature for EVERY model call (reasoning loop + final synthesis).
+# DFIR demands reproducibility over creativity, so this is pinned to 0.0 — the
+# lowest-variance setting — and applies uniformly to ALL models (haiku/sonnet/
+# opus) and ALL tiers (self/external/demo), since every API call below reads
+# this single constant. Note: 0.0 does not make the model perfectly
+# deterministic (GPU floating-point order and batch effects remain), but it is
+# the single largest lever we control against run-to-run variance.
+TEMPERATURE = 0.0
+
 SYSTEM_PROMPT = """You are Agentic-DART, a senior DFIR analyst.
 
 You have access to a set of typed, read-only forensic functions exposed by
@@ -400,6 +409,8 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
             # unparseable report scored as zero findings). 16384 leaves ample
             # headroom for the largest reports the agent produces here.
             max_tokens=16384,
+            # Pinned low-variance sampling for forensic reproducibility.
+            temperature=TEMPERATURE,
             # Prompt caching: the system prompt and the
             # tool definitions are large and IDENTICAL on every iteration of
             # the forensic reasoning loop. Marking the last one with
@@ -496,6 +507,8 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
     final_resp = client.messages.create(
         model=model,
         max_tokens=16384,
+        # Pinned low-variance sampling for forensic reproducibility.
+        temperature=TEMPERATURE,
         system=[{
             "type": "text",
             "text": SYSTEM_PROMPT,

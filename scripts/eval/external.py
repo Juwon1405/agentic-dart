@@ -319,17 +319,37 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
         row["error"] = "no output dir"
         return row
 
+    def _read_summary(od):
+        try:
+            return json.loads((od / "summary.json").read_text())
+        except Exception:
+            return {}
+
+    summ = _read_summary(out_dir)
+    # Non-determinism guard: every eval case has planted evil, so findings=0 is
+    # never a correct "nothing here" — with temperature pinned to 0 it's an
+    # intermittent extraction miss (the model analysed but emitted an empty
+    # report). Re-run the case ONCE. Whatever the retry yields — even 0 again —
+    # is final: a second zero is a real signal (the model genuinely fails this
+    # case), not variance, so we never loop further. evidence_root is already
+    # prepared, so the retry only re-invokes analyze.py.
+    if summ.get("findings_count") == 0:
+        print("     findings=0 — non-determinism guard: 1 retry")
+        retry = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
+        if retry.returncode == 0:
+            od2 = latest_out_dir(case_ref)
+            if od2:
+                out_dir = od2
+                summ = _read_summary(out_dir)
+        print(f"     retry findings={summ.get('findings_count')}")
+
     findings_path = out_dir / "findings.json"
     truth_path = CASE_ROOT / case_ref / "truth.json"
 
-    try:
-        summ = json.loads((out_dir / "summary.json").read_text())
-        usage = summ.get("usage", {})
-        row["tokens_in"] = usage.get("input_tokens")
-        row["tokens_out"] = usage.get("output_tokens")
-        row["model_findings"] = summ.get("findings_count")
-    except Exception:
-        pass
+    usage = summ.get("usage", {})
+    row["tokens_in"] = usage.get("input_tokens")
+    row["tokens_out"] = usage.get("output_tokens")
+    row["model_findings"] = summ.get("findings_count")
 
     if truth_path.is_file():
         score_cmd = [sys.executable, str(REPO / "scripts" / "eval" / "score.py"),
