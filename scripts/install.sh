@@ -69,7 +69,26 @@ warn() { printf "      ${YEL}! %s${RST}\n" "$*"; WARNINGS=$((WARNINGS+1)); }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 # pip/apt wrappers that stay quiet (output goes to the step log via run_step).
-_pip() { python3 -m pip install -q "$@" 2>/dev/null || python3 -m pip install -q --break-system-packages "$@"; }
+# If the whole script is run under sudo (EUID 0), pip installs land in root's
+# environment, not yours — so the user-level healthcheck then reports the deps
+# as missing, and root's older pip may not even accept --break-system-packages.
+# Detect that and run pip AS THE ORIGINAL USER so packages go where the rest of
+# the workflow looks for them. (You should not need sudo for this script; it's
+# only useful for the optional apt yara install, which step 6 now handles on
+# its own.)
+_PIP_USER=""
+if [[ "${EUID:-$(id -u)}" -eq 0 && -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" ]]; then
+  _PIP_USER="${SUDO_USER}"
+fi
+_pip() {
+  if [[ -n "${_PIP_USER}" ]]; then
+    sudo -u "${_PIP_USER}" python3 -m pip install -q "$@" 2>/dev/null \
+      || sudo -u "${_PIP_USER}" python3 -m pip install -q --break-system-packages "$@"
+  else
+    python3 -m pip install -q "$@" 2>/dev/null \
+      || python3 -m pip install -q --break-system-packages "$@"
+  fi
+}
 _apt() { sudo apt-get install -y -qq "$@"; }
 
 printf "\n${BOLD}Agentic-DART installer${RST}  ${DIM}(idempotent — skips what already works)${RST}\n\n"
@@ -161,11 +180,17 @@ fi
 
 # ---- 6. yara ---------------------------------------------------------------
 # Resolve yara the same way the adapters do (DART_YARA_BIN -> PATH -> repo
-# bin/), so this step and the availability table can't disagree. If the adapter
-# can already find it, skip. Otherwise TRY to install it, but treat yara as
-# OPTIONAL: every yara-backed tool (sift_yara_*) has a native fallback, so a
-# failed install must NOT fail the installer — it warns and moves on, telling
-# you exactly how to add yara yourself.
+# bin/), so this step and the availability table can't disagree.
+#
+# KEY INSIGHT (the bug you hit): yara can be INSTALLED but invisible to this
+# account — e.g. it's at /usr/bin/yara (root sees it) but the user's PATH or
+# shutil.which doesn't surface it. That's an environment problem, not an
+# install problem. So we STAGE FIRST: scan the standard system locations
+# directly (PATH-independent) and symlink whatever we find into repo bin/,
+# where the adapter's _search_repo_bins() finds it with zero PATH/env setup.
+# Only if nothing exists anywhere do we fall back to installing. This also
+# fixes the old ordering bug where a failed 'apt-get install' short-circuited
+# the staging step, leaving an already-present yara unused.
 yara_adapter_path() {
   python3 - <<'PY' 2>/dev/null
 import sys
@@ -177,30 +202,35 @@ except Exception:
     sys.exit(1)
 PY
 }
-_stage_yara_into_bin() {
-  local found
-  found="$(command -v yara 2>/dev/null || true)"
-  if [[ -z "${found}" ]]; then
-    for c in /usr/bin/yara /usr/local/bin/yara /opt/yara/bin/yara /snap/bin/yara; do
-      [[ -x "${c}" ]] && { found="${c}"; break; }
-    done
-  fi
-  if [[ -n "${found}" ]]; then
-    mkdir -p "${REPO_ROOT}/bin"
-    ln -sf "${found}" "${REPO_ROOT}/bin/yara"
-    return 0
-  fi
+_find_yara_binary() {
+  # Look everywhere a yara binary could be, independent of this shell's PATH.
+  local c
+  c="$(command -v yara 2>/dev/null || true)"
+  if [[ -n "${c}" && -x "${c}" ]]; then echo "${c}"; return 0; fi
+  for c in /usr/bin/yara /usr/local/bin/yara /bin/yara /sbin/yara \
+           /opt/yara/bin/yara /snap/bin/yara /usr/sbin/yara; do
+    [[ -x "${c}" ]] && { echo "${c}"; return 0; }
+  done
+  # last resort: a filesystem search of common prefixes (bounded, fast)
+  c="$(find /usr /opt /snap -maxdepth 4 -name yara -type f -perm -u+x 2>/dev/null | head -1)"
+  [[ -n "${c}" ]] && { echo "${c}"; return 0; }
   return 1
 }
+_stage_yara_into_bin() {
+  # Symlink a real yara binary into repo bin/ so _search_repo_bins() finds it
+  # regardless of PATH or env. Returns 0 if a binary was staged.
+  local found
+  found="$(_find_yara_binary)" || return 1
+  mkdir -p "${REPO_ROOT}/bin"
+  ln -sf "${found}" "${REPO_ROOT}/bin/yara"
+  return 0
+}
 _yara_try_install() {
-  # Best-effort install. Uses sudo only if available and passwordless; refreshes
-  # the apt index first (the usual reason 'apt-get install yara' fails on a
-  # fresh box is a stale/empty package list). Output is kept (no -qq) so the
-  # step log is actually useful when something goes wrong.
+  # Best-effort install when yara is genuinely absent. sudo only if available
+  # AND passwordless; refresh the index first; keep output (no -qq) so the log
+  # is useful.
   local SUDO=""
-  if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
-    SUDO="sudo"
-  fi
+  if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then SUDO="sudo"; fi
   if command -v apt-get >/dev/null 2>&1; then
     ${SUDO} apt-get update -y || true
     ${SUDO} apt-get install -y yara || return 1
@@ -209,26 +239,30 @@ _yara_try_install() {
   elif command -v dnf >/dev/null 2>&1; then
     ${SUDO} dnf install -y yara || return 1
   else
-    echo "no supported package manager (apt-get/brew/dnf) for yara"
-    return 1
+    echo "no supported package manager (apt-get/brew/dnf) for yara"; return 1
   fi
 }
 
 STEP=$((STEP+1))
+ylog="${LOGDIR}/step-${STEP}.log"
 if yara_adapter_path >/dev/null; then
   printf "${CYN}[%d/%d]${RST} %-34s ${GRN}✓${RST} ${DIM}adapter resolves: %s${RST}\n" \
     "${STEP}" "${TOTAL}" "yara" "$(yara_adapter_path)"
+elif _stage_yara_into_bin >"${ylog}" 2>&1 && yara_adapter_path >/dev/null; then
+  # yara existed on the box but wasn't visible to the adapter — staged it.
+  printf "${CYN}[%d/%d]${RST} %-34s ${GRN}✓${RST} ${DIM}staged into bin/: %s${RST}\n" \
+    "${STEP}" "${TOTAL}" "yara" "$(yara_adapter_path)"
 else
+  # genuinely absent — try to install, then stage + verify.
   printf "${CYN}[%d/%d]${RST} %-34s" "${STEP}" "${TOTAL}" "yara (optional)"
-  ylog="${LOGDIR}/step-${STEP}.log"
-  if { _yara_try_install && { yara_adapter_path >/dev/null || _stage_yara_into_bin; } \
-       && yara_adapter_path >/dev/null; } >"${ylog}" 2>&1; then
+  if { _yara_try_install && _stage_yara_into_bin; yara_adapter_path >/dev/null; } \
+       >>"${ylog}" 2>&1; then
     printf " ${GRN}✓${RST} ${DIM}installed: %s${RST}\n" "$(yara_adapter_path)"
   else
-    # Not fatal: yara only powers sift_yara_*, which fall back to native tools.
     printf " ${YEL}! skipped${RST}\n"
-    note "yara not installed — sift_yara_scan_* will fall back to native tools."
-    note "to enable it: sudo apt-get install yara   (or: export DART_YARA_BIN=/path/to/yara)"
+    note "yara not found anywhere on this system, and install didn't succeed."
+    note "sift_yara_scan_* will fall back to native tools (analysis is unaffected)."
+    note "to enable: sudo apt-get install yara, then re-run — it'll be auto-staged."
     WARNINGS=$((WARNINGS+1))
   fi
 fi
