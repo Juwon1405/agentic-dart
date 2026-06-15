@@ -38,6 +38,7 @@ import argparse
 import datetime as _dt
 import json
 import os
+import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -191,6 +192,31 @@ def _timestamp() -> str:
     return _dt.datetime.now().strftime("%Y%m%dT%H%M%S")
 
 
+def _rotate_out_dirs(case_out_root: Path, keep: int = 10) -> None:
+    """Keep only the most recent `keep` timestamped run dirs for one case.
+
+    Every analyze run writes out/<tier>/<case-id>/<timestamp>/ with a transcript,
+    tool-call log, findings, etc. Left unchecked this grows without bound — basic
+    housekeeping says rotate it. We keep the newest `keep` runs per case (by the
+    timestamp dir name, which sorts chronologically) and delete the rest. Only
+    timestamp-shaped dirs are touched; anything else is left alone. Best-effort:
+    a cleanup failure never blocks the run.
+    """
+    try:
+        if not case_out_root.is_dir():
+            return
+        runs = sorted(
+            (p for p in case_out_root.iterdir()
+             if p.is_dir() and p.name.isdigit() is False
+             and len(p.name) == 15 and "T" in p.name),
+            key=lambda p: p.name,
+        )
+        for old in runs[:-keep] if len(runs) > keep else []:
+            shutil.rmtree(old, ignore_errors=True)
+    except Exception:  # noqa: BLE001 — housekeeping must not break the run
+        pass
+
+
 def _evidence_tree(root: Path, limit: int = 200) -> str:
     """List the evidence files available under root, relative to it.
 
@@ -262,6 +288,8 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool,
         return rc
 
     out_dir = REPO / "out" / case.tier / case.case_id / _timestamp()
+    # Housekeeping: rotate old runs for this case before adding a new one.
+    _rotate_out_dirs(out_dir.parent, keep=10)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Wire the agent to this case's own evidence_root.

@@ -407,11 +407,16 @@ def main(argv=None) -> int:
     if args.dry_run:
         return 0
 
-    if len(args.models) > 1:
-        args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(build_markdown(rows, args.models))
-        args.out.with_suffix(".rows.json").write_text(json.dumps(rows, indent=2))
-        print(f"\nMatrix written: {args.out.relative_to(REPO)}")
+    # Always persist — single model or several. (Previously this was gated on
+    # len(models) > 1, so a single-model external run wrote nothing at all,
+    # which is why external never showed up under docs/benchmarks/.) The
+    # snapshot table is overwritten each run; HISTORY.md accumulates the trend.
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(build_markdown(rows, args.models))
+    args.out.with_suffix(".rows.json").write_text(json.dumps(rows, indent=2))
+    print(f"\nMatrix written: {args.out.relative_to(REPO)}")
+    from _history import append_run as _append_run
+    _append_run("external", rows, args.models)
 
     ok = sum(1 for r in rows if r["ok"])
     print(f"\nDone: {ok}/{len(rows)} runs succeeded.")
