@@ -9,3 +9,5 @@ PID,ParentPID,Image,CommandLine,StartTime,User
 4830,4820,C:\Windows\System32\net.exe,"net user admin123 /add",2026-03-15 14:23:45,analyst
 4835,4820,C:\Windows\System32\net.exe,"net localgroup Administrators admin123 /add",2026-03-15 14:24:00,analyst
 4840,4820,C:\Windows\System32\reg.exe,"reg add HKLM\Software\...",2026-03-15 14:24:15,analyst
+5100,4812,C:\PSTools\PsExec.exe,"psexec \\DC01.corp.local -u Administrator cmd.exe",2026-03-15 14:23:30,analyst
+5200,4812,C:\Python\python.exe,"python wmiexec.py -hashes :abcd1234 svc_sql@SQL01.corp.local",2026-03-15 14:24:15,analyst
