@@ -69,42 +69,34 @@ warn() { printf "      ${YEL}! %s${RST}\n" "$*"; WARNINGS=$((WARNINGS+1)); }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 # pip/apt wrappers that stay quiet (output goes to the step log via run_step).
-# If the whole script is run under sudo (EUID 0), pip installs land in root's
-# environment, not yours — so the user-level healthcheck then reports the deps
-# as missing, and root's older pip may not even accept --break-system-packages.
-# Detect that and run pip AS THE ORIGINAL USER so packages go where the rest of
-# the workflow looks for them. (You should not need sudo for this script; it's
-# only useful for the optional apt yara install, which step 6 now handles on
-# its own.)
-_PIP_USER=""
-if [[ "${EUID:-$(id -u)}" -eq 0 && -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" ]]; then
-  _PIP_USER="${SUDO_USER}"
-fi
+# We refuse to run under sudo (see the EUID check below), so pip always runs as
+# your normal user — no SUDO_USER juggling needed. Try a plain install first,
+# fall back to --break-system-packages for PEP-668 'externally managed' envs.
 _pip() {
-  if [[ -n "${_PIP_USER}" ]]; then
-    sudo -u "${_PIP_USER}" python3 -m pip install -q "$@" 2>/dev/null \
-      || sudo -u "${_PIP_USER}" python3 -m pip install -q --break-system-packages "$@"
-  else
-    python3 -m pip install -q "$@" 2>/dev/null \
-      || python3 -m pip install -q --break-system-packages "$@"
-  fi
+  python3 -m pip install -q "$@" 2>/dev/null \
+    || python3 -m pip install -q --break-system-packages "$@"
 }
 _apt() { sudo apt-get install -y -qq "$@"; }
 
 printf "\n${BOLD}Agentic-DART installer${RST}  ${DIM}(idempotent — skips what already works)${RST}\n\n"
 
-# You don't need sudo for this script. Running it under sudo makes pip/healthcheck
-# resolve against root's environment instead of yours, which is why step 9 can
-# report deps "missing" even though they're installed for your user. yara (the
-# only thing that ever wanted root) is handled without it now. Warn and continue.
+# Do NOT run this under sudo. Running as root makes pip/healthcheck resolve
+# against root's environment instead of yours (why step 9 reports deps "missing"
+# even when they're installed for your user), and leaves root-owned files in the
+# repo (which then breaks `git pull` with a permission error). yara — the only
+# thing that ever wanted root — is handled without it now. So we refuse outright.
 if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
-  printf "${YEL}! You ran this with sudo.${RST} ${DIM}It's not needed and can make the\n"
-  printf "  healthcheck look for packages in root's environment instead of yours.\n"
-  printf "  Recommended: re-run as ${RST}${BOLD}bash scripts/install.sh${RST}${DIM} (no sudo).${RST}\n"
+  printf "${RED}✗ Do not run this installer with sudo / as root.${RST}\n\n" >&2
+  printf "  Running as root resolves packages against root's environment (not\n" >&2
+  printf "  yours), and leaves root-owned files in the repo that break ${BOLD}git pull${RST}.\n" >&2
+  printf "  Nothing here needs root — yara is staged without it.\n\n" >&2
+  printf "  Run it as your normal user:\n" >&2
+  printf "      ${BOLD}bash scripts/install.sh${RST}\n\n" >&2
   if [[ -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" ]]; then
-    printf "  ${DIM}(Continuing anyway; pip will run as '${SUDO_USER}'.)${RST}\n"
+    printf "  ${DIM}(If a previous sudo run already left root-owned files, fix them with:\n" >&2
+    printf "   sudo chown -R ${SUDO_USER} . )${RST}\n\n" >&2
   fi
-  printf "\n"
+  exit 1
 fi
 
 # ---- 1. repositories (FIRST — pull latest before anything else) ------------
