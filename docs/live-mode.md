@@ -122,7 +122,7 @@ by any prompt.
 ## Tests you can run right now
 
 ```bash
-# End-to-end: agent subprocess spawns MCP subprocess, 72-tool handshake,
+# End-to-end: agent subprocess spawns MCP subprocess, 73-tool handshake,
 # real tool calls over stdio, guardrail-over-wire verification.
 python3 tests/test_live_mcp.py
 ```

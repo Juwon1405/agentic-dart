@@ -3,7 +3,7 @@
 > **Submission URL:** https://findevil.devpost.com/
 > **Project URL:** https://github.com/Juwon1405/agentic-dart
 > **License:** MIT
-> **Version at submission:** v1.0.2
+> **Version at submission:** v1.1.0
 > **Submission date:** 2026-06-15
 > **Author:** Bang Juwon (sole contributor)
 

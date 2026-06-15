@@ -476,7 +476,7 @@ python3 tests/test_parse_registry_hive.py               # registry hive parsing 
 python3 tests/test_v05_supply_chain.py                  # cross-platform supply-chain IOC sweeps (v0.6.0)
 python3 tests/test_v06_macos_linux.py                   # macOS quarantine + Linux cron + DNS tunneling (v0.6.1)
 python3 tests/test_parse_linux_dfir.py                  # Linux text-log + shell-history + cron parsing (v0.7.0)
-python3 -m pytest dart_corr/tests/                      # dart_corr extracted engine (v0.7.1)
+python3 -m pytest dart_corr/tests/                      # dart_corr extracted engine
 
 # Or run the whole suite at once (the authoritative count comes from here):
 python3 -m pytest tests/ dart_corr/tests/
@@ -811,7 +811,7 @@ All 25 share the same architectural guarantees as the native layer — read-only
 | `dart_audit` (CLI) | SHA-256-chained JSONL logger; `verify / lookup / trace / summary` subcommands; thread-safe under concurrent writers |
 | `dart_mcp.server_stdio` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart -- python3 -m dart_mcp.server_stdio` |
 | `dart_playbook/senior-analyst-v3.yaml` | **Recommended** — ten-phase senior-analyst methodology with ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
-| `dart_corr/` (v0.7.1: extracted package) | Standalone cross-artifact JOIN engine — DuckDB `:memory:`, 9-rule operator-tunable pack. Imports cleanly without `dart_mcp`. The dart_mcp wrappers delegate here for backwards-compat MCP wire surface. |
+| `dart_corr/` (extracted package) | Standalone cross-artifact JOIN engine — DuckDB `:memory:`, 9-rule operator-tunable pack. Imports cleanly without `dart_mcp`. The dart_mcp wrappers delegate here for backwards-compat MCP wire surface. |
 
 ### Remaining roadmap (honest)
 

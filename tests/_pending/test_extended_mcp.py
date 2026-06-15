@@ -8,6 +8,18 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+# Phase-2 surface (parse_evtx, volatility_summary, parse_knowledgec, parse_fsevents,
+# parse_unified_log, duckdb_timeline_correlate, the MCP stdio server) is NOT
+# implemented yet. These tests live here as the spec for that future work, but they
+# must never fail a run. The repo-root config already excludes _pending via
+# pytest.ini `norecursedirs`; this module-level skip additionally covers the case
+# where the file is collected directly or from outside the repo root.
+pytestmark = pytest.mark.skip(
+    reason="Phase-2 functions not yet implemented (tracked for a future release)"
+)
+
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
 os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")

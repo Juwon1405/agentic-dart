@@ -155,9 +155,14 @@ def test_load_rules_handles_missing_file():
 
 # ─── Module-level invariants ──────────────────────────────────────────────
 
-def test_dart_corr_version_matches_repo():
-    # Package version is the same as the repo release (v1.0.2)
-    assert dart_corr.__version__ == "1.0.2"
+def test_dart_corr_version_is_wellformed():
+    # Version is sourced from package metadata (pyproject.toml), NOT pinned here,
+    # so a release bump never requires editing this test. Assert it's a real,
+    # well-formed semver-ish string rather than the unknown-fallback.
+    v = dart_corr.__version__
+    assert v and v != "0.0.0+unknown"
+    core = v.split("+")[0].split(".")
+    assert len(core) >= 3 and all(p.isdigit() for p in core[:3])
 
 
 def test_public_api_surface_is_complete():

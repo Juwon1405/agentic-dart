@@ -1,7 +1,7 @@
 # Pending tests
 
 Tests in this directory exercise functions that are **not on the
-current 72-tool MCP surface** (47 native + 25 SIFT adapters) but
+current 73-tool MCP surface** (48 native + 25 SIFT adapters) but
 are scaffolded for Phase 2:
 
 - `test_extended_mcp.py` — needs `parse_evtx`, `volatility_summary`,
