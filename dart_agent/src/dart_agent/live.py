@@ -109,6 +109,22 @@ def _render_playbook(path: Path | None) -> str:
         "data sources, never smooth over a CONTRADICTION, and make EVERY "
         "finding reference at least one tool call.",
     ]
+
+    # Domain classification guidance — general technique-mapping knowledge a
+    # senior analyst carries (NOT case answers). Helps the model map artifacts
+    # it discovers to the right ATT&CK technique.
+    guidance = pb.get("classification_guidance") or {}
+    if guidance:
+        glines = ["", "Technique-classification guidance (apply when you map "
+                  "what you find to ATT&CK):"]
+        for tactic, rules in guidance.items():
+            for r in (rules or []):
+                txt = " ".join(str(r.get("rule", "")).split())
+                if txt:
+                    glines.append(f"  - {txt}")
+        if len(glines) > 2:
+            lines += glines
+
     return "\n".join(lines)
 
 

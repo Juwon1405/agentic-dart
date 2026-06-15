@@ -454,6 +454,53 @@ posture:
 
 
 # ---------------------------------------------------------------------------
+# Classification guidance — domain knowledge a senior analyst carries.
+#
+# These are general technique-classification rules, NOT answers to any case.
+# They encode the kind of knowledge an experienced DFIR analyst applies when
+# mapping an observed artifact to MITRE ATT&CK. The agent still has to DISCOVER
+# the artifact in the evidence; this only helps it classify what it found
+# correctly. Added because models repeatedly mis-mapped some artifacts (e.g.
+# treating an IP-KVM as remote-access software rather than a hardware addition).
+# ---------------------------------------------------------------------------
+classification_guidance:
+  initial_access:
+    - rule: >
+        IP-KVM, KVM-over-IP, and "remote-hands" hardware (a physical device
+        that bridges keyboard/video/mouse to a remote operator, often
+        presenting on USB as an HID/composite device) is a PHYSICAL HARDWARE
+        ADDITION. Classify it as T1200 (Hardware Additions), an initial-access
+        technique. Do NOT classify it as T1219 (Remote Access Software) — there
+        is no software remote-access agent involved; the access is via physical
+        console/hardware. A USB insertion event for such a device, especially
+        followed by a console (type 2 / interactive) logon, is the initial
+        access vector.
+      mitre: T1200
+      not: T1219
+    - rule: >
+        Known malicious-HID / BadUSB attack devices (USB Rubber Ducky, Bash
+        Bunny, O.MG cable, Malduino) are likewise hardware additions → T1200.
+        They typically appear as a keyboard/HID insertion followed almost
+        immediately by scripted keystroke execution.
+      mitre: T1200
+  persistence:
+    - rule: >
+        A scheduled task or launchd/cron job whose action re-establishes
+        operator access (reverse shell, remote-admin re-connect, beacon) is
+        persistence via Scheduled Task/Job — T1053 (and subtechnique by OS:
+        .005 Windows, .003 cron, .004 launchd). The fact that it RUNS something
+        on a trigger is the signal, regardless of the exact command.
+      mitre: T1053
+  credential_access:
+    - rule: >
+        Kerberos TGS requests using RC4 (encryption type 0x17) for service
+        accounts are Kerberoasting (T1558.003); an AS-REP for an account with
+        pre-authentication disabled is AS-REP Roasting (T1558.004). These are
+        identity-plane attacks visible in Windows security events / Kerberos
+        logs, independent of any host malware.
+      mitre: T1558.003
+
+# ---------------------------------------------------------------------------
 # Phase sequence — same 10 phases as v2, extended with ADS template
 # enforcement and MaGMa UC tracking. Phase notes added where v3 differs.
 # ---------------------------------------------------------------------------
