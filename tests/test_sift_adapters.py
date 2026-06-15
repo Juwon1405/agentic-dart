@@ -154,7 +154,7 @@ def test_missing_tool_raises_clean_error():
     os.environ["DART_VOLATILITY3_BIN"] = "/nonexistent/vol-binary-XYZ"
     try:
         # Need a valid evidence path for this test, otherwise PathTraversalAttempt
-        # fires first. Use the sample evidence dir.
+        # fires first. Use the test fixtures evidence dir.
         sample_evtx = REPO / "tests" / "fixtures" / "evidence"
         # Pick any volatility plugin
         try:

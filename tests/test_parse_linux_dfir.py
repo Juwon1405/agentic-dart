@@ -25,7 +25,7 @@ _dm.EVIDENCE_ROOT = Path(os.environ["DART_EVIDENCE_ROOT"])
 # ─── parse_linux_text_log ─────────────────────────────────────────
 
 def test_parse_linux_text_log_auditd_fixture():
-    """Auditd dispatcher text mode — sample evidence ships with the right shape."""
+    """Auditd dispatcher text mode — the bundled fixture ships with the right shape."""
     r = call_tool("parse_linux_text_log", {"log_path": "linux/auditd_sample.txt"})
     assert "error" not in r, r
     assert r["lines_examined"] >= 12
