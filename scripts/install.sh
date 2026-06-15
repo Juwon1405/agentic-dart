@@ -385,8 +385,8 @@ printf "    ${BOLD}self${RST}     ${DIM}python3 -m scripts.eval.self     --model
 printf "             8 bundled cases with ready evidence (fast, no images).\n"
 printf "    ${BOLD}external${RST} ${DIM}python3 -m scripts.eval.external --models claude-haiku-4-5-20251001${RST}\n"
 printf "             full-disk public images (downloads + adapts if missing).\n"
-printf "    ${BOLD}all${RST}      ${DIM}python3 -m scripts.eval.all      --models claude-haiku-4-5-20251001${RST}\n"
-printf "             demo + self + external in one pass, one HISTORY row each.\n"
+printf "    ${BOLD}full${RST}     ${DIM}./scripts/bench_full.sh          claude-haiku-4-5-20251001${RST}\n"
+printf "             demo + self + external as THREE separate processes.\n"
 printf "\n  Multiple models? Append them: ${DIM}--models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8${RST}\n"
 printf "  Results: ${DIM}docs/benchmarks/SUMMARY.md${RST} (latest) + ${DIM}HISTORY.md${RST} (trend over time)\n\n"
 
