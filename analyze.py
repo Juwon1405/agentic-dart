@@ -215,7 +215,7 @@ def _evidence_tree(root: Path, limit: int = 200) -> str:
     return out
 
 
-def _case_brief(case: Case) -> str:
+def _case_brief(case: Case, user_context: str | None = None) -> str:
     """A neutral investigation directive plus an inventory of the collected
     evidence — deliberately scenario-agnostic.
 
@@ -229,9 +229,24 @@ def _case_brief(case: Case) -> str:
     discovered from the data; only the 'what evidence exists' question is
     answered up front. This keeps the comparison fair across cases — every
     model gets the same inventory — while removing the blind-probing failure
-    that let platform-mismatched runs score zero."""
+    that let platform-mismatched runs score zero.
+
+    ``user_context`` is the REAL-INVESTIGATION escape hatch. In a real IR you
+    are never handed evidence with zero context — there's an intake ticket
+    ('data exfil suspected around 2026-03-15, investigate'). When the caller
+    supplies that (via --context), it's prepended here as the reporting
+    analyst's initial lead. It is intentionally NOT used by the bundled
+    self/external benchmark runs (those measure cold-start capability); it's for
+    --evidence runs on real cases where withholding the lead would be artificial.
+    """
     tree = _evidence_tree(case.evidence_root)
-    return ("You are investigating a security incident on this host. The "
+    lead = ""
+    if user_context and user_context.strip():
+        lead = ("Initial lead from the reporting analyst (treat as a starting "
+                "hypothesis to confirm or refute, not as ground truth):\n"
+                f"  {user_context.strip()}\n\n")
+    return (lead +
+            "You are investigating a security incident on this host. The "
             "following evidence has been collected and is available to your "
             "tools (paths are relative to the evidence root):\n\n"
             f"{tree}\n\n"
@@ -240,7 +255,8 @@ def _case_brief(case: Case) -> str:
             "ATT&CK technique IDs. Report only what the evidence supports.")
 
 
-def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool) -> int:
+def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool,
+             user_context: str | None = None) -> int:
     rc = _resolve_evidence(case, allow_download=allow_download)
     if rc != 0:
         return rc
@@ -277,7 +293,7 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool) -> 
         "--mode", "live",
         "--model", model,
         "--max-iterations", str(max_iter),
-        "--prompt", _case_brief(case),
+        "--prompt", _case_brief(case, user_context),
     ])
 
     _normalize_outputs(case, out_dir, model)
@@ -346,6 +362,12 @@ def build_parser() -> argparse.ArgumentParser:
                         "is not present.")
     p.add_argument("--max-iterations", type=int, default=12,
                    help="Max agent iterations per case (default: 12).")
+    p.add_argument("--context", default=None, metavar="TEXT",
+                   help="Real-investigation initial lead, e.g. 'data exfil "
+                        "suspected around 2026-03-15'. Prepended to the agent's "
+                        "brief as a starting hypothesis (not ground truth). "
+                        "Intended for --evidence runs; the bundled self/external "
+                        "benchmarks ignore it to measure cold-start capability.")
     p.add_argument("--list", action="store_true",
                    help="List discovered cases and exit (no API key required).")
     return p
@@ -425,7 +447,8 @@ def main(argv: list[str] | None = None) -> int:
         else:
             rc_total |= run_case(case, model=args.model,
                                  max_iter=args.max_iterations,
-                                 allow_download=args.download)
+                                 allow_download=args.download,
+                                 user_context=args.context)
     return rc_total
 
 
