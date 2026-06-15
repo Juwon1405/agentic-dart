@@ -1,5 +1,54 @@
 # Changelog
 
+## [1.2.0] — 2026-06-15 — Detection pack v2 + model-aware authentication
+
+Final submission build for SANS FIND EVIL! 2026, on top of the v1.1.0 stable
+baseline.
+
+### Added
+- **Sigma detection pack v2** — five new rules over the v1 pack (11 total):
+  DCSync (EventID 4662 + DS-Replication GUID), Golden Ticket (4769 / krbtgt),
+  ransomware shadow-copy deletion (vssadmin / wbadmin / bcdedit), web-shell
+  file creation (inetpub / wwwroot / htdocs), and local account creation
+  (4720). Each verified against synthetic events and confirmed silent on
+  benign activity.
+- **Model-aware authentication** (`dart_agent.auth`) — Haiku resolves to an
+  OAuth subscription token, Sonnet/Opus to a metered API key; the chosen
+  source prints next to the model on every run. New `dart-auth` command
+  reports both credentials at a glance.
+- **Persistent install aliases** — `install.sh` writes idempotent `dart-pull`
+  (repo + collector-adapter) and `dart-auth` shell aliases.
+
+### Changed
+- **Unified per-case ledger** — self and external results record into one
+  append-only file with per-case timestamps.
+
+### Fixed
+- **case-02 ground truth** — the Hadi Challenge #1 image is a Windows XAMPP
+  stack, not Linux. Truth rewritten against the confirmed
+  `xampp/apache/logs/access.log` path; recall 0% -> 60%.
+
+## [1.1.0] — 2026-06-15 — Stable release: external first-class + Sigma pack v1
+
+### Added
+- **External evaluation is first-class** — `all.py` runs self + external in
+  one shot; the installer offers to fetch the public datasets.
+- **Sigma detection pack v1** — consolidated versioned rule pack and the
+  `match_sigma_rules` MCP tool.
+- **Playbook technique classification** — IP-KVM, scheduled-task, Kerberos
+  recognition; the agent loads the senior-analyst playbook from YAML.
+- **Whole-disk image support** — `tsk_recover` at partition offsets and
+  `ewfmount` for E01 images; installer stages sleuthkit + ewf-tools.
+- **Append-only history ledger** with `out/` rotation.
+
+### Changed
+- Host pinned to Linux (Ubuntu / SIFT); OS / Python / library deps documented.
+- Agent iteration ceiling raised to 25 (optional).
+
+### Fixed
+- `partial` detectability flags are now scorable.
+- Removed Sigma rules from case evidence (they leaked answers).
+
 ## [1.0.2] — 2026-06-11 — Stable release (SANS FIND EVIL! 2026 submission)
 
 The stable submission build. v1.0.0 shipped with bugs and rough edges and was
