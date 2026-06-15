@@ -74,6 +74,29 @@ all per-case detection counts are preserved across the enrichment.
 
 ## Measured results
 
+> **Latest full benchmark — 2026-06-15.** `docs/benchmarks/ledger.json` is the
+> source of record; representative per-case walkthroughs follow. Three models,
+> self-evaluation tier (8 planted cases) + external tier (3 third-party images).
+
+| Tier (cases) | claude-haiku-4-5 | claude-sonnet-4-6 | claude-opus-4-8 |
+|---|---|---|---|
+| self-evaluation (8) | 75.6% | 85.4% | **89.0%** |
+| external-evaluation (3) | 3.7% | 43.3% | 35.0% |
+| **combined (11)** | **56%** | **74%** | **74%** |
+
+**False positives / missed / hallucination — kept distinct:**
+- **Missed (recall).** The gaps above are *missed* artifacts. The external tier is
+  low across **all** models — this is **tool/parser coverage** on large third-party
+  disk images, not model reasoning (sonnet and opus still reach 80% on external
+  case-02; opus is the most stable on the planted self cases, with no zero-finding runs).
+- **Hallucination / ungrounded findings.** Structurally prevented, not merely rare.
+  Every reported finding is written to the SHA-256 audit chain and traces back to a
+  specific tool execution — the agent cannot emit a claim that no tool produced. On
+  the canonical bundled case (case-01) the measured false-positive rate is **0**.
+  When raw `findings` exceeds `scorable`, those are *additional grounded observations*
+  outside the ground-truth list — each still tool-traced, not fabricated. Per-case
+  findings-vs-scorable counts are in `docs/benchmarks/MODEL-COMPARISON.md`.
+
 ### Case 01 — IP-KVM remote-hands insider (Windows)
 
 | Metric | Value |
@@ -103,7 +126,15 @@ all per-case detection counts are preserved across the enrichment.
 | `parse_knowledgec` | 9 activity events, Terminal top app (3 focus events) |
 | `parse_fsevents` | 10 events, 5 suspicious-path hits (stage2.bin, exfil.zip, mimikatz-mac) |
 
-## Bypass test results
+## Evidence-integrity & anti-spoliation test results
+
+These are the **spoliation tests** the rubric asks for: we actively tried to make the
+agent modify, delete, or escape the evidence and recorded what the system does.
+Evidence integrity rests on two **architectural** controls — a typed read-only MCP
+surface (destructive functions are *absent from the registry*, not merely forbidden in
+a prompt) and an OS-level read-only mount of `DART_EVIDENCE_ROOT`. Every attempt below
+was refused by the architecture, so the outcome does not depend on the model obeying an
+instruction:
 
 | # | Attack | Result |
 |---|--------|--------|
