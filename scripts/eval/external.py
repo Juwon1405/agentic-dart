@@ -16,8 +16,8 @@ Per case it follows the flow you'd run by hand:
                   use it; otherwise download it (resumable).
   2. EVIDENCE   — if the case's evidence_root already exists, run on it as-is.
                   Otherwise, once the image hash checks out, adapt the image
-                  into the evidence_root tree (collector adapter if installed,
-                  thin sleuthkit extraction otherwise) and STOP at a sorted tree
+                  into the evidence_root tree (sleuthkit tsk_recover is the
+                  primary dead-disk extractor) and STOP at a sorted tree
                   unless we're also analysing this pass.
   3. ANALYSE    — run the live agent over the evidence_root and score against
                   truth.json over the tool-reachable subset (most external
@@ -103,31 +103,19 @@ def _fmt_int(n) -> str:
 def _adapt_image_to_evidence_root(image: Path, evidence_root: Path, case_id: str) -> bool:
     """Turn a raw disk image into the evidence_root tree dart_mcp reads.
 
-    Preferred path is the collector adapter (agentic-dart-collector-adapter),
-    which knows how to carve the registry hives, browser history, prefetch,
-    etc. into the layout the tools expect. If it isn't installed we fall back
-    to a thin sleuthkit extraction. Either way the result is a sorted tree
-    under evidence_root.
+    Disk images are extracted with sleuthkit (tsk_recover) — the standard
+    dead-disk flow. A whole-disk image carries a partition table, so we read it
+    with mmls and run tsk_recover at each filesystem partition's offset; this is
+    robust across image layouts and OS versions.
+
+    Velociraptor (via the collector adapter) is reserved for LIVE collector
+    ZIPs — ``dart_collector_adapter --source zip`` — which is its native
+    strength. Dead-disk remapping of arbitrary raw images is brittle across
+    releases, so for raw images sleuthkit is the primary extractor.
     """
     evidence_root.mkdir(parents=True, exist_ok=True)
 
-    # 1) collector adapter, if importable
-    try:
-        import dart_collector_adapter  # noqa: F401
-        print(f"    adapting via collector adapter → {evidence_root}")
-        proc = subprocess.run(
-            [sys.executable, "-m", "dart_collector_adapter",
-             "--source", "image", "--input", str(image),
-             "--output", str(evidence_root), "--case-id", case_id.upper()],
-            cwd=str(REPO), capture_output=True, text=True)
-        if proc.returncode == 0 and any(evidence_root.iterdir()):
-            return True
-        print(f"    collector adapter did not populate the tree: "
-              f"{(proc.stderr or proc.stdout or '').strip()[:200]}")
-    except ImportError:
-        pass
-
-    # 2) thin sleuthkit fallback (tsk_recover) — best-effort.
+    # sleuthkit tsk_recover — the primary dead-disk extractor.
     #
     # A whole-disk image (SCHARDT.dd, an .E01) has a PARTITION TABLE, so calling
     # tsk_recover on the raw image fails with "Cannot determine file system
@@ -138,8 +126,8 @@ def _adapt_image_to_evidence_root(image: Path, evidence_root: Path, case_id: str
     # directly in case the image happens to be a bare filesystem.
     from shutil import which
     if not which("tsk_recover"):
-        print("    no image adapter available (install agentic-dart-collector-"
-              "adapter or sleuthkit); evidence_root not built.")
+        print("    sleuthkit (tsk_recover) not found — install sleuthkit; "
+              "evidence_root not built.")
         return False
 
     print(f"    adapting via sleuthkit tsk_recover → {evidence_root}")
@@ -210,8 +198,7 @@ def _adapt_image_to_evidence_root(image: Path, evidence_root: Path, case_id: str
     if built:
         return True
 
-    print("    no image adapter available (install agentic-dart-collector-"
-          "adapter or sleuthkit); evidence_root not built.")
+    print("    sleuthkit extraction recovered nothing; evidence_root not built.")
     return False
 
 
