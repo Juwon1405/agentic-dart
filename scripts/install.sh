@@ -343,4 +343,49 @@ fi
 
 printf "\n${BOLD}Done.${RST}"
 [[ "${WARNINGS}" -gt 0 ]] && printf " ${YEL}(%d warning(s) above)${RST}" "${WARNINGS}"
-printf "\n  Next: ${DIM}export ANTHROPIC_API_KEY='sk-ant-...' && python3 analyze.py --case self-evaluation/case-01${RST}\n\n"
+printf "\n"
+
+# ---- external benchmark images: offer to download now ----------------------
+# External (full-disk public images) is a first-class half of the benchmark,
+# not an afterthought. A fresh install usually means you intend to test, and the
+# images aren't huge — so offer to pull them all now. Pressing 'y' finishes
+# SETUP (download + the images sit ready under datasets/); it does NOT run any
+# analysis. Pressing 'n' just ends here; you can fetch them later.
+_DATASETS_DIR="${REPO_ROOT}/datasets"
+_EXT_GB="13.1"   # cfreds 5.0 + hadi 2.9 + m57 5.2 (approx)
+# Show current free space on the target filesystem.
+_FREE_HUMAN="$(df -h "${REPO_ROOT}" 2>/dev/null | awk 'NR==2{print $4}')"
+printf "\n${BOLD}External benchmark images${RST}\n"
+printf "  The external cases (NIST CFReDS, Ali Hadi, M57) run on real full-disk\n"
+printf "  images. Downloading all of them adds ${BOLD}~%s GB${RST}.\n" "${_EXT_GB}"
+printf "  Free space on this filesystem right now: ${BOLD}%s${RST}\n" "${_FREE_HUMAN:-unknown}"
+printf "  (Pressing y only DOWNLOADS them — no analysis runs. You can skip and\n"
+printf "   fetch later with: ${DIM}python3 -m scripts.eval.download all datasets/${RST})\n\n"
+if [[ -t 0 ]]; then
+  read -r -p "  Download the external images now? [y/N] " _dl_ans
+else
+  _dl_ans="n"   # non-interactive (piped) install: don't block, default no
+  printf "  (non-interactive install — skipping download; fetch later as above)\n"
+fi
+if [[ "${_dl_ans}" =~ ^[Yy]$ ]]; then
+  printf "\n  Downloading external images to %s ...\n" "${_DATASETS_DIR}"
+  python3 -m scripts.eval.download all "${_DATASETS_DIR}" || \
+    printf "  ${YEL}Download had issues; rerun: python3 -m scripts.eval.download all datasets/${RST}\n"
+  printf "  ${GRN}Setup complete.${RST} Images are staged; run a benchmark when ready.\n"
+fi
+
+# ---- how to run: api key + the four benchmark entry points -----------------
+printf "\n${BOLD}Run a benchmark${RST}\n"
+printf "  First, set your API key (live mode):\n"
+printf "    ${DIM}export ANTHROPIC_API_KEY='sk-ant-...'${RST}\n\n"
+printf "  Then pick one:\n"
+printf "    ${BOLD}demo${RST}     ${DIM}python3 -m scripts.eval.demo${RST}\n"
+printf "             deterministic taster — no key, proves the rig stands up.\n"
+printf "    ${BOLD}self${RST}     ${DIM}python3 -m scripts.eval.self     --models claude-haiku-4-5-20251001${RST}\n"
+printf "             8 bundled cases with ready evidence (fast, no images).\n"
+printf "    ${BOLD}external${RST} ${DIM}python3 -m scripts.eval.external --models claude-haiku-4-5-20251001${RST}\n"
+printf "             full-disk public images (downloads + adapts if missing).\n"
+printf "    ${BOLD}all${RST}      ${DIM}python3 -m scripts.eval.all      --models claude-haiku-4-5-20251001${RST}\n"
+printf "             demo + self + external in one pass, one HISTORY row each.\n"
+printf "\n  Multiple models? Append them: ${DIM}--models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8${RST}\n"
+printf "  Results: ${DIM}docs/benchmarks/SUMMARY.md${RST} (latest) + ${DIM}HISTORY.md${RST} (trend over time)\n\n"

@@ -180,12 +180,13 @@ def _sift_tools():
 
 def _disk_image_tools():
     """Report whether the disk-image extraction tools are present. These are
-    only needed for the EXTERNAL benchmark cases (raw whole-disk images / E01s):
+    REQUIRED for the external benchmark cases (raw whole-disk images / E01s):
     mmls + tsk_recover (sleuthkit) read the partition table and recover files,
-    and ewfmount (ewf-tools/libewf) exposes an .E01 as a raw image first. The
-    bundled self-evaluation cases don't need any of these — they ship a ready
-    evidence_root — so this never fails; it just tells you whether external
-    cases can be adapted on this box."""
+    and ewfmount (ewf-tools/libewf) exposes an .E01 as a raw image first.
+    External cases carry equal weight to the self cases — they're the real-world,
+    full-disk half of the benchmark — so missing tools here is a real gap, not a
+    footnote. The installer stages them; if they're absent, external cannot run
+    until they're installed."""
     import shutil
     tools = {
         "mmls": "sleuthkit",
@@ -196,11 +197,14 @@ def _disk_image_tools():
     missing = [t for t in tools if not shutil.which(t)]
     if not missing:
         return (f"{len(present)}/{len(tools)} present "
-                f"(mmls, tsk_recover, ewfmount) — external cases can be adapted")
+                f"(mmls, tsk_recover, ewfmount) — external cases ready")
     pkgs = sorted({tools[t] for t in missing})
-    return (f"{len(present)}/{len(tools)} present; missing {', '.join(missing)} "
-            f"— external (disk-image) cases need: {', '.join(pkgs)}. "
-            f"Self-evaluation cases are unaffected.")
+    # Surfaced as a warning, not a hard failure, so a self-only run still passes
+    # — but the message makes clear external is blocked until these are in.
+    return (f"⚠ {len(present)}/{len(tools)} present; MISSING {', '.join(missing)} "
+            f"— external (full-disk) cases REQUIRE these. Install: "
+            f"sudo apt install {' '.join(pkgs).replace('ewf-tools / libewf','ewf-tools')} "
+            f"(or rerun scripts/install.sh)")
 
 
 def main() -> int:
