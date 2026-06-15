@@ -45,7 +45,7 @@ Every Stage One requirement, mapped to its exact location. Nothing is buried.
 | Architecture diagram + trust boundary | [`docs/dart-architecture.png`](./docs/dart-architecture.png) · [`docs/architecture.md`](./docs/architecture.md) |
 | Architectural pattern | **Pattern 2 — Custom MCP Server** ([§ SIFT alignment](#sift-workstation-alignment-custom-mcp-server-pattern)) |
 | Test datasets + sources | NIST CFReDS · Ali Hadi · Digital Corpora M57 — [`examples/case-studies/`](./examples/case-studies/) |
-| Accuracy report (FP / missed / hallucination + evidence integrity) | [`docs/accuracy-report.md`](./docs/accuracy-report.md) |
+| Accuracy report — synthetic **+ external NIST CFReDS** (FP / missed / hallucination + evidence integrity) | [`docs/accuracy-report.md`](./docs/accuracy-report.md) |
 | Known limitations | [`docs/accuracy-report.md`](./docs/accuracy-report.md) § Honest limitations |
 | Agent execution logs — timestamps, tokens, SHA-256 chain | [`examples/out/find-evil-ref-01/audit.jsonl`](./examples/out/find-evil-ref-01/audit.jsonl) |
 | **Finding → artifact → command → hash** | [§ Case study for judges](#case-study-for-judges) |
@@ -125,7 +125,7 @@ Most "agentic DFIR" tools today are a system prompt that *asks* an LLM to behave
 
 That works until someone discovers prompt injection inside an evidence file. Or jailbreaks the model. Or the conversation runs long enough for the system prompt to erode. Then the agent will happily run `rm -rf` on your evidence — because *nothing structural was stopping it.* The boundary lived in conversation. Conversation is mutable.
 
-**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **47 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
+**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **48 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
 
 This is what *architecture-first, not prompt-first* means.
 
@@ -717,14 +717,15 @@ Every finding traces to the exact tool call that produced it. Pulled from the co
 ## Measured accuracy (reproducible)
 
 ```
-Recall:                    1.000
-False positive rate:       0.000
-Hallucination count:       0
-Evidence integrity:        preserved (62 files, all SHA-256 hashes match pre/post)
-Self-correction observed:  true
+Recall — synthetic case-01:      1.000
+Recall — external NIST CFReDS:    0.50 strict / 0.80 lenient   (honest paradigm gap, actively closing — see below)
+False positive rate:             0.000
+Hallucination count:             0
+Evidence integrity:              preserved (62 files, all SHA-256 hashes match pre/post)
+Self-correction observed:        true
 ```
 
-Produced by `python3 -m scripts.eval.demo`. The harness scores against the one canonical bundled evidence tree (`examples/case-studies/self-evaluation/case-01/evidence_root/`), where the two IOC-only logs are enriched with deterministic benign traffic (web access 1027 lines ~1:37, unix auth 517 ~1:29) while every other surface is committed hand-curated at production volume (security EventLog ~11,530 lines, supply-chain, RDP brute, USB setupapi, etc.). It produces recall=1.0 / FPR=0.0 / hallucination=0 on the case-01 reference findings (F-001, F-013); per-case scoring is provided by `scripts/eval/score.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and explicit limitations (third-party dataset benchmarking is the `external-evaluation/` tier, downloaded on demand).
+The synthetic numbers come from `python3 -m scripts.eval.demo`; the external number comes from `python3 scripts/measure_cfreds.py` against the **NIST CFReDS Hacking Case** (a real, community-trusted third-party image). The synthetic harness scores against the one canonical bundled evidence tree (`examples/case-studies/self-evaluation/case-01/evidence_root/`), where the two IOC-only logs are enriched with deterministic benign traffic (web access 1027 lines ~1:37, unix auth 517 ~1:29) while every other surface is committed hand-curated at production volume (security EventLog ~11,530 lines, supply-chain, RDP brute, USB setupapi, etc.). It produces recall=1.0 / FPR=0.0 / hallucination=0 on the case-01 reference findings (F-001, F-013); per-case scoring is provided by `scripts/eval/score.py`. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and explicit limitations (further third-party datasets — Ali Hadi, Digital Corpora — are the `external-evaluation/` tier, downloaded on demand).
 
 ### Supply-chain + AD certificate-services attack chain (self-evaluation/case-08)
 
@@ -863,7 +864,7 @@ All 25 share the same architectural guarantees as the native layer — read-only
 | Standalone `dart_corr` cross-artifact JOIN engine (MFT ↔ memory process tree) | **Shipped in v0.7.1** — see [`dart_corr/`](./dart_corr/) for the package and 14 unit tests |
 | Sigma rule matcher (`match_sigma_rules`) | Phase 2 — scaffolded under `tests/_pending/` |
 | Native EVTX binary parser (drop EvtxECmd CSV sidecar requirement) | Phase 2 — currently `analyze_event_logs` consumes JSON exports; SIFT adapter `sift_evtxecmd_parse` covers the binary path |
-| External-dataset accuracy runs (Ali Hadi Challenge #1, NIST CFReDS Hacking Case) | Post-submission |
+| Additional external-dataset runs (Ali Hadi Challenge #1, Digital Corpora M57) + remaining CFReDS gaps (F-CFR-006/008/009) | Post-submission |
 | Multi-agent decomposition (Memory / Disk / Network / Synthesizer specialists) | Post-submission |
 | TimeSketch export format | Post-submission |
 | Cloud DFIR (CloudTrail / GuardDuty) | Phase 2 |
