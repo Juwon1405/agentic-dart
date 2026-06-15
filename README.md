@@ -31,8 +31,32 @@
 
 ---
 
+## Judges' quick reference
+
+Every Stage One requirement, mapped to its exact location. Nothing is buried.
+
+| What you're checking | Where it is |
+|---|---|
+| Public repository | this repo — loads without authentication |
+| OSS license — **MIT** | [`LICENSE`](./LICENSE) |
+| Setup · dependencies · how to run | [§ Install and requirements](#install-and-requirements) |
+| **One-command demo, no API key** | `bash examples/demo-run.sh` |
+| Demo video — 4 min, narrated screencast | top of this README · [YouTube](https://www.youtube.com/watch?v=20zY7QoTAyU) |
+| Architecture diagram + trust boundary | [`docs/dart-architecture.png`](./docs/dart-architecture.png) · [`docs/architecture.md`](./docs/architecture.md) |
+| Architectural pattern | **Pattern 2 — Custom MCP Server** ([§ SIFT alignment](#sift-workstation-alignment-custom-mcp-server-pattern)) |
+| Test datasets + sources | NIST CFReDS · Ali Hadi · Digital Corpora M57 — [`examples/case-studies/`](./examples/case-studies/) |
+| Accuracy report (FP / missed / hallucination + evidence integrity) | [`docs/accuracy-report.md`](./docs/accuracy-report.md) |
+| Known limitations | [`docs/accuracy-report.md`](./docs/accuracy-report.md) § Honest limitations |
+| Agent execution logs — timestamps, tokens, SHA-256 chain | [`examples/out/find-evil-ref-01/audit.jsonl`](./examples/out/find-evil-ref-01/audit.jsonl) |
+| **Finding → artifact → command → hash** | [§ Case study for judges](#case-study-for-judges) |
+| Self-correction — graded, not anecdotal | case-04 `F-PHISH-006`; reference run `F-013` |
+| Devpost write-up (5 sections) | [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md) |
+
+---
+
 ## Table of contents
 
+- [**Judges' quick reference**](#judges-quick-reference)
 - [About the name](#about-the-name)
 - [Development approach](#development-approach)
 - [What Agentic-DART is (and what it is not)](#what-agentic-dart-is-and-what-it-is-not)
@@ -678,6 +702,17 @@ Eleven case studies are bundled — eight synthetic self-evaluation cases (`self
 2. **[IP-KVM remote-hands insider](./examples/case-studies/self-evaluation/case-01/README.md)** &mdash; a step-by-step walkthrough of the bundled IP-KVM case showing what the agent does at each iteration, what `audit.jsonl` records, and how `dart-audit trace F-013` resolves a finding back to raw evidence in three clicks.
 
 For the full case library — including self-evaluation case-08 (supply-chain → ADCS ESC8 → DCSync → Golden Ticket; added in v0.7.0 as case-11 and ground-truth-reconciled in v0.7.1) — see [`examples/case-studies/`](./examples/case-studies/).
+
+### Finding → artifact → command → hash (reference run)
+
+Every finding traces to the exact tool call that produced it. Pulled from the committed reference run [`examples/out/find-evil-ref-01/audit.jsonl`](./examples/out/find-evil-ref-01/audit.jsonl) — reproducible byte-for-byte, no API key:
+
+| Finding | What it says | Command (MCP tool) | Source artifact | `audit_id` | Output SHA-256 |
+|---|---|---|---|---|---|
+| **F-001** | Unusual binary first-executed shortly after reported login | `get_amcache` | `disk/…/AppCompat/Programs/Amcache.hve` | `7f311676` | `sha256:46a1479e…` |
+| **F-013** | IP-KVM device inserted ~3 min before operator logon (remote-hands) | `analyze_usb_history` | `disk/Windows/INF/setupapi.dev.log` | `e4f5009a` → `9ec86afe` | `sha256:560d9655…` |
+
+`F-013`'s two `audit_id`s **are** the self-correction: iteration 3 runs `analyze_usb_history` with a default window and flags the gap `UNRESOLVED`; iteration 4 re-runs it with an explicit window and lands the finding. The serializer **rejects any finding without an `audit_id`**, so a hallucinated claim cannot reach the report. Resolve any finding back to raw evidence yourself with `dart-audit trace F-013`.
 
 ## Measured accuracy (reproducible)
 
