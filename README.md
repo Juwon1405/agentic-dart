@@ -149,6 +149,7 @@ agentic-dart/
 ├── dart_agent/           Iteration controller, hypothesis tracker, self-correction loop
 ├── dart_corr/            Cross-artifact correlation engine — DuckDB joins, contradiction flagging
 ├── dart_playbook/        Senior-analyst YAML playbooks (v1 / v2 / v3 industrialization)
+├── dart_sigma/           Sigma detection-rule pack — 11 rules (credential access, ransomware, HID, lateral movement); feeds match_sigma_rules
 │
 ├── examples/
 │   ├── case-studies/               two tiers, self-contained cases (README + truth.json + evidence_root)
