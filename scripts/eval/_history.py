@@ -1,7 +1,7 @@
 """Append-only benchmark run history.
 
-The per-run comparison files (MODEL-COMPARISON.md, EXTERNAL-COMPARISON.md,
-SUMMARY.md) are *snapshots* — each run overwrites them with the latest table.
+The per-run comparison files (MODEL-COMPARISON.md, SUMMARY.md) are *snapshots*
+— each run overwrites them with the latest table.
 That's the right behavior for "what does the agent score right now". But it
 throws away the trend: you can't see whether a change helped or hurt run over
 run.
@@ -30,8 +30,8 @@ _HEADER = (
     "Append-only ledger. Every `python3 -m scripts.eval.self` and "
     "`python3 -m scripts.eval.external` run adds one row at the bottom — "
     "rows are never overwritten, so this is the trend over time. The "
-    "snapshot tables (`MODEL-COMPARISON.md`, `EXTERNAL-COMPARISON.md`, "
-    "`SUMMARY.md`) always hold the latest run only.\n\n"
+    "snapshot tables (`MODEL-COMPARISON.md`, `SUMMARY.md`) always hold the "
+    "latest run only.\n\n"
     "| Run (UTC) | Tier | Models | Cases | Mean recall | Per-model recall |\n"
     "|---|---|---|---|---|---|\n"
 )
