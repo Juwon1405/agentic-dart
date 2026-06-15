@@ -89,8 +89,15 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
     print(f"  → {case_ref}  [{model} · {_auth_mode}]")
     proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
     if proc.returncode != 0:
-        tail = (proc.stderr or proc.stdout or "").strip().splitlines()
-        row["error"] = tail[-1] if tail else f"exit {proc.returncode}"
+        err_lines = (proc.stderr or proc.stdout or "").strip().splitlines()
+        # Strip box-drawing / separator noise so we surface the real message,
+        # not just the border of a framed traceback (e.g. "+-----").
+        meaningful = []
+        for l in err_lines:
+            t = l.strip().strip("+-|=_ ").strip()
+            if t:
+                meaningful.append(t)
+        row["error"] = " | ".join(meaningful[-3:]) if meaningful else f"exit {proc.returncode}"
         print(f"     FAILED: {row['error']}")
         return row
 
