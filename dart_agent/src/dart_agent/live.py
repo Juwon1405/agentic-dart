@@ -383,9 +383,13 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
     Uses the configured Anthropic credential source from dart_agent.auth.
     """
     from .auth import build_anthropic_client
-    client = build_anthropic_client()
+    client, auth_mode = build_anthropic_client(model)
     if client is None:
         raise RuntimeError("No Anthropic credentials available.")
+    # Light visibility into which credential source this run used (helps you
+    # confirm haiku is riding OAuth to save API tokens): e.g. "haiku · oauth".
+    _short = model.split("-")[1] if "-" in model else model
+    print(f"[live] auth: {_short} · {auth_mode}")
 
     state.messages.append({"role": "user", "content": prompt})
 
