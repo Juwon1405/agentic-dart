@@ -287,12 +287,7 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool,
     if rc != 0:
         return rc
 
-    out_dir = REPO / "out" / case.tier / case.case_id / _timestamp()
-    # Housekeeping: rotate old runs for this case before adding a new one.
-    _rotate_out_dirs(out_dir.parent, keep=10)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    # Wire the agent to this case's own evidence_root.
+    # Wire the agent to this case's own evidence_root (once per case).
     os.environ["DART_EVIDENCE_ROOT"] = str(case.evidence_root)
     for pkg in ("dart_audit", "dart_mcp", "dart_agent", "dart_corr"):
         p = str(REPO / pkg / "src")
@@ -314,19 +309,48 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool,
     _auth_mode = resolve_auth_mode(model)
     print(f"[analyze] case={case.ref} model={model} · {_auth_mode}")
     print(f"[analyze] evidence_root={case.evidence_root}")
-    print(f"[analyze] out={out_dir}")
 
-    from dart_agent import main as agent_main
-    rc = agent_main([
-        "--case", case.ref,
-        "--out", str(out_dir),
-        "--mode", "live",
-        "--model", model,
-        "--max-iterations", str(max_iter),
-        "--prompt", _case_brief(case, user_context),
-    ])
+    brief = _case_brief(case, user_context)
 
-    _normalize_outputs(case, out_dir, model)
+    def _one_run() -> "tuple[Path, int]":
+        out_dir = REPO / "out" / case.tier / case.case_id / _timestamp()
+        # Housekeeping: rotate old runs for this case before adding a new one.
+        _rotate_out_dirs(out_dir.parent, keep=10)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        print(f"[analyze] out={out_dir}")
+        from dart_agent import main as agent_main
+        rc_run = agent_main([
+            "--case", case.ref,
+            "--out", str(out_dir),
+            "--mode", "live",
+            "--model", model,
+            "--max-iterations", str(max_iter),
+            "--prompt", brief,
+        ])
+        _normalize_outputs(case, out_dir, model)
+        return out_dir, rc_run
+
+    def _findings_count(od: Path):
+        try:
+            return json.loads((od / "summary.json").read_text()).get("findings_count")
+        except Exception:
+            return None
+
+    out_dir, rc = _one_run()
+    # Non-determinism guard, applied HERE at the single real entry point so it
+    # covers BOTH real --evidence investigations AND every eval tier (the eval
+    # harness shells out to this exact command, so it inherits the guard for
+    # free — no duplicate retry logic lives in the harness). findings=0 means
+    # the agent analysed but emitted an empty report — never a correct result
+    # for a host under investigation, and with temperature pinned to 0 upstream
+    # it is an intermittent extraction miss, not variance. Re-run ONCE; whatever
+    # the retry yields — even 0 again — is final (a second zero is a real
+    # signal, so we never loop further).
+    if _findings_count(out_dir) == 0:
+        print("[analyze] findings=0 — non-determinism guard: 1 retry")
+        out_dir, rc = _one_run()
+        print(f"[analyze] retry findings_count={_findings_count(out_dir)}")
+
     print(f"[analyze] done: {out_dir}")
     return rc
 
