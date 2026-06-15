@@ -24,9 +24,8 @@ runtime package surface — they are repository tooling.
   17 → 517) in-place with deterministic benign noise (seed `20260508`). It
   does **not** touch any other file — security EventLog, supply-chain, RDP
   brute, USB setupapi, memory triage, etc. are all committed hand-curated. The
-  script intentionally avoids `rmtree`/`copytree` of the `sample-evidence/`
-  fixture over the canonical tree, since that would destroy hand-curated
-  evidence with no fixture counterpart.
+  script intentionally avoids `rmtree`/`copytree` over the canonical evidence
+  tree, since that would destroy hand-curated evidence.
 
 ## Installation / setup
 

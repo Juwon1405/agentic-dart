@@ -6,7 +6,7 @@
 #
 #   1. Confirms the full MCP tool surface is registered (native + SIFT adapters)
 #   2. Lists every adapter and its binary-resolution status
-#   3. Calls each available adapter against the sample evidence
+#   3. Calls each available adapter against case-01 evidence
 #      (or skips with a clear reason if the binary is missing)
 #   4. Verifies that path-traversal attempts are still blocked
 #   5. Verifies that calling an unregistered destructive function fails
@@ -21,7 +21,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "${HERE}/.." && pwd)"
 
-export DART_EVIDENCE_ROOT="${HERE}/sample-evidence"
+export DART_EVIDENCE_ROOT="${REPO}/examples/case-studies/self-evaluation/case-01/evidence_root"
 export PYTHONPATH="${REPO}/dart_audit/src:${REPO}/dart_mcp/src:${REPO}/dart_agent/src:${REPO}/dart_corr/src"
 
 # Pretty output
@@ -86,7 +86,7 @@ echo -e "${B}═══ 3. Live adapter calls ═══${N}"
 python3 - <<'PY'
 """
 Probe each adapter:
-  - If binary is on PATH and sample evidence exists, call it
+  - If binary is on PATH and evidence exists, call it
   - Otherwise, confirm it raises a clean architectural exception
     (SiftToolNotFoundError or PathTraversalAttempt — both are
     correct sandbox enforcement, not bugs)
@@ -100,7 +100,7 @@ YELLOW = '\033[1;33m'
 RED = '\033[1;31m'
 RESET = '\033[0m'
 
-# Map adapter -> minimal-args dict using sample-evidence paths.
+# Map adapter -> minimal-args dict using evidence_root paths.
 # For adapters without sample data we just confirm the not-found path.
 sample_evidence = os.environ['DART_EVIDENCE_ROOT']
 

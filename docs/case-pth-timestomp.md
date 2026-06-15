@@ -2,8 +2,8 @@
 
 > *Representative walkthrough of an Agentic-DART run on the SANS SIFT
 > Workstation. The four images referenced below are sample-run stills
-> rendered for documentation purposes; the live screencast in the
-> June 2026 hackathon submission video will replace them.*
+> rendered for documentation; the [demo video](https://www.youtube.com/watch?v=20zY7QoTAyU)
+> is the live screencast.*
 
 This case study walks through a full `dart-agent` invocation
 (`python3 -m dart_agent --case <case-id> --out <output-dir> --mode deterministic`)
@@ -190,14 +190,12 @@ required to flag them.
 
 ## Reproducing this run
 
-The sample evidence and playbook live in the repo:
+The bundled evidence and playbook live in the repo. The simplest reproduction is the deterministic demo (no API key):
 
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git
 cd agentic-dart
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
-python3 -m dart_agent --case demo --max-iterations 25
+bash examples/demo-run.sh
 ```
 
 The deterministic demo will land on the same MITRE chain and the same

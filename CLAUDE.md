@@ -38,7 +38,7 @@ dart_mcp/        Custom MCP server — typed, read-only forensic functions (nati
 dart_agent/      Iteration controller, hypothesis tracker, deterministic + live loops
 dart_corr/       Cross-artifact correlation engine — DuckDB joins, contradiction flagging
 dart_playbook/   Senior-analyst YAML playbooks — DATA, not a Python package
-examples/        case-studies/{self-evaluation,external-evaluation}/case-NN/ (README+truth.json+evidence_root), sample-evidence/ (CI fixture), demos
+examples/        case-studies/{self-evaluation,external-evaluation}/case-NN/ (README+truth.json+evidence_root), demos
 scripts/         install.sh, benchmark/, scripts/eval/demo.py, generate_realistic_evidence.py
 tests/           the main pytest suite; dart_corr/tests/ holds the correlation-engine tests
 docs/            architecture, accuracy report, case walkthroughs

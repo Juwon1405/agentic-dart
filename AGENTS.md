@@ -22,7 +22,7 @@ Python 3.10+, MIT, SANS FIND EVIL! 2026.
 - `dart_agent/` — iteration controller, deterministic + live loops, auth (Python package)
 - `dart_corr/` — DuckDB cross-artifact correlation engine (Python package)
 - `dart_playbook/` — senior-analyst YAML playbooks; **data, no `pyproject.toml`, loaded by path**
-- `examples/` — `case-studies/{self-evaluation,external-evaluation}/case-NN/` (README + truth.json + evidence_root), `sample-evidence/` (CI fixture), demos
+- `examples/` — `case-studies/{self-evaluation,external-evaluation}/case-NN/` (README + truth.json + evidence_root), demos
 - `scripts/` — `install.sh`, `benchmark/`, `scripts/eval/demo.py`, `generate_realistic_evidence.py`
 - `tests/` — main pytest suite; `dart_corr/tests/` — correlation-engine tests
 
