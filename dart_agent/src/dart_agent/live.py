@@ -203,14 +203,44 @@ def _with_cache_breakpoint(tools: list[dict]) -> list[dict]:
     return out
 
 
-# Sampling temperature for EVERY model call (reasoning loop + final synthesis).
-# DFIR demands reproducibility over creativity, so this is pinned to 0.0 — the
-# lowest-variance setting — and applies uniformly to ALL models (haiku/sonnet/
-# opus) and ALL tiers (self/external/demo), since every API call below reads
-# this single constant. Note: 0.0 does not make the model perfectly
-# deterministic (GPU floating-point order and batch effects remain), but it is
-# the single largest lever we control against run-to-run variance.
+# Sampling temperature for model calls that accept it (reasoning loop + final
+# synthesis). DFIR demands reproducibility over creativity, so this is pinned to
+# 0.0 — the lowest-variance setting — for every tier (self/external/demo) via the
+# single _messages_create wrapper below. Models that have deprecated the
+# parameter (Opus 4.8 returns a 400) are detected and run without it; Haiku and
+# Sonnet use it. Note: 0.0 does not make the model perfectly deterministic (GPU
+# floating-point order and batch effects remain), but it is the single largest
+# lever we control against run-to-run variance.
 TEMPERATURE = 0.0
+
+# Models that have deprecated the `temperature` parameter (e.g. Claude Opus 4.8
+# returns 400 "temperature is deprecated for this model"). Populated lazily the
+# first time a model rejects it, so later calls skip temperature without retry.
+_NO_TEMPERATURE_MODELS: set[str] = set()
+
+
+def _messages_create(client, *, model: str, **params):
+    """client.messages.create with temperature pinned for reproducibility —
+    but transparently dropped for models that have deprecated the parameter.
+
+    Pinning temperature=0 lowers run-to-run variance, but newer models (Opus
+    4.8) reject `temperature` outright with a 400. Rather than hard-code which
+    models accept it, we send it and, on a "temperature is deprecated" 400,
+    remember that model and retry once without it. Every later call for that
+    model skips temperature up front (no wasted retry). Models that accept it
+    (Haiku, Sonnet) are unaffected.
+    """
+    if model not in _NO_TEMPERATURE_MODELS:
+        params["temperature"] = TEMPERATURE
+    try:
+        return client.messages.create(model=model, **params)
+    except anthropic.BadRequestError as e:
+        if "temperature" in str(e).lower() and "temperature" in params:
+            _NO_TEMPERATURE_MODELS.add(model)
+            params.pop("temperature")
+            return client.messages.create(model=model, **params)
+        raise
+
 
 SYSTEM_PROMPT = """You are Agentic-DART, a senior DFIR analyst.
 
@@ -400,7 +430,8 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
 
     while state.iteration < state.max_iterations:
         state.iteration += 1
-        resp = client.messages.create(
+        resp = _messages_create(
+            client,
             model=model,
             # The final turn emits the full REPORT JSON: a findings array plus
             # timeline, attack_chain, remediation, and a MITRE tactic summary.
@@ -409,8 +440,6 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
             # unparseable report scored as zero findings). 16384 leaves ample
             # headroom for the largest reports the agent produces here.
             max_tokens=16384,
-            # Pinned low-variance sampling for forensic reproducibility.
-            temperature=TEMPERATURE,
             # Prompt caching: the system prompt and the
             # tool definitions are large and IDENTICAL on every iteration of
             # the forensic reasoning loop. Marking the last one with
@@ -504,11 +533,10 @@ async def _run_with_real_claude(prompt: str, state: LiveRunState,
             "far supports."
         ),
     })
-    final_resp = client.messages.create(
+    final_resp = _messages_create(
+        client,
         model=model,
         max_tokens=16384,
-        # Pinned low-variance sampling for forensic reproducibility.
-        temperature=TEMPERATURE,
         system=[{
             "type": "text",
             "text": SYSTEM_PROMPT,
