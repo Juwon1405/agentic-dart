@@ -1,11 +1,12 @@
-# Benchmark Summary
+# Benchmark summary — self-evaluation
 
-Accuracy of Agentic-DART against measured bundled and external DFIR datasets.
+_This file is regenerated every time you run the self evaluation. Until then it
+shows no data._
 
-Layer-1 rows are appended only when the runner executes the corresponding
-measurement harness. Historical rows for unexecuted synthetic cases were
-removed because they duplicated the case-01 measurement instead of scoring
-those cases independently.
+```
+python3 -m scripts.eval.self --models claude-haiku-4-5-20251001
+```
 
-| Date | Case | Findings | GT | Strict Recall | Lenient Recall | Hallucinations | Audit |
-|------|------|---------:|---:|--------------:|---------------:|---------------:|:-----:|
+After a run it holds per-model average recall and a per-case recall table; the
+full table with token counts lives in `MODEL-COMPARISON.md`. Recall is detected
+/ scorable ground-truth findings per case.

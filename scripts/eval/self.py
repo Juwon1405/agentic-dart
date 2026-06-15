@@ -47,6 +47,7 @@ CASE_ROOT = REPO / "examples" / "case-studies"
 SELF = CASE_ROOT / "self-evaluation"
 DEFAULT_MODEL = os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001")
 MATRIX_MD = REPO / "docs" / "benchmarks" / "MODEL-COMPARISON.md"
+SUMMARY_MD = REPO / "docs" / "benchmarks" / "SUMMARY.md"
 
 
 def discover_self_cases() -> list[str]:
@@ -166,6 +167,50 @@ def build_markdown(rows: list[dict], models: list[str]) -> str:
     return "\n".join(out) + "\n"
 
 
+def _write_summary(rows: list[dict], models: list[str]) -> None:
+    """Write a compact, human-readable digest to SUMMARY.md.
+
+    The matrix file is the full table; this is the at-a-glance view: per-model
+    average recall plus a per-case recall column for each model. Rewritten every
+    run so it always reflects the latest measurement."""
+    today = dt.date.today().isoformat()
+    cases = sorted({r["case"] for r in rows})
+
+    def cell(case: str, model: str) -> str:
+        r = next((x for x in rows if x["case"] == case and x["model"] == model), None)
+        if not r or r.get("recall") is None:
+            return "—"
+        return f"{r['recall']*100:.0f}%"
+
+    def model_avg(model: str) -> str:
+        vals = [r["recall"] for r in rows
+                if r["model"] == model and r.get("recall") is not None]
+        return f"{sum(vals)/len(vals)*100:.0f}%" if vals else "—"
+
+    out = [
+        "# Benchmark summary — self-evaluation",
+        "",
+        f"_Last run {today}. Recall is detected / scorable ground-truth findings "
+        "per case (see `MODEL-COMPARISON.md` for the full table with token "
+        "counts). Regenerated every `python3 -m scripts.eval.self` run._",
+        "",
+        "## Average recall",
+        "",
+        "| Model | Mean recall (self cases) |",
+        "|---|---|",
+    ]
+    for m in models:
+        out.append(f"| `{m}` | {model_avg(m)} |")
+    out += ["", "## Per-case recall", "",
+            "| Case | " + " | ".join(f"`{m}`" for m in models) + " |",
+            "|---|" + "|".join("---" for _ in models) + "|"]
+    for case in cases:
+        out.append(f"| {case} | " + " | ".join(cell(case, m) for m in models) + " |")
+    out.append("")
+    SUMMARY_MD.parent.mkdir(parents=True, exist_ok=True)
+    SUMMARY_MD.write_text("\n".join(out) + "\n")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -193,12 +238,17 @@ def main(argv=None) -> int:
     if args.dry_run:
         return 0
 
-    # Multi-model -> write the comparison matrix.
-    if len(args.models) > 1:
-        args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(build_markdown(rows, args.models))
-        args.out.with_suffix(".rows.json").write_text(json.dumps(rows, indent=2))
-        print(f"\nMatrix written: {args.out.relative_to(REPO)}")
+    # Always persist results — single model or several. The matrix file holds
+    # the full per-case x per-model table; SUMMARY.md holds a compact
+    # human-readable digest. Both are rewritten every run so they reflect the
+    # latest measurement rather than going stale.
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(build_markdown(rows, args.models))
+    args.out.with_suffix(".rows.json").write_text(json.dumps(rows, indent=2))
+    _write_summary(rows, args.models)
+    print(f"\nResults written:")
+    print(f"  {args.out.relative_to(REPO)}   (full matrix)")
+    print(f"  {SUMMARY_MD.relative_to(REPO)}   (digest)")
 
     ok = sum(1 for r in rows if r["ok"])
     print(f"\nDone: {ok}/{len(rows)} runs succeeded.")
