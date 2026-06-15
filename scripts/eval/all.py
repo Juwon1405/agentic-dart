@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -54,19 +55,19 @@ def main(argv=None) -> int:
                     help="Run demo + self only (external needs the disk images).")
     args = ap.parse_args(argv)
 
-    from eval import demo as demo_mod  # noqa: WPS433
     from eval import self as self_mod  # noqa: WPS433
     from eval import external as external_mod  # noqa: WPS433
 
     # 1) Demo taster — deterministic, no key, just prove the rig stands up.
+    #    Run in a SUBPROCESS so the demo's evidence_root can't be polluted by
+    #    self/external having already imported dart_mcp in this process —
+    #    dart_mcp freezes EVIDENCE_ROOT at import time, so an in-process demo
+    #    would inherit the wrong root. self/external are already
+    #    subprocess-isolated; this brings the demo in line with them.
     if not args.skip_demo:
         _rule("1/3  demo — deterministic pipeline taster (no LLM, no key)")
-        try:
-            demo_mod.main([])
-        except SystemExit:
-            pass
-        except Exception as e:  # noqa: BLE001
-            print(f"  demo raised {type(e).__name__}: {e} (continuing)")
+        subprocess.run([sys.executable, "-m", "scripts.eval.demo"],
+                       cwd=str(REPO))
 
     # self/external need a key. Check once; if missing, stop cleanly after demo.
     if not os.environ.get("ANTHROPIC_API_KEY"):
