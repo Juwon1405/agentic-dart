@@ -145,9 +145,16 @@ def score(findings_path: Path, truth_path: Path) -> dict:
         # self truth uses techniques. When the flag is present and False, the
         # finding needs a tool we haven't built yet -> not scorable (excluded
         # from the denominator, not counted as a miss). When the flag is
-        # absent (self cases), fall back to technique presence.
+        # absent (self cases), fall back to technique presence. A "partial"
+        # flag means the artifact is reachable with the current toolset but
+        # only some of the claim's facts surface (e.g. CFReDS "web-based email
+        # mrevilrulez@yahoo.com" — the agent can recover the account name from
+        # disk artifacts even if it can't reconstruct the full webmail session).
+        # Partial is scorable: it's fair to expect the agent to surface the
+        # detectable part. Anything else stringy/unknown falls back to technique
+        # presence rather than silently dropping out of the denominator.
         flag = g.get("directly_detectable_v053")
-        if flag is True:
+        if flag is True or flag == "partial":
             is_scorable = True
         elif flag is False:
             is_scorable = False
