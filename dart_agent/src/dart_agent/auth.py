@@ -450,8 +450,10 @@ def has_any_credentials() -> bool:
 
 
 if __name__ == "__main__":
-    # Quick credential status, no client built:
-    #   PYTHONPATH=dart_agent/src python3 -m dart_agent.auth
+    # Quick credential status, no client built. Run it directly — the package
+    # __init__ pulls in sibling packages, so a bare `-m` needs the full
+    # PYTHONPATH, whereas running the file directly does not:
+    #   python3 dart_agent/src/dart_agent/auth.py
     import time as _t
     _creds = load_credentials()
     _have_api = bool(os.environ.get("ANTHROPIC_API_KEY"))
