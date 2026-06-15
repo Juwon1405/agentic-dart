@@ -120,7 +120,7 @@ all per-case detection counts are preserved across the enrichment.
 |---|---|---|
 | SANS SIFT Workstation | ✅ Primary target | All functions work |
 | Ubuntu 22.04 / 24.04 | ✅ Tested | All functions work |
-| macOS 12+ (Intel or Apple Silicon) | ✅ Tested | Runs identically; see `docs/running-on-macos.md` |
+| macOS 12+ (Intel or Apple Silicon) | ✅ Tested | Runs identically |
 | Windows (WSL2) | ⚠ Untested | Should work — pure Python |
 
 ## Honest limitations

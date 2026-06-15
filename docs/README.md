@@ -7,7 +7,6 @@
 | `comparison.md` | Positioning vs adjacent tools (CrewAI, AutoGen, SuperAGI, etc.) on the DFIR-specific axes. |
 | `dataset.md` | Layer 2 external datasets (CFReDS, Ali Hadi, M57 Patents) — what is included, what is downloaded on demand, and license notes. |
 | `live-mode.md` | Live-mode agent loop: iteration model, token-usage accounting (input / output / cache-read / cache-creation), and prompt-cache verification. |
-| `running-on-macos.md` | macOS host setup notes (Python toolchain, .NET runtime for EvtxECmd / MFTECmd, PowerShell adapters). |
 | `troubleshooting.md` | Known issues and resolutions. |
 | `case-pth-timestomp.md` | Case write-up: pass-the-hash + timestomp narrative used as a worked example. |
 | `external-skill-references.md` | References to the Anthropic-Cybersecurity-Skills curated by the playbook and corr layers. |
