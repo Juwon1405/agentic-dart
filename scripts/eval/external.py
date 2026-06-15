@@ -415,6 +415,14 @@ def main(argv=None) -> int:
     args.out.write_text(build_markdown(rows, args.models))
     args.out.with_suffix(".rows.json").write_text(json.dumps(rows, indent=2))
     print(f"\nMatrix written: {args.out.relative_to(REPO)}")
+    # _history lives in scripts/eval/ next to this file. Guarantee that dir is on
+    # sys.path no matter how we were launched (-m scripts.eval.external, direct
+    # script, or imported by all.py from another cwd). Derived from REPO, not cwd,
+    # so it's reproducible everywhere. (This is what was missing — external used a
+    # bare `from _history import` that only worked when cwd happened to be right.)
+    _eval_dir = str(REPO / "scripts" / "eval")
+    if _eval_dir not in sys.path:
+        sys.path.insert(0, _eval_dir)
     from _history import append_run as _append_run
     _append_run("external", rows, args.models)
 

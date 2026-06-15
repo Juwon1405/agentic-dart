@@ -248,12 +248,12 @@ def main(argv=None) -> int:
     _write_summary(rows, args.models)
     # Append one row to the append-only trend ledger (snapshots above are
     # overwritten each run; HISTORY.md accumulates so you can see run-over-run
-    # movement). Robust to being run as a module or a script.
-    try:
-        from _history import append_run as _append_run
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "scripts" / "eval"))
-        from _history import append_run as _append_run
+    # movement). Guarantee scripts/eval/ is on sys.path (derived from REPO, not
+    # cwd) so this works no matter how we're launched — same pattern as external.
+    _eval_dir = str(REPO / "scripts" / "eval")
+    if _eval_dir not in sys.path:
+        sys.path.insert(0, _eval_dir)
+    from _history import append_run as _append_run
     _append_run("self", rows, args.models)
     print(f"\nResults written:")
     print(f"  {args.out.relative_to(REPO)}   (full matrix)")
