@@ -178,6 +178,31 @@ def _sift_tools():
             f"scripts/check_sift_tools.py)")
 
 
+def _disk_image_tools():
+    """Report whether the disk-image extraction tools are present. These are
+    only needed for the EXTERNAL benchmark cases (raw whole-disk images / E01s):
+    mmls + tsk_recover (sleuthkit) read the partition table and recover files,
+    and ewfmount (ewf-tools/libewf) exposes an .E01 as a raw image first. The
+    bundled self-evaluation cases don't need any of these — they ship a ready
+    evidence_root — so this never fails; it just tells you whether external
+    cases can be adapted on this box."""
+    import shutil
+    tools = {
+        "mmls": "sleuthkit",
+        "tsk_recover": "sleuthkit",
+        "ewfmount": "ewf-tools / libewf",
+    }
+    present = [t for t in tools if shutil.which(t)]
+    missing = [t for t in tools if not shutil.which(t)]
+    if not missing:
+        return (f"{len(present)}/{len(tools)} present "
+                f"(mmls, tsk_recover, ewfmount) — external cases can be adapted")
+    pkgs = sorted({tools[t] for t in missing})
+    return (f"{len(present)}/{len(tools)} present; missing {', '.join(missing)} "
+            f"— external (disk-image) cases need: {', '.join(pkgs)}. "
+            f"Self-evaluation cases are unaffected.")
+
+
 def main() -> int:
     print("Agentic-DART healthcheck (API-free)\n")
     _check("python version", _py_version)
@@ -188,6 +213,7 @@ def main() -> int:
     _check("case-study layout", _layout)
     _check("analyze fail-fast", _fail_fast)
     _check("SIFT tool binaries", _sift_tools)
+    _check("disk-image tools (external cases)", _disk_image_tools)
 
     for line in _ok:
         print(line)

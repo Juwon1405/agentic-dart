@@ -120,14 +120,24 @@ if [[ -d "${REPO_ROOT}/.git" ]]; then
 fi
 
 # ---- 2. OS base packages ---------------------------------------------------
+# Linux only (Ubuntu/SIFT is the supported target; RHEL/CentOS/Fedora work via
+# dnf/yum). sleuthkit (mmls/tsk_recover) and ewf-tools (ewfmount) are needed to
+# turn raw whole-disk images / E01s into an evidence tree for the external
+# benchmark cases. macOS is intentionally unsupported (see README): the Plaso /
+# libyal toolchain doesn't build cleanly there, so we don't pretend to install
+# it.
 os_base() {
   if have apt-get; then
     sudo apt-get update -qq || true
-    _apt python3 python3-pip git curl unzip
-  elif have dnf; then sudo dnf install -y -q python3 python3-pip git curl unzip
-  elif have yum; then sudo yum install -y -q python3 python3-pip git curl unzip
-  elif have brew; then brew install python git curl
-  else echo "no known package manager"; return 1; fi
+    _apt python3 python3-pip git curl unzip sleuthkit ewf-tools
+  elif have dnf; then
+    sudo dnf install -y -q python3 python3-pip git curl unzip sleuthkit libewf-tools
+  elif have yum; then
+    sudo yum install -y -q python3 python3-pip git curl unzip sleuthkit libewf-tools
+  else
+    echo "no supported Linux package manager (need apt-get, dnf, or yum)"
+    return 1
+  fi
 }
 if have python3 && have git && have curl && have unzip; then
   skip_step "OS base packages" "already present"
