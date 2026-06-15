@@ -50,6 +50,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -118,18 +119,91 @@ def _adapt_image_to_evidence_root(image: Path, evidence_root: Path, case_id: str
     except ImportError:
         pass
 
-    # 2) thin sleuthkit fallback (tsk_recover) — best-effort
+    # 2) thin sleuthkit fallback (tsk_recover) — best-effort.
+    #
+    # A whole-disk image (SCHARDT.dd, an .E01) has a PARTITION TABLE, so calling
+    # tsk_recover on the raw image fails with "Cannot determine file system
+    # type": there's no filesystem at offset 0, there's an MBR/GPT. The real
+    # forensic flow is: (a) if it's an E01, expose it as raw via ewfmount;
+    # (b) read the partition table with mmls; (c) run tsk_recover at each
+    # filesystem partition's offset. We do exactly that, and also try offset-0
+    # directly in case the image happens to be a bare filesystem.
     from shutil import which
-    if which("tsk_recover"):
-        print(f"    adapting via sleuthkit tsk_recover → {evidence_root}")
-        proc = subprocess.run(["tsk_recover", "-a", str(image), str(evidence_root)],
-                              capture_output=True, text=True)
-        if proc.returncode == 0 and any(evidence_root.iterdir()):
-            return True
-        print(f"    tsk_recover failed: {(proc.stderr or '').strip()[:200]}")
+    if not which("tsk_recover"):
+        print("    no image adapter available (install agentic-dart-collector-"
+              "adapter or sleuthkit); evidence_root not built.")
+        return False
 
-    print("    no image adapter available (install agentic-dart-collector-adapter "
-          "or sleuthkit); evidence_root not built.")
+    print(f"    adapting via sleuthkit tsk_recover → {evidence_root}")
+
+    # (a) If this is an EWF/E01, mount it to a raw image first (ewfmount).
+    raw_image = image
+    ewf_mnt = None
+    if image.suffix.lower() in (".e01", ".ex01", ".s01") and which("ewfmount"):
+        ewf_mnt = Path(tempfile.mkdtemp(prefix="dart-ewf-"))
+        m = subprocess.run(["ewfmount", str(image), str(ewf_mnt)],
+                           capture_output=True, text=True)
+        cand = ewf_mnt / "ewf1"
+        if m.returncode == 0 and cand.exists():
+            raw_image = cand
+        else:
+            print(f"    ewfmount failed ({(m.stderr or '').strip()[:120]}); "
+                  f"trying the .E01 directly")
+
+    def _tsk_recover_at(off_arg: list[str]) -> bool:
+        proc = subprocess.run(
+            ["tsk_recover", "-a", *off_arg, str(raw_image), str(evidence_root)],
+            capture_output=True, text=True)
+        return proc.returncode == 0 and any(evidence_root.iterdir())
+
+    built = False
+    try:
+        # (b) Read the partition table; collect filesystem partition offsets.
+        offsets: list[int] = []
+        if which("mmls"):
+            mm = subprocess.run(["mmls", str(raw_image)],
+                               capture_output=True, text=True)
+            for line in (mm.stdout or "").splitlines():
+                # mmls rows look like: "002:  000:000  0000002048  ...  NTFS / exFAT (0x07)"
+                parts = line.split()
+                if len(parts) >= 5 and parts[0].rstrip(":").isdigit():
+                    low = line.lower()
+                    if any(fs in low for fs in
+                           ("ntfs", "fat", "ext", "exfat", "hfs", "apfs", "0x07", "0x83")):
+                        try:
+                            offsets.append(int(parts[2]))  # starting sector
+                        except ValueError:
+                            continue
+
+        # (c) Try each partition offset (sectors -> tsk -o takes sectors).
+        for off in offsets:
+            if _tsk_recover_at(["-o", str(off)]):
+                built = True
+                break
+
+        # Fallback: try the image with no offset (bare filesystem case).
+        if not built and _tsk_recover_at([]):
+            built = True
+
+        if not built:
+            hint = "no filesystem partitions recovered"
+            if offsets:
+                hint = f"tried offsets {offsets} but recovered nothing"
+            print(f"    tsk_recover failed: {hint}")
+    finally:
+        if ewf_mnt is not None:
+            subprocess.run(["fusermount", "-u", str(ewf_mnt)],
+                           capture_output=True, text=True)
+            try:
+                ewf_mnt.rmdir()
+            except OSError:
+                pass
+
+    if built:
+        return True
+
+    print("    no image adapter available (install agentic-dart-collector-"
+          "adapter or sleuthkit); evidence_root not built.")
     return False
 
 
