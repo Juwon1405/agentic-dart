@@ -63,7 +63,8 @@ def test_storage_usb_does_not_fire_hid_rule(tmp_path, monkeypatch):
 def test_suspicious_scheduled_task_fires(tmp_path, monkeypatch):
     events = [
         {"event_type": "task_registration",
-         "action": "powershell.exe -enc SQBFAFgA"},
+         "task_command": "powershell.exe",
+         "task_arguments": "-enc SQBFAFgA"},
     ]
     r = _run(tmp_path, events, monkeypatch)
     tags = [t for m in r.get("matches", []) for t in m["mitre"]]
@@ -72,7 +73,8 @@ def test_suspicious_scheduled_task_fires(tmp_path, monkeypatch):
 
 def test_kerberoasting_rc4_tgs_fires(tmp_path, monkeypatch):
     events = [
-        {"event_type": "kerberos_tgs", "ticket_encryption_type": "0x17"},
+        {"EventID": 4769, "TicketEncryptionType": "0x17",
+         "ServiceName": "MSSQLSvc/SQL01.corp.local"},
     ]
     r = _run(tmp_path, events, monkeypatch)
     tags = [t for m in r.get("matches", []) for t in m["mitre"]]

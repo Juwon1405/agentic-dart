@@ -106,8 +106,11 @@ def _selection_matches(event: dict, selection) -> bool:
 def _condition_matches(event: dict, detection: dict) -> bool:
     """Evaluate the rule's ``condition`` over its named selections.
 
-    Handles ``A``, ``A and B``, ``A or B`` (no parentheses — all our rules are
-    that simple). Unknown selection names are treated as False.
+    Handles the boolean grammar real sigma rules use: selection names combined
+    with ``and`` / ``or`` and grouped with parentheses, e.g.
+    ``selection and (susp_a or susp_b)``. Implemented as a tiny recursive-descent
+    evaluator (tokenise -> parse or/and/parens). ``1 of them`` / ``all of`` and
+    other aggregate forms are out of scope — our packs don't use them.
     """
     cond = str(detection.get("condition", "")).strip()
     if not cond:
@@ -119,11 +122,54 @@ def _condition_matches(event: dict, detection: dict) -> bool:
             return False
         return _selection_matches(event, detection[name])
 
-    if " and " in cond:
-        return all(sel(p) for p in cond.split(" and "))
-    if " or " in cond:
-        return any(sel(p) for p in cond.split(" or "))
-    return sel(cond)
+    # Tokenise into: '(', ')', 'and', 'or', and selection identifiers.
+    import re
+    tokens = re.findall(r"\(|\)|\band\b|\bor\b|[A-Za-z0-9_]+", cond)
+    pos = 0
+
+    def peek():
+        return tokens[pos] if pos < len(tokens) else None
+
+    def advance():
+        nonlocal pos
+        t = tokens[pos]
+        pos += 1
+        return t
+
+    # Grammar: or_expr := and_expr ('or' and_expr)*
+    #          and_expr := atom ('and' atom)*
+    #          atom     := '(' or_expr ')' | identifier
+    def parse_atom() -> bool:
+        t = peek()
+        if t == "(":
+            advance()                 # consume '('
+            val = parse_or()
+            if peek() == ")":
+                advance()             # consume ')'
+            return val
+        return sel(advance())
+
+    def parse_and() -> bool:
+        val = parse_atom()
+        while peek() == "and":
+            advance()
+            rhs = parse_atom()
+            val = val and rhs
+        return val
+
+    def parse_or() -> bool:
+        val = parse_and()
+        while peek() == "or":
+            advance()
+            rhs = parse_and()
+            val = val or rhs
+        return val
+
+    try:
+        return parse_or()
+    except Exception:
+        # On any parse hiccup, fail closed (no false match).
+        return False
 
 
 @tool(
@@ -151,22 +197,39 @@ def match_sigma_rules(event_log_path, limit=200):
     if not rules:
         return {"error": "no_rules_loaded", "pack_root": str(_pack_root())}
 
-    # Read events (JSONL).
+    # Read events. Accept both JSONL (one event per line) and a single JSON
+    # array — real evidence comes in both shapes (e.g. *.jsonl vs a security-
+    # events.json array), and a matcher that only reads one would silently miss
+    # the other.
     events = []
     try:
-        with p.open() as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    events.append(json.loads(line))
-                except json.JSONDecodeError:
-                    continue
-                if len(events) >= limit:
-                    break
+        raw = p.read_text()
     except Exception as e:  # noqa: BLE001
         return {"error": "read_failed", "detail": str(e)}
+
+    stripped = raw.lstrip()
+    if stripped.startswith("["):
+        # JSON array
+        try:
+            arr = json.loads(raw)
+            if isinstance(arr, list):
+                events = [e for e in arr if isinstance(e, dict)][:limit]
+        except json.JSONDecodeError:
+            events = []
+    if not events:
+        # JSONL (or array parse failed) — read line by line
+        for line in raw.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(obj, dict):
+                events.append(obj)
+            if len(events) >= limit:
+                break
 
     matches = []
     for ev in events:

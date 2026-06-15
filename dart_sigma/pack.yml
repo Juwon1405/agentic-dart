@@ -7,6 +7,12 @@
 # this pack against parsed events so the agent can CORROBORATE a classification
 # with a detection signature, the way a real SOC does.
 #
+# Field names match the actual evidence event schemas (verified against the
+# self-evaluation corpus): Windows Security events use EventID / LogonType /
+# TicketEncryptionType / PreAuthType; unified host events use event_type /
+# task_command / device_class_guid; etc. Rules are kept honest by being checked
+# against real case events, not hand-waved field names.
+#
 # Versioning mirrors the playbook: bump `version` and add/revise rules over
 # time (v1 -> v2 -> ...). The matcher always loads the highest-version pack.
 
@@ -15,8 +21,12 @@ name: dart-detection-pack
 description: >
   Consolidated DFIR detection signatures for the Agentic-DART self/external
   benchmark surfaces. General patterns only; no case-specific identifiers.
+  Coverage: initial access (HID/IP-KVM hardware addition), persistence
+  (suspicious scheduled task), credential access (Kerberoasting RC4 TGS,
+  AS-REP roasting), lateral movement (PsExec/WMIexec), defense evasion
+  (security event-log clearing).
 sources:
   - https://github.com/SigmaHQ/sigma          # 3000+ community detection rules
-  - https://sigmahq.io/docs/basics/rules.html # USB EventID 6416 pattern
+  - https://sigmahq.io/docs/basics/rules.html # Windows Security event patterns
   - https://detection.fyi                     # SigmaHQ rule mirror / search
 rules_dir: rules

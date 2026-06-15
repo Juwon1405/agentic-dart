@@ -468,14 +468,23 @@ classification_guidance:
     - rule: >
         IP-KVM, KVM-over-IP, and "remote-hands" hardware (a physical device
         that bridges keyboard/video/mouse to a remote operator, often
-        presenting on USB as an HID/composite device) is a PHYSICAL HARDWARE
-        ADDITION. Classify it as T1200 (Hardware Additions), an initial-access
-        technique. Do NOT classify it as T1219 (Remote Access Software) — there
-        is no software remote-access agent involved; the access is via physical
-        console/hardware. A USB insertion event for such a device, especially
-        followed by a console (type 2 / interactive) logon, is the initial
-        access vector.
+        presenting on USB as an HID/composite device). The PHYSICAL INSERTION of
+        such a device into a host is a Hardware Addition → T1200 (Initial
+        Access): someone added hardware to gain a foothold. Use T1200 when the
+        evidence is the device being introduced (USB insertion event, setupapi
+        first-install, an interactive/console logon right after). NOTE: MITRE
+        also defines T1219.003 (Remote Access Hardware, a 2025 sub-technique of
+        Remote Access Tools, under Command-and-Control) which specifically
+        covers IP-KVM / PiKVM / TinyPilot used to MAINTAIN an interactive remote
+        channel. So the same device can be T1200 for the act of planting it and
+        T1219.003 for the ongoing remote-control channel — pick by what the
+        evidence shows. What it is NOT is plain T1219 / generic "remote-access
+        SOFTWARE" (TeamViewer/AnyDesk-style agents): there is no software agent
+        here, the access is at the hardware layer. Prefer T1200 for the
+        insertion artifact; reach for T1219.003 only if the evidence is about
+        sustained remote operation over the device.
       mitre: T1200
+      related: T1219.003
       not: T1219
     - rule: >
         Known malicious-HID / BadUSB attack devices (USB Rubber Ducky, Bash
