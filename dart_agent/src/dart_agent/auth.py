@@ -455,15 +455,38 @@ if __name__ == "__main__":
     # PYTHONPATH, whereas running the file directly does not:
     #   python3 dart_agent/src/dart_agent/auth.py
     import time as _t
-    _creds = load_credentials()
-    _have_api = bool(os.environ.get("ANTHROPIC_API_KEY"))
-    if not _creds:
-        _tail = "  ·  ANTHROPIC_API_KEY set (api fallback available)" if _have_api else ""
-        print(f"OAuth: none (no local Claude login found){_tail}")
+    print("=== Anthropic credentials (what a run would actually use) ===")
+
+    # --- API key: sonnet/opus run on this (metered) ---
+    _api = os.environ.get("ANTHROPIC_API_KEY")
+    if _api:
+        _mask = (_api[:14] + "…" + _api[-4:]) if len(_api) > 22 else (_api[:6] + "…")
+        print(f"API key :  SET     ·  {_mask}")
     else:
+        print("API key :  NOT SET")
+        print("           → export ANTHROPIC_API_KEY=sk-ant-api03-...")
+        print("             (sonnet/opus need this; add it to ~/.bashrc to persist)")
+
+    # --- OAuth: haiku rides this (subscription) ---
+    _creds = load_credentials()
+    if _creds:
         _rem = int(_creds.get("expires_at", 0) - _t.time())
         _src = _creds.get("_path", "?")
         if _rem > 0:
-            print(f"OAuth: ALIVE  ·  expires in {_rem // 3600}h {(_rem % 3600) // 60}m  ·  {_src}")
+            print(f"OAuth   :  ALIVE   ·  expires in {_rem // 3600}h {(_rem % 3600) // 60}m  ·  {_src}")
         else:
-            print(f"OAuth: EXPIRED ({-_rem // 60}m ago) — refreshes on next run, or re-login  ·  {_src}")
+            print(f"OAuth   :  EXPIRED ({-_rem // 60}m ago)  ·  {_src}")
+            print("           → run `claude` (Claude Code) and sign in again;")
+            print("             it also auto-refreshes on the next haiku run if the")
+            print("             refresh token is still valid")
+    else:
+        print("OAuth   :  NONE (no local Claude login found)")
+        print("           → run `claude` (Claude Code) and sign in")
+        print("             (haiku rides this; once logged in the token persists)")
+
+    # --- bottom line: what each tier resolves to right now ---
+    print("---")
+    _h = resolve_auth_mode("claude-haiku-4-5-20251001")
+    _s = resolve_auth_mode("claude-sonnet-4-6")
+    print(f"haiku       → {_h or 'NOTHING — set a credential above first'}")
+    print(f"sonnet/opus → {_s or 'NOTHING — set a credential above first'}")

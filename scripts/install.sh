@@ -389,3 +389,22 @@ printf "    ${BOLD}all${RST}      ${DIM}python3 -m scripts.eval.all      --model
 printf "             demo + self + external in one pass, one HISTORY row each.\n"
 printf "\n  Multiple models? Append them: ${DIM}--models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8${RST}\n"
 printf "  Results: ${DIM}docs/benchmarks/SUMMARY.md${RST} (latest) + ${DIM}HISTORY.md${RST} (trend over time)\n\n"
+
+# ---- persistent shell aliases (idempotent) ---------------------------------
+# dart-pull = pull latest; dart-auth = show oauth/api credential status.
+# Re-running the installer updates these in place (grep -v old line, append
+# current) instead of duplicating — and grep -v sidesteps sed escaping when the
+# alias body contains '&'.
+_install_alias() {
+  local _name="$1" _body="$2" _rc="${HOME}/.bashrc"
+  touch "${_rc}"
+  grep -vE "^alias ${_name}=" "${_rc}" > "${_rc}.dart.tmp" 2>/dev/null || true
+  mv "${_rc}.dart.tmp" "${_rc}"
+  printf "alias %s='%s'\n" "${_name}" "${_body}" >> "${_rc}"
+}
+_install_alias dart-pull "cd ${REPO_ROOT} && git pull"
+_install_alias dart-auth "python3 ${REPO_ROOT}/dart_agent/src/dart_agent/auth.py"
+printf "${BOLD}Shell aliases${RST} (written to ~/.bashrc)\n"
+printf "  ${GRN}dart-pull${RST}  → cd repo && git pull latest\n"
+printf "  ${GRN}dart-auth${RST}  → oauth/api credential status\n"
+printf "  Run ${DIM}source ~/.bashrc${RST} or open a new shell to use them now.\n\n"
