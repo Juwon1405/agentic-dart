@@ -454,7 +454,7 @@ Velociraptor at all.)
 ## Running the tests
 
 ```bash
-export DART_EVIDENCE_ROOT="$PWD/examples/sample-evidence"
+export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-01/evidence_root"
 
 # After the editable install above:
 python3 -m pytest tests/ dart_corr/tests/
