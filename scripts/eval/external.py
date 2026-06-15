@@ -334,6 +334,19 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
     except Exception:
         pass
 
+    # FAILED detection: no token usage means the LLM call never completed
+    # (rate-limit / usage-limit / transport error) even though analyze.py exited
+    # 0 and normalised an empty report. Scoring it as a 0% "success" would poison
+    # the mean recall and hide the failure behind "N/N succeeded". Mark it failed
+    # and DO NOT score: recall stays None, so the ledger/history exclude it from
+    # the mean (they already skip None) and render "—" instead of a fake 0%
+    # (distinguishable from a genuine 0%), while the Done count and the non-zero
+    # exit code reflect the failure.
+    if row["tokens_in"] is None and row["tokens_out"] is None:
+        row["error"] = "no LLM response (empty token usage — likely rate/usage limit)"
+        print(f"     FAILED: {row['error']}")
+        return row  # ok stays False, recall stays None
+
     if truth_path.is_file():
         score_cmd = [sys.executable, str(REPO / "scripts" / "eval" / "score.py"),
                      "--findings", str(findings_path), "--truth", str(truth_path), "--json"]
