@@ -25,9 +25,6 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 CS = REPO / "examples" / "case-studies"
-REALISTIC = (REPO / "examples" / "case-studies" / "self-evaluation"
-             / "case-01" / "evidence_root")
-
 EXTERNAL_TIER = "external-evaluation"
 DERIVED = {"self_correction_event", "audit_chain", "correlation_finding"}
 
@@ -45,8 +42,8 @@ def is_external(tier):
     return tier == EXTERNAL_TIER
 
 
-def path_exists(rel):
-    full = REALISTIC / rel
+def path_exists(rel, root):
+    full = root / rel
     return full.exists() or Path(str(full).rstrip("/")).exists()
 
 
@@ -75,6 +72,7 @@ def main():
     for gt in sorted(CS.glob("*/case-*/truth.json")):
         tier = gt.parent.parent.name
         case = f"{tier}/{gt.parent.name}"
+        case_root = gt.parent / "evidence_root"
         ext = is_external(tier)
         d = json.loads(gt.read_text(encoding="utf-8"))
         findings = d.get("ground_truth_findings", [])
@@ -104,10 +102,10 @@ def main():
             hp = f.get("host_path")
             if not ep:
                 case_fail.append(f"{fid}: evidence_path missing")
-            elif not path_exists(ep):
+            elif not path_exists(ep, case_root):
                 case_fail.append(f"{fid}: evidence_path does not exist ({ep})")
             if hp and ep and hp != ep:
-                if path_exists(hp) and path_exists(ep):
+                if path_exists(hp, case_root) and path_exists(ep, case_root):
                     case_warn.append(f"{fid}: host != evidence (both exist: {hp} vs {ep})")
                 else:
                     case_fail.append(f"{fid}: host != evidence mismatch ({hp} vs {ep})")
