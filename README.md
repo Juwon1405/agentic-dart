@@ -21,7 +21,15 @@
 **License:** MIT
 **Status:** 🟢 MVP runs end-to-end; self-correction path validated. Active development through June 15, 2026.
 
-**▶ [Watch the demo](https://www.youtube.com/watch?v=20zY7QoTAyU)** — autonomous DFIR agent in action: live self-correction on a real disk image, sealed into a SHA-256 audit chain.
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=20zY7QoTAyU">
+    <img src="./docs/demo-montage.gif" alt="Agentic-DART — autonomous DFIR run (click for the full narrated demo)" width="85%">
+  </a>
+</p>
+<p align="center">
+  <em>Autonomous run on a real disk image — read-only tools, a live self-correction, sealed into a SHA-256 audit chain.</em><br>
+  ▶ <strong><a href="https://www.youtube.com/watch?v=20zY7QoTAyU">Watch the full 4-minute narrated walkthrough on YouTube</a></strong>
+</p>
 
 ---
 
@@ -202,13 +210,7 @@ collection (collect → adapt → analyze), are in
 
 ## Demo & benchmarks
 
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=20zY7QoTAyU">
-    <img src="https://img.youtube.com/vi/20zY7QoTAyU/maxresdefault.jpg" alt="Agentic-DART demo — autonomous DFIR agent on SANS SIFT (FIND EVIL! 2026)" width="80%">
-  </a>
-  <br>
-  <strong><a href="https://www.youtube.com/watch?v=20zY7QoTAyU">▶ Watch the full demo</a></strong> — read-only MCP surface, a live hypothesis pivot on a real disk image, and the SHA-256 audit chain that makes every finding traceable.
-</p>
+> 📹 The full narrated walkthrough is at the **[top of this README](#agentic-dart--autonomous-dfir-agent-on-sans-sift-workstation)** — or [watch it on YouTube](https://www.youtube.com/watch?v=20zY7QoTAyU). Everything below reproduces what the video shows, locally.
 
 `analyze.py` is live mode only — it needs an `ANTHROPIC_API_KEY` and fails fast
 otherwise. Everything else below runs with no credentials.
