@@ -1,320 +1,320 @@
 {
   "self-evaluation/case-01": {
-    "last_run": "2026-06-15 00:00:00",
+    "last_run": "2026-06-15 16:44:55",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0.67,
+        "recall": 0.6667,
         "detected": 2,
         "scorable": 3,
-        "findings": 10,
-        "tok_in": 14795,
-        "tok_out": 6215
+        "findings": 9,
+        "tok_in": 10996,
+        "tok_out": 5252
       },
       "claude-sonnet-4-6": {
-        "recall": 0.67,
+        "recall": 0.6667,
         "detected": 2,
         "scorable": 3,
-        "findings": 8,
-        "tok_in": 19562,
-        "tok_out": 5527
+        "findings": 9,
+        "tok_in": 17923,
+        "tok_out": 6632
       },
       "claude-opus-4-8": {
-        "recall": 1.0,
-        "detected": 3,
+        "recall": 0.6667,
+        "detected": 2,
         "scorable": 3,
         "findings": 7,
-        "tok_in": 15781,
-        "tok_out": 6071
+        "tok_in": 17600,
+        "tok_out": 6170
       }
     }
   },
   "self-evaluation/case-02": {
-    "last_run": "2026-06-15 00:00:00",
+    "last_run": "2026-06-15 16:44:55",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0,
-        "detected": 0,
+        "recall": 0.8571,
+        "detected": 6,
         "scorable": 7,
-        "findings": 0,
-        "tok_in": 16645,
-        "tok_out": 5298
+        "findings": 10,
+        "tok_in": 17042,
+        "tok_out": 7313
       },
       "claude-sonnet-4-6": {
         "recall": 1.0,
         "detected": 7,
         "scorable": 7,
-        "findings": 12,
-        "tok_in": 21853,
-        "tok_out": 7795
+        "findings": 11,
+        "tok_in": 18321,
+        "tok_out": 7223
       },
       "claude-opus-4-8": {
         "recall": 1.0,
         "detected": 7,
         "scorable": 7,
-        "findings": 9,
-        "tok_in": 18723,
-        "tok_out": 5467
+        "findings": 8,
+        "tok_in": 18114,
+        "tok_out": 4949
       }
     }
   },
   "self-evaluation/case-03": {
-    "last_run": "2026-06-15 00:00:00",
+    "last_run": "2026-06-15 16:44:55",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0.57,
+        "recall": 0.5714,
         "detected": 4,
         "scorable": 7,
-        "findings": 7,
-        "tok_in": 17609,
-        "tok_out": 4313
+        "findings": 9,
+        "tok_in": 33924,
+        "tok_out": 4601
       },
       "claude-sonnet-4-6": {
+        "recall": 0.8571,
+        "detected": 6,
+        "scorable": 7,
+        "findings": 10,
+        "tok_in": 29977,
+        "tok_out": 7891
+      },
+      "claude-opus-4-8": {
         "recall": 1.0,
         "detected": 7,
         "scorable": 7,
         "findings": 10,
-        "tok_in": 17401,
-        "tok_out": 6914
-      },
-      "claude-opus-4-8": {
-        "recall": 0.71,
-        "detected": 5,
-        "scorable": 7,
-        "findings": 8,
-        "tok_in": 25319,
-        "tok_out": 5094
+        "tok_in": 24994,
+        "tok_out": 5723
       }
     }
   },
   "self-evaluation/case-04": {
-    "last_run": "2026-06-15 00:00:00",
+    "last_run": "2026-06-15 16:44:55",
     "models": {
       "claude-haiku-4-5-20251001": {
         "recall": 0.8,
         "detected": 4,
         "scorable": 5,
-        "findings": 6,
-        "tok_in": 11914,
-        "tok_out": 4799
+        "findings": 5,
+        "tok_in": 11799,
+        "tok_out": 3783
       },
       "claude-sonnet-4-6": {
-        "recall": 0.6,
-        "detected": 3,
+        "recall": 1.0,
+        "detected": 5,
         "scorable": 5,
-        "findings": 6,
-        "tok_in": 14920,
-        "tok_out": 6257
+        "findings": 7,
+        "tok_in": 14982,
+        "tok_out": 6226
       },
       "claude-opus-4-8": {
         "recall": 0.8,
         "detected": 4,
         "scorable": 5,
-        "findings": 6,
-        "tok_in": 14426,
-        "tok_out": 4679
+        "findings": 5,
+        "tok_in": 12688,
+        "tok_out": 4454
       }
     }
   },
   "self-evaluation/case-05": {
-    "last_run": "2026-06-15 00:00:00",
+    "last_run": "2026-06-15 16:44:55",
     "models": {
       "claude-haiku-4-5-20251001": {
         "recall": 0.75,
         "detected": 6,
         "scorable": 8,
-        "findings": 8,
-        "tok_in": 14715,
-        "tok_out": 9666
+        "findings": 11,
+        "tok_in": 31537,
+        "tok_out": 5661
       },
       "claude-sonnet-4-6": {
-        "recall": 0.75,
-        "detected": 6,
+        "recall": 0.625,
+        "detected": 5,
         "scorable": 8,
-        "findings": 15,
-        "tok_in": 39115,
-        "tok_out": 8752
+        "findings": 13,
+        "tok_in": 25694,
+        "tok_out": 7848
       },
       "claude-opus-4-8": {
         "recall": 1.0,
         "detected": 8,
         "scorable": 8,
-        "findings": 13,
-        "tok_in": 39162,
-        "tok_out": 7188
+        "findings": 10,
+        "tok_in": 39481,
+        "tok_out": 5795
       }
     }
   },
   "self-evaluation/case-06": {
-    "last_run": "2026-06-15 00:00:00",
+    "last_run": "2026-06-15 16:44:55",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0.89,
+        "recall": 0.8889,
         "detected": 8,
         "scorable": 9,
-        "findings": 7,
-        "tok_in": 15187,
-        "tok_out": 3738
+        "findings": 9,
+        "tok_in": 23524,
+        "tok_out": 7691
       },
       "claude-sonnet-4-6": {
         "recall": 1.0,
         "detected": 9,
         "scorable": 9,
-        "findings": 13,
-        "tok_in": 48028,
-        "tok_out": 8830
+        "findings": 10,
+        "tok_in": 31676,
+        "tok_out": 9689
       },
       "claude-opus-4-8": {
-        "recall": 0.89,
+        "recall": 0.8889,
         "detected": 8,
         "scorable": 9,
-        "findings": 10,
-        "tok_in": 39365,
-        "tok_out": 5117
+        "findings": 9,
+        "tok_in": 37293,
+        "tok_out": 5034
       }
     }
   },
   "self-evaluation/case-07": {
-    "last_run": "2026-06-15 00:00:00",
+    "last_run": "2026-06-15 16:44:55",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0.69,
-        "detected": 9,
-        "scorable": 13,
-        "findings": 8,
-        "tok_in": 23181,
-        "tok_out": 8494
-      },
-      "claude-sonnet-4-6": {
-        "recall": 0.85,
+        "recall": 0.8462,
         "detected": 11,
         "scorable": 13,
-        "findings": 8,
-        "tok_in": 40825,
-        "tok_out": 9447
+        "findings": 12,
+        "tok_in": 32979,
+        "tok_out": 11259
+      },
+      "claude-sonnet-4-6": {
+        "recall": 0.8462,
+        "detected": 11,
+        "scorable": 13,
+        "findings": 10,
+        "tok_in": 44482,
+        "tok_out": 10768
       },
       "claude-opus-4-8": {
-        "recall": 0,
-        "detected": 0,
+        "recall": 0.8462,
+        "detected": 11,
         "scorable": 13,
-        "findings": 0,
-        "tok_in": 24278,
-        "tok_out": 4761
+        "findings": 10,
+        "tok_in": 24153,
+        "tok_out": 8529
       }
     }
   },
   "self-evaluation/case-08": {
-    "last_run": "2026-06-15 00:00:00",
+    "last_run": "2026-06-15 16:44:55",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0.83,
-        "detected": 10,
+        "recall": 0.6667,
+        "detected": 8,
         "scorable": 12,
-        "findings": 12,
-        "tok_in": 17042,
-        "tok_out": 7517
+        "findings": 14,
+        "tok_in": 15808,
+        "tok_out": 10507
       },
       "claude-sonnet-4-6": {
-        "recall": 0.92,
-        "detected": 11,
+        "recall": 0.8333,
+        "detected": 10,
         "scorable": 12,
-        "findings": 12,
-        "tok_in": 26553,
-        "tok_out": 10249
+        "findings": 10,
+        "tok_in": 23789,
+        "tok_out": 10802
       },
       "claude-opus-4-8": {
-        "recall": 0.92,
+        "recall": 0.9167,
         "detected": 11,
         "scorable": 12,
-        "findings": 9,
-        "tok_in": 23103,
-        "tok_out": 7200
+        "findings": 8,
+        "tok_in": 21350,
+        "tok_out": 7156
       }
     }
   },
   "external-evaluation/case-01": {
-    "last_run": "2026-06-15 06:00:00",
+    "last_run": "2026-06-15 16:30:47",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0,
+        "recall": 0.0,
         "detected": 0,
         "scorable": 4,
-        "findings": 0,
-        "tok_in": 4108,
-        "tok_out": 1918
+        "findings": 3,
+        "tok_in": 4680,
+        "tok_out": 4324
       },
       "claude-sonnet-4-6": {
-        "recall": 0.75,
-        "detected": 3,
-        "scorable": 4,
-        "findings": 15,
-        "tok_in": 154683,
-        "tok_out": 13214
-      },
-      "claude-opus-4-8": {
         "recall": 0.5,
         "detected": 2,
         "scorable": 4,
-        "findings": 10,
-        "tok_in": 58032,
-        "tok_out": 8101
+        "findings": 13,
+        "tok_in": 120826,
+        "tok_out": 12982
+      },
+      "claude-opus-4-8": {
+        "recall": 0.25,
+        "detected": 1,
+        "scorable": 4,
+        "findings": 9,
+        "tok_in": 64362,
+        "tok_out": 9257
       }
     }
   },
   "external-evaluation/case-02": {
-    "last_run": "2026-06-15 06:00:00",
+    "last_run": "2026-06-15 16:30:47",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0,
+        "recall": 0.0,
         "detected": 0,
-        "scorable": 10,
-        "findings": 3,
-        "tok_in": 108094,
-        "tok_out": 6734
+        "scorable": 5,
+        "findings": 2,
+        "tok_in": 11024,
+        "tok_out": 2869
       },
       "claude-sonnet-4-6": {
-        "recall": 0.4,
+        "recall": 0.8,
         "detected": 4,
-        "scorable": 10,
-        "findings": 12,
-        "tok_in": 251912,
-        "tok_out": 11506
+        "scorable": 5,
+        "findings": 13,
+        "tok_in": 283760,
+        "tok_out": 12016
       },
       "claude-opus-4-8": {
-        "recall": 0,
-        "detected": 0,
-        "scorable": 10,
-        "findings": 6,
-        "tok_in": 153966,
-        "tok_out": 10453
+        "recall": 0.8,
+        "detected": 4,
+        "scorable": 5,
+        "findings": 8,
+        "tok_in": 64297,
+        "tok_out": 10280
       }
     }
   },
   "external-evaluation/case-03": {
-    "last_run": "2026-06-15 06:00:00",
+    "last_run": "2026-06-15 16:30:47",
     "models": {
       "claude-haiku-4-5-20251001": {
-        "recall": 0,
-        "detected": 0,
-        "scorable": 9,
-        "findings": 6,
-        "tok_in": 20499,
-        "tok_out": 6405
-      },
-      "claude-sonnet-4-6": {
-        "recall": 0.33,
-        "detected": 3,
-        "scorable": 9,
-        "findings": 13,
-        "tok_in": 90905,
-        "tok_out": 8059
-      },
-      "claude-opus-4-8": {
-        "recall": 0,
-        "detected": 0,
+        "recall": 0.1111,
+        "detected": 1,
         "scorable": 9,
         "findings": 4,
-        "tok_in": 37116,
-        "tok_out": 7444
+        "tok_in": 33372,
+        "tok_out": 7178
+      },
+      "claude-sonnet-4-6": {
+        "recall": 0.0,
+        "detected": 0,
+        "scorable": 9,
+        "findings": 8,
+        "tok_in": 145641,
+        "tok_out": 12201
+      },
+      "claude-opus-4-8": {
+        "recall": 0.0,
+        "detected": 0,
+        "scorable": 9,
+        "findings": 5,
+        "tok_in": 26474,
+        "tok_out": 7858
       }
     }
   }

@@ -4,22 +4,22 @@ _Record of record. Each row is one case (self **and** external); the left column
 
 | Last run (UTC) | Case | haiku | sonnet | opus |
 |---|---|---|---|---|
-| 2026-06-15 00:00:00 | self-evaluation/case-01 | 67% | 67% | 100% |
-| 2026-06-15 00:00:00 | self-evaluation/case-02 | 0% | 100% | 100% |
-| 2026-06-15 00:00:00 | self-evaluation/case-03 | 57% | 100% | 71% |
-| 2026-06-15 00:00:00 | self-evaluation/case-04 | 80% | 60% | 80% |
-| 2026-06-15 00:00:00 | self-evaluation/case-05 | 75% | 75% | 100% |
-| 2026-06-15 00:00:00 | self-evaluation/case-06 | 89% | 100% | 89% |
-| 2026-06-15 00:00:00 | self-evaluation/case-07 | 69% | 85% | 0% |
-| 2026-06-15 00:00:00 | self-evaluation/case-08 | 83% | 92% | 92% |
-| 2026-06-15 06:00:00 | external-evaluation/case-01 | 0% | 75% | 50% |
-| 2026-06-15 06:00:00 | external-evaluation/case-02 | 0% | 40% | 0% |
-| 2026-06-15 06:00:00 | external-evaluation/case-03 | 0% | 33% | 0% |
+| 2026-06-15 16:44:55 | self-evaluation/case-01 | 67% | 67% | 67% |
+| 2026-06-15 16:44:55 | self-evaluation/case-02 | 86% | 100% | 100% |
+| 2026-06-15 16:44:55 | self-evaluation/case-03 | 57% | 86% | 100% |
+| 2026-06-15 16:44:55 | self-evaluation/case-04 | 80% | 100% | 80% |
+| 2026-06-15 16:44:55 | self-evaluation/case-05 | 75% | 62% | 100% |
+| 2026-06-15 16:44:55 | self-evaluation/case-06 | 89% | 100% | 89% |
+| 2026-06-15 16:44:55 | self-evaluation/case-07 | 85% | 85% | 85% |
+| 2026-06-15 16:44:55 | self-evaluation/case-08 | 67% | 83% | 92% |
+| 2026-06-15 16:30:47 | external-evaluation/case-01 | 0% | 50% | 25% |
+| 2026-06-15 16:30:47 | external-evaluation/case-02 | 0% | 80% | 80% |
+| 2026-06-15 16:30:47 | external-evaluation/case-03 | 11% | 0% | 0% |
 
 ## Mean recall per model (across recorded cases)
 
 | Model | Mean recall | Cases recorded |
 |---|---|---|
-| `claude-haiku-4-5-20251001` | 47% | 11 |
-| `claude-sonnet-4-6` | 75% | 11 |
-| `claude-opus-4-8` | 62% | 11 |
+| `claude-haiku-4-5-20251001` | 56% | 11 |
+| `claude-sonnet-4-6` | 74% | 11 |
+| `claude-opus-4-8` | 74% | 11 |
