@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dart_corr"
-version = "1.0.2"
+version = "1.1.0"
 description = "Cross-artifact correlation engine — DuckDB-backed timeline joins and contradiction flagging for Agentic-DART"
 readme = "README.md"
 requires-python = ">=3.10"

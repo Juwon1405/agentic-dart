@@ -11,8 +11,9 @@
 # and must either resolve them with additional evidence or report the
 # finding as UNRESOLVED with both sources cited.
 #
-# Version: 0.7.1
-# Maintained alongside the dart_corr package; see Wiki/dart-corr for
+# Maintained alongside the dart_corr package (version tracked in its
+# pyproject.toml — not pinned here so it needn't be edited on every bump);
+# see Wiki/dart-corr for
 # the architectural rationale.
 
 rules:
