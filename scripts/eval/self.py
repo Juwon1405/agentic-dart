@@ -43,6 +43,14 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+# resolve_auth_mode lets us label each model line with its credential source
+# (oauth = cheap subscription, api = metered) before the run starts.
+sys.path.insert(0, str(REPO / "dart_agent" / "src"))
+try:
+    from dart_agent.auth import resolve_auth_mode
+except Exception:  # pragma: no cover
+    def resolve_auth_mode(_model=None):
+        return None
 CASE_ROOT = REPO / "examples" / "case-studies"
 SELF = CASE_ROOT / "self-evaluation"
 DEFAULT_MODEL = os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001")
@@ -77,14 +85,9 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
         row["error"] = "dry-run"
         return row
 
-    print(f"  → {case_ref}  [{model}]")
+    _auth_mode = resolve_auth_mode(model)
+    print(f"  → {case_ref}  [{model} · {_auth_mode}]")
     proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
-    # analyze.py's stdout is captured here, so surface the auth line it printed
-    # ("[live] auth: haiku · oauth") — otherwise it is invisible in batch runs.
-    _auth = next((l.strip() for l in (proc.stdout or "").splitlines()
-                  if l.lstrip().startswith("[live] auth:")), None)
-    if _auth:
-        print(f"     {_auth}")
     if proc.returncode != 0:
         tail = (proc.stderr or proc.stdout or "").strip().splitlines()
         row["error"] = tail[-1] if tail else f"exit {proc.returncode}"

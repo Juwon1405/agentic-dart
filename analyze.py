@@ -310,7 +310,9 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool,
     print(f"[analyze] host={user}@{host} "
           f"os={platform.system()} {platform.release()} "
           f"py={platform.python_version()}")
-    print(f"[analyze] case={case.ref} model={model}")
+    from dart_agent.auth import resolve_auth_mode
+    _auth_mode = resolve_auth_mode(model)
+    print(f"[analyze] case={case.ref} model={model} · {_auth_mode}")
     print(f"[analyze] evidence_root={case.evidence_root}")
     print(f"[analyze] out={out_dir}")
 

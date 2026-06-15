@@ -360,22 +360,51 @@ def get_access_token(refresh_threshold_sec: int = 3600) -> str | None:
 #   1) ANTHROPIC_API_KEY when set.
 #   2) Local Claude credentials when available on the analyst host.
 # ──────────────────────────────────────────────────────────────────────────
+def resolve_auth_mode(model: str | None = None) -> str | None:
+    """Return which credential source build_anthropic_client would pick for
+    this model — ``"oauth"``, ``"api"``, or ``None`` — WITHOUT building a
+    client or refreshing anything.
+
+    This lets a caller label the model line ("haiku · oauth") before a run, so
+    you can see at a glance whether it's the cheap subscription or the metered
+    API — and, if it ever comes back ``None``, that no credential is available
+    (e.g. the local login expired).
+
+    Preference: haiku prefers local OAuth (subscription); everything else
+    prefers the API key (metered). Each falls back to the other.
+    """
+    have_api = bool(os.environ.get("ANTHROPIC_API_KEY"))
+    creds = load_credentials()
+    have_oauth = bool(creds and creds.get("access_token"))
+    short = model.split("-")[1] if model and "-" in model else (model or "?")
+    prefer_oauth = (short == "haiku")
+    if prefer_oauth:
+        if have_oauth:
+            return "oauth"
+        if have_api:
+            return "api"
+    else:
+        if have_api:
+            return "api"
+        if have_oauth:
+            return "oauth"
+    return None
+
+
 def build_anthropic_client(model: str | None = None,
                            timeout: float = 600.0, max_retries: int = 4):
-    """Build an Anthropic client, choosing the credential source by model.
+    """Build an Anthropic client, choosing the credential source by model
+    (see ``resolve_auth_mode``). Returns ``(client, auth_mode)`` where
+    auth_mode is ``"oauth"``, ``"api"``, or ``None`` (no source — caller falls
+    back to mock).
 
-    Returns ``(client, auth_mode)`` where auth_mode is ``"oauth"``,
-    ``"api"``, or ``None`` (no source available — caller falls back to mock).
-
-    Model-aware preference:
-      * haiku        → prefer local Claude credentials (OAuth subscription),
-                       fall back to the API key.
-      * sonnet/opus  → prefer the API key (metered), fall back to local OAuth.
-
-    The idea: cheap iterative haiku runs ride the subscription, while the
-    heavier models use the API. If the preferred source is missing, the other
-    is used silently — no error, no message about a missing OAuth login. When
-    OAuth is chosen and the token is close to expiry, it is refreshed first.
+    haiku rides local OAuth (subscription) when present; sonnet/opus prefer the
+    API key (metered). If the preferred source is missing, the other is used
+    silently. When OAuth is chosen and the token is close to expiry, it is
+    refreshed first via the existing refresh_token grant — this is a
+    per-client-build check at run time, NOT a background daemon (the tool is a
+    short-lived CLI, so it only refreshes if a long multi-case run would
+    otherwise cross the expiry).
 
     `max_retries` enables the SDK's exponential backoff on transient failures
     (HTTP 429, 529, 5xx, connection drops). Deterministic mode never touches
@@ -386,41 +415,26 @@ def build_anthropic_client(model: str | None = None,
     except ImportError:
         return None, None
 
-    have_api = bool(os.environ.get("ANTHROPIC_API_KEY"))
-    creds = load_credentials()
-    have_oauth = bool(creds and creds.get("access_token"))
-
+    mode = resolve_auth_mode(model)
     short = model.split("-")[1] if model and "-" in model else (model or "?")
-    prefer_oauth = (short == "haiku")
 
-    def _oauth_client():
-        c = creds
+    if mode == "oauth":
+        creds = load_credentials()
         try:
-            if is_expiring_soon(c, threshold_sec=3600):
+            if is_expiring_soon(creds, threshold_sec=3600):
                 refreshed = refresh_oauth_token()
                 if refreshed and refreshed.get("access_token"):
-                    c = refreshed
+                    creds = refreshed
         except Exception as e:  # noqa: BLE001
             log.debug("[dart-auth] oauth refresh attempt failed (ignored): %s", e)
         log.info("[dart-auth] %s → local Claude credentials (oauth, source: %s)",
-                 short, c.get("_path", "?"))
-        return (anthropic.Anthropic(auth_token=c["access_token"],
+                 short, creds.get("_path", "?"))
+        return (anthropic.Anthropic(auth_token=creds["access_token"],
                                     timeout=timeout, max_retries=max_retries), "oauth")
 
-    def _api_client():
+    if mode == "api":
         log.info("[dart-auth] %s → ANTHROPIC_API_KEY (api)", short)
         return (anthropic.Anthropic(timeout=timeout, max_retries=max_retries), "api")
-
-    if prefer_oauth:
-        if have_oauth:
-            return _oauth_client()
-        if have_api:
-            return _api_client()
-    else:
-        if have_api:
-            return _api_client()
-        if have_oauth:
-            return _oauth_client()
 
     log.warning("[dart-auth] no credential source available; client cannot be built")
     return None, None
