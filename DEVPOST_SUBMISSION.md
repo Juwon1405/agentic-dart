@@ -212,13 +212,11 @@ model (heavy data is the tool's job; meaning is the LLM's job), and
 *Criterion: are hallucinations caught and flagged? Are confirmed
 findings distinguished from inferences?*
 
-**Reproducible measured baseline** (self-evaluation/case-01, canonical
-bundled evidence; `docs/accuracy-report.md`):
+**The honest claim is not "we are perfect" — it is that every number is measured, every finding is traceable, and the limits are not hidden.** Measured scores live in [`docs/accuracy-report.md`](docs/accuracy-report.md) and [`docs/benchmarks/SUMMARY.md`](docs/benchmarks/SUMMARY.md), regenerated from live runs rather than transcribed here — recall varies by case difficulty and by model, and a figure pinned in prose only drifts out of sync with the harness. What holds **regardless of the score**:
 
-- Recall: **1.000**
-- False positive rate: **0.000**
-- Hallucinations: **0**
-- Evidence integrity preserved: **true** (SHA-256 pre/post match across 67 files)
+- **Hallucinations: 0 — by construction, not by luck.** Any finding lacking an `audit_id` reference to a chained MCP call is blocked at write time. A low recall means *missed coverage*; a fabricated finding cannot reach the report at all.
+- **Evidence integrity preserved.** SHA-256 of every input file is recorded before and after each run, and an anti-spoliation test asserts that no input is mutated and that any write attempted outside the evidence root resolves to zero.
+- **Recall is reported per-finding, per-case, per-model** — never as a single headline number. The benchmarks show the current spread across Haiku / Sonnet / Opus.
 
 **Hallucination management is mechanical.** Any finding lacking an
 `audit_id` reference to a chained MCP call is counted as a hallucination
@@ -231,6 +229,11 @@ carries `status: confirmed | unresolved | false_positive` plus a numeric
 contradiction with `status: UNRESOLVED` — and unresolved records are
 never auto-resolved. The agent must surface them or revise its
 hypothesis; it cannot smooth them over.
+
+**Self-correction is observable in the logs, not merely asserted.** Two kinds appear:
+
+- *Hypothesis revision (live).* In the authentication + lateral-movement case, the agent raises explicit contradictions — an after-hours logon against a daytime execution window, a public-key SSH session against a claimed password vector, a domain controller against the actual lateral target — and revises its chain against the evidence instead of forcing the first theory through. In another run, the agent initially reads a freshly created local account as attacker-created, then retracts that finding once the profile registry confirms it is the host's own user — a false finding withdrawn rather than asserted.
+- *Parameter-adjusted re-run (deterministic, reproducible).* In the bundled reference run [`examples/out/find-evil-ref-01/audit.jsonl`](examples/out/find-evil-ref-01/audit.jsonl), the agent calls `analyze_usb_history` once with a default window, identifies the gap, then re-runs the same tool with an explicit time window — a self-directed second pass that judges can reproduce byte-for-byte from the committed audit log, with `progress.jsonl` tracking the primary and alternative hypotheses per iteration.
 
 Ground truth spans **11 case studies** across two evidence tiers:
 
