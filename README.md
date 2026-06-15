@@ -315,15 +315,51 @@ Notes:
 
 ### Prerequisites
 
-- Python 3.10 or newer.
-- `git` and `pip`.
-- For live mode: an `ANTHROPIC_API_KEY`.
-- Optional for SIFT-adapter calls: SANS SIFT Workstation binaries on `PATH`
-  or the corresponding `DART_*_BIN` override environment variables.
+**Operating system — Linux only.** Verified on the **SANS SIFT Workstation
+(Ubuntu 22.04)**; other Linux distributions work via their package manager.
+macOS and Windows are not supported as the host (see the note on Plaso below).
+The default shell is **bash**.
 
-Third-party Python dependencies are pinned in the root **`requirements.txt`**
-(`anthropic`, `mcp`, `requests`, `duckdb`, `python-registry`, `PyYAML`) — the
-installer uses it; the manual path below installs it explicitly.
+| Requirement | Version / detail | Verified on |
+|---|---|---|
+| **OS** | Ubuntu 22.04 (SANS SIFT) — primary | SIFT Workstation |
+| | RHEL / Rocky / AlmaLinux 8+, Fedora — via `dnf`/`yum` | best-effort |
+| **Python** | **3.10 or newer** (CI matrix: 3.10 – 3.13) | 3.10, 3.12 |
+| **Shell** | bash | — |
+| **Live mode** | an `ANTHROPIC_API_KEY` | — |
+
+**Third-party Python libraries** (lower bounds in the root `requirements.txt`,
+installed automatically by `scripts/install.sh`):
+
+| Library | Minimum | Role |
+|---|---|---|
+| `anthropic` | ≥ 0.40 | Claude API client (live mode) |
+| `mcp` | ≥ 1.0 | MCP client/server transport |
+| `duckdb` | ≥ 1.5.3, < 2.0 | in-memory correlation store |
+| `python-registry` | ≥ 1.3 | Windows registry hive parsing |
+| `PyYAML` | ≥ 6.0 | playbook / Sigma rule loading |
+| `requests` | ≥ 2.25 | dataset download (benchmarks) |
+
+**External forensic tools** (staged by `scripts/install.sh`; SIFT ships most):
+
+| Tool | Package | Used for |
+|---|---|---|
+| sleuthkit (`mmls`, `tsk_recover`) | `sleuthkit` | partition table + file recovery from disk images |
+| `ewfmount` | `ewf-tools` / `libewf` | expose an `.E01` as a raw image |
+| Volatility 3 | via installer | memory analysis |
+| Plaso (`log2timeline.py`, `psort.py`) | via installer | super-timeline generation |
+| EZ Tools (MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser) | via `--full` | Windows artifact parsing |
+| YARA | `yara` | signature scanning |
+| Velociraptor | staged binary | offline-collector / dead-disk adapter |
+
+> **Why Linux only?** The forensic backend — **Plaso** (the
+> `log2timeline`/`psort` super-timeline engine) and the **libyal** C libraries
+> it depends on (`libewf`, `libvshadow`, …) — does not build cleanly on macOS:
+> System Integrity Protection blocks the expected install paths, the bundled
+> PyParsing is older than Plaso requires, and `pip`-without-virtualenv breaks
+> site-packages. Plaso's own docs assume Ubuntu 22.04 and "strongly encourage"
+> Docker on macOS. Rather than ship a host platform we can't stand behind, the
+> installer targets Linux. **Windows host support is not on the roadmap.**
 
 ### Fresh-clone install
 
@@ -483,7 +519,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 | Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp` exposes typed native forensic functions across `__init__.py`, `_v04_expansion.py`, and `_v05_supply_chain.py`; `dart_mcp/sift_adapters/` adds wrappers around Volatility 3 / MFTECmd / EvtxECmd / PECmd / RECmd / AmcacheParser / YARA / Plaso. **The full typed read-only MCP surface is enumerated at runtime via `list_tools()`.** |
 | Constraint Implementation | **Architectural** — no `execute_shell` function exists in the registry | `test_mcp_surface.py::test_calling_unregistered_function_raises` |
 | Audit Trail Quality | Every finding → `audit_id` → MCP call → command → raw output | `audit.jsonl` chain verifiable end-to-end |
-| Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on any Python 3.10+ host |
+| Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on a Linux host with Python 3.10+ |
 
 
 ## SIFT Workstation alignment (Custom MCP Server pattern)
@@ -525,7 +561,9 @@ The full adapter list, schemas, and binary-resolution rules (`DART_VOLATILITY3_B
 
 ## Platform support
 
-Agentic-DART runs on **Linux**, **macOS**, and **Windows** as the host (Python 3.10+, no native dependencies). Evidence from any of those operating systems can be analyzed regardless of which OS the agent runs on.
+**Host (where the agent runs): Linux only.** Agentic-DART is developed and verified on the **SANS SIFT Workstation (Ubuntu 22.04)**; other Linux distributions (RHEL / Rocky / AlmaLinux 8+, Fedora) work via `dnf`/`yum`. macOS and Windows are **not** supported as the host — the Plaso / libyal forensic toolchain doesn't build cleanly on them (see [Install and requirements](#install-and-requirements)). The default shell is bash.
+
+**Analysis targets (the OS the evidence came from) are cross-platform** — Windows, macOS, and Linux evidence are all analyzed regardless of the (Linux) host the agent runs on. That matrix is below.
 
 ### Supported analysis targets — explicit matrix
 
