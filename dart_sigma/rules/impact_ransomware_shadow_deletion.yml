@@ -1,0 +1,31 @@
+title: Ransomware — Volume Shadow Copy / Backup Deletion
+id: dart-impact-001
+description: >
+  Detects deletion of Volume Shadow Copies and backup catalogs via vssadmin /
+  wbadmin / bcdedit — the near-universal precursor to ransomware encryption so
+  victims cannot restore (T1490). General pattern on the process image plus the
+  deletion command line.
+status: experimental
+author: Agentic-DART
+references:
+  - https://github.com/SigmaHQ/sigma
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_vss:
+    Image|endswith: '\vssadmin.exe'
+    CommandLine|contains: 'delete shadows'
+  selection_wbadmin:
+    Image|endswith: '\wbadmin.exe'
+    CommandLine|contains: 'delete catalog'
+  selection_bcdedit:
+    Image|endswith: '\bcdedit.exe'
+    CommandLine|contains: 'recoveryenabled no'
+  condition: selection_vss or selection_wbadmin or selection_bcdedit
+falsepositives:
+  - Legitimate scheduled backup maintenance (should be known and baselined)
+level: high
+tags:
+  - attack.impact
+  - attack.t1490

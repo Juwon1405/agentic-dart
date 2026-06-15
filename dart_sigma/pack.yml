@@ -16,15 +16,16 @@
 # Versioning mirrors the playbook: bump `version` and add/revise rules over
 # time (v1 -> v2 -> ...). The matcher always loads the highest-version pack.
 
-version: v1
+version: v2
 name: dart-detection-pack
 description: >
   Consolidated DFIR detection signatures for the Agentic-DART self/external
   benchmark surfaces. General patterns only; no case-specific identifiers.
   Coverage: initial access (HID/IP-KVM hardware addition), persistence
-  (suspicious scheduled task), credential access (Kerberoasting RC4 TGS,
-  AS-REP roasting), lateral movement (PsExec/WMIexec), defense evasion
-  (security event-log clearing).
+  (suspicious scheduled task, user account creation, web-shell drop),
+  credential access (Kerberoasting RC4 TGS, AS-REP roasting, DCSync, Golden
+  Ticket), lateral movement (PsExec/WMIexec), defense evasion (security
+  event-log clearing), impact (ransomware shadow-copy deletion).
 sources:
   - https://github.com/SigmaHQ/sigma          # 3000+ community detection rules
   - https://sigmahq.io/docs/basics/rules.html # Windows Security event patterns
