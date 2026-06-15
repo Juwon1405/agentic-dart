@@ -283,7 +283,7 @@ def prepare(case_ref: str, *, dry_run: bool) -> bool:
 def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
     row = {"case": case_ref, "model": model, "ok": False, "recall": None,
            "gt_detected": None, "gt_scorable": None, "model_findings": None,
-           "tokens_in": None, "tokens_out": None, "error": None}
+           "tokens_in": None, "tokens_out": None, "error": None, "error_log": None}
 
     # Unified prep: ensure evidence_root exists (download + adapt as needed)
     # before any analysis. analyze.py then just reads the prepared tree.
@@ -312,7 +312,20 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
             if t:
                 meaningful.append(t)
         row["error"] = " | ".join(meaningful[-3:]) if meaningful else f"exit {proc.returncode}"
+        # Persist the FULL stderr+stdout so a framed traceback is never lost to
+        # the console — lands in out/_failures/*.log (git-ignored).
+        log_dir = REPO / "out" / "_failures"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / f"{case_ref.replace('/', '__')}__{model}__{dt.datetime.now():%Y%m%d-%H%M%S}.log"
+        log_path.write_text(
+            f"# case={case_ref}  model={model}  exit={proc.returncode}\n"
+            f"# cmd={' '.join(cmd)}\n\n"
+            f"===== STDERR =====\n{proc.stderr or '(empty)'}\n\n"
+            f"===== STDOUT =====\n{proc.stdout or '(empty)'}\n"
+        )
+        row["error_log"] = str(log_path.relative_to(REPO))
         print(f"     FAILED: {row['error']}")
+        print(f"             full log → {row['error_log']}")
         return row
 
     out_dir = latest_out_dir(case_ref)

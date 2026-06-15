@@ -370,8 +370,10 @@ def resolve_auth_mode(model: str | None = None) -> str | None:
     API — and, if it ever comes back ``None``, that no credential is available
     (e.g. the local login expired).
 
-    Preference: haiku prefers local OAuth (subscription); everything else
-    prefers the API key (metered). Each falls back to the other.
+    Preference: haiku prefers local OAuth (subscription) and falls back to the
+    metered API key if no login is present. sonnet/opus run on the API key
+    ONLY — OAuth (the Claude subscription) does not serve those models, so they
+    never fall back to it and return ``None`` when no API key is set.
     """
     have_api = bool(os.environ.get("ANTHROPIC_API_KEY"))
     creds = load_credentials()
@@ -379,15 +381,17 @@ def resolve_auth_mode(model: str | None = None) -> str | None:
     short = model.split("-")[1] if model and "-" in model else (model or "?")
     prefer_oauth = (short == "haiku")
     if prefer_oauth:
+        # haiku: subscription OAuth first, metered API as a fallback.
         if have_oauth:
             return "oauth"
         if have_api:
             return "api"
     else:
+        # sonnet/opus: API key ONLY. OAuth (the Claude subscription) does not
+        # serve these models, so never fall back to it — return None instead,
+        # which surfaces as "key required" rather than a silently broken oauth.
         if have_api:
             return "api"
-        if have_oauth:
-            return "oauth"
     return None
 
 
@@ -398,9 +402,9 @@ def build_anthropic_client(model: str | None = None,
     auth_mode is ``"oauth"``, ``"api"``, or ``None`` (no source — caller falls
     back to mock).
 
-    haiku rides local OAuth (subscription) when present; sonnet/opus prefer the
-    API key (metered). If the preferred source is missing, the other is used
-    silently. When OAuth is chosen and the token is close to expiry, it is
+    haiku rides local OAuth (subscription) when present and falls back to the
+    API key. sonnet/opus use the API key ONLY (OAuth does not serve them); when
+    no API key is set they cannot be built and the caller falls back to mock. When OAuth is chosen and the token is close to expiry, it is
     refreshed first via the existing refresh_token grant — this is a
     per-client-build check at run time, NOT a background daemon (the tool is a
     short-lived CLI, so it only refreshes if a long multi-case run would
