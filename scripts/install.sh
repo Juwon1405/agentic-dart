@@ -93,6 +93,20 @@ _apt() { sudo apt-get install -y -qq "$@"; }
 
 printf "\n${BOLD}Agentic-DART installer${RST}  ${DIM}(idempotent — skips what already works)${RST}\n\n"
 
+# You don't need sudo for this script. Running it under sudo makes pip/healthcheck
+# resolve against root's environment instead of yours, which is why step 9 can
+# report deps "missing" even though they're installed for your user. yara (the
+# only thing that ever wanted root) is handled without it now. Warn and continue.
+if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+  printf "${YEL}! You ran this with sudo.${RST} ${DIM}It's not needed and can make the\n"
+  printf "  healthcheck look for packages in root's environment instead of yours.\n"
+  printf "  Recommended: re-run as ${RST}${BOLD}bash scripts/install.sh${RST}${DIM} (no sudo).${RST}\n"
+  if [[ -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" ]]; then
+    printf "  ${DIM}(Continuing anyway; pip will run as '${SUDO_USER}'.)${RST}\n"
+  fi
+  printf "\n"
+fi
+
 # ---- 1. repositories (FIRST — pull latest before anything else) ------------
 update_repos() {
   # self

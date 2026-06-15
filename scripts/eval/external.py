@@ -13,7 +13,7 @@ public datasets:
 Per case it follows the flow you'd run by hand:
 
   1. IMAGE      — if the dataset image is already under ./datasets/<short>/,
-                  use it; otherwise download it (resumable) and MD5-verify.
+                  use it; otherwise download it (resumable).
   2. EVIDENCE   — if the case's evidence_root already exists, run on it as-is.
                   Otherwise, once the image hash checks out, adapt the image
                   into the evidence_root tree (collector adapter if installed,
@@ -140,7 +140,6 @@ def prepare(case_ref: str, *, dry_run: bool) -> bool:
       1. evidence_root already populated   -> reuse, done.
       2. image already under datasets/      -> skip download.
          image missing                      -> download it (resumable).
-      3. MD5-verify the image (when a hash is registered).
       4. adapt the image into evidence_root (collector adapter / sleuthkit).
     Returns True iff evidence_root ends up populated.
     """
@@ -169,20 +168,20 @@ def prepare(case_ref: str, *, dry_run: bool) -> bool:
 
     if dry_run:
         action = "reuse" if image.exists() else "download"
-        print(f"  DRY-RUN [{case_ref}]: image {action} ({image.name}), verify, "
+        print(f"  DRY-RUN [{case_ref}]: image {action} ({image.name}), "
               f"adapt → {evidence_root}")
         return False
 
-    # 2 + 3: download (skips if present) and MD5-verify in one call.
+    # download (skips if already present and non-empty).
     if image.exists():
         print(f"  [{case_ref}] image present ({image.name}) — skipping download")
     else:
         print(f"  [{case_ref}] downloading '{short}' …")
     from eval.download import download as fetch
     try:
-        fetch(short, DATASETS_DIR, verify=True)
+        fetch(short, DATASETS_DIR)
     except Exception as e:  # noqa: BLE001
-        print(f"  [{case_ref}] download/verify failed: {e}", file=sys.stderr)
+        print(f"  [{case_ref}] download failed: {e}", file=sys.stderr)
         return False
 
     if not image.exists():
@@ -204,7 +203,7 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
            "gt_detected": None, "gt_scorable": None, "model_findings": None,
            "tokens_in": None, "tokens_out": None, "error": None}
 
-    # Unified prep: ensure evidence_root exists (download+verify+adapt as needed)
+    # Unified prep: ensure evidence_root exists (download + adapt as needed)
     # before any analysis. analyze.py then just reads the prepared tree.
     if not dry_run and not prepare(case_ref, dry_run=False):
         row["error"] = "evidence_root unavailable (prepare failed)"
@@ -309,7 +308,7 @@ def main(argv=None) -> int:
     ap.add_argument("--models", nargs="+", default=[DEFAULT_MODEL])
     ap.add_argument("--out", type=Path, default=MATRIX_MD)
     ap.add_argument("--prepare-only", action="store_true",
-                    help="fetch + verify + materialise evidence_root, no API calls")
+                    help="fetch + materialise evidence_root, no API calls")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
 

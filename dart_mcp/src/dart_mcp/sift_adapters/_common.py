@@ -118,7 +118,10 @@ def _which(binary: str, env_var: str | None = None) -> str:
     Resolve a SIFT tool binary.
 
     Resolution order:
-        1. Environment variable override (e.g. DART_VOLATILITY3_BIN=/opt/vol)
+        1. Environment variable override (e.g. DART_VOLATILITY3_BIN=/opt/vol),
+           but ONLY if it points at a real executable. A stale/wrong override
+           is ignored (with a warning) and we fall through — it must never hide
+           a perfectly good binary that's on PATH.
         2. shutil.which() lookup on PATH
         3. installer-staged repo bin dirs (bin/, bin/zimmerman/, adapter bin/)
         4. raise SiftToolNotFoundError
@@ -133,8 +136,18 @@ def _which(binary: str, env_var: str | None = None) -> str:
             override_path = Path(override)
             if override_path.is_file() and os.access(override_path, os.X_OK):
                 return str(override_path)
-            raise SiftToolNotFoundError(
-                f"{env_var}={override!r} is set but not an executable file"
+            # The override is set but doesn't point at a runnable file. Don't
+            # fail here — a leftover/incorrect DART_*_BIN (e.g. pointing at
+            # /usr/local/bin/yara when yara is actually at /usr/bin/yara) would
+            # otherwise mask a binary that's right there on PATH. Warn once and
+            # fall through to the PATH / repo-bin lookups below.
+            import sys as _sys
+            print(
+                f"[dart] warning: {env_var}={override!r} is set but not an "
+                f"executable file — ignoring it and looking on PATH instead. "
+                f"Unset {env_var} (or point it at the real binary) to silence "
+                f"this.",
+                file=_sys.stderr,
             )
     found = shutil.which(binary)
     if found:
