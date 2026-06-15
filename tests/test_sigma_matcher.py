@@ -29,7 +29,12 @@ def _run(tmp_path, events, monkeypatch):
 
 def test_pack_loads_and_reports_version(tmp_path, monkeypatch):
     r = _run(tmp_path, [{"event_type": "noop"}], monkeypatch)
-    assert r.get("pack_version") == "v1", r
+    # Read the expected version from the manifest so a pack bump (v1 -> v2 -> …)
+    # never breaks this test: assert the matcher reports what pack.yml declares.
+    _manifest = (REPO / "dart_sigma" / "pack.yml").read_text()
+    _expected = next((l.split(":", 1)[1].strip()
+                      for l in _manifest.splitlines() if l.startswith("version:")), None)
+    assert r.get("pack_version") == _expected, r
     assert r.get("rule_count", 0) >= 4, f"pack rules not loaded: {r}"
 
 
