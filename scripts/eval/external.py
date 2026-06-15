@@ -157,7 +157,15 @@ def prepare(case_ref: str, *, dry_run: bool) -> bool:
     sys.path.insert(0, str(REPO / "scripts"))
     from eval.datasets import DATASETS
     spec = next((v for v in DATASETS.values() if v.get("short") == short), None)
-    image = DATASETS_DIR / short / (spec or {}).get("joined_name", f"{short}.img")
+    # download.py stores under the REGISTRY KEY directory (it runs short ->
+    # key via _resolve_key), not the friendly short. Compute the same path here
+    # so prepare() looks where download() actually wrote, instead of a sibling
+    # directory that never gets created. (This was the 'expected image not found
+    # after download' skip: file landed in datasets/<key>/, we looked in
+    # datasets/<short>/.)
+    from eval.download import _resolve_key
+    key = _resolve_key(short)
+    image = DATASETS_DIR / key / (spec or {}).get("joined_name", f"{short}.img")
 
     if dry_run:
         action = "reuse" if image.exists() else "download"

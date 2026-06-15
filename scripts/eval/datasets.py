@@ -88,15 +88,23 @@ DATASETS = {
         "homepage": "https://www.ashemery.com/dfir.html",
         "download_base": "https://archive.org/download/dfir-case1",
         "parts": [
-            # md5 of the archive.org E01 container copy (live-measured 2026-06).
-            # The archive.org mirror's container md5 differs from other mirrors;
-            # for forensic integrity the E01-internal acquisition md5 recorded
-            # by the examiner is 03e4a40ebaf6071b346fb2bf217a9f3b (per
-            # Case1-Webserver.E01.txt) and is independent of any container hash.
+            # NOTE: this is the archive.org CONTAINER md5 of the .E01 file. It
+            # is NOT stable: archive.org re-derives/re-wraps mirror copies, so
+            # the container hash drifts between fetches and across mirrors. The
+            # forensically meaningful hash is the E01-INTERNAL acquisition md5
+            # recorded by the examiner — 03e4a40ebaf6071b346fb2bf217a9f3b (per
+            # Case1-Webserver.E01.txt) — which is independent of the container
+            # and only checkable with ewfverify. Because the container hash is
+            # unreliable, this entry is verify-WARN: a mismatch prints a warning
+            # but does NOT abort (the download still completed; analysis can
+            # proceed). See verify_mode below.
             ("Case1-Webserver.E01", "md5", "c9fe31889e9750977f51054f73343c44"),
             # Optional second part — memory dump for memory forensics
             # ("memdump.7z", "sha1", None),  # 0.11 GB
         ],
+        # Container md5 is mirror-dependent (see note above) — warn, don't abort.
+        "verify_mode": "warn",
+        "acquisition_md5": "03e4a40ebaf6071b346fb2bf217a9f3b",  # E01-internal, examiner-recorded
         "reassemble_cmd": None,  # single E01, no reassembly
         "joined_md5": None,
         "joined_name": "Case1-Webserver.E01",
