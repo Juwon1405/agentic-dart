@@ -101,7 +101,7 @@ def main(argv=None) -> int:
         rc |= int(e.code or 0)
 
     _rule("done — demo + self + external complete")
-    print("  Snapshots : docs/benchmarks/{MODEL,EXTERNAL}-COMPARISON.md, SUMMARY.md")
+    print("  Snapshots : docs/benchmarks/MODEL-COMPARISON.md, SUMMARY.md")
     print("  Trend     : docs/benchmarks/HISTORY.md  (one row per tier, appended)")
     return rc
 

@@ -66,7 +66,6 @@ CASE_ROOT = REPO / "examples" / "case-studies"
 EXT = CASE_ROOT / "external-evaluation"
 DATASETS_DIR = REPO / "datasets"
 DEFAULT_MODEL = os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001")
-MATRIX_MD = REPO / "docs" / "benchmarks" / "EXTERNAL-COMPARISON.md"
 
 # external case ref -> dataset short key (from scripts/eval/datasets.py)
 CASE_TO_SHORT = {
@@ -396,7 +395,6 @@ def main(argv=None) -> int:
     ap.add_argument("--case", help="one case ref, e.g. external-evaluation/case-01 "
                                    "(default: all 3 external cases)")
     ap.add_argument("--models", nargs="+", default=[DEFAULT_MODEL])
-    ap.add_argument("--out", type=Path, default=MATRIX_MD)
     ap.add_argument("--prepare-only", action="store_true",
                     help="fetch + materialise evidence_root, no API calls")
     ap.add_argument("--dry-run", action="store_true")
@@ -435,7 +433,10 @@ def main(argv=None) -> int:
     # Append-only run log (accumulates over time, separate from the ledger).
     from _history import append_run as _append_run
     _append_run("external", rows, args.models)
-    print(f"\nLedger updated: docs/benchmarks/SUMMARY.md (external rows + timestamps)")
+    print(f"\nResults written:")
+    print(f"  docs/benchmarks/SUMMARY.md            (per-case ledger, self+external)")
+    print(f"  docs/benchmarks/MODEL-COMPARISON.md   (per-case detail)")
+    print(f"  docs/benchmarks/HISTORY.md            (append-only run log)")
 
     ok = sum(1 for r in rows if r["ok"])
     print(f"\nDone: {ok}/{len(rows)} runs succeeded.")
