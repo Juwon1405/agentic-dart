@@ -543,7 +543,7 @@ In addition to the native pure-Python forensic functions, Agentic-DART now expos
 
 ### How the architecture stays intact
 
-Adding subprocess wrappers is the easy part — keeping them safe is the harder part. Every SIFT adapter inherits the same architectural guarantees as the native 47:
+Adding subprocess wrappers is the easy part — keeping them safe is the harder part. Every SIFT adapter inherits the same architectural guarantees as the native 48:
 
 - **Read-only EVIDENCE_ROOT enforcement.** All input paths flow through `_safe_resolve()`. Path traversal, null bytes, and absolute escapes are blocked before subprocess is invoked.
 - **SHA-256 audit chain compatibility.** Every input file is hashed; every output artifact is hashed. Both go into the dart_audit ledger so downstream evidence integrity is provable.
