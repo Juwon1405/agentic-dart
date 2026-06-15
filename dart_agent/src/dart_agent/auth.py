@@ -447,3 +447,21 @@ def has_any_credentials() -> bool:
         return True
     creds = load_credentials()
     return bool(creds and creds.get("access_token"))
+
+
+if __name__ == "__main__":
+    # Quick credential status, no client built:
+    #   PYTHONPATH=dart_agent/src python3 -m dart_agent.auth
+    import time as _t
+    _creds = load_credentials()
+    _have_api = bool(os.environ.get("ANTHROPIC_API_KEY"))
+    if not _creds:
+        _tail = "  ·  ANTHROPIC_API_KEY set (api fallback available)" if _have_api else ""
+        print(f"OAuth: none (no local Claude login found){_tail}")
+    else:
+        _rem = int(_creds.get("expires_at", 0) - _t.time())
+        _src = _creds.get("_path", "?")
+        if _rem > 0:
+            print(f"OAuth: ALIVE  ·  expires in {_rem // 3600}h {(_rem % 3600) // 60}m  ·  {_src}")
+        else:
+            print(f"OAuth: EXPIRED ({-_rem // 60}m ago) — refreshes on next run, or re-login  ·  {_src}")
