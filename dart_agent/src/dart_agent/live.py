@@ -359,7 +359,7 @@ def _salvage_findings_array(blob: str) -> list[dict]:
 class LiveRunState:
     case: str
     out_dir: Path
-    max_iterations: int = 12
+    max_iterations: int = 25
     iteration: int = 0
     messages: list[dict] = field(default_factory=list)
     tool_call_log: list[dict] = field(default_factory=list)
@@ -711,7 +711,7 @@ def main(argv=None):
                                         "report any findings with high severity.")
     ap.add_argument("--model",
                     default=os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001"))
-    ap.add_argument("--max-iterations", type=int, default=12)
+    ap.add_argument("--max-iterations", type=int, default=25)
     ap.add_argument("--dry-run", action="store_true",
                     help="Use scripted mock Claude (no API key needed).")
     args = ap.parse_args(argv)

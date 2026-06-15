@@ -360,8 +360,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--download", action="store_true",
                    help="Fetch the external dataset first if its evidence_root "
                         "is not present.")
-    p.add_argument("--max-iterations", type=int, default=12,
-                   help="Max agent iterations per case (default: 12).")
+    p.add_argument("--max-iterations", type=int, default=25,
+                   help="Safety ceiling on the agent's tool-call loop. You "
+                        "normally never set this — the agent stops on its own "
+                        "as soon as it has enough to report (simple cases finish "
+                        "in a handful of iterations), so the ceiling only caps "
+                        "runaway loops. Raised to 25 so the most complex cases "
+                        "have headroom; harmless for simple ones. (default: 25)")
     p.add_argument("--context", default=None, metavar="TEXT",
                    help="Real-investigation initial lead, e.g. 'data exfil "
                         "suspected around 2026-03-15'. Prepended to the agent's "
