@@ -35,7 +35,7 @@ change rather than a data drift.
   here (`web/logs/access.log`, `mac/var/log/auth.log`) and writes them, with
   deterministic benign noise added, into the canonical bundled evidence root
   (`../case-studies/self-evaluation/case-01/evidence_root/`).
-- `python3 scripts/scripts/eval/demo.py` scores the canonical bundled
+- `python3 -m scripts.eval.demo` scores the canonical bundled
   evidence root (not this fixture) for the case-01 findings (F-001, F-013).
 - Per-case scoring (`scripts/eval/score.py`) walks each
   `../case-studies/<tier>/case-NN/truth.json`.

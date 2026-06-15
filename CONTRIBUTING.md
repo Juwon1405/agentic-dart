@@ -35,7 +35,7 @@ welcomed.
       `test_surface_is_exact_positive_and_negative_set` is updated
 - [ ] If you touched the agent loop,
       `tests/test_agent_self_correction.py` still passes
-- [ ] `python3 scripts/scripts/eval/demo.py` still produces recall ≥ prior
+- [ ] `python3 -m scripts.eval.demo` still produces recall ≥ prior
 
 ## Competition-period contribution policy (through 2026-06-15)
 
@@ -102,5 +102,5 @@ can lift):
       AI-generated PR restriction section (or keep it relaxed)
 - [ ] Update README's "Acknowledgments" section as new
       contributors land
-- [ ] Re-run `scripts/scripts/eval/demo.py` after issues #43
+- [ ] Re-run `scripts/eval/demo.py` after issues #43
       and #44 land, update Phase-1 release-history baseline

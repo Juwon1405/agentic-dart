@@ -832,7 +832,7 @@ production-shape detection capability.
   trees are not noise-injected (would collide PIDs with IOC entries and
   break `get_process_tree`'s recursive walk; the realistic-noise signal
   is demonstrated through the three log surfaces above).
-- `scripts/scripts/eval/demo.py --variant {reference,realistic}` — score
+- `scripts/eval/demo.py --variant {reference,realistic}` — score
   the agent on either variant. Both variants score the same ground
   truth and currently produce **identical recall=1.0 / FPR=0.0 /
   hallucination=0**, ruling out the "small-input over-fit" failure mode.
@@ -1202,7 +1202,7 @@ any third-party detection tool we cite as inspiration.
 ### Why deferred
 
 Activating these frameworks at runtime would shift the baseline measured
-by `scripts/scripts/eval/demo.py` (more findings → either spurious
+by `scripts/eval/demo.py` (more findings → either spurious
 "improvement" or new false positives that read as regressions). The
 hackathon submission ships with a stable, reproducible baseline.
 Post-SANS, all four runtime activations land together with a single
@@ -1460,7 +1460,7 @@ Scaffolded but not on the live surface (Phase 2):
 - `dart-audit` CLI with `verify`, `lookup`, `trace`, `summary`
   subcommands. Enables the "3 clicks from finding to raw evidence"
   claim to be executed, not just asserted.
-- `scripts/scripts/eval/demo.py` — deterministic accuracy measurement
+- `scripts/eval/demo.py` — deterministic accuracy measurement
   producing the numbers committed to `docs/accuracy-report.md`.
 - `tests/test_mcp_bypass.py` — six adversarial bypass scenarios
   (unregistered function, ../ traversal, absolute-path escape, NUL

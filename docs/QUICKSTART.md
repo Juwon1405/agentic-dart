@@ -39,7 +39,7 @@ bash examples/demo-run.sh
 # 2) Score it: recall / false-positive / hallucination on bundled evidence.
 #    Deterministic regression baseline: a scripted analyst, not LLM reasoning;
 #    detection-skill numbers come from live runs on the external datasets.
-python3 scripts/scripts/eval/demo.py
+python3 -m scripts.eval.demo
 
 # 3) Trace any finding back to the exact tool call that produced it.
 python3 -m dart_audit verify examples/out/find-evil-ref-01/audit.jsonl
@@ -67,6 +67,16 @@ export ANTHROPIC_API_KEY='sk-...'
 python3 analyze.py --list                              # see all cases
 python3 analyze.py --case self-evaluation/case-01      # live run, bundled evidence
 
+# Choose the model — default is Haiku (fastest/cheapest). Swap in Sonnet or Opus:
+python3 analyze.py --case self-evaluation/case-01 --model claude-sonnet-4-6
+python3 analyze.py --case self-evaluation/case-01 --model claude-opus-4-8
+#   (Opus 4.8 no longer accepts a sampling temperature; the agent detects this
+#    and drops the parameter for that model automatically — nothing to set.)
+
+# Benchmark the detection skill across all three models on the bundled evidence
+# (recall / false-positive / hallucination, written to docs/benchmarks/):
+python3 -m scripts.eval.self --models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8
+
 # External datasets ship as raw disk images — three steps (--download does NOT analyze):
 #
 # 1) Download the raw image only (large — can take a while; downloads, no analysis).
@@ -83,6 +93,9 @@ python3 -m dart_collector_adapter --source image \
 # 3) Analyze the adapted evidence_root:
 python3 analyze.py --case external-evaluation/case-01
 #   external-evaluation/case-02 = Ali Hadi · case-03 = Digital Corpora M57
+
+# Once the external evidence_roots are staged, benchmark them across models too:
+python3 -m scripts.eval.external --models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8
 ```
 
 Each run writes to `out/<tier>/<case>/<timestamp>/`

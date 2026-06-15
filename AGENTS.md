@@ -47,7 +47,7 @@ s=[k for k in t if k.startswith('sift_')]; print(len(t), len(t)-len(s), len(s))"
 bash examples/demo-run.sh
 
 # Accuracy (deterministic; recall must stay 1.0, hallucination 0)
-python3 scripts/scripts/eval/demo.py
+python3 -m scripts.eval.demo
 ```
 
 CI mirrors these (`.github/workflows/ci.yml`) and runs **deterministic only** —

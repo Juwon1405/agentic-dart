@@ -1,13 +1,13 @@
 # Accuracy Report
 
-All numbers in this document are produced by `scripts/scripts/eval/demo.py`
+All numbers in this document are produced by `scripts/eval/demo.py`
 against bundled sample evidence. Reproducible by any reviewer:
 
 ```bash
 export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
 
 # Score the canonical bundled evidence (no variant selector any more)
-python3 scripts/scripts/eval/demo.py
+python3 -m scripts.eval.demo
 ```
 
 ## Evidence — canonical bundled tree + CI fixture
@@ -316,7 +316,7 @@ weight the headline numbers.
 
 ### What is measured
 
-For each variant (`reference` / `realistic`), `scripts/scripts/eval/demo.py`:
+For each variant (`reference` / `realistic`), `scripts/eval/demo.py`:
 
 1. Walks `examples/sample-evidence{-realistic}/` and computes a SHA-256 over
    every file → **pre-run evidence digest map**.

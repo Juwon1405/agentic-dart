@@ -31,7 +31,7 @@ copies — which keeps the layout realistic (one noisy disk, many attacks) and
 avoids duplicating the tree eight times.
 
 `case-01` is the measured regression baseline
-(`scripts/scripts/eval/demo.py` → recall 1.0, hallucination 0). The full case
+(`scripts/eval/demo.py` → recall 1.0, hallucination 0). The full case
 table is in [`../README.md`](../README.md).
 
 ```bash

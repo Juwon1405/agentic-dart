@@ -193,7 +193,7 @@ actual persistence mechanism (`HKCU\...\Run\WinUpdate`) at confidence
 0.91. The hypothesis revision is written to `progress.jsonl` after the
 iteration, and the MCP calls that forced it are SHA-256-chained in
 `audit.jsonl` — a reviewer can replay exactly why the agent changed its
-mind. `scripts/scripts/eval/demo.py` reports `self_correction_observed:
+mind. `scripts/eval/demo.py` reports `self_correction_observed:
 true` on the bundled case-01, which exercises the same loop on a
 USB/logon contradiction: flagged `UNRESOLVED`, hypothesis replaced after
 the time window is widened.

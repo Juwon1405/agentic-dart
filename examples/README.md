@@ -10,7 +10,7 @@ benchmark dart-mcp / dart-agent.
   ~11,530 lines, supply-chain, RDP brute-force, USB setupapi, memory triage).
   The two IOC-only logs (web access, unix auth) are enriched with deterministic
   benign noise to exercise needle-in-haystack recall. This is what
-  `scripts/scripts/eval/demo.py` scores.
+  `scripts/eval/demo.py` scores.
 - **`sample-evidence/`** — a small (≤30 lines/file), fully IOC-loaded,
   byte-stable CI fixture used by the unit tests. Not a user-selectable evidence
   set.

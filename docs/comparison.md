@@ -52,7 +52,7 @@ SIFT). The difference is how guardrails are enforced:
 | Path traversal | Prompt-based | `_safe_resolve` — architectural |
 | Audit trail | Log of LLM turns | SHA-256-chained JSONL, trace-queryable |
 | Self-correction | Best-effort prompting | Playbook-forced, `progress.jsonl` state |
-| Accuracy measurement | N/A by default | `scripts/scripts/eval/demo.py`, committed numbers |
+| Accuracy measurement | N/A by default | `scripts/eval/demo.py`, committed numbers |
 
 This is the contribution Agentic-DART tries to make to the FIND EVIL!
 community: move the defender's analog of Anthropic's GTG-1002
