@@ -407,24 +407,19 @@ def main(argv=None) -> int:
     if args.dry_run:
         return 0
 
-    # Always persist — single model or several. (Previously this was gated on
-    # len(models) > 1, so a single-model external run wrote nothing at all,
-    # which is why external never showed up under docs/benchmarks/.) The
-    # snapshot table is overwritten each run; HISTORY.md accumulates the trend.
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(build_markdown(rows, args.models))
-    args.out.with_suffix(".rows.json").write_text(json.dumps(rows, indent=2))
-    print(f"\nMatrix written: {args.out.relative_to(REPO)}")
-    # _history lives in scripts/eval/ next to this file. Guarantee that dir is on
-    # sys.path no matter how we were launched (-m scripts.eval.external, direct
-    # script, or imported by all.py from another cwd). Derived from REPO, not cwd,
-    # so it's reproducible everywhere. (This is what was missing — external used a
-    # bare `from _history import` that only worked when cwd happened to be right.)
+    # external feeds the SAME per-case ledger as self — no separate
+    # EXTERNAL-COMPARISON file. Updates only this run's cases/models in
+    # ledger.json, stamps each, and re-renders SUMMARY.md + MODEL-COMPARISON.md
+    # (self + external in one place). Robust import (derived from REPO, not cwd).
     _eval_dir = str(REPO / "scripts" / "eval")
     if _eval_dir not in sys.path:
         sys.path.insert(0, _eval_dir)
+    import _ledger
+    _ledger.upsert_run(rows, "external")
+    # Append-only run log (accumulates over time, separate from the ledger).
     from _history import append_run as _append_run
     _append_run("external", rows, args.models)
+    print(f"\nLedger updated: docs/benchmarks/SUMMARY.md (external rows + timestamps)")
 
     ok = sum(1 for r in rows if r["ok"])
     print(f"\nDone: {ok}/{len(rows)} runs succeeded.")

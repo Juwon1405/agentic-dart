@@ -243,21 +243,21 @@ def main(argv=None) -> int:
     # human-readable digest. Both are rewritten every run so they reflect the
     # latest measurement rather than going stale.
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(build_markdown(rows, args.models))
-    args.out.with_suffix(".rows.json").write_text(json.dumps(rows, indent=2))
-    _write_summary(rows, args.models)
-    # Append one row to the append-only trend ledger (snapshots above are
-    # overwritten each run; HISTORY.md accumulates so you can see run-over-run
-    # movement). Guarantee scripts/eval/ is on sys.path (derived from REPO, not
-    # cwd) so this works no matter how we're launched — same pattern as external.
+    # Per-case ledger (record of record): updates only this run's cases/models,
+    # stamps each with the current time, and renders SUMMARY.md +
+    # MODEL-COMPARISON.md covering self AND external together.
     _eval_dir = str(REPO / "scripts" / "eval")
     if _eval_dir not in sys.path:
         sys.path.insert(0, _eval_dir)
+    import _ledger
+    _ledger.upsert_run(rows, "self")
+    # Append-only run log (separate from the ledger; accumulates over time).
     from _history import append_run as _append_run
     _append_run("self", rows, args.models)
     print(f"\nResults written:")
-    print(f"  {args.out.relative_to(REPO)}   (full matrix)")
-    print(f"  {SUMMARY_MD.relative_to(REPO)}   (digest)")
+    print(f"  docs/benchmarks/SUMMARY.md            (per-case ledger, self+external)")
+    print(f"  docs/benchmarks/MODEL-COMPARISON.md   (per-case detail)")
+    print(f"  docs/benchmarks/HISTORY.md            (append-only run log)")
 
     ok = sum(1 for r in rows if r["ok"])
     print(f"\nDone: {ok}/{len(rows)} runs succeeded.")
