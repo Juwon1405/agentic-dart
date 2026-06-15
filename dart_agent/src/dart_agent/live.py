@@ -31,6 +31,91 @@ from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
 
+
+# ---------------------------------------------------------------------------
+# Playbook loading — architecture-first, NOT a hardcoded prompt.
+#
+# The investigation methodology the agent follows is a versioned artifact in
+# dart_playbook/, not a string baked into this file. We load the latest
+# senior-analyst playbook YAML at runtime and render its phase sequence into
+# the system prompt. Operators tune the playbook (or point --playbook at their
+# own) without editing Python; the agent always reflects the current playbook.
+# If the file or pyyaml is unavailable we fall back to a minimal built-in
+# sequence so the agent still runs, but the YAML is the source of truth.
+# ---------------------------------------------------------------------------
+_PLAYBOOK_DIR = Path(__file__).resolve().parents[3] / "dart_playbook"
+
+
+def _latest_playbook() -> Path | None:
+    """Return the highest-version senior-analyst playbook YAML, or None."""
+    if not _PLAYBOOK_DIR.is_dir():
+        return None
+    candidates = sorted(_PLAYBOOK_DIR.glob("senior-analyst-v*.yaml"))
+    return candidates[-1] if candidates else None
+
+
+def _render_playbook(path: Path | None) -> str:
+    """Render a playbook YAML's phase sequence into the prompt's playbook block.
+
+    We translate the structured 'sequence' (each phase's rationale + the MCP
+    calls it prescribes) into the numbered, plain-language playbook the model
+    reads. This is the same guidance a senior analyst would carry — but sourced
+    from the versioned artifact rather than hardcoded, so editing the YAML
+    actually changes agent behaviour."""
+    fallback = (
+        "Your playbook:\n"
+        "  1. Build a TIMELINE first (timeline + artifact functions).\n"
+        "  2. Form TWO competing hypotheses — primary and alternative.\n"
+        "  3. CROSS-VALIDATE against a different data source.\n"
+        "  4. If you find a CONTRADICTION, you must address it. Do not smooth it over.\n"
+        "  5. EVERY finding you report must reference at least one tool call.\n"
+    )
+    if path is None:
+        return fallback
+    try:
+        import yaml  # type: ignore
+    except ImportError:
+        return fallback
+    try:
+        pb = yaml.safe_load(path.read_text()) or {}
+    except Exception:
+        return fallback
+    seq = pb.get("sequence") or []
+    if not seq:
+        return fallback
+
+    name = pb.get("name", path.stem)
+    lines = [f"Your playbook ({name} — loaded from {path.name}):", ""]
+    for i, phase in enumerate(seq, 1):
+        # one-line rationale (first sentence) keeps the prompt tight
+        rat = " ".join(str(phase.get("rationale", "")).split())
+        if len(rat) > 160:
+            rat = rat[:157].rsplit(" ", 1)[0] + "…"
+        pname = str(phase.get("phase", f"phase_{i}")).replace("_", " ")
+        calls = phase.get("mcp_calls") or []
+        line = f"  {i}. {pname}"
+        if rat:
+            line += f" — {rat}"
+        lines.append(line)
+        if calls:
+            shown = ", ".join(calls[:6])
+            if len(calls) > 6:
+                shown += ", …"
+            lines.append(f"       tools: {shown}")
+    # carry the two cross-cutting rules the methodology always enforces
+    lines += [
+        "",
+        "Across every phase: form competing hypotheses, CROSS-VALIDATE across "
+        "data sources, never smooth over a CONTRADICTION, and make EVERY "
+        "finding reference at least one tool call.",
+    ]
+    return "\n".join(lines)
+
+
+PLAYBOOK_PATH = _latest_playbook()
+PLAYBOOK_BLOCK = _render_playbook(PLAYBOOK_PATH)
+
+
 # Lazy imports for anthropic + mcp so dry-run can work even without them
 _ANTHROPIC_AVAILABLE = False
 _MCP_AVAILABLE = False
@@ -124,17 +209,7 @@ Your toolkit has TWO layers:
      SiftToolNotFoundError — fall back to the native tool covering the
      same artifact (e.g. native get_amcache instead of sift_amcacheparser_parse).
 
-Your playbook:
-  1. Build a TIMELINE by calling timeline functions first (get_amcache,
-     extract_mft_timeline, parse_prefetch). For memory captures, lead
-     with sift_vol3_windows_pslist + sift_vol3_windows_cmdline +
-     sift_vol3_windows_malfind.
-  2. Form TWO competing hypotheses — primary and alternative.
-  3. CROSS-VALIDATE against a different data source (USB, ShellBags,
-     persistence, event logs). For Windows event-log triage prefer
-     sift_evtxecmd_filter_eids over raw analyze_event_logs.
-  4. If you find a CONTRADICTION, you must address it. Do not smooth it over.
-  5. EVERY finding you report must reference at least one tool call.
+""" + PLAYBOOK_BLOCK + """
 
 Produce findings with ids like F-001, F-013. When you are done, emit a
 JSON block starting with "REPORT:" containing:
