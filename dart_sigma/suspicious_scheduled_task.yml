@@ -1,0 +1,23 @@
+title: Suspicious Scheduled Task — Remote-Hands Sync
+id: 7a1c92bb-5678-4e2a-8c3f-dart-002
+description: Detects creation of a scheduled task that re-establishes a
+  remote-hands / persistence channel. Behaviour-based — matches on task
+  action and trigger pattern, not on any volatile identifier.
+status: experimental
+author: Agentic-DART
+level: high
+logsource:
+  product: windows
+  category: scheduled_task
+detection:
+  selection:
+    event_type: task_register
+    action_contains:
+      - "powershell"
+      - "-enc"
+  condition: selection
+falsepositives:
+  - Legitimate admin automation — baseline per environment
+tags:
+  - attack.persistence
+  - attack.t1053.005
