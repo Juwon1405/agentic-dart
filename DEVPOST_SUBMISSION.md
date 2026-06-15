@@ -34,7 +34,7 @@ because the wire it speaks on does not expose misbehaviour.
 
 Agentic-DART is an autonomous DFIR (Digital Forensics and Incident
 Response) agent that runs on the SANS SIFT Workstation. It exposes
-**72 typed, read-only forensic functions** to Claude via a custom MCP
+**73 typed, read-only forensic functions** to Claude via a custom MCP
 (Model Context Protocol) server, executes a structured **10-phase
 playbook**, and emits — into `out/<tier>/<case>/<timestamp>/`:
 
@@ -105,7 +105,7 @@ call is hashed into `audit.jsonl`. The playbook is YAML-defined
 (`dart_playbook/senior-analyst-v3.yaml`), so a customer can swap in
 their own playbook without modifying the agent code.
 
-### Phase 2 — 47 native MCP functions
+### Phase 2 — 48 native MCP functions
 
 Each function is **typed**, **read-only**, and emits **structured
 findings** the agent can correlate against later. Coverage spans:
@@ -259,7 +259,7 @@ python3 analyze.py --case external-evaluation/case-01 --download
 *Criterion: how much case data does the agent analyse? Depth on fewer
 artefact types beats shallow coverage of many.*
 
-The surface is broad — **72 typed read-only functions (47 native + 25
+The surface is broad — **73 typed read-only functions (48 native + 25
 SIFT adapters)** across Windows, macOS, and Linux artefact classes —
 but the evaluation is built to prove **depth on real attack chains**,
 not shallow coverage of many types:

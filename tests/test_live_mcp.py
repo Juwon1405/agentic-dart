@@ -6,8 +6,8 @@ over real MCP stdio JSON-RPC. This exercises:
 
   1. Subprocess spawn of `python -m dart_mcp.server_stdio`
   2. MCP initialize() handshake
-  3. list_tools() over the wire — verifies all 72 functions are advertised
-     (47 native + 25 SIFT Workstation adapters)
+  3. list_tools() over the wire — verifies all 73 functions are advertised
+     (48 native + 25 SIFT Workstation adapters)
   4. call_tool() over the wire — verifies a real tool returns real data
   5. The ToolNotFound guardrail survives the wire (adversarial path)
   6. Agent writes live_transcript.txt, live_tool_calls.jsonl, live_summary.json
@@ -178,6 +178,8 @@ def test_live_mcp_server_advertises_correct_surface():
         # v0.7.0 Linux DFIR triplet (parse_linux_cron_jobs already counted above)
         "parse_linux_text_log",
         "parse_linux_shell_history",
+        # v0.7 Sigma detection-rule matcher.
+        "match_sigma_rules",
     }
     assert advertised == expected, \
         f"wire surface drift:\n" \

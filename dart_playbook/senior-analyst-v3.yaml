@@ -1214,7 +1214,7 @@ operator_notes: |
 
   Everything from v2 is preserved. The architectural-first guarantees
   (read-only MCP, audit chain, contradiction enforcement) apply
-  unchanged. The 72 typed read-only MCP tools (47 native + 25 SIFT
+  unchanged. The 73 typed read-only MCP tools (48 native + 25 SIFT
   adapters) are unchanged. Only the methodology surrounding them has
   matured.
 

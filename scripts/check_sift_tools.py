@@ -5,7 +5,7 @@ check_sift_tools.py — report which SIFT adapter tools are actually runnable.
 The 25 SIFT adapters each shell out to an external binary (yara, vol,
 MFTECmd, ...). When a binary is missing the adapter raises
 SiftToolNotFoundError at call time; the native dart_mcp tools still work.
-healthcheck.py only confirms the adapters are *registered* (72 tools), not
+healthcheck.py only confirms the adapters are *registered* (73 tools), not
 that their backing binaries are *installed*. This script closes that gap: it
 runs the adapters' own resolver (`_which`, honoring the DART_*_BIN env
 overrides) for every tool and prints a clear available / missing table, so

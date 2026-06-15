@@ -195,7 +195,7 @@ def test_total_tool_count_native_plus_sift():
     # drift silently (e.g. someone removes a function and the test
     # still passes because the floor is several years out of date).
     # Exact equality catches both regressions and unannounced additions.
-    assert len(native) == 47, f"Native tool count drifted to {len(native)} (expected 47)"
+    assert len(native) == 48, f"Native tool count drifted to {len(native)} (expected 48)"
 
 
 if __name__ == "__main__":

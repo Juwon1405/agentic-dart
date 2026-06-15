@@ -1,0 +1,29 @@
+title: Suspicious Scheduled Task Registration
+id: dart-pers-001
+description: >
+  Detects registration of a scheduled task whose action re-launches code on a
+  trigger — a common persistence mechanism (T1053.005). Modelled on SigmaHQ's
+  schtasks.exe detection: flags task creation referencing script interpreters
+  or network fetch in the action. General pattern; not tied to any task name.
+status: experimental
+author: Agentic-DART
+references:
+  - https://detection.fyi/sigmahq/sigma/windows/process_creation/proc_creation_win_schtasks_openssh_tunnelling/
+logsource:
+  category: scheduled_task
+detection:
+  selection:
+    event_type: task_registration
+  suspicious_action:
+    - action|contains: "powershell"
+    - action|contains: "cmd"
+    - action|contains: "http"
+    - action|contains: "\\Temp\\"
+    - action|contains: ".vbs"
+  condition: selection and suspicious_action
+falsepositives:
+  - Legitimate admin automation — baseline known maintenance tasks
+level: medium
+tags:
+  - attack.persistence
+  - attack.t1053.005

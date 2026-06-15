@@ -3993,3 +3993,10 @@ from dart_mcp import _v05_supply_chain as _v05_sc  # noqa: E402, F401
 # detection (entropy + volume + tool signatures). DNS detection opens
 # Command-and-Control coverage that was Phase 2 in earlier releases.
 from dart_mcp import _v06_macos_linux as _v06  # noqa: E402, F401
+
+# v0.7 expansion: Sigma detection-rule matcher (1 function). Applies the
+# consolidated, versioned rule pack in dart_sigma/ against parsed events so the
+# agent can corroborate a classification with a detection signature. Rules are
+# general behavioural patterns sourced from / modelled on SigmaHQ — not case
+# answers. Importing registers the match_sigma_rules @tool.
+from dart_mcp import _v07_sigma as _v07  # noqa: E402, F401

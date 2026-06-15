@@ -138,6 +138,8 @@ def test_surface_is_exact_positive_and_negative_set():
         "detect_dns_tunneling",
         "parse_linux_text_log",
         "parse_linux_shell_history",
+        # v0.7 Sigma detection-rule matcher.
+        "match_sigma_rules",
     }
     negative = {"execute_shell", "write_file", "mount", "umount", "eval",
                 "exec_python", "network_egress", "delete_file", "system",

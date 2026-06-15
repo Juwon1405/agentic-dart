@@ -80,6 +80,10 @@ def test_registered_tools_are_exact_set():
         # in v0.6.1 module above. Closes 5 of 7 case-09 ground-truth gaps.
         "parse_linux_text_log",
         "parse_linux_shell_history",
+        # v0.7 Sigma detection-rule matcher (1 function). Applies the
+        # consolidated, versioned dart_sigma/ rule pack against parsed events so
+        # the agent can corroborate a classification with a detection signature.
+        "match_sigma_rules",
     }
     assert names == expected, f"surface drift: {names ^ expected}"
 

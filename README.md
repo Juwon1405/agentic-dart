@@ -474,7 +474,7 @@ The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **72 tools, full suite green, 0 destructive ops.** **47 native forensic functions + 25 SIFT Workstation tool adapters = 72 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **The full pytest suite passes on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **73 tools, full suite green, 0 destructive ops.** **48 native forensic functions + 25 SIFT Workstation tool adapters = 73 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **The full pytest suite passes on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
 | Criterion | How Agentic-DART addresses it | Evidence |
 |---|---|---|
@@ -557,7 +557,7 @@ The full surface is enumerated at runtime via `python3 -c "from dart_mcp import 
 
 ### 25 SIFT Workstation tool adapters — by tool family
 
-The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **72** (47 native + 25 SIFT).
+The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **73** (48 native + 25 SIFT).
 
 | Tool family | Adapters | Count |
 |---|---|:---:|

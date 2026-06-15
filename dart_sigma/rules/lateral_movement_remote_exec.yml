@@ -1,0 +1,27 @@
+title: Remote Execution Tool — PsExec / WMIexec Service Creation
+id: dart-lm-001
+description: >
+  Detects remote-execution tooling (PsExec, wmiexec) by its host-side
+  footprint: a service/process named for the tool or the characteristic
+  PSEXESVC service. Indicates lateral movement (T1021.002 / T1570). General
+  pattern on the tool footprint, not a specific target host.
+status: experimental
+author: Agentic-DART
+references:
+  - https://github.com/SigmaHQ/sigma
+logsource:
+  category: process_creation
+detection:
+  selection:
+    event_type: process_create
+  remote_exec:
+    - process_name|contains: "psexec"
+    - process_name|contains: "psexesvc"
+    - process_name|contains: "wmiexec"
+  condition: selection and remote_exec
+falsepositives:
+  - Sanctioned admin use of PsExec — baseline jump hosts / admin workstations
+level: high
+tags:
+  - attack.lateral_movement
+  - attack.t1021.002

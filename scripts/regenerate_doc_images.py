@@ -111,7 +111,7 @@ def architecture():
                      "sequencing rules and analyst heuristics",
                      (254, 243, 199), (217, 119, 6)),
         "mcp": (520, 690, 1400, 850, "dart_mcp - primary enforcement layer",
-                "72 schema-validated read-only tools\n47 native + 25 SIFT adapters\nno execute_shell, write_file, mount, or network egress",
+                "73 schema-validated read-only tools\n48 native + 25 SIFT adapters\nno execute_shell, write_file, mount, or network egress",
                 (220, 252, 231), (22, 163, 74)),
         "corr": (520, 890, 1400, 985, "dart_corr",
                  "DuckDB-backed timeline joins; contradictions stay UNRESOLVED",
@@ -188,7 +188,7 @@ def screenshots():
             ("analyst@sift:~/agentic-dart$ python3 -m dart_agent --mode live --dry-run \\\n"
              "  --case screenshot-dry-run --out /tmp/agentic-dart-screenshot --max-iterations 4", CYAN),
             ("[live] case=screenshot-dry-run  mode=DRY-RUN  max_iter=4", GREEN),
-            ("[live] MCP handshake OK - 72 tools visible", GREEN),
+            ("[live] MCP handshake OK - 73 tools visible", GREEN),
             ("[live] evidence root: case-studies/self-evaluation/case-01/evidence_root (read-only)", MUTED),
             ("[live] derived root : ${TMPDIR:-/tmp}/agentic-dart-derived", MUTED),
             ("[live] no API call is made in --dry-run; MCP stdio plumbing is real", YELLOW),
