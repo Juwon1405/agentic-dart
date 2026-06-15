@@ -221,7 +221,9 @@ docs/DEMO_STORYBOARD_v2.md
 # Runtime output from examples/demo-run.sh (regenerated on every run;
 # audit chain hashes are run-specific, so committing the JSONL files
 # would cause spurious dirty-tree noise on every demo invocation).
-examples/out/
+examples/out/*
+!examples/out/find-evil-ref-01/
+!examples/out/find-evil-ref-01/**
 
 # Runtime output from analyze.py (out/<tier>/<case>/<timestamp>/).
 /out/
