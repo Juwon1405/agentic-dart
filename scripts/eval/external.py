@@ -293,6 +293,12 @@ def run_one(case_ref: str, model: str, *, dry_run: bool) -> dict:
 
     print(f"  → {case_ref}  [{model}]")
     proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
+    # analyze.py's stdout is captured here, so surface the auth line it printed
+    # ("[live] auth: haiku · oauth") — otherwise it is invisible in batch runs.
+    _auth = next((l.strip() for l in (proc.stdout or "").splitlines()
+                  if l.lstrip().startswith("[live] auth:")), None)
+    if _auth:
+        print(f"     {_auth}")
     if proc.returncode != 0:
         tail = (proc.stderr or proc.stdout or "").strip().splitlines()
         row["error"] = tail[-1] if tail else f"exit {proc.returncode}"
