@@ -236,7 +236,6 @@ log2timeline-*.log.gz
 CLAUDE.local.md
 
 # Case-study synthetic evidence (force-included past the generic *.log etc. rules).
-!examples/sample-evidence/**
 !examples/case-studies/**
 
 # Downloaded external-tier dataset images + their materialized evidence_root

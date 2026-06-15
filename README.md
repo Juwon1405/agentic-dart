@@ -77,8 +77,8 @@ The codename is intentionally generic so it remains accurate as the project's sc
 This project is developed by [Juwon Bang](https://github.com/Juwon1405) with extensive use of [Claude](https://www.anthropic.com/claude) (Anthropic's AI assistant) as a coding collaborator.
 
 - **Human-driven**: architectural decisions, security model, threat coverage taxonomy, MITRE ATT&CK mapping, evidence-integrity invariants, and final code review.
-- **AI-accelerated**: implementation, sample-evidence generation, test scaffolding, documentation drafting.
-- **Validated**: every function is reviewed and exercised against the bundled sample evidence; the full test suite must pass on a clean clone before any commit lands on `main`.
+- **AI-accelerated**: implementation, synthetic evidence generation, test scaffolding, documentation drafting.
+- **Validated**: every function is reviewed and exercised against the bundled case evidence; the full test suite must pass on a clean clone before any commit lands on `main`.
 
 This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
@@ -161,9 +161,8 @@ agentic-dart/
 │
 ├── examples/
 │   ├── case-studies/               two tiers, self-contained cases (README + truth.json + evidence_root)
-│   │   ├── self-evaluation/        case-01..08 — synthetic; case-01 ships the canonical evidence_root
+│   │   ├── self-evaluation/        case-01..08 — synthetic; each ships its own evidence_root + truth.json
 │   │   └── external-evaluation/    case-01..03 — public datasets (NIST CFReDS / Ali Hadi / Digital Corpora M57)
-│   ├── sample-evidence/            small, byte-stable CI fixture (used by the unit tests)
 │   ├── demo-run.sh                 low-level reproducible demo (native tools, no API key)
 │   └── sift-adapter-demo.sh        SIFT-adapter demo (needs SIFT binaries on PATH)
 │
@@ -218,17 +217,15 @@ otherwise. Everything else below runs with no credentials.
 | **Health check** — verify the install | `python3 scripts/healthcheck.py` | nothing |
 | **Offline demo** — full loop + audit chain + the `execute_shell` bypass test | `bash examples/demo-run.sh` | nothing |
 | **List cases** in both tiers | `python3 analyze.py --list` | nothing |
-| **Auto-reproducible** — `case-01` only: bundled evidence, the measured baseline | `python3 analyze.py --case self-evaluation/case-01` | auth |
-| **Scenario specs** — `case-02`–`08`: direct MCP on shared `sample-evidence/`; not `analyze` auto-targets | see each case's README | nothing |
+| **Bundled cases** — `case-01`–`08`: each ships its own `evidence_root` + `truth.json`; `case-01` is the measured baseline | `python3 analyze.py --case self-evaluation/case-NN` | auth |
 | **External datasets** — `case-01`–`03`: `--download` fetches the raw image only (large), then adapt → analyse | `--download`, then adapt, then `--case …` | auth + disk |
 
 Notes:
 
-- `self-evaluation/case-01` is the only case with **bundled** evidence (recall
-  1.0, hallucination 0). The other self-evaluation cases (`case-02`–`08`) are
-  scenario specifications (README + ground truth), exercised by direct MCP
-  invocation against the shared `examples/sample-evidence/` tree — not
-  `analyze` auto-targets.
+- Every self-evaluation case (`case-01`–`08`) ships its own bundled
+  `evidence_root` + `truth.json` and runs via
+  `python3 analyze.py --case self-evaluation/case-NN`. `case-01` is the
+  canonical measured baseline (recall 1.0, hallucination 0).
 - External cases are public third-party datasets: `case-01` NIST CFReDS,
   `case-02` Ali Hadi web-server, `case-03` Digital Corpora M57-Patents (Jo).
   `--download` fetches the **raw disk image only** (several GB — can take a
@@ -247,7 +244,7 @@ Expected offline-demo output:
 [demo] PASS — "ToolNotFound: 'execute_shell' is not exposed by dart-mcp"
 ```
 
-The demo walks the full senior-analyst loop against sample evidence, triggers a USB contradiction, **auto-self-corrects** by widening the time window, and writes a chain-verified audit log. The bypass test proves the `execute_shell` guardrail is architectural, not prompt-based.
+The demo walks the full senior-analyst loop against `case-01`'s bundled evidence, triggers a USB contradiction, **auto-self-corrects** by widening the time window, and writes a chain-verified audit log. The bypass test proves the `execute_shell` guardrail is architectural, not prompt-based.
 
 ### What a real run looks like
 
