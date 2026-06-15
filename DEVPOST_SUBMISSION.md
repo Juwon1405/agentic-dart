@@ -3,7 +3,7 @@
 > **Submission URL:** https://findevil.devpost.com/
 > **Project URL:** https://github.com/Juwon1405/agentic-dart
 > **License:** MIT
-> **Version at submission:** v1.1.0
+> **Version at submission:** v1.2.0
 > **Submission date:** 2026-06-15
 > **Author:** Bang Juwon (sole contributor)
 
@@ -368,7 +368,7 @@ collection source that can produce `evidence_root/` plugs in.
 | Playbook | `dart_playbook/senior-analyst-v3.yaml` |
 | Audit format | `dart_audit/README.md` |
 | Collector adapter | `https://github.com/Juwon1405/agentic-dart-collector-adapter` |
-| Demo video | Submitted directly to Devpost form as YouTube unlisted URL |
+| Demo video | [youtube.com/watch?v=20zY7QoTAyU](https://www.youtube.com/watch?v=20zY7QoTAyU) — also embedded in the README |
 
 ---
 
@@ -533,7 +533,7 @@ python3 analyze.py --case self-evaluation/case-01
 - [x] Source code: https://github.com/Juwon1405/agentic-dart
 - [x] License: MIT (`LICENSE` in repo root)
 - [x] README with architecture overview and reproduction commands
-- [x] Demo video (submitted directly to Devpost form, not embedded in repo)
+- [x] Demo video — [youtube.com/watch?v=20zY7QoTAyU](https://www.youtube.com/watch?v=20zY7QoTAyU), embedded in the README
 - [x] 11 documented case studies with machine-readable ground truth
 - [x] Benchmark suite (`scripts/eval/`) covering internal + external evidence
 - [x] CI green at submission (full pytest suite passing across dart_mcp, dart_agent, dart_audit, dart_corr)
