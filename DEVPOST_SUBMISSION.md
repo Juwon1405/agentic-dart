@@ -157,7 +157,7 @@ engine **decoupled from any single collection vendor**.
 | Heavy parsers | SIFT toolchain (Volatility 3, MFTECmd, EvtxECmd, ...) |
 | Audit chain | SHA-256 linked JSONL |
 | Test suite | pytest (full suite green at submission; run it for the authoritative count) |
-| CI | GitHub Actions (Linux + macOS) |
+| CI | GitHub Actions (Ubuntu / Linux) |
 | Sample evidence | seeded deterministic generator |
 
 ---
@@ -341,7 +341,7 @@ automatically in CI). The benchmark suite reports
 *Criterion: can another practitioner deploy this and build on it?*
 
 Another practitioner deploys in four steps on a stock SIFT VM (or any
-Linux/macOS with Python 3.10+):
+Linux with Python 3.10+):
 
 ```bash
 git clone https://github.com/Juwon1405/agentic-dart.git && cd agentic-dart
@@ -480,7 +480,7 @@ Post-submission roadmap, scheduled for after 2026-06-15:
 
 ### Prerequisites
 
-- SIFT Workstation (or any Linux/macOS with Python 3.10+)
+- SIFT Workstation (or any Linux with Python 3.10+)
 - Anthropic API key (`ANTHROPIC_API_KEY`) — `analyze.py` is live mode only and
   fails fast without it.
 - ~16 GB disk space (only if running external benchmarks)
@@ -494,7 +494,7 @@ bash scripts/install.sh --os ubuntu --skip-sift          # add --install-sift --
 python3 scripts/healthcheck.py                           # API-free readiness check
 ```
 
-The installer is OS-aware (`--os auto|ubuntu|centos|macos`), installs into
+The installer auto-detects the package manager (apt-get / dnf), installs into
 the current Python interpreter, clones and installs the collector adapter,
 and only stages SIFT (via
 `cast`) / Eric Zimmerman Tools (.NET 9) when asked — never pretending a tool is

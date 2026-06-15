@@ -150,7 +150,6 @@ instruction:
 |---|---|---|
 | SANS SIFT Workstation | ✅ Primary target | All functions work |
 | Ubuntu 22.04 / 24.04 | ✅ Tested | All functions work |
-| macOS 12+ (Intel or Apple Silicon) | ✅ Tested | Runs identically |
 | Windows (WSL2) | ⚠ Untested | Should work — pure Python |
 
 ## Honest limitations

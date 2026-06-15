@@ -250,12 +250,10 @@ _yara_try_install() {
   if command -v apt-get >/dev/null 2>&1; then
     ${SUDO} apt-get update -y || true
     ${SUDO} apt-get install -y yara || return 1
-  elif command -v brew >/dev/null 2>&1; then
-    brew install yara || return 1
   elif command -v dnf >/dev/null 2>&1; then
     ${SUDO} dnf install -y yara || return 1
   else
-    echo "no supported package manager (apt-get/brew/dnf) for yara"; return 1
+    echo "no supported package manager (apt-get/dnf) for yara"; return 1
   fi
 }
 
