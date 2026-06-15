@@ -23,12 +23,10 @@
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=20zY7QoTAyU">
-    <img src="./docs/demo-montage.gif" alt="Agentic-DART — autonomous DFIR run (click for the full narrated demo)" width="85%">
+    <img src="https://img.youtube.com/vi/20zY7QoTAyU/maxresdefault.jpg" alt="Agentic-DART demo — click to watch on YouTube" width="72%">
   </a>
-</p>
-<p align="center">
-  <em>Autonomous run on a real disk image — read-only tools, a live self-correction, sealed into a SHA-256 audit chain.</em><br>
-  ▶ <strong><a href="https://www.youtube.com/watch?v=20zY7QoTAyU">Watch the full 4-minute narrated walkthrough on YouTube</a></strong>
+  <br>
+  ▶ <strong><a href="https://www.youtube.com/watch?v=20zY7QoTAyU">Watch the 4-minute narrated demo on YouTube</a></strong>
 </p>
 
 ---
