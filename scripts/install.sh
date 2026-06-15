@@ -402,7 +402,7 @@ _install_alias() {
   mv "${_rc}.dart.tmp" "${_rc}"
   printf "alias %s='%s'\n" "${_name}" "${_body}" >> "${_rc}"
 }
-_install_alias dart-pull "cd ${REPO_ROOT} && git pull"
+_install_alias dart-pull "cd ${REPO_ROOT} && git pull && cd ${ADAPTER_DIR} && git pull && cd ${REPO_ROOT}"
 _install_alias dart-auth "python3 ${REPO_ROOT}/dart_agent/src/dart_agent/auth.py"
 printf "${BOLD}Shell aliases${RST} (written to ~/.bashrc)\n"
 printf "  ${GRN}dart-pull${RST}  → cd repo && git pull latest\n"
