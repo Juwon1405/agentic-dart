@@ -25,8 +25,10 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip wheel
           # Install dart_mcp via pip (verifies pyproject.toml is sane,
-          # including that the sift_adapters subpackage is discovered)
-          python3 -m pip install -e ./dart_mcp/
+          # including that the sift_adapters subpackage is discovered).
+          # The [stdio] extra pulls in the mcp SDK that the Live MCP step needs
+          # (mcp is an optional-dependency, NOT pulled by a plain -e install).
+          python3 -m pip install -e ./dart_mcp/[stdio]
           # Install dart_corr (correlation engine extracted in v0.7.1)
           python3 -m pip install -e ./dart_corr/
           # pytest for the dart_corr engine test suite
@@ -100,9 +102,10 @@ jobs:
             tests/test_eval_layout.py
 
       - name: Live MCP smoke (stdio subprocess via mcp SDK — isolated step)
-        # mcp SDK arrives transitively via `pip install -e ./dart_mcp/`
-        # (dart-mcp depends on mcp>=1.0.0). Kept separate from the in-process
-        # pytest batch above because it launches a real stdio subprocess.
+        # mcp SDK is provided by the dart_mcp[stdio] extra installed above —
+        # mcp is an optional-dependency, so a plain `-e ./dart_mcp/` does NOT
+        # pull it. Kept separate from the in-process pytest batch because it
+        # launches a real stdio subprocess.
         env:
           PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
         run: python3 -m pytest tests/test_live_mcp.py -v
