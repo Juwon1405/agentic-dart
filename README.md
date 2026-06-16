@@ -734,6 +734,18 @@ Self-correction:       observable in logs — hypothesis revision + parameter-ad
 
 Reproduce the full matrix with `python3 -m scripts.eval.self` and `python3 -m scripts.eval.external`. External recall is low across **all** models — this is tool/parser coverage on large third-party disk images, not model reasoning (Sonnet and Opus both reach 80% on external case-02; Opus is the most stable on the planted cases, with no zero-finding runs). See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and limitations.
 
+### Model selection & determinism — what we learned
+
+The three models diverge on complex DFIR reasoning in ways that are operational, not cosmetic (measured with **no `--context` prompt** — raw artifacts/disk image in, ground-truth recall out):
+
+- **Sonnet 4-6 — most balanced on unseen (out-of-distribution) evidence.** Highest external recall (43.3% vs Opus 35.0%), at the cost of far more input tokens — roughly **2–5× Opus** on large disk images (external case-02: 283,760 vs 64,297 input tokens). The "tries harder" model.
+- **Opus 4-8 — efficient, strongest on self-class evidence.** Top self-evaluation recall (89.0%) and reaches tied external recall at a fraction of the tokens. Best cost-per-finding on clean cases.
+- **Haiku 4-5 — triage only.** Near-zero on external (3.7%); a cheap first pass, not authoritative analysis.
+
+**Reproducibility matters for forensics.** Sonnet and Haiku accept the `temperature` parameter — pinning `temperature=0` reduces run-to-run variance and yields more consistent findings on identical evidence (it reduces, but does not fully eliminate, non-determinism). **Opus 4-8 does not accept `temperature`** (deprecated → HTTP 400), so it cannot be pinned to enforce determinism. (Note: an earlier "Opus 0%" artifact was this exact API rejection failing the entire run — a bug, not model non-determinism — and was fixed and re-measured to the numbers above. Diagnose call failures separately from non-determinism.)
+
+**Guidance.** For reproducibility and out-of-distribution evidence, prefer **Sonnet** pinned to `temperature=0`. For self-class evidence and token efficiency, **Opus** is equivalent (74% combined tie). Use **Haiku** for low-cost triage and continuous background loops.
+
 ### Supply-chain + AD certificate-services attack chain (self-evaluation/case-08)
 
 The supply-chain case — [`examples/case-studies/self-evaluation/case-08/`](./examples/case-studies/self-evaluation/case-08/) — covers the attack class that defeated SolarWinds-era SOCs: a trojanized signed vendor binary enters as a routine software update, then abuses an **ADCS ESC8** misconfiguration (PetitPotam coercion → NTLM relay → certificate for `DC01$` → PKINIT TGT → S4U2self DA impersonation → DCSync of KRBTGT → Golden Ticket persistence). All 12 findings are reproduced deterministically by seven MCP functions on bundled evidence — see the case README for byte-stable expected output. The chain is composed entirely from public references (CISA AA20-352A, SpecterOps "Certified Pre-Owned", CVE-2021-36942, MITRE T1098.005 / T1003.006 / T1558.001) with no cross-reference to any real environment.
