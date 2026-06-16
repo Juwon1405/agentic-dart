@@ -80,9 +80,10 @@ jobs:
         # 2026-05-31 per-iteration token usage tracking that lets the
         # operator verify prompt caching is firing in live mode.
         #
-        # test_live_mcp.py is excluded from this matrix: it needs the mcp SDK
-        # and a live stdio subprocess, so it is run locally rather than in this
-        # CI matrix job (there is no dedicated live-MCP step running it here).
+        # test_live_mcp.py is NOT in this pytest batch: it spins up a live
+        # stdio subprocess (the dart-mcp server) through the mcp SDK, so it runs
+        # in its own dedicated isolated step below to keep that subprocess from
+        # interfering with the in-process unit tests.
         run: |
           python3 -m pytest -v \
             tests/test_parse_linux_dfir.py \
@@ -94,7 +95,17 @@ jobs:
             tests/test_evtxecmd_oom.py \
             tests/test_live_usage_tracking.py \
             tests/test_sigma_matcher.py \
-            tests/test_live_findings_extraction.py
+            tests/test_live_findings_extraction.py \
+            tests/test_download.py \
+            tests/test_eval_layout.py
+
+      - name: Live MCP smoke (stdio subprocess via mcp SDK — isolated step)
+        # mcp SDK arrives transitively via `pip install -e ./dart_mcp/`
+        # (dart-mcp depends on mcp>=1.0.0). Kept separate from the in-process
+        # pytest batch above because it launches a real stdio subprocess.
+        env:
+          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
+        run: python3 -m pytest tests/test_live_mcp.py -v
 
       - name: Demo run (offline native tools)
         run: bash examples/demo-run.sh
