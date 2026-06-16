@@ -80,9 +80,9 @@ jobs:
         # 2026-05-31 per-iteration token usage tracking that lets the
         # operator verify prompt caching is firing in live mode.
         #
-        # test_live_mcp.py is excluded because it needs the mcp SDK and
-        # an stdio subprocess; it runs from the dedicated live-MCP step
-        # at the top of the suite.
+        # test_live_mcp.py is excluded from this matrix: it needs the mcp SDK
+        # and a live stdio subprocess, so it is run locally rather than in this
+        # CI matrix job (there is no dedicated live-MCP step running it here).
         run: |
           python3 -m pytest -v \
             tests/test_parse_linux_dfir.py \
@@ -92,7 +92,9 @@ jobs:
             tests/test_qa_pass_regressions.py \
             tests/test_live_truncation.py \
             tests/test_evtxecmd_oom.py \
-            tests/test_live_usage_tracking.py
+            tests/test_live_usage_tracking.py \
+            tests/test_sigma_matcher.py \
+            tests/test_live_findings_extraction.py
 
       - name: Demo run (offline native tools)
         run: bash examples/demo-run.sh
