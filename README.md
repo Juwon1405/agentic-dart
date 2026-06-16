@@ -732,7 +732,7 @@ Evidence integrity:    preserved — SHA-256 pre/post match on every input file
 Self-correction:       observable in logs — hypothesis revision + parameter-adjusted re-run
 ```
 
-Reproduce the full matrix with `python3 -m scripts.eval.self` and `python3 -m scripts.eval.external`. External recall is low across **all** models — this is tool/parser coverage on large third-party disk images, not model reasoning (Sonnet and Opus both reach 80% on external case-02; Opus is the most stable on the planted cases, with no zero-finding runs). A separate dataset-specific probe, `python3 scripts/measure_cfreds.py`, scores the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil") at 0.50 strict / 0.80 lenient over 10 sampled findings. See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and limitations.
+Reproduce the full matrix with `python3 -m scripts.eval.self` and `python3 -m scripts.eval.external`. External recall is low across **all** models — this is tool/parser coverage on large third-party disk images, not model reasoning (Sonnet and Opus both reach 80% on external case-02; Opus is the most stable on the planted cases, with no zero-finding runs). See [`docs/accuracy-report.md`](./docs/accuracy-report.md) for full methodology, ground truth, and limitations.
 
 ### Supply-chain + AD certificate-services attack chain (self-evaluation/case-08)
 
@@ -740,14 +740,15 @@ The supply-chain case — [`examples/case-studies/self-evaluation/case-08/`](./e
 
 ### External-benchmark accuracy — NIST CFReDS Hacking Case (external-evaluation/case-01)
 
-For a community-trusted, third-party benchmark, see [`examples/case-studies/external-evaluation/case-01/`](./examples/case-studies/external-evaluation/case-01/) — first integration with the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil", image MD5 `AEE4FCD9301C03B3B054623CA261959A`). Of 10 sampled NIST ground-truth findings, scored historically:
+For a community-trusted, third-party benchmark, see [`examples/case-studies/external-evaluation/case-01/`](./examples/case-studies/external-evaluation/case-01/) — the NIST CFReDS Hacking Case (Greg Schardt / "Mr. Evil", image MD5 `AEE4FCD9301C03B3B054623CA261959A`). Live recall is recorded per model in [`docs/benchmarks/ledger.json`](./docs/benchmarks/ledger.json) (regenerated from runs, never transcribed):
 
-| Version | Strict recall | Lenient recall | What changed |
-|---|---:|---:|---|
-| v0.5.3 | **0.10** (1/10) | **0.40** (4/10) | Synthetic-evidence detection only — lacked generic registry hive parsing |
-| **v0.5.4** | **0.50** (5/10) | **0.80** (8/10) | **`parse_registry_hive` ([#52](https://github.com/Juwon1405/agentic-dart/issues/52)) unlocks F-CFR-001/004/007/010** |
+| Model | Recall | Detected / scorable |
+|---|---:|---:|
+| claude-haiku-4-5 | 0.00 | 0 / 4 |
+| claude-sonnet-4-6 | 0.50 | 2 / 4 |
+| claude-opus-4-8 | 0.25 | 1 / 4 |
 
-Reproduce with `python3 scripts/measure_cfreds.py`. Remaining gaps (F-CFR-006 IE6 index.dat, F-CFR-008 Recycle Bin, F-CFR-009 YARA bundling) are tracked as Phase 2 issues [#53](https://github.com/Juwon1405/agentic-dart/issues/53), [#54](https://github.com/Juwon1405/agentic-dart/issues/54), [#55](https://github.com/Juwon1405/agentic-dart/issues/55). The drop from `1.0` (synthetic) to `0.50/0.80` (CFReDS) is **not a regression** — it is a paradigm gap honestly disclosed and now actively closing. v0.5.4 is the first measurable progress against an external dataset, and the gap analysis directly drove which Phase 2 primitive to ship first.
+Of the 10 sampled CFReDS findings, only 4 are reachable by the current toolset; the rest need parsers still on the roadmap. Remaining gaps (F-CFR-006 IE6 index.dat, F-CFR-008 Recycle Bin, F-CFR-009 YARA bundling) are tracked as Phase 2 issues [#53](https://github.com/Juwon1405/agentic-dart/issues/53), [#54](https://github.com/Juwon1405/agentic-dart/issues/54), [#55](https://github.com/Juwon1405/agentic-dart/issues/55). Low external recall on a 2004 disk image is **missed coverage, never invention** — every detected finding traces to a tool-call audit_id. This is the honest paradigm gap between hand-built cases and a real third-party image, and `parse_registry_hive` ([#52](https://github.com/Juwon1405/agentic-dart/issues/52)) was the first Phase-2 primitive shipped to start closing it.
 
 
 ## Status — what is implemented vs. what is roadmap

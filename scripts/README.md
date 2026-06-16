@@ -15,7 +15,6 @@ runtime package surface — they are repository tooling.
   working tree stays clean.
 - **`healthcheck.py`** — API-free readiness check (imports, dependency versions,
   MCP tool surface, adapter `--help`, tiered case layout, `analyze` fail-fast).
-- **`measure_cfreds.py`** — external CFReDS standalone scorer.
 
 ## Evidence enrichment
 
