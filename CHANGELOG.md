@@ -9,8 +9,11 @@
   `dfir_` / `dfir-` / `DFIR_` prefix (previously `dart_` / `dart-` / `DART_`).
 - **Reference run** — `examples/out/ref-01` is the committed reference run
   directory.
-- **Hero, thumbnail and wiki banner** regenerated from
-  `scripts/regenerate_hero.py`.
+- **Hero, thumbnail and wiki banner redesigned** — a ruled editorial page
+  (bone paper, Charter wordmark, oxblood tagline, a chain-of-custody rule
+  encoding SHA-256 of the name) replaces the dark banner. All three images are
+  drawn from scratch by `scripts/regenerate_hero.py`; the thumbnail has its
+  own 16:9 layout instead of a letterboxed hero.
 - **Removed** the standalone project write-up and the slide deck from the
   tree.
 - Every package version bumped to 2.0.0 — the rename changed import paths.

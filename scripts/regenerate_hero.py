@@ -1,214 +1,287 @@
 #!/usr/bin/env python3
 """
-regenerate_hero.py — draw the Agentic-DFIR hero image from scratch.
+regenerate_hero.py -- draw the Agentic-DFIR hero images from scratch.
 
-The hero is generated, not hand-edited, so the three surfaces that show it
-(repository README, GitHub social preview, wiki banner) stay in sync and no
-release-fragile number is baked into a bitmap. Everything on the image is an
-evergreen design principle or a command that exists in this repository.
+The hero is generated, not hand-edited, so the three surfaces that show it stay
+in sync and no release-fragile number is baked into a bitmap:
 
-Outputs (all derived from one render):
+  agentic-dfir-hero.png       1920x540   README header (also the profile README and the wiki Home)
+  agentic-dfir-thumbnail.png  1280x720   GitHub social preview (its own 16:9 layout)
+  docs/wiki-banner.png        1200x300   wiki banner
 
-  agentic-dfir-hero.png       1920×540   README header
-  agentic-dfir-thumbnail.png  1280×720   social preview (letterboxed)
-  docs/wiki-banner.png        1200×300   wiki Home banner (letterboxed)
+Design: a ruled editorial page. Bone paper, a large Charter wordmark, the
+tagline in italic oxblood, hairline rules. The lower rule is the chain of
+custody -- 64 dashes whose lengths are the 64 hex nibbles of
+SHA-256("Agentic-DFIR") -- and the same digest is set in full as a small
+monospaced block, the key to the rule.
+
+Two faces only: Charter (wordmark, tagline, tracked-caps kicker) and JetBrains
+Mono (digest, footer URL, details line). Deterministic: the same script always
+produces byte-identical PNGs. Pillow + standard library only. Renders at 2x and
+downsamples with LANCZOS. Fonts fall back to DejaVu, then to Pillow's built-in
+face, so the script also runs on Linux (the committed images were rendered on
+macOS with Charter and JetBrains Mono).
 
 Run: python3 scripts/regenerate_hero.py
-Requires Pillow. Uses DejaVu fonts when available (Linux package
-fonts-dejavu, or the font-dejavu cask on macOS); falls back to Pillow's
-default font otherwise.
 """
 from __future__ import annotations
 
-import math
-import sys
+import hashlib
+import os
 from pathlib import Path
 
-try:
-    from PIL import Image, ImageDraw, ImageFont
-except ImportError:
-    print("ERROR: Pillow not installed. pip install Pillow", file=sys.stderr)
-    sys.exit(1)
+from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
-HERO_OUT = ROOT / "agentic-dfir-hero.png"
-THUMB_OUT = ROOT / "agentic-dfir-thumbnail.png"
-WIKI_OUT = ROOT / "docs" / "wiki-banner.png"
+OUTPUTS = {
+    "hero.png": ROOT / "agentic-dfir-hero.png",
+    "thumb.png": ROOT / "agentic-dfir-thumbnail.png",
+    "banner.png": ROOT / "docs" / "wiki-banner.png",
+}
+S = 2  # supersampling factor
 
-W, H = 1920, 540
+# --- palette -----------------------------------------------------------------
+PAPER = (244, 239, 230)        # bone
+INK = (28, 27, 24)             # near-black, warm
+INK_SOFT = (92, 88, 82)        # secondary text
+INK_FAINT = (128, 122, 113)    # the digest block
+RULE = (170, 164, 154)         # hairlines
+ACCENT = (122, 31, 43)         # oxblood -- the only accent
 
-BG_TOP = (9, 20, 37)
-BG_BOTTOM = (4, 11, 22)
-PANEL = (7, 15, 28)
-WHITE = (245, 248, 252)
-RED = (220, 38, 38)
-CYAN = (34, 211, 238)
-GREEN = (34, 197, 94)
-INK = (215, 224, 238)
-MUTED = (140, 155, 178)
-RING = (70, 78, 122)
-RING_2 = (96, 84, 150)
+# --- copy --------------------------------------------------------------------
+WORDMARK = "Agentic-DFIR"
+TAGLINE = "Architecture-first, not prompt-first."
+KICKER = "Autonomous DFIR agent for the SIFT Workstation"
+DETAILS = "read-only tool surface · SHA-256 audit chain · MIT"
+FOOTER = "github.com/Juwon1405/agentic-dfir"
+DIGEST = hashlib.sha256(WORDMARK.encode("utf-8")).hexdigest()   # 64 nibbles
 
-FONT_DIRS = [
-    Path.home() / "Library" / "Fonts",
-    Path("/Library/Fonts"),
+# --- fonts -------------------------------------------------------------------
+HOME = Path(os.path.expanduser("~"))
+DEJAVU_DIRS = [
+    HOME / "Library" / "Fonts",
     Path("/usr/share/fonts/truetype/dejavu"),
     Path("/usr/share/fonts/dejavu"),
     Path("/usr/share/fonts/TTF"),
+    Path("/usr/share/fonts"),
 ]
 
+FACES = {
+    # role: ([(path, index), ...], dejavu fallback file)
+    "display": ([("/System/Library/Fonts/Supplemental/Charter.ttc", 0)], "DejaVuSerif.ttf"),
+    "display_it": ([("/System/Library/Fonts/Supplemental/Charter.ttc", 1)], "DejaVuSerif-Italic.ttf"),
+    "mono": ([
+        (str(HOME / "Library/Fonts/JetBrainsMonoNerdFontMono-Regular.ttf"), 0),
+        (str(HOME / "Library/Fonts/JetBrainsMonoNerdFont-Regular.ttf"), 0),
+        (str(HOME / "Library/Fonts/JetBrainsMono-Regular.ttf"), 0),
+        ("/Library/Fonts/JetBrainsMono-Regular.ttf", 0),
+        ("/usr/share/fonts/truetype/jetbrains-mono/JetBrainsMono-Regular.ttf", 0),
+    ], "DejaVuSansMono.ttf"),
+}
 
-def _font(size: int, *, bold: bool = False, mono: bool = False, oblique: bool = False):
-    family = "DejaVuSansMono" if mono else "DejaVuSans"
-    style = ""
-    if bold and oblique:
-        style = "-BoldOblique"
-    elif bold:
-        style = "-Bold"
-    elif oblique:
-        style = "-Oblique"
-    name = f"{family}{style}.ttf"
-    for d in FONT_DIRS:
+_CACHE: dict[tuple[str, int], ImageFont.FreeTypeFont] = {}
+
+
+def _find_dejavu(name: str) -> str | None:
+    for d in DEJAVU_DIRS:
         p = d / name
         if p.exists():
-            return ImageFont.truetype(str(p), size)
-    return ImageFont.load_default()
+            return str(p)
+        if d.exists():
+            for hit in d.rglob(name):
+                return str(hit)
+    return None
 
 
-def _gradient(img: Image.Image) -> None:
-    draw = ImageDraw.Draw(img)
-    for y in range(H):
-        t = y / (H - 1)
-        c = tuple(round(BG_TOP[i] + t * (BG_BOTTOM[i] - BG_TOP[i])) for i in range(3))
-        draw.line([(0, y), (W, y)], fill=c + (255,))
+def font(role: str, size_px: int) -> ImageFont.FreeTypeFont:
+    """Load a face by role at *size_px* (already multiplied by S by the caller)."""
+    key = (role, size_px)
+    if key in _CACHE:
+        return _CACHE[key]
+    candidates, dejavu = FACES[role]
+    f = None
+    for path, index in candidates:
+        if Path(path).exists():
+            try:
+                f = ImageFont.truetype(path, size_px, index=index)
+                break
+            except OSError:
+                pass
+    if f is None:
+        alt = _find_dejavu(dejavu)
+        f = ImageFont.truetype(alt, size_px) if alt else ImageFont.load_default(size_px)
+    _CACHE[key] = f
+    return f
 
 
-def _spaced(draw, xy, text, font, fill, spacing):
-    x, y = xy
-    for ch in text:
-        draw.text((x, y), ch, font=font, fill=fill)
-        x += draw.textlength(ch, font=font) + spacing
+# --- drawing helpers (all coordinates are in 1x pixels; scaled inside) --------
+class Canvas:
+    def __init__(self, w: int, h: int):
+        self.w, self.h = w, h
+        self.im = Image.new("RGB", (w * S, h * S), PAPER)
+        self.d = ImageDraw.Draw(self.im)
+
+    def text(self, x: float, y: float, s: str, role: str, size: int,
+             fill=INK, anchor: str = "ls", tracking: float = 0.0,
+             optical: bool = False) -> float:
+        """Draw *s* with its baseline at *y*. Returns the x after the last glyph.
+
+        optical=True shifts the run so the first glyph's ink (not its advance
+        box) lands exactly on x -- used for the wordmark, tagline and kicker so
+        they align optically with the rules. With anchor "rs" the run is
+        right-aligned so the last glyph's ink ends on x.
+        """
+        f = font(role, size * S)
+        X, Y = x * S, y * S
+        total = self.width(s, role, size, tracking) * S
+        if anchor.startswith("r"):
+            X -= total
+            if optical:
+                right_bearing = f.getlength(s[-1]) - f.getbbox(s[-1], anchor="ls")[2]
+                X += right_bearing
+        elif optical:
+            X -= f.getbbox(s[0], anchor="ls")[0]
+        if tracking == 0.0:
+            self.d.text((X, Y), s, font=f, fill=fill, anchor="ls")
+            return (X + total) / S
+        for i, c in enumerate(s):
+            self.d.text((X, Y), c, font=f, fill=fill, anchor="ls")
+            X += f.getlength(c) + (tracking * S if i < len(s) - 1 else 0)
+        return X / S
+
+    def width(self, s: str, role: str, size: int, tracking: float = 0.0) -> float:
+        f = font(role, size * S)
+        if tracking == 0.0:
+            return f.getlength(s) / S
+        return (sum(f.getlength(c) for c in s) + tracking * S * (len(s) - 1)) / S
+
+    def cap_height(self, role: str, size: int) -> float:
+        return -font(role, size * S).getbbox("H", anchor="ls")[1] / S
+
+    def rule(self, x0: float, x1: float, y: float, fill=RULE, weight: float = 1.0):
+        h = max(1, round(weight * S))
+        Y = round(y * S)
+        self.d.rectangle([round(x0 * S), Y, round(x1 * S) - 1, Y + h - 1], fill=fill)
+
+    def chain(self, x0: float, x1: float, y: float, gap: float = 8.0,
+              weight: float = 1.5, mark: int | None = 0):
+        """A ruled line broken into 64 dashes. Dash lengths are the nibbles of
+        SHA-256(WORDMARK) -- a 0 is a tick, an f is a long stroke -- and one
+        dash (index *mark*) is set in the accent colour."""
+        nibbles = [int(c, 16) for c in DIGEST]            # 64 values, 0..15
+        n = len(nibbles)
+        span = (x1 - x0) - gap * (n - 1)
+        base = 0.22                                       # min dash weight
+        units = [base + v / 15.0 for v in nibbles]
+        unit = span / sum(units)
+        h = max(1, round(weight * S))
+        Y = round(y * S)
+        X = x0 * S
+        for i, u in enumerate(units):
+            L = u * unit * S
+            colour = ACCENT if i == mark else RULE
+            self.d.rectangle([round(X), Y, round(X + L) - 1, Y + h - 1], fill=colour)
+            X += L + gap * S
+
+    def digest(self, x_right: float, y_baseline: float, size: int, rows: int,
+               pitch: float, tracking: float = 1.0, mark: int | None = 0):
+        """The full 64-nibble digest, right-aligned, *rows* rows, bottom row on
+        *y_baseline*. Nibble *mark* is set in the accent colour so the block
+        keys to the accent dash of the chain."""
+        per = len(DIGEST) // rows
+        f = font("mono", size * S)
+        adv = f.getlength("0") + tracking * S
+        row_w = adv * per - tracking * S
+        for r in range(rows):
+            Y = (y_baseline - (rows - 1 - r) * pitch) * S
+            X = x_right * S - row_w
+            for i in range(per):
+                idx = r * per + i
+                colour = ACCENT if idx == mark else INK_FAINT
+                self.d.text((X, Y), DIGEST[idx], font=f, fill=colour, anchor="ls")
+                X += adv
+
+    def save(self, name: str):
+        out = self.im.resize((self.w, self.h), Image.LANCZOS)
+        target = OUTPUTS[name]
+        out.save(target, "PNG", optimize=True)
+        print(f"wrote {target.relative_to(ROOT)}  {self.w}x{self.h}  ({target.stat().st_size // 1024} KB)")
 
 
-def _fingerprint(draw: ImageDraw.ImageDraw, cx: int, cy: int) -> None:
-    """Concentric arc segments — the evidence motif. Deterministic gaps."""
-    for i, r in enumerate(range(44, 176, 22)):
-        color = RING if i % 2 == 0 else RING_2
-        width = 6 if i < 3 else 5
-        # three arcs per ring with fixed gaps, rotated per ring so the gaps
-        # spiral instead of lining up
-        start = (i * 37) % 360
-        for k in range(3):
-            a0 = start + k * 120
-            a1 = a0 + 92
-            draw.arc((cx - r, cy - r, cx + r, cy + r), a0, a1, fill=color, width=width)
-    # centre: the finding
-    draw.ellipse((cx - 14, cy - 14, cx + 14, cy + 14), fill=RED)
-    draw.ellipse((cx - 5, cy - 5, cx + 5, cy + 5), fill=WHITE)
-    # magnifier ring + handle in cyan
-    R = 190
-    draw.ellipse((cx - R, cy - R, cx + R, cy + R), outline=CYAN, width=4)
-    hx = cx + int(R * math.cos(math.radians(40)))
-    hy = cy + int(R * math.sin(math.radians(40)))
-    draw.line([(hx, hy), (hx + 70, hy + 58)], fill=CYAN, width=14)
+def kicker(c: Canvas, x: float, y: float, size: int, tracking: float):
+    c.text(x, y, KICKER.upper(), "display", size, fill=INK_SOFT,
+           tracking=tracking, optical=True)
 
 
-def make_hero() -> Image.Image:
-    img = Image.new("RGBA", (W, H))
-    _gradient(img)
-    draw = ImageDraw.Draw(img)
+# --- compositions ------------------------------------------------------------
+def hero():
+    W, H, M = 1920, 540, 96
+    c = Canvas(W, H)
+    R = W - M
 
-    # frame lines
-    draw.rectangle((0, 0, W, 3), fill=RED)
-    draw.rectangle((0, H - 4, W, H), fill=RED)
+    # top row: tracked-caps kicker on a hairline
+    kicker(c, M, 98, 16, 2.6)
+    c.rule(M, R, 112)
 
-    # top-left terminal chip
-    draw.rounded_rectangle((52, 16, 548, 52), radius=6, fill=(16, 28, 48))
-    draw.text((64, 22), "$ python3 -m dfir_agent --case case-04", font=_font(20, mono=True), fill=CYAN)
+    # wordmark + tagline, centred between the two rules
+    wm, tg = 200, 44
+    base_wm = 290
+    c.text(M, base_wm, WORDMARK, "display", wm, fill=INK, optical=True)
+    c.text(M + 2, base_wm + 88, TAGLINE, "display_it", tg, fill=ACCENT, optical=True)
 
-    # top-right status
-    for k in range(3):
-        draw.ellipse((1746 + k * 18, 30, 1754 + k * 18, 38), fill=GREEN)
-    draw.text((1808, 27), "ONLINE", font=_font(13, mono=True), fill=GREEN)
-    # small constellation
-    pts = [(1740, 62), (1770, 58), (1752, 112), (1732, 90)]
-    for a, b in [(0, 1), (1, 2), (2, 3), (3, 0)]:
-        draw.line([pts[a], pts[b]], fill=(52, 96, 132), width=1)
-    for p in pts:
-        draw.ellipse((p[0] - 2, p[1] - 2, p[0] + 2, p[1] + 2), fill=CYAN)
+    # the digest, 4 x 16, sharing the wordmark's baseline in the right column
+    c.digest(R, base_wm, size=23, rows=4, pitch=36, tracking=1.5)
 
-    # left block
-    _spaced(draw, (60, 132), "AUTONOMOUS DFIR", _font(22, bold=True), CYAN, 8)
-    draw.text((56, 150), "Agentic", font=_font(104, bold=True), fill=WHITE)
-    draw.text((56, 252), "DFIR", font=_font(104, bold=True), fill=RED)
-    draw.text((60, 368), "Architecture-first, not prompt-first.", font=_font(26, oblique=True), fill=INK)
-    draw.rectangle((60, 408, 165, 411), fill=RED)
-    draw.text((60, 434), "A senior analyst's reasoning, encoded as architecture.", font=_font(22), fill=INK)
-    draw.text((60, 466), "Built for the SIFT Workstation.", font=_font(19), fill=MUTED)
-    draw.text((60, 500), "MIT  ·  read-only MCP surface  ·  SHA-256 audit chain", font=_font(15, mono=True), fill=MUTED)
-
-    # centre motif
-    _fingerprint(draw, 905, 282)
-
-    # right panel with evergreen guarantees
-    panel = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(panel).rectangle((1040, 45, 1720, 470), fill=PANEL + (200,))
-    img.alpha_composite(panel)
-    draw = ImageDraw.Draw(img)
-    big = _font(44, bold=True)
-    label = _font(19)
-    entries = [
-        ("READ-ONLY", "MCP boundary", CYAN),
-        ("ARCHITECTURAL", "guardrails, not prompts", CYAN),
-        ("VERIFIABLE", "SHA-256 audit chain", GREEN),
-        ("ZERO", "destructive ops on the wire", GREEN),
-    ]
-    entry_h = (470 - 45) // len(entries)
-    for i, (word, sub, color) in enumerate(entries):
-        y0 = 45 + i * entry_h + 12
-        draw.text((1070, y0), word, font=big, fill=color)
-        draw.text((1072, y0 + 52), sub, font=label, fill=INK)
-
-    # bottom-right address
-    addr = "github.com/Juwon1405/agentic-dfir"
-    f = _font(17, mono=True)
-    draw.text((W - 60 - draw.textlength(addr, font=f), 500), addr, font=f, fill=MUTED)
-
-    img.save(HERO_OUT, optimize=True)
-    print(f"  hero      -> {HERO_OUT.name}  ({HERO_OUT.stat().st_size // 1024} KB, {W}x{H})")
-    return img
+    # chain rule, then footer URL left / details right on one baseline
+    c.chain(M, R, 428)
+    c.text(M, 456, FOOTER, "mono", 16, fill=INK_SOFT)
+    c.text(R, 456, DETAILS, "mono", 16, fill=INK_SOFT, anchor="rs")
+    c.save("hero.png")
 
 
-def _fit_to_aspect(img: Image.Image, target_w: int, target_h: int, bg=BG_BOTTOM) -> Image.Image:
-    """Fit (never crop) the render into the target aspect by letterboxing."""
-    hw, hh = img.size
-    src_ratio = hw / hh
-    tgt_ratio = target_w / target_h
-    if src_ratio > tgt_ratio:
-        new_h = int(hw / tgt_ratio)
-        canvas = Image.new("RGB", (hw, new_h), bg)
-        canvas.paste(img.convert("RGB"), (0, (new_h - hh) // 2))
-    else:
-        new_w = int(hh * tgt_ratio)
-        canvas = Image.new("RGB", (new_w, hh), bg)
-        canvas.paste(img.convert("RGB"), ((new_w - hw) // 2, 0))
-    return canvas.resize((target_w, target_h), Image.LANCZOS)
+def thumb():
+    W, H, M = 1280, 720, 84
+    c = Canvas(W, H)
+    R = W - M
+
+    kicker(c, M, 98, 15, 2.4)
+    c.rule(M, R, 112)
+
+    # wordmark group; the digest sits as a two-row caption above the chain
+    wm, tg = 176, 40
+    base_wm = 336
+    c.text(M, base_wm, WORDMARK, "display", wm, fill=INK, optical=True)
+    c.text(M + 2, base_wm + 80, TAGLINE, "display_it", tg, fill=ACCENT, optical=True)
+
+    c.digest(R, 566, size=15, rows=2, pitch=22, tracking=1.0)
+    c.chain(M, R, 592, gap=6.0)
+    c.text(M, 622, FOOTER, "mono", 14, fill=INK_SOFT)
+    c.text(R, 622, DETAILS, "mono", 14, fill=INK_SOFT, anchor="rs")
+    c.save("thumb.png")
 
 
-def make_thumbnail(hero: Image.Image) -> None:
-    thumb = _fit_to_aspect(hero, 1280, 720)
-    thumb.save(THUMB_OUT, "PNG", optimize=True)
-    print(f"  thumbnail -> {THUMB_OUT.name}  ({THUMB_OUT.stat().st_size // 1024} KB, 1280x720)")
+def banner():
+    W, H, M = 1200, 300, 60
+    c = Canvas(W, H)
+    R = W - M
 
+    kicker(c, M, 43, 11, 1.8)
+    c.rule(M, R, 54)
 
-def make_wiki_banner(hero: Image.Image) -> None:
-    banner = _fit_to_aspect(hero, 1200, 300)
-    banner.save(WIKI_OUT, "PNG", optimize=True)
-    print(f"  wiki      -> docs/{WIKI_OUT.name}  ({WIKI_OUT.stat().st_size // 1024} KB, 1200x300)")
+    wm, tg = 112, 25
+    base_wm = 158
+    c.text(M, base_wm, WORDMARK, "display", wm, fill=INK, optical=True)
+    c.text(M + 1, base_wm + 52, TAGLINE, "display_it", tg, fill=ACCENT, optical=True)
+
+    c.digest(R, base_wm, size=13, rows=4, pitch=21, tracking=1.0)
+
+    c.chain(M, R, 241, gap=4.5, weight=1.25)
+    c.text(M, 266, FOOTER, "mono", 12, fill=INK_SOFT)
+    c.text(R, 266, DETAILS, "mono", 12, fill=INK_SOFT, anchor="rs")
+    c.save("banner.png")
 
 
 if __name__ == "__main__":
-    print("[rendering hero from scratch]")
-    hero = make_hero()
-    make_thumbnail(hero)
-    make_wiki_banner(hero)
+    hero()
+    thumb()
+    banner()
