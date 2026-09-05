@@ -12,7 +12,7 @@
 
 # dfir_agent (live mode) — Anthropic SDK + MCP client + HTTP
 anthropic>=0.40.0
-mcp>=1.0.0
+mcp>=1.0.0,<2
 requests>=2.25.0
 
 # dfir_mcp — correlation store, registry hive parsing, MCP server

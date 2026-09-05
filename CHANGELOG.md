@@ -15,6 +15,13 @@
   tree.
 - Every package version bumped to 2.0.0 — the rename changed import paths.
 
+### Fixed
+- **mcp SDK pinned to `>=1.0.0,<2`** in `requirements.txt`, `dfir_mcp[stdio]`
+  and `dfir_agent[live]`. mcp 2.0 removed the low-level `Server.list_tools()`
+  and `Server.call_tool()` decorators that `dfir_mcp.server_stdio` is built
+  on, so an unpinned install failed at import time and the live-mode smoke
+  tests with it.
+
 ## [1.2.0] — 2026-06-15 — Detection pack v2 + model-aware authentication
 
 Release build on top of the v1.1.0 stable

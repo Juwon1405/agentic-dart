@@ -648,7 +648,7 @@ async def live_run(case: str, out_dir: str, prompt: str,
     state.out_dir.mkdir(parents=True, exist_ok=True)
 
     if not _MCP_AVAILABLE:
-        print("ERROR: mcp package not installed. pip install mcp", file=sys.stderr)
+        print("ERROR: mcp package not installed. pip install \"mcp<2\"", file=sys.stderr)
         return 2
 
     # Decide mode early so we can print a banner.

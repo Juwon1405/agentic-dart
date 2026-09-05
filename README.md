@@ -470,7 +470,7 @@ For a PYTHONPATH-only run without installing the packages:
 
 ```bash
 export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src:$PWD/dfir_agent/src:$PWD/dfir_corr/src"
-pip install duckdb PyYAML python-registry mcp anthropic requests
+pip install duckdb PyYAML python-registry "mcp<2" anthropic requests
 python3 -m pytest tests/ dfir_corr/tests/
 ```
 

@@ -15,7 +15,7 @@ dependencies = [
 [project.optional-dependencies]
 live = [
     "anthropic>=0.40.0",
-    "mcp>=1.0.0",
+    "mcp>=1.0.0,<2",
     "requests>=2.25.0",
 ]
 
