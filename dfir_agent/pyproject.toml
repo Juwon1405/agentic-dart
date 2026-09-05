@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dfir-agent"
+version = "2.0.0"
+description = "Agentic-DFIR autonomous DFIR agent (deterministic + live modes)"
+requires-python = ">=3.10"
+dependencies = [
+    "dfir-audit",
+    "dfir-mcp",
+]
+
+[project.optional-dependencies]
+live = [
+    "anthropic>=0.40.0",
+    "mcp>=1.0.0",
+    "requests>=2.25.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

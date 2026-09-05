@@ -9,7 +9,7 @@
 > Postgraduate School and NIST, used in graduate-level forensics
 > programs and many enterprise IR training courses.
 >
-> The point of this case is to measure dart-mcp against an
+> The point of this case is to measure dfir-mcp against an
 > **insider-threat / corporate-IP-theft** scenario rather than the
 > external-intrusion patterns of external cases 01-02. The threat model is
 > different: legitimate user, legitimate credentials, illegitimate
@@ -40,7 +40,7 @@ laptops over a 17-day period. Two scenarios run in parallel:
    email, browser history, recently-used files, USB activity.
 
 2. **Background thread:** Unrelated employee-conduct issue — useful as
-   *noise* for testing whether dart-mcp can distinguish the IP-theft
+   *noise* for testing whether dfir-mcp can distinguish the IP-theft
    signal from unrelated activity.
 
 Forensic diagnostics in this dataset:
@@ -63,7 +63,7 @@ Reasons:
 
 1. The image is freely downloadable from Digital Corpora's mirror — any
    reviewer can fetch it themselves.
-2. Bundling 10 GB in a hackathon repository is wasteful and makes
+2. Bundling 10 GB in a Git repository is wasteful and makes
    `git clone` painful.
 3. Digital Corpora ships authoritative scenario documentation; the
    ground truth is peer-reviewed and stable.
@@ -80,7 +80,7 @@ What this case **does** ship:
 
 ```bash
 # 1. Download Jo's PC subset (one-time, ~10 GB)
-cd ~/agentic-dart
+cd ~/agentic-dfir
 python3 -m scripts.eval.download m57 ./datasets
 
 # 2. Run the benchmark
@@ -93,12 +93,12 @@ cat docs/benchmarks/SUMMARY.md
 
 Note: M57 images are distributed in AFF or E01 format. The downloader
 auto-detects format. The benchmark runner uses
-`agentic-dart-collector-adapter` (or its raw-image fallback) to mount
-and extract the filesystem before invoking `dart_agent`.
+`agentic-dfir-collector-adapter` (or its raw-image fallback) to mount
+and extract the filesystem before invoking `dfir_agent`.
 
 ## Expected detection surface
 
-At v0.6.1, dart-mcp's Windows artefact functions cover this case as
+At v0.6.1, dfir-mcp's Windows artefact functions cover this case as
 follows. Insider-threat / user-activity reconstruction is a different
 surface than malware detection — many of the relevant functions are
 already in the MCP catalogue.
@@ -116,19 +116,19 @@ already in the MCP catalogue.
 
 The 0.40 strict number is **lower** than external case 02's expected 0.50
 because the Outlook Express `.dbx` format requires a custom parser
-that dart-mcp does not ship yet. That's a Phase 2 gap, not a design
+that dfir-mcp does not ship yet. That's a Phase 2 gap, not a design
 flaw.
 
-## Why this case matters to the SANS submission
+## Why this case matters
 
-| SANS criterion | What this case proves |
+| Property | What this case proves |
 |---|---|
-| IR Accuracy | Recall on an *insider-threat* dataset, not just intrusion |
-| Hallucination Management | hallucination rate when the threat is *user behaviour*, not malware |
-| Audit Trail Quality | SHA-256 audit chain on a multi-day activity reconstruction |
+| Accuracy | Recall on an *insider-threat* dataset, not just intrusion |
+| Hallucination rate | hallucination rate when the threat is *user behaviour*, not malware |
+| Audit trail | SHA-256 audit chain on a multi-day activity reconstruction |
 | Documentation | README + ground-truth + reproducible commands |
-| Autonomous Execution | end-to-end run with no human in the loop |
-| Architectural Guardrails | read-only MCP boundary preserved on a 10 GB image |
+| Autonomous execution | end-to-end run with no human in the loop |
+| Read-only boundary | read-only MCP boundary preserved on a 10 GB image |
 
 ## Phase 2 implications
 
@@ -138,7 +138,7 @@ add next** to lift recall above 80% on insider-threat cases:
 1. **Outlook Express DBX parser** — parse `.dbx` mailbox structure,
    extract message metadata and bodies. Well-documented format,
    2-day implementation. Adds T1114 (Email Collection) detection
-   surface to dart-mcp.
+   surface to dfir-mcp.
 
 2. **DBX attachment extraction** — once messages parse, extract MIME
    attachments. Trivial follow-on to the parser.
@@ -158,7 +158,7 @@ also unlock value for legacy mail-format cases beyond M57.
 | Predicted strict recall | 0.10 | 0.50 | 0.40 |
 | Predicted lenient recall | 0.40 | 0.80 | 0.80 |
 
-The three cases together test dart-mcp across **two operating systems,
+The three cases together test dfir-mcp across **two operating systems,
 three threat models, three decade-eras** — far more diverse than any
 single dataset alone could prove.
 

@@ -4,7 +4,7 @@ All numbers in this document are produced by `scripts/eval/demo.py`
 against bundled case evidence. Reproducible by any reviewer:
 
 ```bash
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src:$PWD/dfir_agent/src"
 
 # Score the canonical bundled evidence (no variant selector any more)
 python3 -m scripts.eval.demo
@@ -90,10 +90,13 @@ all per-case detection counts are preserved across the enrichment.
   low across **all** models — this is **tool/parser coverage** on large third-party
   disk images, not model reasoning (sonnet and opus still reach 80% on external
   case-02; opus is the most stable on the planted self cases, with no zero-finding runs).
-- **Hallucination / ungrounded findings.** Structurally prevented, not merely rare.
-  Every reported finding is written to the SHA-256 audit chain and traces back to a
-  specific tool execution — the agent cannot emit a claim that no tool produced. On
-  the canonical bundled case (case-01) the measured false-positive rate is **0**.
+- **Hallucination / ungrounded findings.** Every reported finding carries the
+  `audit_id`s of the MCP calls that produced it, and each one can be traced back to
+  the exact tool execution in the SHA-256 audit chain with
+  `python3 -m dfir_audit trace <audit.jsonl> <finding-id>`. The hallucination count
+  is the number of `audit_id` citations that resolve to no chain entry; it is 0 on
+  every recorded run. On the canonical bundled case (case-01) the measured
+  false-positive rate is **0**.
   When raw `findings` exceeds `scorable`, those are *additional grounded observations*
   outside the ground-truth list — each still tool-traced, not fabricated. Per-case
   findings-vs-scorable counts are in `docs/benchmarks/MODEL-COMPARISON.md`.
@@ -129,11 +132,11 @@ all per-case detection counts are preserved across the enrichment.
 
 ## Evidence-integrity & anti-spoliation test results
 
-These are the **spoliation tests** the rubric asks for: we actively tried to make the
+These are the **spoliation tests**: we actively tried to make the
 agent modify, delete, or escape the evidence and recorded what the system does.
 Evidence integrity rests on two **architectural** controls — a typed read-only MCP
 surface (destructive functions are *absent from the registry*, not merely forbidden in
-a prompt) and an OS-level read-only mount of `DART_EVIDENCE_ROOT`. Every attempt below
+a prompt) and an OS-level read-only mount of `DFIR_EVIDENCE_ROOT`. Every attempt below
 was refused by the architecture, so the outcome does not depend on the model obeying an
 instruction:
 
@@ -158,10 +161,10 @@ instruction:
 
 1. **Eric Zimmerman tools (MFTECmd, PECmd, AppCompatCacheParser)** are
    consumed via sidecar CSV/JSON. Direct binary parsing requires .NET
-   runtime. Sidecar-first design keeps Agentic-DART portable.
-2. **FSEventsParser and `log show`** are external to Agentic-DART — they produce
-   the input Agentic-DART consumes. This is analogous to the Windows sidecar model.
-3. **Volatility memory forensics** is out of scope for MVP. Post-hackathon.
+   runtime. Sidecar-first design keeps Agentic-DFIR portable.
+2. **FSEventsParser and `log show`** are external to Agentic-DFIR — they produce
+   the input Agentic-DFIR consumes. This is analogous to the Windows sidecar model.
+3. **Volatility memory forensics** is out of scope for the MVP. Planned.
 4. **Event log / UnifiedLog rule packs are deliberately small** (5 rules
    each). Designed to demonstrate the detection surface, not replace
    Sigma / hayabusa / mandiant's macOS rules. Rule schema is extensible.
@@ -180,10 +183,10 @@ instruction:
 | **macOS UnifiedLog** | "planned" | ✅ **Implemented** |
 | **macOS KnowledgeC** | "planned" | ✅ **Implemented** |
 | **macOS FSEvents** | "planned" | ✅ **Implemented** |
-| Volatility memory forensics | "planned" | 📋 Post-hackathon |
-| Live MCP mode (Claude Code stdio) | "planned" | 📋 W5 (mid-May) |
+| Volatility memory forensics | "planned" | 📋 Planned |
+| Live MCP mode (Claude Code stdio) | "planned" | ✅ Implemented — see `live-mode.md` |
 
-**10 of 12 roadmap items are real implementations.**
+**11 of 12 roadmap items are real implementations.**
 
 ## Case 04 — Phishing → Download → Execution → Exfiltration (NEW)
 
@@ -198,7 +201,7 @@ which earlier case studies did not address.
 | `correlate_download_to_execution` | 1 critical chain: URL → file → execution in 390s |
 | `detect_exfiltration` | 5 signals, max_severity=critical, 4 archive→upload chains |
 
-## Coverage map (what Agentic-DART can actually see)
+## Coverage map (what Agentic-DFIR can actually see)
 
 ```
         [infection vector]  [foothold]    [action on objectives]
@@ -269,7 +272,7 @@ classification (credential stuffing vs password spray vs single-account).
 ## Initial-access vector coverage (complete)
 
 ```
-Path                            Agentic-DART function
+Path                            Agentic-DFIR function
 ───────────────────────────     ──────────────────────────────
 Phishing email                  parse_browser_history + analyze_downloads
 Web application attack          analyze_web_access_log  + detect_webshell
@@ -295,9 +298,9 @@ evasion, ransomware deployment. Based on DFIR Report 2025, Red Canary
 
 ## MITRE ATT&CK coverage summary (final)
 
-Agentic-DART now covers these TA0001–TA0040 tactics:
+Agentic-DFIR now covers these TA0001–TA0040 tactics:
 
-| Tactic | Agentic-DART coverage |
+| Tactic | Agentic-DFIR coverage |
 |---|---|
 | TA0001 Initial Access | parse_browser_history, analyze_downloads, analyze_web_access_log, detect_webshell, detect_brute_force_rdp, analyze_unix_auth, analyze_usb_history |
 | TA0002 Execution | get_process_tree (LOTL flags), get_amcache, parse_prefetch, analyze_event_logs |
@@ -351,7 +354,7 @@ weight the headline numbers.
 
 1. Walks `examples/case-studies/self-evaluation/case-01/evidence_root/` and
    computes a SHA-256 over every file → **pre-run evidence digest map**.
-2. Runs `dart_agent` in deterministic mode against the bundled Case 01
+2. Runs `dfir_agent` in deterministic mode against the bundled Case 01
    (IP-KVM remote-hands insider, Pass-the-Hash + timestomp pre-existence).
 3. Re-walks the evidence tree and re-computes the digest map → **post-run
    evidence digest map**. Equality of the two maps proves the agent did

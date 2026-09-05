@@ -19,7 +19,7 @@ body:
     attributes:
       label: One-line summary
       description: What broke?
-      placeholder: "dart-corr crashes when MFT has > N rows"
+      placeholder: "dfir-corr crashes when MFT has > N rows"
     validations:
       required: true
 
@@ -30,8 +30,8 @@ body:
       description: Smallest sequence of commands that reproduces the issue.
       render: bash
       placeholder: |
-        export DART_EVIDENCE_ROOT=/path/to/case
-        python3 -m dart_agent --case mycase --max-iterations 25
+        export DFIR_EVIDENCE_ROOT=/path/to/case
+        python3 -m dfir_agent --case mycase --max-iterations 25
     validations:
       required: true
 
@@ -64,11 +64,11 @@ body:
     attributes:
       label: Which subsystem?
       options:
-        - dart-agent (the wrapper loop)
-        - dart-mcp (typed tool surface)
-        - dart-corr (correlation engine)
-        - dart-audit (audit chain)
-        - dart-playbook (YAML)
+        - dfir-agent (the wrapper loop)
+        - dfir-mcp (typed tool surface)
+        - dfir-corr (correlation engine)
+        - dfir-audit (audit chain)
+        - dfir-playbook (YAML)
         - tests / CI
         - docs
         - not sure

@@ -1,0 +1,28 @@
+title: HID / Keyboard-Class USB Device Insertion
+id: dfir-ia-001
+description: >
+  Detects insertion of a Human Interface Device (keyboard/mouse class) over USB.
+  IP-KVM / KVM-over-IP bridges and BadUSB attack tools (Rubber Ducky, Bash
+  Bunny) present to the host as an HID keyboard, so an unexpected keyboard-class
+  insertion — especially one followed by an interactive console logon — is a
+  physical hardware-addition initial-access signal. General pattern: matches on
+  the HID/keyboard device class, NOT on any specific vendor/product id.
+status: experimental
+author: Agentic-DFIR
+references:
+  - https://sigmahq.io/docs/basics/rules.html
+logsource:
+  category: usb
+detection:
+  selection:
+    event_type: usb_insert
+  keyboard_class:
+    - device_class_guid: "{4d36e96b-e325-11ce-bfc1-08002be10318}"  # Keyboard
+    - device_description|contains: "Keyboard"
+  condition: selection and keyboard_class
+falsepositives:
+  - Legitimate replacement keyboards — baseline expected peripherals per host
+level: medium
+tags:
+  - attack.initial_access
+  - attack.t1200

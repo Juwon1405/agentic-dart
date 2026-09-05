@@ -163,14 +163,14 @@ critical_transitions:
 
 ## What makes this important
 
-Before this case study, Agentic-DART could tell you malware ran. It could not
+Before this case study, Agentic-DFIR could tell you malware ran. It could not
 answer: **"Did this come from a console user, a stolen SSH key, a
 Kerberoast, or an RDP session from a suspicious IP?"** Now it can, across
 Windows (AD), Linux (auth.log), and macOS.
 
-This is the missing DFIR dimension the user explicitly flagged:
-**"AD로 로그인 했거나, 로컬로 로그인 했거나, 리모트로 로그인해서 명령
-실행한 것"** — now fully covered.
+This is the DFIR dimension the earlier cases left uncovered: **whether the
+actor authenticated through AD, logged in locally, or logged in remotely and
+then executed commands** — now fully covered.
 
 
 ---
@@ -179,11 +179,11 @@ This is the missing DFIR dimension the user explicitly flagged:
 
 ```bash
 # From the repo root
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-05/evidence_root"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-05/evidence_root"
 
 python3 - <<'PY'
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 
 r = call_tool('analyze_windows_logons', {'security_events_json': 'disk/security-events.json'})
 print('analyze_windows_logons:', r['events_examined'], 'events,', r['failure_count'], 'failures,', r['explicit_cred_count'], 'explicit-cred')
@@ -196,4 +196,4 @@ print('analyze_kerberos_events:', r['events_examined'], 'events,', len(r['kerber
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

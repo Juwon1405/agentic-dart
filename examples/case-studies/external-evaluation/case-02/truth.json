@@ -20,7 +20,7 @@
       "evidence_path": "xampp/apache/logs/access.log",
       "artifact_type": "web_log",
       "host_path": "xampp/apache/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1190"
       ],
@@ -33,7 +33,7 @@
       "evidence_path": "xampp/apache/logs/access.log",
       "artifact_type": "web_log",
       "host_path": "xampp/apache/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1190",
         "T1059"
@@ -47,7 +47,7 @@
       "evidence_path": "xampp/apache/logs/access.log",
       "artifact_type": "web_log",
       "host_path": "xampp/apache/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1505.003"
       ],
@@ -60,7 +60,7 @@
       "evidence_path": "xampp/apache/logs/access.log",
       "artifact_type": "web_log",
       "host_path": "xampp/apache/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1071.001"
       ],
@@ -73,7 +73,7 @@
       "evidence_path": "xampp/apache/logs/access.log",
       "artifact_type": "web_log",
       "host_path": "xampp/apache/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1595.002"
       ],

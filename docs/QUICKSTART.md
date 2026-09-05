@@ -1,6 +1,6 @@
 # Quick start
 
-Three ways to run Agentic-DART, simplest first. Pick the one you need.
+Three ways to run Agentic-DFIR, simplest first. Pick the one you need.
 
 ```
 A. Test mode      — no API key, deterministic, < 1 min   (start here)
@@ -11,8 +11,8 @@ C. Real evidence  — your own disk image / host collection
 ## 0. Install (once)
 
 ```bash
-git clone https://github.com/Juwon1405/agentic-dart.git
-cd agentic-dart
+git clone https://github.com/Juwon1405/agentic-dfir.git
+cd agentic-dfir
 bash scripts/install.sh                 # minimal: agent + adapter (deterministic works)
 #   bash scripts/install.sh --full      # also installs the SIFT toolchain + EZ Tools
 python3 scripts/healthcheck.py          # sanity check — no API key needed
@@ -20,7 +20,7 @@ python3 scripts/healthcheck.py          # sanity check — no API key needed
 
 `install.sh` also clones the collector adapter into the same interpreter **and**
 chains into the adapter's installer to stage a SHA-256-verified Velociraptor
-binary, so `dart-collector-adapter` (path C) is ready end-to-end — including
+binary, so `dfir-collector-adapter` (path C) is ready end-to-end — including
 `--source image` analysis. Pass `--skip-velociraptor` to opt out (e.g. when
 you only ever use `--source zip`).
 
@@ -42,18 +42,18 @@ bash examples/demo-run.sh
 python3 -m scripts.eval.demo
 
 # 3) Trace any finding back to the exact tool call that produced it.
-python3 -m dart_audit verify examples/out/find-evil-ref-01/audit.jsonl
-python3 -m dart_audit trace  examples/out/find-evil-ref-01/audit.jsonl F-013
+python3 -m dfir_audit verify examples/out/ref-01/audit.jsonl
+python3 -m dfir_audit trace  examples/out/ref-01/audit.jsonl F-013
 
 # 4) Smoke-test the live path WITHOUT a key. The real MCP wire + tool-use loop
 #    run end to end, but a SCRIPTED stand-in plays Claude (no network, no real
 #    reasoning). Proves the live pipeline is wired correctly; real analysis
 #    needs an API key — see section B.
-python3 -m dart_agent --case self-evaluation/case-01 --out /tmp/out --mode live --dry-run
+python3 -m dfir_agent --case self-evaluation/case-01 --out /tmp/out --mode live --dry-run
 
 # 5) Full test suite, and the SIFT-adapter demo (degrades gracefully if a
 #    SIFT tool isn't installed).
-python3 -m pytest tests/ dart_corr/tests/ -q
+python3 -m pytest tests/ dfir_corr/tests/ -q
 bash examples/sift-adapter-demo.sh
 ```
 
@@ -85,7 +85,7 @@ python3 analyze.py --case external-evaluation/case-01 --download   # NIST CFReDS
 #      examples/case-studies/external-evaluation/case-01/<dataset>/
 #
 # 2) Adapt that raw image into an evidence_root (same adapter as path C):
-python3 -m dart_collector_adapter --source image \
+python3 -m dfir_collector_adapter --source image \
     --input <image path printed in step 1> \
     --output examples/case-studies/external-evaluation/case-01/evidence_root \
     --case-id CFREDS-01
@@ -106,7 +106,7 @@ Each run writes to `out/<tier>/<case>/<timestamp>/`
 ## C. Real evidence — your own host or disk image
 
 Two machines: **collect on the incident host → adapt + analyze on the analysis
-server.** The adapter and Agentic-DART install once on the analysis server
+server.** The adapter and Agentic-DFIR install once on the analysis server
 (`scripts/install.sh` clones the adapter into the same interpreter and chains into
 the adapter's installer to stage a SHA-256-verified Velociraptor binary; pass
 `--skip-velociraptor` to opt out, e.g. when only `--source zip` is needed);
@@ -120,17 +120,17 @@ offline collector (no install, no agent, no Python) to produce `evidence.zip`;
 copy the ZIP back to the analysis server. Velociraptor makes the ZIP — the
 adapter is not involved here. (Or skip this and start from a raw disk image you
 already have: `.dd` / `.raw` / `.E01`.) Full collector recipe:
-[collector-adapter README](https://github.com/Juwon1405/agentic-dart-collector-adapter#1-on-the-incident-host--collect).
+[collector-adapter README](https://github.com/Juwon1405/agentic-dfir-collector-adapter#1-on-the-incident-host--collect).
 
 ### 2. Adapt — on the analysis server (normalize into an `evidence_root/`)
 
 ```bash
 # from a Velociraptor offline-collector ZIP
-python3 -m dart_collector_adapter --input evidence.zip \
+python3 -m dfir_collector_adapter --input evidence.zip \
     --output ./evidence_root --case-id CASE-001
 
 # OR from a raw disk image (dead-disk via Velociraptor remapping)
-python3 -m dart_collector_adapter --source image --input disk.E01 \
+python3 -m dfir_collector_adapter --source image --input disk.E01 \
     --output ./evidence_root --case-id CASE-001
 ```
 

@@ -1,6 +1,6 @@
 # Benchmarks — Recall by Model (self vs external)
 
-Honest, reproducible measurement of Agentic-DART's detection recall. Every number here is rendered from the per-case ledger ([`ledger.json`](ledger.json)) — not transcribed by hand — so it cannot drift out of sync with the harness.
+Honest, reproducible measurement of Agentic-DFIR's detection recall. Every number here is rendered from the per-case ledger ([`ledger.json`](ledger.json)) — not transcribed by hand — so it cannot drift out of sync with the harness.
 
 ![Recall by model — self vs external](recall-by-model.png)
 
@@ -23,7 +23,7 @@ Each case was run **live** against all three Claude models, multiple times, and 
 - **Opus and Sonnet tie overall (74%)** — both are viable authoritative backends; Haiku (56%) is the cheap triage tier.
 - **Opus leads on self-evaluation (89%)**; **Sonnet generalises best to unseen public images (external 43% vs 35%)**. So: prefer Opus on self-class evidence, Sonnet on out-of-distribution material.
 - **Low external recall is a tool/parser-coverage limit on large real disk images — not a reasoning failure.** Many external answers require parsers still on the roadmap. We report the low number openly rather than hiding it.
-- **Hallucination is 0 across every run, by construction:** any finding lacking an `audit_id` reference to a chained tool call is blocked at write time. A miss is *missed coverage*; a fabricated finding cannot reach the report at all.
+- **Hallucination is 0 across every run.** Every finding carries the `audit_id`s of the MCP calls that produced it and can be traced back to the exact tool execution with `python3 -m dfir_audit trace <audit.jsonl> <finding-id>`; the hallucination count is the number of citations that resolve to no chain entry. A miss is *missed coverage*, not a fabricated finding.
 - **Run-to-run variance is real** (LLMs are probabilistic). A single lucky run is not a verdict — which is exactly what the roadmap below targets.
 
 ## Limitations (stated plainly)

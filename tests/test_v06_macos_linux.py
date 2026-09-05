@@ -12,16 +12,16 @@ from pathlib import Path
 
 import pytest
 
-SRC = Path(__file__).resolve().parents[1] / "dart_mcp" / "src"
+SRC = Path(__file__).resolve().parents[1] / "dfir_mcp" / "src"
 sys.path.insert(0, str(SRC))
 
-import dart_mcp  # noqa: E402
-from dart_mcp import call_tool, list_tools  # noqa: E402
+import dfir_mcp  # noqa: E402
+from dfir_mcp import call_tool, list_tools  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
 def _bind_evidence_root_to_tmp(tmp_path, monkeypatch):
-    monkeypatch.setattr(dart_mcp, "EVIDENCE_ROOT", tmp_path)
+    monkeypatch.setattr(dfir_mcp, "EVIDENCE_ROOT", tmp_path)
     yield
 
 

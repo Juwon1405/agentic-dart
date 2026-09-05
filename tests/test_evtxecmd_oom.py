@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from dart_mcp.sift_adapters import evtxecmd
+from dfir_mcp.sift_adapters import evtxecmd
 
 
 def _make_csv(path: Path, n_rows: int):

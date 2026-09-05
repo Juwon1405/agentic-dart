@@ -3,27 +3,27 @@
 `pytest` test suite for the five packages plus the live-mode agent loop.
 The suite is split across two directories — **150 tests total**:
 
-- `tests/` — **136** tests (dart_mcp / dart_agent / dart_audit, parsers,
+- `tests/` — **136** tests (dfir_mcp / dfir_agent / dfir_audit, parsers,
   live-mode loop, hardening).
-- `dart_corr/tests/` — **14** tests (the correlation engine extracted into
+- `dfir_corr/tests/` — **14** tests (the correlation engine extracted into
   its own package in v0.7.1).
 
 Run both from repo root:
 
 ```bash
-PYTHONPATH=dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src \
-  python3 -m pytest tests/ dart_corr/tests/ -q
+PYTHONPATH=dfir_audit/src:dfir_mcp/src:dfir_agent/src:dfir_corr/src \
+  python3 -m pytest tests/ dfir_corr/tests/ -q
 ```
 
 CI runs these on every push (`.github/workflows/ci.yml`): the `tests/` files
-individually plus `python3 -m pytest dart_corr/tests/`.
+individually plus `python3 -m pytest dfir_corr/tests/`.
 
 ## Categories
 
 | File | Covers |
 |---|---|
-| `test_mcp_surface.py` | dart_mcp registry shape and tool signatures |
-| `test_audit_chain.py` | dart_audit chained writes and replay |
+| `test_mcp_surface.py` | dfir_mcp registry shape and tool signatures |
+| `test_audit_chain.py` | dfir_audit chained writes and replay |
 | `test_concurrency_and_edge_cases.py` | parallel / racey paths, malformed input |
 | `test_parse_linux_dfir.py` | Linux parsers (auditd, bash_history, journald) on the realistic tree |
 | `test_parse_registry_hive.py` | Windows registry hive parsing |
@@ -33,7 +33,7 @@ individually plus `python3 -m pytest dart_corr/tests/`.
 | `test_v06_macos_linux.py` | v0.6 macOS/Linux coverage |
 | `test_qa_pass_regressions.py` | regressions caught during the QA rounds |
 | `test_mcp_bypass.py` | direct vs MCP function-call equivalence |
-| `test_agent_self_correction.py` | dart_agent self-correction loop |
+| `test_agent_self_correction.py` | dfir_agent self-correction loop |
 | `test_live_mcp.py`, `test_live_truncation.py`, `test_live_usage_tracking.py` | live-mode agent loop, truncation, token usage |
 
 ## Layout notes

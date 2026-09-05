@@ -74,7 +74,7 @@ over the **scorable** subset:
    (resumable).
 3. MD5-verify the image (when a hash is registered).
 4. adapt the image into the case's `evidence_root` — collector adapter
-   (`agentic-dart-collector-adapter`) if installed, sleuthkit `tsk_recover`
+   (`agentic-dfir-collector-adapter`) if installed, sleuthkit `tsk_recover`
    fallback otherwise.
 
 `analyze.py` then only reads the prepared `evidence_root`. The heavy

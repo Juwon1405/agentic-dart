@@ -1,1 +1,1 @@
-"""Agentic-DART benchmark entry points: demo / self / external."""
+"""Agentic-DFIR benchmark entry points: demo / self / external."""

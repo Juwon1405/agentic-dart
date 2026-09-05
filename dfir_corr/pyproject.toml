@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dfir_corr"
+version = "2.0.0"
+description = "Cross-artifact correlation engine — DuckDB-backed timeline joins and contradiction flagging for Agentic-DFIR"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Bang Juwon", email = "juwon1405.jp@gmail.com" }]
+dependencies = [
+    "duckdb>=0.10.0,<2.0",
+    "PyYAML>=6.0",
+]
+
+[project.urls]
+Repository = "https://github.com/Juwon1405/agentic-dfir"
+Documentation = "https://github.com/Juwon1405/agentic-dfir/wiki/dfir-corr"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,7 +1,7 @@
 # Evidence and case studies
 
 This directory holds the evidence trees and case studies used to exercise and
-benchmark dart-mcp / dart-agent.
+benchmark dfir-mcp / dfir-agent.
 
 ## Evidence
 
@@ -26,4 +26,4 @@ Ali Hadi, Digital Corpora M57). Run a case with `python3 analyze.py --case
 
 ## Output
 
-`out/` — sample run outputs (e.g. `find-evil-ref-01/`) kept for reference.
+`out/` — sample run outputs (e.g. `ref-01/`) kept for reference.

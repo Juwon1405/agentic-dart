@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dfir-audit"
+version = "2.0.0"
+description = "Agentic-DFIR — tamper-evident JSONL audit logger"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]

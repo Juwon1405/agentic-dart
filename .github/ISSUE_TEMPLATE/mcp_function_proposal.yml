@@ -91,7 +91,7 @@ body:
         `EVIDENCE_ROOT`. What's the analog test for *your* function?
       placeholder: |
         - Feed it a path with `../`, assert ToolNotFound
-        - Feed it an absolute path outside DART_EVIDENCE_ROOT, assert refusal
+        - Feed it an absolute path outside DFIR_EVIDENCE_ROOT, assert refusal
         - Feed it a path with NUL byte, assert refusal
     validations:
       required: true

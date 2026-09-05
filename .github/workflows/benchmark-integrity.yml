@@ -7,14 +7,14 @@ on:
       - 'examples/case-studies/**/truth.json'
       - 'examples/case-studies/self-evaluation/case-01/evidence_root/**'
       - 'tests/fixtures/evidence/**'
-      - 'dart_mcp/**'
+      - 'dfir_mcp/**'
       - 'scripts/eval/**'
   pull_request:
     paths:
       - 'examples/case-studies/**/truth.json'
       - 'examples/case-studies/self-evaluation/case-01/evidence_root/**'
       - 'tests/fixtures/evidence/**'
-      - 'dart_mcp/**'
+      - 'dfir_mcp/**'
       - 'scripts/eval/**'
 
 jobs:
@@ -37,6 +37,6 @@ jobs:
         # evidence integrity, containment), so any scorer/pipeline regression
         # fails CI here.
         env:
-          PYTHONPATH: dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src
+          PYTHONPATH: dfir_audit/src:dfir_mcp/src:dfir_agent/src:dfir_corr/src
         run: |
           python3 -m scripts.eval.demo --json

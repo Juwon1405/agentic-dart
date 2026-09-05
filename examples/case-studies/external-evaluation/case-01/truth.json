@@ -25,9 +25,9 @@
       "category": "host_attribution",
       "claim": "Registered owner of system is 'Greg Schardt'",
       "evidence_path": "Windows/system32/config/software → Microsoft\\Windows NT\\CurrentVersion\\RegisteredOwner",
-      "expected_dart_mcp_function": "(registry hive parsing — partially covered by sift_amcacheparser_parse for AmCache; full SOFTWARE hive parsing is roadmap)",
+      "expected_dfir_mcp_function": "(registry hive parsing — partially covered by sift_amcacheparser_parse for AmCache; full SOFTWARE hive parsing is roadmap)",
       "directly_detectable_v053": false,
-      "rationale": "dart-mcp Phase 1 has read-only AmCache + SHIMCache + ShellBags adapters but not generic SOFTWARE hive value extraction. Phase 2 deliverable.",
+      "rationale": "dfir-mcp Phase 1 has read-only AmCache + SHIMCache + ShellBags adapters but not generic SOFTWARE hive value extraction. Phase 2 deliverable.",
       "mitre_attack": [],
       "severity": "medium"
     },
@@ -37,7 +37,7 @@
       "category": "user_attribution",
       "claim": "Account 'Mr. Evil' is the primary user account",
       "evidence_path": "Windows/system32/config/SAM → Domains\\Users\\Names",
-      "expected_dart_mcp_function": "analyze_windows_logons (SAM-derived account enumeration is adjacent capability)",
+      "expected_dfir_mcp_function": "analyze_windows_logons (SAM-derived account enumeration is adjacent capability)",
       "directly_detectable_v053": false,
       "rationale": "Current analyze_windows_logons consumes pre-extracted Security event JSON. Native SAM hive parsing not yet covered. Phase 2.",
       "mitre_attack": [],
@@ -58,9 +58,9 @@
         "NetStumbler"
       ],
       "evidence_path": "Windows/AppCompat/Programs/Amcache.hve",
-      "expected_dart_mcp_function": "get_amcache + parse_prefetch + sift_amcacheparser_parse",
+      "expected_dfir_mcp_function": "get_amcache + parse_prefetch + sift_amcacheparser_parse",
       "directly_detectable_v053": true,
-      "rationale": "AmCache records every executed binary with InstallDate + path. Prefetch confirms execution. dart-mcp v0.5.3 has both adapters. Secondary evidence: Prefetch/*.pf.",
+      "rationale": "AmCache records every executed binary with InstallDate + path. Prefetch confirms execution. dfir-mcp v0.5.3 has both adapters. Secondary evidence: Prefetch/*.pf.",
       "mitre_attack": [],
       "severity": "medium"
     },
@@ -70,7 +70,7 @@
       "category": "network_inventory",
       "claim": "Two network cards: Xircom CardBus + Compaq WL110 Wireless",
       "evidence_path": "Windows/system32/config/software → Microsoft\\Windows NT\\CurrentVersion\\NetworkCards",
-      "expected_dart_mcp_function": "(SOFTWARE hive NetworkCards key — Phase 2)",
+      "expected_dfir_mcp_function": "(SOFTWARE hive NetworkCards key — Phase 2)",
       "directly_detectable_v053": false,
       "rationale": "Same as F-CFR-001 — generic SOFTWARE hive value extraction is roadmap.",
       "mitre_attack": [],
@@ -82,9 +82,9 @@
       "category": "data_exfiltration_artifact",
       "claim": "Ethereal capture file 'Interception' in My Documents — intercepted wireless traffic",
       "evidence_path": "Documents and Settings/Mr. Evil/My Documents/Interception",
-      "expected_dart_mcp_function": "parse_browser_history is adjacent (Documents folder enumeration); detect_exfiltration could flag if filesize unusual",
+      "expected_dfir_mcp_function": "parse_browser_history is adjacent (Documents folder enumeration); detect_exfiltration could flag if filesize unusual",
       "directly_detectable_v053": "partial",
-      "rationale": "MFT walk + size anomaly possible, but specific filename detection requires file-content YARA rule. Phase 2 dart-synth can synthesize this rule from known evidence.",
+      "rationale": "MFT walk + size anomaly possible, but specific filename detection requires file-content YARA rule. Phase 2 dfir-synth can synthesize this rule from known evidence.",
       "mitre_attack": [],
       "severity": "medium"
     },
@@ -94,7 +94,7 @@
       "category": "user_attribution",
       "claim": "Web-based email: mrevilrulez@yahoo.com",
       "evidence_path": "Documents and Settings/Mr. Evil/Local Settings/Application Data/Identities/{...}/Microsoft/Outlook Express",
-      "expected_dart_mcp_function": "parse_browser_history (yahoo cache hits)",
+      "expected_dfir_mcp_function": "parse_browser_history (yahoo cache hits)",
       "directly_detectable_v053": "partial",
       "rationale": "Browser history extraction works for Chrome/Edge schemas; IE6/Outlook Express on XP uses different schema (index.dat) — Phase 2.",
       "mitre_attack": [],
@@ -106,7 +106,7 @@
       "category": "logon_activity",
       "claim": "Last user to logon was 'Mr. Evil' (logged on 15 times total)",
       "evidence_path": "Windows/system32/config/SAM",
-      "expected_dart_mcp_function": "analyze_windows_logons",
+      "expected_dfir_mcp_function": "analyze_windows_logons",
       "directly_detectable_v053": "partial",
       "rationale": "Function works on Security event JSON. CFReDS has live registry — extraction step needed. Phase 1 can verify if pre-extracted. Secondary evidence: Security event log.",
       "mitre_attack": [],
@@ -118,7 +118,7 @@
       "category": "deleted_artifacts",
       "claim": "4 executable files in recycle bin",
       "evidence_path": "RECYCLER/...",
-      "expected_dart_mcp_function": "(recycle bin parsing — not in v0.5.3)",
+      "expected_dfir_mcp_function": "(recycle bin parsing — not in v0.5.3)",
       "directly_detectable_v053": false,
       "rationale": "Recycle bin INFO2/$I$R parsing is candidate Phase 2 primitive.",
       "mitre_attack": [],
@@ -130,7 +130,7 @@
       "category": "malware_artifact",
       "claim": "Anti-virus check positive — viruses present on disk",
       "evidence_path": "Documents and Settings/Mr. Evil/",
-      "expected_dart_mcp_function": "(YARA rule scan — Phase 2 with sift_yara adapter)",
+      "expected_dfir_mcp_function": "(YARA rule scan — Phase 2 with sift_yara adapter)",
       "directly_detectable_v053": false,
       "rationale": "YARA adapter exists but no rules bundled; needs Sigma/YARA rule library.",
       "mitre_attack": [],
@@ -142,7 +142,7 @@
       "category": "system_state",
       "claim": "Last shutdown: 2004-08-27 10:46:33 AM",
       "evidence_path": "Windows/system32/config/system → CurrentControlSet001\\Control\\Windows\\ShutdownTime",
-      "expected_dart_mcp_function": "(SYSTEM hive timestamp extraction — Phase 2)",
+      "expected_dfir_mcp_function": "(SYSTEM hive timestamp extraction — Phase 2)",
       "directly_detectable_v053": false,
       "rationale": "Generic SYSTEM hive key reading is roadmap.",
       "mitre_attack": [],
@@ -155,7 +155,7 @@
     "partially_detectable_v053": 3,
     "not_detectable_v053_phase2_roadmap": 6,
     "honest_recall_v053": "1/10 = 0.10 (full) | 4/10 = 0.40 (full + partial)",
-    "explanation": "This is a deliberately honest disclosure. CFReDS Hacking Case is a 2004 Windows XP image with content-centric ground truth (what was inside specific files). dart-mcp v0.5.3 is artifact-centric (timeline, persistence mechanisms, lateral movement signals). The two paradigms partially overlap. The recall=0.10 here is NOT a bug — it correctly indicates that 9 of 10 sampled findings need either (a) generic registry hive value extraction (Phase 2 #45) or (b) file content YARA scanning (Phase 2 #10) which are tracked roadmap items, not currently shipped. Reference variant recall=1.0 measures dart-mcp's ability to detect IOCs it CLAIMS to detect; CFReDS recall measures expansion potential."
+    "explanation": "This is a deliberately honest disclosure. CFReDS Hacking Case is a 2004 Windows XP image with content-centric ground truth (what was inside specific files). dfir-mcp v0.5.3 is artifact-centric (timeline, persistence mechanisms, lateral movement signals). The two paradigms partially overlap. The recall=0.10 here is NOT a bug — it correctly indicates that 9 of 10 sampled findings need either (a) generic registry hive value extraction (Phase 2 #45) or (b) file content YARA scanning (Phase 2 #10) which are tracked roadmap items, not currently shipped. Reference variant recall=1.0 measures dfir-mcp's ability to detect IOCs it CLAIMS to detect; CFReDS recall measures expansion potential."
   },
   "phase_2_gap_analysis": {
     "gaps_identified_by_cfreds_integration": [
@@ -168,7 +168,7 @@
           "F-CFR-007",
           "F-CFR-010"
         ],
-        "tracking_issue": "https://github.com/Juwon1405/agentic-dart/issues/52",
+        "tracking_issue": "https://github.com/Juwon1405/agentic-dfir/issues/52",
         "implementation_estimate": "1-2 weeks (python-registry already in deps)"
       },
       {
@@ -177,7 +177,7 @@
         "blocks_findings": [
           "F-CFR-006"
         ],
-        "tracking_issue": "https://github.com/Juwon1405/agentic-dart/issues/53",
+        "tracking_issue": "https://github.com/Juwon1405/agentic-dfir/issues/53",
         "implementation_estimate": "2-3 days"
       },
       {
@@ -186,7 +186,7 @@
         "blocks_findings": [
           "F-CFR-008"
         ],
-        "tracking_issue": "https://github.com/Juwon1405/agentic-dart/issues/54",
+        "tracking_issue": "https://github.com/Juwon1405/agentic-dfir/issues/54",
         "implementation_estimate": "1-2 days"
       },
       {
@@ -195,10 +195,10 @@
         "blocks_findings": [
           "F-CFR-009"
         ],
-        "tracking_issue": "https://github.com/Juwon1405/agentic-dart/issues/55",
+        "tracking_issue": "https://github.com/Juwon1405/agentic-dfir/issues/55",
         "implementation_estimate": "Phase 2"
       }
     ],
-    "value_of_cfreds_integration": "CFReDS gave us a community-verified roadmap for what dart-mcp's NEXT 4 primitives must be. Without this benchmark, we'd ship Phase 2 prioritizing developer intuition; with it, we ship Phase 2 prioritizing measured gaps."
+    "value_of_cfreds_integration": "CFReDS gave us a community-verified roadmap for what dfir-mcp's NEXT 4 primitives must be. Without this benchmark, we'd ship Phase 2 prioritizing developer intuition; with it, we ship Phase 2 prioritizing measured gaps."
   }
 }

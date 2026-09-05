@@ -10,9 +10,9 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "dart_agent" / "src"))
+sys.path.insert(0, str(REPO / "dfir_agent" / "src"))
 
-from dart_agent.live import _extract_findings  # noqa: E402
+from dfir_agent.live import _extract_findings  # noqa: E402
 
 
 FENCED = """Some narrative analysis first.

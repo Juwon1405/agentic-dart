@@ -20,7 +20,7 @@ The diagnostic is in the **process tree shape and command-line content**:
 - Encoded PowerShell (`-enc`) is rare in legitimate use
 - `IEX (New-Object Net.WebClient).DownloadString(...)` = download-and-exec
 
-## How Agentic-DART walks this case
+## How Agentic-DFIR walks this case
 
 ### Iteration 1 — Process tree reconstruction
 
@@ -62,7 +62,7 @@ Combined, these are high-confidence LOTL indicators.
 ### Result
 
 Attack narrative assembled from 4 different evidence sources, all linked
-by `dart-audit trace`:
+by `dfir-audit trace`:
 
 ```
 IP-KVM inserted (Case 01)
@@ -74,18 +74,18 @@ IP-KVM inserted (Case 01)
   → persistence via service install + Run key
 ```
 
-## What the judges should run
+## What to run
 
 ```bash
 # Test each new function on its own
-python3 -c "from dart_mcp import call_tool; import json; \
+python3 -c "from dfir_mcp import call_tool; import json; \
   print(json.dumps(call_tool('get_process_tree', {'process_csv': 'disk/processes.csv'})['flags'], indent=2))"
 
-python3 -c "from dart_mcp import call_tool; import json; \
+python3 -c "from dfir_mcp import call_tool; import json; \
   r = call_tool('analyze_event_logs', {'events_json': 'disk/events.json'}); \
   print(json.dumps(r['alerts_by_severity'], indent=2))"
 
-python3 -c "from dart_mcp import call_tool; import json; \
+python3 -c "from dfir_mcp import call_tool; import json; \
   r = call_tool('detect_persistence', {}); \
   print(json.dumps(r['by_mechanism'], indent=2))"
 ```
@@ -98,11 +98,11 @@ All return real data from the bundled evidence tree in <1 second.
 
 ```bash
 # From the repo root
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-02/evidence_root"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-02/evidence_root"
 
 python3 - <<'PY'
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 
 r = call_tool('get_process_tree', {'process_csv': 'disk/processes.csv'})
 print('get_process_tree:', r['process_count'], 'processes,', len(r['flags']), 'LOTL flags')
@@ -115,4 +115,4 @@ print('detect_persistence:', r['total_mechanisms'], 'mechanisms,', len(r['high_s
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

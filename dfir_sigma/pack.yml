@@ -1,0 +1,33 @@
+# Agentic-DFIR Sigma detection pack — manifest
+#
+# A single, consolidated, versioned rule pack (NOT per-case files). Rules are
+# GENERAL behavioural signatures sourced from / modelled on reputable public
+# detection content (SigmaHQ, detection.fyi). They describe known-bad event
+# SHAPES — never a specific case's answer. The sigma-matcher MCP tool applies
+# this pack against parsed events so the agent can CORROBORATE a classification
+# with a detection signature, the way a real SOC does.
+#
+# Field names match the actual evidence event schemas (verified against the
+# self-evaluation corpus): Windows Security events use EventID / LogonType /
+# TicketEncryptionType / PreAuthType; unified host events use event_type /
+# task_command / device_class_guid; etc. Rules are kept honest by being checked
+# against real case events, not hand-waved field names.
+#
+# Versioning mirrors the playbook: bump `version` and add/revise rules over
+# time (v1 -> v2 -> ...). The matcher always loads the highest-version pack.
+
+version: v2
+name: dfir-detection-pack
+description: >
+  Consolidated DFIR detection signatures for the Agentic-DFIR self/external
+  benchmark surfaces. General patterns only; no case-specific identifiers.
+  Coverage: initial access (HID/IP-KVM hardware addition), persistence
+  (suspicious scheduled task, user account creation, web-shell drop),
+  credential access (Kerberoasting RC4 TGS, AS-REP roasting, DCSync, Golden
+  Ticket), lateral movement (PsExec/WMIexec), defense evasion (security
+  event-log clearing), impact (ransomware shadow-copy deletion).
+sources:
+  - https://github.com/SigmaHQ/sigma          # 3000+ community detection rules
+  - https://sigmahq.io/docs/basics/rules.html # Windows Security event patterns
+  - https://detection.fyi                     # SigmaHQ rule mirror / search
+rules_dir: rules

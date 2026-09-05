@@ -43,5 +43,5 @@ runtime package surface — they are repository tooling.
 ## Assets
 
 - **`regenerate_hero.py`** — regenerates the project hero image
-  (`agentic-dart-hero.png`) referenced from `README.md` and the profile
+  (`agentic-dfir-hero.png`) referenced from `README.md` and the profile
   README. Asset regeneration only — not a runtime path.

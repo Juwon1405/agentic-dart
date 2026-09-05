@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Agentic-DART — SIFT adapter layer demonstration.
+# Agentic-DFIR — SIFT adapter layer demonstration.
 #
 # This script proves that the SIFT adapter layer is correctly wired
 # up by exercising it from end to end:
@@ -11,8 +11,8 @@
 #   4. Verifies that path-traversal attempts are still blocked
 #   5. Verifies that calling an unregistered destructive function fails
 #
-# This is what you record for the SANS FIND EVIL! demo video to show
-# that the adapter layer is real, callable, and architecturally sound.
+# This demonstrates that the adapter layer is real, callable, and
+# architecturally sound.
 #
 # Run from a clean checkout:
 #   bash examples/sift-adapter-demo.sh
@@ -21,16 +21,16 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "${HERE}/.." && pwd)"
 
-export DART_EVIDENCE_ROOT="${REPO}/examples/case-studies/self-evaluation/case-01/evidence_root"
-export PYTHONPATH="${REPO}/dart_audit/src:${REPO}/dart_mcp/src:${REPO}/dart_agent/src:${REPO}/dart_corr/src"
+export DFIR_EVIDENCE_ROOT="${REPO}/examples/case-studies/self-evaluation/case-01/evidence_root"
+export PYTHONPATH="${REPO}/dfir_audit/src:${REPO}/dfir_mcp/src:${REPO}/dfir_agent/src:${REPO}/dfir_corr/src"
 
 # Pretty output
 B='\033[1;34m'; G='\033[1;32m'; Y='\033[1;33m'; R='\033[1;31m'; C='\033[1;36m'; N='\033[0m'
 
 echo ""
 echo -e "${C}╔══════════════════════════════════════════════════════════════════╗${N}"
-echo -e "${C}║   Agentic-DART — SIFT adapter layer demonstration                ║${N}"
-echo -e "${C}║   FIND EVIL! 2026 Custom MCP Server pattern alignment            ║${N}"
+echo -e "${C}║   Agentic-DFIR — SIFT adapter layer demonstration                ║${N}"
+echo -e "${C}║   Custom MCP server — SIFT adapter layer                         ║${N}"
 echo -e "${C}╚══════════════════════════════════════════════════════════════════╝${N}"
 echo ""
 
@@ -38,8 +38,8 @@ echo ""
 echo -e "${B}═══ 1. MCP tool registration ═══${N}"
 python3 - <<'PY'
 import os
-os.environ.setdefault('DART_EVIDENCE_ROOT', os.environ.get('DART_EVIDENCE_ROOT'))
-from dart_mcp import list_tools
+os.environ.setdefault('DFIR_EVIDENCE_ROOT', os.environ.get('DFIR_EVIDENCE_ROOT'))
+from dfir_mcp import list_tools
 
 tools = list_tools()
 native = [t['name'] for t in tools if not t['name'].startswith('sift_')]
@@ -92,8 +92,8 @@ Probe each adapter:
     correct sandbox enforcement, not bugs)
 """
 import os, sys
-from dart_mcp import call_tool, list_tools, PathTraversalAttempt
-from dart_mcp.sift_adapters._common import SiftToolNotFoundError
+from dfir_mcp import call_tool, list_tools, PathTraversalAttempt
+from dfir_mcp.sift_adapters._common import SiftToolNotFoundError
 
 GREEN = '\033[1;32m'
 YELLOW = '\033[1;33m'
@@ -102,7 +102,7 @@ RESET = '\033[0m'
 
 # Map adapter -> minimal-args dict using evidence_root paths.
 # For adapters without sample data we just confirm the not-found path.
-sample_evidence = os.environ['DART_EVIDENCE_ROOT']
+sample_evidence = os.environ['DFIR_EVIDENCE_ROOT']
 
 probe_args = {
     "sift_vol3_windows_pslist": {"image_path": "memory/nonexistent.raw"},
@@ -187,8 +187,8 @@ echo ""
 echo -e "${B}═══ 4. Path traversal still blocked at SIFT layer ═══${N}"
 python3 - <<'PY'
 import os
-from dart_mcp import call_tool, PathTraversalAttempt
-from dart_mcp.sift_adapters._common import SiftToolNotFoundError
+from dfir_mcp import call_tool, PathTraversalAttempt
+from dfir_mcp.sift_adapters._common import SiftToolNotFoundError
 
 attacks = [
     "../etc/passwd",
@@ -234,7 +234,7 @@ echo ""
 # ─── 5. NEGATIVE surface unchanged ───────────────────────────────────────
 echo -e "${B}═══ 5. NEGATIVE surface unbreached ═══${N}"
 python3 - <<'PY'
-from dart_mcp import call_tool, list_tools
+from dfir_mcp import call_tool, list_tools
 
 forbidden = [
     "execute_shell", "write_file", "mount", "umount", "eval",

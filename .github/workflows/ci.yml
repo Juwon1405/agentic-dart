@@ -24,54 +24,54 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip wheel
-          # Install dart_mcp via pip (verifies pyproject.toml is sane,
+          # Install dfir_mcp via pip (verifies pyproject.toml is sane,
           # including that the sift_adapters subpackage is discovered).
           # The [stdio] extra pulls in the mcp SDK that the Live MCP step needs
           # (mcp is an optional-dependency, NOT pulled by a plain -e install).
-          python3 -m pip install -e ./dart_mcp/[stdio]
-          # Install dart_corr (correlation engine extracted in v0.7.1)
-          python3 -m pip install -e ./dart_corr/
-          # pytest for the dart_corr engine test suite
+          python3 -m pip install -e ./dfir_mcp/[stdio]
+          # Install dfir_corr (correlation engine extracted in v0.7.1)
+          python3 -m pip install -e ./dfir_corr/
+          # pytest for the dfir_corr engine test suite
           python3 -m pip install pytest
 
       - name: Audit chain tests
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src
         run: python3 tests/test_audit_chain.py
 
       - name: MCP surface tests
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src:${{ github.workspace }}/dfir_mcp/src
         run: python3 tests/test_mcp_surface.py
 
       - name: MCP bypass tests (adversarial)
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src:${{ github.workspace }}/dfir_mcp/src
         run: python3 tests/test_mcp_bypass.py
 
       - name: SIFT adapter tests (v0.5)
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src:${{ github.workspace }}/dfir_mcp/src
         run: python3 tests/test_sift_adapters.py
 
       - name: Concurrency + edge cases
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src:${{ github.workspace }}/dfir_mcp/src
         run: python3 tests/test_concurrency_and_edge_cases.py
 
-      - name: dart_corr engine tests (v0.7.1 extracted package)
+      - name: dfir_corr engine tests (v0.7.1 extracted package)
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_corr/src
-        run: python3 -m pytest dart_corr/tests/ -v
+          PYTHONPATH: ${{ github.workspace }}/dfir_corr/src
+        run: python3 -m pytest dfir_corr/tests/ -v
 
       - name: Agent end-to-end self-correction
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src:${{ github.workspace }}/dfir_mcp/src:${{ github.workspace }}/dfir_agent/src:${{ github.workspace }}/dfir_corr/src
         run: python3 tests/test_agent_self_correction.py
 
       - name: Pytest regression suite (parser, v0.5/v0.6 case coverage, and 2026-05 hardening pass)
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src:${{ github.workspace }}/dfir_mcp/src:${{ github.workspace }}/dfir_agent/src:${{ github.workspace }}/dfir_corr/src
         # These files use pytest collection (`def test_*`) instead of the
         # standalone `if __name__ == "__main__"` style of the named steps
         # above. They cover: Linux DFIR parsers, registry hive parsing,
@@ -83,7 +83,7 @@ jobs:
         # operator verify prompt caching is firing in live mode.
         #
         # test_live_mcp.py is NOT in this pytest batch: it spins up a live
-        # stdio subprocess (the dart-mcp server) through the mcp SDK, so it runs
+        # stdio subprocess (the dfir-mcp server) through the mcp SDK, so it runs
         # in its own dedicated isolated step below to keep that subprocess from
         # interfering with the in-process unit tests.
         run: |
@@ -102,12 +102,12 @@ jobs:
             tests/test_eval_layout.py
 
       - name: Live MCP smoke (stdio subprocess via mcp SDK — isolated step)
-        # mcp SDK is provided by the dart_mcp[stdio] extra installed above —
-        # mcp is an optional-dependency, so a plain `-e ./dart_mcp/` does NOT
+        # mcp SDK is provided by the dfir_mcp[stdio] extra installed above —
+        # mcp is an optional-dependency, so a plain `-e ./dfir_mcp/` does NOT
         # pull it. Kept separate from the in-process pytest batch because it
         # launches a real stdio subprocess.
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src:${{ github.workspace }}/dfir_mcp/src:${{ github.workspace }}/dfir_agent/src:${{ github.workspace }}/dfir_corr/src
         run: python3 -m pytest tests/test_live_mcp.py -v
 
       - name: Demo run (offline native tools)
@@ -118,7 +118,7 @@ jobs:
 
       - name: Accuracy measurement (canonical bundled evidence)
         env:
-          PYTHONPATH: ${{ github.workspace }}/dart_audit/src:${{ github.workspace }}/dart_mcp/src:${{ github.workspace }}/dart_agent/src:${{ github.workspace }}/dart_corr/src
+          PYTHONPATH: ${{ github.workspace }}/dfir_audit/src:${{ github.workspace }}/dfir_mcp/src:${{ github.workspace }}/dfir_agent/src:${{ github.workspace }}/dfir_corr/src
         run: python3 -m scripts.eval.demo
 
   url-reachability:
@@ -146,11 +146,11 @@ jobs:
 
           REPO = Path('.')
           # Surfaces that must keep external references alive:
-          #   top-level README, every per-case README, every doc, the DEVPOST page
+          #   top-level README, every per-case README, every doc
           targets = []
-          for pat in ('README.md', 'CHANGELOG.md', 'DEVPOST_SUBMISSION.md',
+          for pat in ('README.md', 'CHANGELOG.md',
                       'docs/**/*.md', 'examples/case-studies/**/*.md',
-                      'dart_*/README.md'):
+                      'dfir_*/README.md'):
               targets.extend(REPO.glob(pat))
           targets = sorted({p for p in targets if p.is_file()})
 
@@ -198,7 +198,7 @@ jobs:
 
           async def main():
               limits = httpx.Limits(max_connections=8, max_keepalive_connections=4)
-              ua = "Mozilla/5.0 (compatible; agentic-dart-ci/0.7; +https://github.com/Juwon1405/agentic-dart)"
+              ua = "Mozilla/5.0 (compatible; agentic-dfir-ci/0.7; +https://github.com/Juwon1405/agentic-dfir)"
               async with httpx.AsyncClient(headers={'User-Agent': ua}, limits=limits) as client:
                   results = await asyncio.gather(*(head(client, f, u) for f, u in unique))
               return results
@@ -236,15 +236,15 @@ jobs:
       - name: Pip install
         run: |
           python3 -m pip install --upgrade pip wheel
-          python3 -m pip install -e ./dart_mcp/
+          python3 -m pip install -e ./dfir_mcp/
 
       - name: Verify tool surface from installed package (not sys.path)
         run: |
           python3 - <<'PY'
           import os
-          os.environ.setdefault('DART_EVIDENCE_ROOT', '/tmp/dart-ci-evidence')
-          os.makedirs('/tmp/dart-ci-evidence', exist_ok=True)
-          from dart_mcp import list_tools
+          os.environ.setdefault('DFIR_EVIDENCE_ROOT', '/tmp/dfir-ci-evidence')
+          os.makedirs('/tmp/dfir-ci-evidence', exist_ok=True)
+          from dfir_mcp import list_tools
           tools = list_tools()
           native = [t for t in tools if not t['name'].startswith('sift_')]
           sift = [t for t in tools if t['name'].startswith('sift_')]

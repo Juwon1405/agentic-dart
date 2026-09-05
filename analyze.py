@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-analyze.py — the primary, user-facing Agentic-DART run command.
+analyze.py — the primary, user-facing Agentic-DFIR run command.
 
 Despite the name it does double duty: it **evaluates** the bundled/known case
 studies (whose findings can be scored against each case's truth.json) AND
@@ -48,7 +48,7 @@ CASE_ROOT = REPO / "examples" / "case-studies"
 TIERS = ("self-evaluation", "external-evaluation")
 
 # The single source of truth for the default model. Kept in sync with the
-# dart_agent default; override per run with --model or the DART_MODEL env var.
+# dfir_agent default; override per run with --model or the DFIR_MODEL env var.
 DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 
 # Map a case directory to the external dataset short-name used by the
@@ -128,7 +128,7 @@ def _resolve_evidence(case: Case, *, allow_download: bool) -> int:
             return 0
         print(f"Error: --evidence {case.evidence_root} does not exist or is "
               f"empty.\nProduce it with the collector adapter first, e.g.:\n"
-              f"    python3 -m dart_collector_adapter --source zip "
+              f"    python3 -m dfir_collector_adapter --source zip "
               f"--input evidence.zip --output {case.evidence_root} "
               f"--case-id {case.case_id}", file=sys.stderr)
         return 3
@@ -171,7 +171,7 @@ def _run_download(case: Case) -> int:
           f"this can take a while). It does not analyze. After it completes, "
           f"adapt the image into an evidence_root, then re-run without "
           f"--download:")
-    print(f"    python3 -m dart_collector_adapter --source image "
+    print(f"    python3 -m dfir_collector_adapter --source image "
           f"--input <downloaded image> "
           f"--output {case.evidence_root} --case-id {case.case_id.upper()}")
     print(f"    python3 analyze.py --case {case.ref}")
@@ -288,8 +288,8 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool,
         return rc
 
     # Wire the agent to this case's own evidence_root (once per case).
-    os.environ["DART_EVIDENCE_ROOT"] = str(case.evidence_root)
-    for pkg in ("dart_audit", "dart_mcp", "dart_agent", "dart_corr"):
+    os.environ["DFIR_EVIDENCE_ROOT"] = str(case.evidence_root)
+    for pkg in ("dfir_audit", "dfir_mcp", "dfir_agent", "dfir_corr"):
         p = str(REPO / pkg / "src")
         if p not in sys.path:
             sys.path.insert(0, p)
@@ -305,7 +305,7 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool,
     print(f"[analyze] host={user}@{host} "
           f"os={platform.system()} {platform.release()} "
           f"py={platform.python_version()}")
-    from dart_agent.auth import resolve_auth_mode
+    from dfir_agent.auth import resolve_auth_mode
     _auth_mode = resolve_auth_mode(model)
     print(f"[analyze] case={case.ref} model={model} · {_auth_mode}")
     print(f"[analyze] evidence_root={case.evidence_root}")
@@ -318,7 +318,7 @@ def run_case(case: Case, *, model: str, max_iter: int, allow_download: bool,
         _rotate_out_dirs(out_dir.parent, keep=10)
         out_dir.mkdir(parents=True, exist_ok=True)
         print(f"[analyze] out={out_dir}")
-        from dart_agent import main as agent_main
+        from dfir_agent import main as agent_main
         rc_run = agent_main([
             "--case", case.ref,
             "--out", str(out_dir),
@@ -392,7 +392,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="analyze.py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="Agentic-DART evaluation runner (live mode only).",
+        description="Agentic-DFIR evaluation runner (live mode only).",
         epilog="examples:\n"
                "  python3 analyze.py\n"
                "  python3 analyze.py --case self-evaluation/case-01\n"
@@ -409,7 +409,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--case-id", default=None,
                    help="Label for --evidence runs (default: the evidence "
                         "directory's parent name).")
-    p.add_argument("--model", default=os.environ.get("DART_MODEL", DEFAULT_MODEL),
+    p.add_argument("--model", default=os.environ.get("DFIR_MODEL", DEFAULT_MODEL),
                    help=f"Anthropic model id (default: {DEFAULT_MODEL}).")
     p.add_argument("--download", action="store_true",
                    help="Fetch the external dataset first if its evidence_root "

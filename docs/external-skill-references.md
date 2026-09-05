@@ -1,10 +1,10 @@
 # External skills reference — Anthropic-Cybersecurity-Skills
 
-The community-maintained [Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills) library (754 skills, Apache-2.0) follows the [agentskills.io](https://agentskills.io) open standard. Agentic-DART's `dart_mcp` and `dart_playbook` were developed independently, but the two converge on similar primitives. This document tracks the candidates we will evaluate for future absorption (`Phase 2` and beyond) so contributors can see *what is already covered* vs *what could be ported*.
+The community-maintained [Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills) library (754 skills, Apache-2.0) follows the [agentskills.io](https://agentskills.io) open standard. Agentic-DFIR's `dfir_mcp` and `dfir_playbook` were developed independently, but the two converge on similar primitives. This document tracks the candidates we will evaluate for future absorption (`Phase 2` and beyond) so contributors can see *what is already covered* vs *what could be ported*.
 
 ## How to read this table
 
-- **Phase mapping** — which Agentic-DART playbook phase the skill maps to (`senior-analyst-v3.yaml`).
+- **Phase mapping** — which Agentic-DFIR playbook phase the skill maps to (`senior-analyst-v3.yaml`).
 - **Status** — `covered` (we already have a native equivalent), `candidate` (worth porting), `consider` (lower priority).
 - **Notes** — what specifically would need to land if absorbed.
 
@@ -79,7 +79,7 @@ The community-maintained [Anthropic-Cybersecurity-Skills](https://github.com/muk
 
 | Skill | Status | Notes |
 |---|:-:|---|
-| `building-threat-hunt-hypothesis-framework` | **covered** | Native to `dart_agent` (Hypothesis state machine). |
+| `building-threat-hunt-hypothesis-framework` | **covered** | Native to `dfir_agent` (Hypothesis state machine). |
 | `building-incident-response-playbook` | **covered** | `senior-analyst-v3.yaml` itself (the senior-analyst playbook). |
 
 ## P7 — attribution_and_diamond_model
@@ -102,14 +102,14 @@ The community-maintained [Anthropic-Cybersecurity-Skills](https://github.com/muk
 
 | Skill | Status | Notes |
 |---|:-:|---|
-| `implementing-velociraptor-for-ir-collection` | **covered** | [agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter) is the operational answer. |
+| `implementing-velociraptor-for-ir-collection` | **covered** | [agentic-dfir-collector-adapter](https://github.com/Juwon1405/agentic-dfir-collector-adapter) is the operational answer. |
 
 ---
 
 ## Summary
 
 - **Total candidates surveyed**: 51 (Phase 1 + Phase 2 scope).
-- **Already covered by Agentic-DART**: 26.
+- **Already covered by Agentic-DFIR**: 26.
 - **Phase 2 absorption candidates**: 18.
 - **Out-of-scope / consider later**: 7.
 

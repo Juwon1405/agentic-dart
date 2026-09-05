@@ -4,7 +4,7 @@ test_sift_adapters.py — Verify SIFT adapters are registered and behave correct
 These tests do NOT require the SIFT tools to actually be installed — they
 verify:
 
-  1. All adapters successfully register with dart_mcp's tool registry
+  1. All adapters successfully register with dfir_mcp's tool registry
   2. SiftToolNotFoundError fires cleanly when binaries are absent
   3. PathTraversalAttempt fires when a malicious path is supplied
   4. The schema for each adapter is well-formed JSON Schema
@@ -18,19 +18,19 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
-os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
+sys.path.insert(0, str(REPO / "dfir_mcp" / "src"))
+os.environ["DFIR_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
 
 # Force adapter package import (triggers @tool registration)
-from dart_mcp import call_tool, list_tools  # noqa: E402
-from dart_mcp import sift_adapters  # noqa: E402, F401
-from dart_mcp.sift_adapters._common import (  # noqa: E402
+from dfir_mcp import call_tool, list_tools  # noqa: E402
+from dfir_mcp import sift_adapters  # noqa: E402, F401
+from dfir_mcp.sift_adapters._common import (  # noqa: E402
     SiftToolFailedError,
     SiftToolNotFoundError,
     safe_evidence_input,
 )
-from dart_mcp.sift_adapters.plaso import _safe_derived_path  # noqa: E402
-from dart_mcp import PathTraversalAttempt  # noqa: E402
+from dfir_mcp.sift_adapters.plaso import _safe_derived_path  # noqa: E402
+from dfir_mcp import PathTraversalAttempt  # noqa: E402
 
 
 # Expected adapter tool names — must match @tool(name=...) decorators
@@ -79,7 +79,7 @@ def test_all_sift_adapters_registered():
 
 
 def test_sift_adapters_dont_clobber_native_tools():
-    """SIFT adapter names must not collide with native dart_mcp tool names."""
+    """SIFT adapter names must not collide with native dfir_mcp tool names."""
     registered = [t["name"] for t in list_tools()]
     # No duplicates allowed
     assert len(registered) == len(set(registered))
@@ -127,8 +127,8 @@ def test_null_byte_blocked_in_sift_adapters():
 
 def test_plaso_storage_uses_derived_root_not_evidence_root(tmp_path):
     """Persistent Plaso output must not be written into evidence."""
-    old = os.environ.get("DART_DERIVED_ROOT")
-    os.environ["DART_DERIVED_ROOT"] = str(tmp_path / "derived")
+    old = os.environ.get("DFIR_DERIVED_ROOT")
+    os.environ["DFIR_DERIVED_ROOT"] = str(tmp_path / "derived")
     try:
         out = _safe_derived_path("case-01/timeline.plaso")
         assert out == (tmp_path / "derived" / "case-01" / "timeline.plaso").resolve()
@@ -142,16 +142,16 @@ def test_plaso_storage_uses_derived_root_not_evidence_root(tmp_path):
                 pass
     finally:
         if old is None:
-            os.environ.pop("DART_DERIVED_ROOT", None)
+            os.environ.pop("DFIR_DERIVED_ROOT", None)
         else:
-            os.environ["DART_DERIVED_ROOT"] = old
+            os.environ["DFIR_DERIVED_ROOT"] = old
 
 
 def test_missing_tool_raises_clean_error():
     """When a SIFT binary is missing, error message is clear and includes install hint."""
     # Set env var to a non-existent binary path
-    original = os.environ.get("DART_VOLATILITY3_BIN")
-    os.environ["DART_VOLATILITY3_BIN"] = "/nonexistent/vol-binary-XYZ"
+    original = os.environ.get("DFIR_VOLATILITY3_BIN")
+    os.environ["DFIR_VOLATILITY3_BIN"] = "/nonexistent/vol-binary-XYZ"
     try:
         # Need a valid evidence path for this test, otherwise PathTraversalAttempt
         # fires first. Use the test fixtures evidence dir.
@@ -163,16 +163,16 @@ def test_missing_tool_raises_clean_error():
             # If we get here, either the tool ran (unlikely in test env)
             # or PathTraversalAttempt fired before the binary check
         except SiftToolNotFoundError as e:
-            assert "DART_VOLATILITY3_BIN" in str(e) or "executable" in str(e)
+            assert "DFIR_VOLATILITY3_BIN" in str(e) or "executable" in str(e)
         except (PathTraversalAttempt, FileNotFoundError):
             # Sample evidence not present — that's OK, we're testing binary
             # resolution, and the path check fires first.
             pass
     finally:
         if original is None:
-            os.environ.pop("DART_VOLATILITY3_BIN", None)
+            os.environ.pop("DFIR_VOLATILITY3_BIN", None)
         else:
-            os.environ["DART_VOLATILITY3_BIN"] = original
+            os.environ["DFIR_VOLATILITY3_BIN"] = original
 
 
 def test_sift_adapter_count_matches_documentation():

@@ -8,4 +8,4 @@ repos:
         entry: python3 scripts/eval/validate_ground_truth.py
         language: system
         pass_filenames: false
-        files: '(examples/case-studies/.*ground-truth\.json|dart_mcp/.*\.py)$'
+        files: '(examples/case-studies/.*ground-truth\.json|dfir_mcp/.*\.py)$'

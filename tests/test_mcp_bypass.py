@@ -1,5 +1,5 @@
 """
-Adversarial bypass tests for dart-mcp.
+Adversarial bypass tests for dfir-mcp.
 
 These are NEGATIVE tests — they assert that architectural guardrails hold
 when the agent (or an adversary feeding the agent prompts) tries to:
@@ -8,9 +8,8 @@ when the agent (or an adversary feeding the agent prompts) tries to:
   2. Escape the evidence root via path traversal (../ and absolute paths)
   3. Smuggle null bytes into a path string
 
-Each scenario maps directly to a SANS FIND EVIL judging criterion:
-"Constraint Implementation — are guardrails architectural or prompt-based,
-and were they tested for bypass?"
+Each scenario maps directly to an architectural guarantee: the guardrails
+are architectural rather than prompt-based, and they are tested for bypass.
 """
 import os
 import sys
@@ -18,10 +17,10 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
-os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
+sys.path.insert(0, str(REPO / "dfir_mcp" / "src"))
+os.environ["DFIR_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
 
-from dart_mcp import call_tool, list_tools, PathTraversalAttempt
+from dfir_mcp import call_tool, list_tools, PathTraversalAttempt
 
 
 def test_unregistered_destructive_function_raises_ToolNotFound():
@@ -202,7 +201,7 @@ def test_handler_does_not_write_outside_root(tmp_path=None):
     """Sanity: none of the registered handlers should create files anywhere
     outside the evidence tree. This is a smoke test — the real guarantee
     is the MCP server API surface, but this catches regressions early."""
-    evidence_root = Path(os.environ["DART_EVIDENCE_ROOT"]).resolve()
+    evidence_root = Path(os.environ["DFIR_EVIDENCE_ROOT"]).resolve()
     before = {p for p in evidence_root.rglob("*") if p.is_file()}
 
     call_tool("get_amcache",

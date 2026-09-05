@@ -25,11 +25,11 @@ from types import SimpleNamespace
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dart_agent" / "src"))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dart_mcp" / "src"))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dart_audit" / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dfir_agent" / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dfir_mcp" / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dfir_audit" / "src"))
 
-from dart_agent.live import LiveRunState
+from dfir_agent.live import LiveRunState
 
 
 # ── 1. defaults ────────────────────────────────────────────────────────

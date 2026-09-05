@@ -1,6 +1,6 @@
-# Live Mode — Claude API + dart-mcp over stdio
+# Live Mode — Claude API + dfir-mcp over stdio
 
-Agentic-DART runs in two modes:
+Agentic-DFIR runs in two modes:
 
 | Mode | Claude? | Network? | Purpose |
 |---|---|---|---|
@@ -13,7 +13,7 @@ Agentic-DART runs in two modes:
 
 ```
 ┌────────────────────────┐                  ┌──────────────────────────┐
-│   dart_agent         │  MCP over stdio  │ dart_mcp.server_stdio  │
+│   dfir_agent         │  MCP over stdio  │ dfir_mcp.server_stdio  │
 │   (Anthropic API       │ ◄───────────────►│ (subprocess; typed       │
 │    tool-use loop)      │  JSON-RPC        │  forensic functions —    │
 │                        │                  │  native + SIFT adapters) │
@@ -26,7 +26,7 @@ Agentic-DART runs in two modes:
 
 The agent:
 
-1. Spawns `python -m dart_mcp.server_stdio` as a subprocess
+1. Spawns `python -m dfir_mcp.server_stdio` as a subprocess
 2. Completes the MCP initialize handshake
 3. Calls `list_tools()` — sees exactly the full registered forensic function set
 4. Hands that tool list (converted to Anthropic's tool-use schema) to Claude
@@ -44,10 +44,10 @@ The documented live-mode credential path is an Anthropic API key:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-export DART_EVIDENCE_ROOT=/path/to/evidence
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src:$PWD/dart_corr/src"
+export DFIR_EVIDENCE_ROOT=/path/to/evidence
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src:$PWD/dfir_agent/src:$PWD/dfir_corr/src"
 
-python3 -m dart_agent --mode live \
+python3 -m dfir_agent --mode live \
     --case my-case \
     --out /tmp/my-case-out \
     --prompt "Investigate evidence root for IP-KVM insider pattern. Report findings with audit IDs." \
@@ -55,7 +55,7 @@ python3 -m dart_agent --mode live \
     --max-iterations 10
 ```
 
-Override the model with `--model` or `DART_MODEL` when you need a different
+Override the model with `--model` or `DFIR_MODEL` when you need a different
 currently-supported Claude model.
 
 ### Without any credentials (CI, offline reproduction)
@@ -69,7 +69,7 @@ plausible tool-call sequence. Useful for:
 - Running the same plumbing Claude will use in a deterministic test
 
 ```bash
-python3 -m dart_agent --mode live --case test --out /tmp/out --dry-run
+python3 -m dfir_agent --mode live --case test --out /tmp/out --dry-run
 ```
 
 ## Outputs
@@ -105,7 +105,7 @@ update that changes the alignment, and the LLM can do anything.
 ### ✅ Design B: "give the LLM a typed, read-only function set"
 
 ```python
-# dart-mcp registers ONLY this interface
+# dfir-mcp registers ONLY this interface
 @tool(name="extract_mft_timeline", schema=...)
 def extract_mft_timeline(mft_path, start, end): ...
 ```
@@ -122,7 +122,7 @@ by any prompt.
 ## Tests you can run right now
 
 ```bash
-# End-to-end: agent subprocess spawns MCP subprocess, 73-tool handshake,
+# End-to-end: agent subprocess spawns MCP subprocess, full tool-list handshake,
 # real tool calls over stdio, guardrail-over-wire verification.
 python3 tests/test_live_mcp.py
 ```

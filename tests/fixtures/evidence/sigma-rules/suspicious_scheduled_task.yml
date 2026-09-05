@@ -1,9 +1,9 @@
 title: Scheduled Task Created Shortly After Unusual USB Insertion
-id: 4f3e21aa-1234-4c9d-9b2e-dart-002
+id: 4f3e21aa-1234-4c9d-9b2e-dfir-002
 description: Catches scheduled tasks authored by SYSTEM that reference user
   Download directories — a common remote-hands persistence pattern.
 status: experimental
-author: Agentic-DART
+author: Agentic-DFIR
 level: medium
 logsource:
   product: windows

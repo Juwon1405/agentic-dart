@@ -2,7 +2,7 @@
 
 ## Reporting vulnerabilities
 
-If you believe you've found a way to bypass Agentic-DART's architectural
+If you believe you've found a way to bypass Agentic-DFIR's architectural
 guardrails — particularly the read-only MCP surface or the SHA-256
 audit chain — please open a private advisory on GitHub rather than a
 public issue.
@@ -10,7 +10,7 @@ public issue.
 Specifically in scope:
 
 - Any function that escapes `_safe_resolve` and reads outside `EVIDENCE_ROOT`
-- Any tampering of `audit.jsonl` that is NOT caught by `dart-audit verify`
+- Any tampering of `audit.jsonl` that is NOT caught by `dfir-audit verify`
 - Any agent-reachable path to a destructive operation
 
 Out of scope:
@@ -21,6 +21,5 @@ Out of scope:
 
 ## Supported versions
 
-The `main` branch is the only supported version during the SANS FIND
-EVIL! submission window. Post-submission, semantic-version releases
-will be tagged.
+The `main` branch and the latest tagged release are supported. Older
+tags receive no fixes.

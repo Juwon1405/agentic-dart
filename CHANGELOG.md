@@ -1,8 +1,23 @@
 # Changelog
 
+## [2.0.0] — 2026-09-05 — Project renamed to Agentic-DFIR
+
+### Changed
+- **Project and repositories renamed** — Agentic-DFIR, `agentic-dfir` and
+  `agentic-dfir-collector-adapter`. GitHub redirects the previous addresses.
+- **Python packages, CLI aliases and environment variables** now use the
+  `dfir_` / `dfir-` / `DFIR_` prefix (previously `dart_` / `dart-` / `DART_`).
+- **Reference run** — `examples/out/ref-01` is the committed reference run
+  directory.
+- **Hero, thumbnail and wiki banner** regenerated from
+  `scripts/regenerate_hero.py`.
+- **Removed** the standalone project write-up and the slide deck from the
+  tree.
+- Every package version bumped to 2.0.0 — the rename changed import paths.
+
 ## [1.2.0] — 2026-06-15 — Detection pack v2 + model-aware authentication
 
-Final submission build for SANS FIND EVIL! 2026, on top of the v1.1.0 stable
+Release build on top of the v1.1.0 stable
 baseline.
 
 ### Added
@@ -12,12 +27,12 @@ baseline.
   file creation (inetpub / wwwroot / htdocs), and local account creation
   (4720). Each verified against synthetic events and confirmed silent on
   benign activity.
-- **Model-aware authentication** (`dart_agent.auth`) — Haiku resolves to an
+- **Model-aware authentication** (`dfir_agent.auth`) — Haiku resolves to an
   OAuth subscription token, Sonnet/Opus to a metered API key; the chosen
-  source prints next to the model on every run. New `dart-auth` command
+  source prints next to the model on every run. New `dfir-auth` command
   reports both credentials at a glance.
-- **Persistent install aliases** — `install.sh` writes idempotent `dart-pull`
-  (repo + collector-adapter) and `dart-auth` shell aliases.
+- **Persistent install aliases** — `install.sh` writes idempotent `dfir-pull`
+  (repo + collector-adapter) and `dfir-auth` shell aliases.
 
 ### Changed
 - **Unified per-case ledger** — self and external results record into one
@@ -49,11 +64,11 @@ baseline.
 - `partial` detectability flags are now scorable.
 - Removed Sigma rules from case evidence (they leaked answers).
 
-## [1.0.2] — 2026-06-11 — Stable release (SANS FIND EVIL! 2026 submission)
+## [1.0.2] — 2026-06-11 — Stable release
 
-The stable submission build. v1.0.0 shipped with bugs and rough edges and was
+The stable build. v1.0.0 shipped with bugs and rough edges and was
 not efficient; v1.0.1 reworked the platform, and v1.0.2 finalises it as the
-**stable, efficient** release for the contest.
+**stable, efficient** release.
 
 ### Summary of what changed since v1.0.0
 - **One-command UX** — `analyze.py` (live mode) replaces the old multi-flag
@@ -107,8 +122,8 @@ not efficient; v1.0.1 reworked the platform, and v1.0.2 finalises it as the
 ### Fixed
 - Enforced advertised MCP JSON Schema constraints in `call_tool()` before
   dispatch so malformed arguments cannot bypass the documented surface.
-- Moved Plaso `log2timeline` storage outputs out of `DART_EVIDENCE_ROOT` and
-  into `DART_DERIVED_ROOT` (or a temp-derived root), while allowing `psort` to
+- Moved Plaso `log2timeline` storage outputs out of `DFIR_EVIDENCE_ROOT` and
+  into `DFIR_DERIVED_ROOT` (or a temp-derived root), while allowing `psort` to
   read storage from either evidence or derived roots.
 - Fixed live MCP subprocess tests so they preserve the caller's `PYTHONPATH`.
 - Corrected Layer-1 benchmark summarization so it records only the measured
@@ -119,15 +134,15 @@ not efficient; v1.0.1 reworked the platform, and v1.0.2 finalises it as the
 ### Changed
 - Public docs now document live mode through `ANTHROPIC_API_KEY` and `--dry-run`;
   local credential fallback support remains in code but is not presented as a
-  contest-facing setup path.
-- Install guidance now installs `dart_audit`, `dart_mcp[stdio]`, `dart_corr`,
-  and `dart_agent[live]` together.
+  public setup path.
+- Install guidance now installs `dfir_audit`, `dfir_mcp[stdio]`, `dfir_corr`,
+  and `dfir_agent[live]` together.
 - Test surface expanded with adapter image-source, downloader, and eval-layout
-  E2E suites (run `pytest tests/ dart_corr/tests/` for the authoritative count).
+  E2E suites (run `pytest tests/ dfir_corr/tests/` for the authoritative count).
 
-## [1.0.0] — 2026-06-05 — First stable release (SANS FIND EVIL! 2026)
+## [1.0.0] — 2026-06-05 — First stable release
 
-First stable, competition-submission release. Consolidates every dated entry
+First stable release. Consolidates every dated entry
 below into a single versioned baseline.
 
 ### Added
@@ -135,10 +150,10 @@ below into a single versioned baseline.
   pinned counts; they point at a Verify block, so they cannot go stale).
 
 ### Changed
-- `dart_agent` live-mode Anthropic client now retries transient API errors
+- `dfir_agent` live-mode Anthropic client now retries transient API errors
   (429 / 5xx): `max_retries` 0 -> 4. Deterministic mode, CI, and the test
   suite are mock-backed and unaffected.
-- `dart_agent` declares `requests` in `optional-dependencies[live]` for the
+- `dfir_agent` declares `requests` in `optional-dependencies[live]` for the
   local credential refresh path.
 - `README` test listing completed to all 15 test files; per-test count
   comments dropped in favor of the `pytest` command as the single source of
@@ -149,13 +164,13 @@ below into a single versioned baseline.
 
 ### Fixed
 - `README` examples tree now matches the git-tracked entries exactly.
-- Removed a dead `dart_playbook/src` entry from the `PYTHONPATH` in CI config
-  and `tests/README` (`dart_playbook` is YAML data, never imported).
+- Removed a dead `dfir_playbook/src` entry from the `PYTHONPATH` in CI config
+  and `tests/README` (`dfir_playbook` is YAML data, never imported).
 - Corrected a stale tool-count glyph (35 -> 47) in a run screenshot.
 
 ### Surface at release (measured at release time; reproduce via the README Verify block)
 - 72 MCP tools = 47 native pure-Python functions + 25 SIFT-tool adapters
-- 116 tests (102 `tests/` + 14 `dart_corr/tests/`), green on a clean clone
+- 116 tests (102 `tests/` + 14 `dfir_corr/tests/`), green on a clean clone
 - 11 case studies, 99 ground-truth findings (108 ATT&CK references / 69 unique)
 - recall 1.0 / FPR 0.0 / hallucination 0 on both reference and realistic variants
 
@@ -227,9 +242,9 @@ across iterations).
   `tests/test_live_usage_tracking.py`, so any future change that
   drops the accumulator or breaks the schema fails CI.
 
-- **README / DEVPOST / Pages.** Bumped the advertised test count
+- **README / project write-up / Pages.** Bumped the advertised test count
   from 111 → 116 to reflect the new tests. Split is now
-  `102 dart_mcp/agent/audit + 14 dart_corr`.
+  `102 dfir_mcp/agent/audit + 14 dfir_corr`.
 
 ### Not changed
 
@@ -284,21 +299,21 @@ landing):
   `output_format`; forced tool use is the equivalent). Eliminates the
   JSON-decode hallucination risk on the final report.
 
-Structural / post-deadline:
+Structural / deferred:
 - **YAML-driven deterministic phases.** Drive `DeterministicAnalyst`
   from `senior-analyst-v3.yaml` instead of hardcoded `_phase_*`
   methods. Deferred because the deterministic mode underpins the
   reproducibility guarantee for the bundled case studies; changing it
-  near the submission is more risk than payoff.
+  is more risk than payoff at this stage.
 - **Local read-only dashboard.** A browser view of `progress.jsonl` +
   `audit.jsonl` (hypothesis / audit trail / unresolved contradictions)
-  for demos. Deferred to a proper UI/UX pass after the submission;
+  for demos. Deferred to a proper UI/UX pass;
   will not pull in a web framework that conflicts with the
   minimal-dependency design.
 
 ## [v0.7.1 patch] — 2026-05-17 — external code-review correctness pass
 
-A pre-deadline external code-review pass surfaced eight correctness
+An external code-review pass surfaced eight correctness
 issues affecting analysis integrity and a few drift / robustness
 items. All were fixed in a single commit (`8e1bc43`) with a follow-up
 adding four regression tests (`ede3516`) and a third commit reflecting
@@ -357,7 +372,7 @@ more robustness item now patched in this release.
 
 ### Fixed — robustness
 
-- **`dart_audit._load_tail_hash`: 4 KB tail seek truncated large
+- **`dfir_audit._load_tail_hash`: 4 KB tail seek truncated large
   entries.** A fixed 4 KB seek at the file end would cut a single
   entry > 4 KB in half (common when `inputs` carries a large dict),
   causing `json.loads` to raise on resume. New backward-growing-
@@ -382,16 +397,16 @@ more robustness item now patched in this release.
   Changed `assert len(native) >= 35` to `== 47`. A floor-based check
   let the surface drift silently — exact equality now catches both
   regressions and unannounced additions.
-- **Corrected `dart_mcp/pyproject.toml` description string.** Was
+- **Corrected `dfir_mcp/pyproject.toml` description string.** Was
   `'60 tools: 35 native + 25 SIFT'` (v0.5 numbers); now
-  `'72 tools: 47 native + 25 SIFT'` and notes the dart-corr pairing.
-- **Pinned `duckdb>=1.0.0,<2.0`** in both `dart_mcp` and `dart_corr`
+  `'72 tools: 47 native + 25 SIFT'` and notes the dfir-corr pairing.
+- **Pinned `duckdb>=1.0.0,<2.0`** in both `dfir_mcp` and `dfir_corr`
   pyproject. DuckDB API evolves quickly and a 2.0 break would
   silently brick the correlation engine.
 - **Documented the `sys.path` sibling-import trick** in
-  `dart_mcp/__init__.py`. Supported install path is `scripts/install.sh`
-  (installs both `dart_mcp` and `dart_corr` editable); wheel-only
-  installs without `dart_corr` raise `ImportError` on `correlate_*`.
+  `dfir_mcp/__init__.py`. Supported install path is `scripts/install.sh`
+  (installs both `dfir_mcp` and `dfir_corr` editable); wheel-only
+  installs without `dfir_corr` raise `ImportError` on `correlate_*`.
 
 ### Added — regression tests (4 new)
 
@@ -409,12 +424,12 @@ more robustness item now patched in this release.
   ~10 KB entry, opens a fresh logger, writes a second, asserts
   `AuditLogger.verify()` walks the chain end-to-end.
 
-Test count: 93 → 97 (79 dart_mcp/agent/audit + 14 dart_corr +
+Test count: 93 → 97 (79 dfir_mcp/agent/audit + 14 dfir_corr +
 4 new regression).
 
-### Deferred — post-2026-06-15
+### Deferred
 
-Structural items intentionally not touched in the freeze window
+Structural items intentionally not touched in this pass
 (no analysis-correctness impact today):
 
 - `EVIDENCE_ROOT` import-time capture in `sift_adapters/_common.py`
@@ -427,8 +442,8 @@ Structural items intentionally not touched in the freeze window
   path (performance, not correctness).
 - Stream-based file reads in `parse_linux_text_log` etc. (memory,
   not correctness).
-- `correlate_timeline` double-normalization in the dart_mcp wrapper
-  (needs a `dart_corr` extension point).
+- `correlate_timeline` double-normalization in the dfir_mcp wrapper
+  (needs a `dfir_corr` extension point).
 - JSON-or-NDJSON parsing helper extraction (8+ duplicated blocks).
 - LSASS severity tier split (VM_READ alone at `critical` is
   defensible because the `lsass.exe` target filter applies first,
@@ -487,7 +502,7 @@ After this reconciliation, **of 36 expected functions referenced across all
 - HISTTIMEFORMAT epoch parsing
 - per-hit required keys contract
 - missing-file error contract for both functions
-- path traversal rejection (DART_EVIDENCE_ROOT containment)
+- path traversal rejection (DFIR_EVIDENCE_ROOT containment)
 
 Total test suite: **75 green** (up from 68).
 
@@ -510,15 +525,15 @@ Total test suite: **75 green** (up from 68).
 
 ### Sub-package version sync
 
-- `dart_audit/pyproject.toml` 0.7.0 → 0.7.1
-- `dart_agent/pyproject.toml` 0.7.0 → 0.7.1
-- `dart_mcp/pyproject.toml` 0.7.0 → 0.7.1
+- `dfir_audit/pyproject.toml` 0.7.0 → 0.7.1
+- `dfir_agent/pyproject.toml` 0.7.0 → 0.7.1
+- `dfir_mcp/pyproject.toml` 0.7.0 → 0.7.1
 
 ---
 
 ## [v0.7.0] — 2026-05-16 — case-11 supply-chain/ADCS + evidence schema fidelity
 
-Two major additions, both targeted at SANS FIND EVIL! 2026 submission:
+Two major additions:
 a new case-11 covering the supply-chain-to-domain-admin attack class
 that defeated SolarWinds-era SOCs, and a wholesale enrichment of every
 bundled evidence file to native forensic-tool dump fidelity.
@@ -642,7 +657,7 @@ USB noise records around the IP-KVM (VID 0557 PID 2419 ATEN) signal.
 Three new native functions plus the Single-Source-of-Truth cleanup of
 hardcoded counts that had been drifting across README, docs, wiki, and CI.
 
-### Added — three new native MCP functions (`dart_mcp/_v06_macos_linux.py`)
+### Added — three new native MCP functions (`dfir_mcp/_v06_macos_linux.py`)
 
 | Function | Purpose |
 |---|---|
@@ -667,9 +682,9 @@ hardcoded assertions and stale counts drifted.
 
 Numbers now live in exactly five places:
 
-- README L92 + L259 (Hero slogan, judge first-impression impact)
-- `docs/DEVPOST_SUBMISSION.md` (judge-facing)
-- `docs/DEMO_STORYBOARD.md` (video script quoting real screen output)
+- README L92 + L259 (Hero slogan)
+- the project write-up (reviewer-facing)
+- `docs/DEMO_STORYBOARD.md` (demo script quoting real screen output)
 - `tests/test_mcp_surface.py` (canonical name set — code-level invariant)
 - `CHANGELOG.md` historical entries (period-specific facts)
 
@@ -692,7 +707,7 @@ the single source updated when adding or removing a tool.
 
 ### Changed — collector-adapter companion license alignment
 
-[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)
+[agentic-dfir-collector-adapter](https://github.com/Juwon1405/agentic-dfir-collector-adapter)
 flipped from Apache-2.0 to MIT to match this repo's license. MIT is more
 permissive and allows free reuse / repackaging in downstream environments
 without the NOTICE-file or modified-file marking obligations that Apache
@@ -729,13 +744,13 @@ Twelve new unit tests ship with this module; all pass on a clean clone via `pyte
 
 ### Added — Velociraptor collector adapter (separate companion repo)
 
-[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)
+[agentic-dfir-collector-adapter](https://github.com/Juwon1405/agentic-dfir-collector-adapter)
 is a standalone MIT-licensed Python package that turns a Velociraptor
 offline-collector ZIP into the `evidence_root` layout expected by
-Agentic-DART. Stdlib-only, 27 tests, CI on Linux/macOS × Python 3.10/3.11/3.12.
+Agentic-DFIR. Stdlib-only, 27 tests, CI on Linux/macOS × Python 3.10/3.11/3.12.
 
 This decouples *collection* (Velociraptor, upstream releases) from
-*normalization* (this adapter) from *analysis* (Agentic-DART). Responders
+*normalization* (this adapter) from *analysis* (Agentic-DFIR). Responders
 fetch Velociraptor agent binaries via `install.sh` and ship the matching
 binary to each incident host without leaving the analysis server.
 
@@ -756,7 +771,7 @@ noise-injected — is still synthetic. Where's the third-party benchmark?"
 
 - **`parse_registry_hive`** — generic SOFTWARE/SYSTEM/SAM/NTUSER.DAT hive
   value extraction primitive. Read-only, path-canonicalized, audit-chained
-  like every other dart-mcp function. Closes CFReDS gap G-001 ([issue #52](https://github.com/Juwon1405/agentic-dart/issues/52)).
+  like every other dfir-mcp function. Closes CFReDS gap G-001 ([issue #52](https://github.com/Juwon1405/agentic-dfir/issues/52)).
   Extends the typed MCP surface with `parse_registry_hive`, built on `python-registry`
   (already in deps).
 - **`examples/case-studies/case-08-cfreds-hacking-case/`** — first case
@@ -767,7 +782,7 @@ noise-injected — is still synthetic. Where's the third-party benchmark?"
     fetched from `cfreds-archive.nist.gov` — the 4 GB raw image is NOT
     bundled (community-fetchable).
   - `ground-truth.json` — 10 sampled NIST findings with detection status
-    per dart-mcp version.
+    per dfir-mcp version.
   - `README.md` with honest accuracy disclosure: CFReDS recall jumped from
     `v0.5.3 0.10/0.40` (strict/lenient) to `v0.5.4 0.50/0.80` thanks to
     `parse_registry_hive`.
@@ -777,11 +792,11 @@ noise-injected — is still synthetic. Where's the third-party benchmark?"
 - **`tests/test_parse_registry_hive.py`** — 12 new unit tests against an
   8 KB Windows hive fixture from williballenthin/python-registry's test
   corpus. Total test count: 31 → 43.
-- **Phase 2 issue tracker** — issues [#52](https://github.com/Juwon1405/agentic-dart/issues/52)
-  ([G-001 closed](https://github.com/Juwon1405/agentic-dart/issues/52),
-  this release), [#53](https://github.com/Juwon1405/agentic-dart/issues/53)
-  (G-002 IE6 index.dat), [#54](https://github.com/Juwon1405/agentic-dart/issues/54)
-  (G-003 Recycle Bin), [#55](https://github.com/Juwon1405/agentic-dart/issues/55)
+- **Phase 2 issue tracker** — issues [#52](https://github.com/Juwon1405/agentic-dfir/issues/52)
+  ([G-001 closed](https://github.com/Juwon1405/agentic-dfir/issues/52),
+  this release), [#53](https://github.com/Juwon1405/agentic-dfir/issues/53)
+  (G-002 IE6 index.dat), [#54](https://github.com/Juwon1405/agentic-dfir/issues/54)
+  (G-003 Recycle Bin), [#55](https://github.com/Juwon1405/agentic-dfir/issues/55)
   (G-004 YARA bundling). All four were opened from the CFReDS gap analysis
   — converting "we should add registry parsing someday" into "registry
   parsing unblocks 4 of 10 measured findings, ship next."
@@ -808,7 +823,7 @@ noise-injected — is still synthetic. Where's the third-party benchmark?"
 
 ### Closed
 
-- [#52](https://github.com/Juwon1405/agentic-dart/issues/52) — CFReDS gap
+- [#52](https://github.com/Juwon1405/agentic-dfir/issues/52) — CFReDS gap
   G-001 (Generic SOFTWARE/SYSTEM/SAM hive value extraction)
 
 ---
@@ -867,7 +882,7 @@ structured errors instead of crashes or silent SQL execution.
 
 ### Fixed
 
-- **`dart_audit`** — `AuditLogger.log()` and `AuditLogger.verify()` were
+- **`dfir_audit`** — `AuditLogger.log()` and `AuditLogger.verify()` were
   inconsistent about `default=str` in `json.dumps()`. The output digest
   used it; the entry serialization and the verify-time canonical recompute
   did not. A single non-JSON-native value in `inputs` (e.g. `pathlib.Path`,
@@ -876,7 +891,7 @@ structured errors instead of crashes or silent SQL execution.
   serialization sites now share `default=str`. Regression test:
   `tests/test_audit_chain.py::test_chain_handles_non_json_native_inputs`.
 
-- **`dart_agent`** — `DeterministicAnalyst._report()` accessed
+- **`dfir_agent`** — `DeterministicAnalyst._report()` accessed
   `self._primary` / `self._alt` directly. With `--max-iterations` set
   small enough that `_phase_hypothesis()` never ran, those attributes
   were unset and the report path crashed with `AttributeError` — even
@@ -884,7 +899,7 @@ structured errors instead of crashes or silent SQL execution.
   defensively. Mirrored that pattern in `_report()` so the early-exit
   path is also crash-safe and emits a partial report.
 
-- **`dart_mcp.correlate_timeline`** — the `rules` parameter is
+- **`dfir_mcp.correlate_timeline`** — the `rules` parameter is
   interpolated into a DuckDB JOIN ON clause. The previous filter only
   blocked `;` and `--`. That left `/* */` comments, `UNION SELECT`,
   `ATTACH`, `PRAGMA`, and DuckDB metafunctions like `read_csv_auto()`,
@@ -898,7 +913,7 @@ structured errors instead of crashes or silent SQL execution.
   test: `tests/test_mcp_bypass.py::test_correlate_timeline_rejects_sql_injection_attempts`
   validates 8 representative payloads.
 
-- **`dart_mcp.analyze_web_access_log`** and **`dart_mcp._v04_expansion.parse_bash_history`**
+- **`dfir_mcp.analyze_web_access_log`** and **`dfir_mcp._v04_expansion.parse_bash_history`**
   — both functions had a parameter named `format` which shadowed Python's
   builtin `format()`. The schemas exposed it as `"format"` too. Renamed
   to `log_format` everywhere (function signature, JSON schema, body refs,
@@ -936,7 +951,7 @@ verify the fixes do what the diff says they do.
 
 ### Changed (visual identity now metric-free)
 
-- **`agentic-dart-hero.png` regenerated.** Removed embedded numeric stats
+- **`agentic-dfir-hero.png` regenerated.** Removed embedded numeric stats
   (35 / 11-12 / 20-20 / 0) which had silently gone stale after the v0.5
   SIFT adapter expansion. Replaced with permanent design-principle
   words at the same visual rhythm:
@@ -948,7 +963,7 @@ verify the fixes do what the diff says they do.
       tests passing                  VERIFIABLE     SHA-256 audit chain
       0     destructive ops          ZERO           destructive ops on the wire
 
-  Original archived to `docs/legacy/agentic-dart-hero-v0.4.png` for history.
+  The original v0.4 design was later retired; the hero is now rendered from scratch by `scripts/regenerate_hero.py`.
 
 - **README badges** rewritten to evergreen semantics:
 
@@ -982,7 +997,7 @@ older counts. This pass synchronizes every surface to v0.5 reality:
   functions` → `MCP surface — 60 functions (35 native + 25 SIFT
   Workstation adapters)`.
 
-- **docs/case-pth-timestomp.md** — both references to `dart-mcp, 35
+- **docs/case-pth-timestomp.md** — both references to `dfir-mcp, 35
   typed functions` and `enumerated to **35 typed forensic
   functions**` updated to include the SIFT adapter layer.
 
@@ -991,7 +1006,7 @@ older counts. This pass synchronizes every surface to v0.5 reality:
   Case-PtH-Timestomp, FAQ, Glossary, Home, Live-mode,
   MCP-function-catalog (page title), Operator-guide, Phase-1
   (added v0.5 timeline entry), Roadmap, Running-on-macOS,
-  The-Memex-Bet, _Sidebar, dart-mcp.
+  The-Memex-Bet, _Sidebar, dfir-mcp.
 
 ### Operating principle going forward
 
@@ -1007,7 +1022,7 @@ older counts. This pass synchronizes every surface to v0.5 reality:
 ### Verified
 
 - All 22 test files pass on fresh clone
-- `python3 -c 'from dart_mcp import list_tools; print(len(list_tools()))'`
+- `python3 -c 'from dfir_mcp import list_tools; print(len(list_tools()))'`
   returns 60
 - `bash examples/sift-adapter-demo.sh` exits 0
 - `bash scripts/install.sh` (dry-run mode) reports 60 / 35 / 25
@@ -1017,14 +1032,13 @@ older counts. This pass synchronizes every surface to v0.5 reality:
 
 ## [v0.5.0] — 2026-05-02 — SIFT Workstation tool adapter layer
 
-### Added (Custom MCP Server pattern alignment for SANS FIND EVIL! 2026)
+### Added (SIFT Workstation adapter layer)
 
-This release brings agentic-dart into explicit alignment with the
-hackathon's **Pattern 2 — Custom MCP Server** architectural pattern by
+This release builds on the custom MCP server design by
 adding 25 typed read-only adapters around the canonical SIFT Workstation
 DFIR toolchain.
 
-- **`dart_mcp/sift_adapters/`** — new subpackage containing wrappers around:
+- **`dfir_mcp/sift_adapters/`** — new subpackage containing wrappers around:
   - **Volatility 3 v2.27** (12 plugins) — windows.{pslist, pstree, psscan,
     cmdline, netscan, malfind, dlllist, svcscan, registry.printkey} +
     linux.{pslist, bash} + mac.bash
@@ -1034,12 +1048,12 @@ DFIR toolchain.
   - **YARA (2 wrappers)** — single-file + recursive directory scan
   - **Plaso (2 wrappers)** — log2timeline + psort
 
-- **`dart_mcp/sift_adapters/_common.py`** — shared safety primitives:
+- **`dfir_mcp/sift_adapters/_common.py`** — shared safety primitives:
   - `safe_evidence_input()` re-uses parent package's `_safe_resolve` for
     path-traversal blocking
   - `run_tool()` enforces subprocess timeout + captures stderr tail +
     SHA-256 hashes every output file
-  - `_which()` resolves binaries via env-var override (`DART_VOLATILITY3_BIN`
+  - `_which()` resolves binaries via env-var override (`DFIR_VOLATILITY3_BIN`
     etc.) → PATH lookup → `SiftToolNotFoundError`
   - All errors are typed (`SiftToolFailedError`, `SiftToolNotFoundError`)
     so the agent loop can fall back to native pure-Python implementations
@@ -1060,10 +1074,10 @@ DFIR toolchain.
   let an LLM jailbreak escape the read-only contract.
 - **EVIDENCE_ROOT sandbox shared.** SIFT adapters use the same
   `_safe_resolve()` as native tools. The agent cannot reach `/etc`,
-  `~/`, or anywhere outside `DART_EVIDENCE_ROOT` regardless of layer.
+  `~/`, or anywhere outside `DFIR_EVIDENCE_ROOT` regardless of layer.
 - **Audit chain compatible.** Every adapter returns SHA-256 of its
   input file in `metadata.{tool}_sha256` and SHA-256 of every output
-  artifact in `metadata.csv_sha256` / `output_files`. dart_audit can
+  artifact in `metadata.csv_sha256` / `output_files`. dfir_audit can
   chain these into the case ledger without modification.
 - **Graceful degradation.** Adapters fail loudly with
   `SiftToolNotFoundError` listing the env-var override when binaries
@@ -1074,9 +1088,8 @@ DFIR toolchain.
 ### Updated
 
 - **README.md** — hero badge now shows `35 native + 25 SIFT` MCP tools.
-  New `## SIFT Workstation alignment (Custom MCP Server pattern)`
-  section explains positioning relative to the hackathon's four
-  supported architectural patterns. Hero numbers updated from
+  New SIFT Workstation alignment section explains how the adapter
+  layer fits the custom MCP server design. Hero numbers updated from
   `35/20/20/0` to `60/22/22/0`.
 - **`tests/test_mcp_surface.py`** — exact-set assertion expanded to
   include 25 new SIFT tool names.
@@ -1088,7 +1101,7 @@ DFIR toolchain.
 ### Verified
 
 - All 22 test files pass (20 native + 2 new SIFT-adapter tests).
-- `python3 -c "from dart_mcp import list_tools; print(len(list_tools()))"`
+- `python3 -c "from dfir_mcp import list_tools; print(len(list_tools()))"`
   returns 60.
 - No new destructive primitives. NEGATIVE surface (`execute_shell`,
   `write_file`, `mount`, etc.) remains unbreached.
@@ -1116,7 +1129,7 @@ DFIR toolchain.
 - `vendor_research`:
   - **Zach Mathis** (Yamato Security founder, Tokyo) added with
     explicit external-community attribution: "external community
-    reference (not a contributor to this project)" and "Agentic-DART
+    reference (not a contributor to this project)" and "Agentic-DFIR
     is independently developed and has no affiliation with Yamato
     Security." Recognized as a voice in Tokyo / Japanese DFIR
     community on Windows event log analysis at scale.
@@ -1124,7 +1137,7 @@ DFIR toolchain.
 ### Why these citations matter
 
 Tokyo-based DFIR community awareness is a credibility signal for
-SANS judges familiar with the Japanese security ecosystem. Yamato
+readers familiar with the Japanese security ecosystem. Yamato
 Security ships some of the most production-grade open-source EVTX
 tooling available. Crediting them as inspiration (without conflating
 ownership) is the correct way to acknowledge prior art.
@@ -1136,7 +1149,7 @@ ownership) is the correct way to acknowledge prior art.
 - We do NOT claim Yamato Security membership or partnership
 - We do NOT use the Yamato logo, branding, or naming patterns
 
-The architectural-first guarantees of Agentic-DART are independent of
+The architectural-first guarantees of Agentic-DFIR are independent of
 any third-party detection tool we cite as inspiration.
 
 ### Verified
@@ -1154,18 +1167,18 @@ any third-party detection tool we cite as inspiration.
 > **Honest framing.** v3 adds **data scaffolds** for four mature-SOC frameworks
 > on top of v2's runtime methodology. The frameworks are **encoded as
 > structured YAML** (so they're inspectable, forkable, and citable), but
-> their **runtime activation** in `dart_agent` / `dart_corr` is a
-> post-SANS work item tracked in issue #44. v2's 10-phase sequence,
+> their **runtime activation** in `dfir_agent` / `dfir_corr` is a
+> deferred work item tracked in issue #44. v2's 10-phase sequence,
 > next_call_decisions, contradiction_triggers, and stop_conditions
 > remain the runtime path in v3. Anyone reading the v3 yaml will find
 > `ads_template`, `magma_ucf`, `hunt_cycle`, and `hunting_maturity_model`
-> as data; anyone reading `dart_agent/__init__.py` will find that those
+> as data; anyone reading `dfir_agent/__init__.py` will find that those
 > keys are not yet referenced from the iteration controller. This was
 > deliberate — see "Why deferred" below.
 
 ### Added
 
-- **`dart_playbook/senior-analyst-v3.yaml`** (the default playbook) —
+- **`dfir_playbook/senior-analyst-v3.yaml`** (the default playbook) —
   industrialization release. Builds on v2's 10-phase Mandiant + Bianco
   + Diamond methodology by adding four framework blocks that mature
   SOCs use to ship detection at scale:
@@ -1175,7 +1188,7 @@ any third-party detection tool we cite as inspiration.
      documentation contract (goal, categorization, strategy abstract,
      technical context, blind spots, false positives, validation,
      priority, response). Lint mode field present (`permissive` →
-     `warn` → `strict`); the lint pass itself is post-SANS work.
+     `warn` → `strict`); the lint pass itself is deferred.
 
   2. **MaGMa Use Case Framework** (FI-ISAC NL, Rob van Os) — encoded
      as `magma_ucf` data structure. Three-tier traceability:
@@ -1185,27 +1198,27 @@ any third-party detection tool we cite as inspiration.
        L2 attack patterns (8 entries, MITRE-mapped): AP-001 .. AP-008
        L3 detection coverage: MCP function mapping per L2.
      CMMI 5-level maturity scale documented; the v3 yaml self-declares
-     L3 Defined as the current state. Runtime CMMI scoring is post-SANS.
+     L3 Defined as the current state. Runtime CMMI scoring is deferred.
 
   3. **TaHiTI threat hunt cycle** (Rob van Os et al.) — encoded as
      `hunt_cycle` data structure with H1 Initiate → H2 Hunt →
      H3 Finalize phases and a designed trigger condition
      (`confidence < 0.6 AND iter >= 8`). Runtime entry into hunt mode
-     from the agent loop is post-SANS work (issue #44).
+     from the agent loop is deferred (issue #44).
 
   4. **Bianco Hunting Maturity Model (HMM 0–4)** — encoded as
      `hunting_maturity_model` data structure. Levels 0–4 documented
      with what each implies. v3 yaml self-declares HMM3 Innovative
      (analyst-formed hypotheses) as the target. Per-run self-classification
-     by the agent is post-SANS work.
+     by the agent is deferred.
 
 ### Why deferred
 
 Activating these frameworks at runtime would shift the baseline measured
 by `scripts/eval/demo.py` (more findings → either spurious
 "improvement" or new false positives that read as regressions). The
-hackathon submission ships with a stable, reproducible baseline.
-Post-SANS, all four runtime activations land together with a single
+release ships with a stable, reproducible baseline.
+All four runtime activations land together with a single
 re-baseline. Tracked at issue #44.
 
 ### Reference corpus expansion
@@ -1232,14 +1245,14 @@ re-baseline. Tracked at issue #44.
 
 ### Wiki
 
-- `dart-playbook` page updated to feature v3 as default.
+- `dfir-playbook` page updated to feature v3 as default.
 - Roadmap updated with Playbook v3 entry in Done section.
 
 ## [Playbook v2] — 2026-04-30 — Senior-analyst methodology
 
 ### Added
 
-- **`dart_playbook/senior-analyst-v2.yaml`** (the methodology-baseline playbook) —
+- **`dfir_playbook/senior-analyst-v2.yaml`** (the methodology-baseline playbook) —
   comprehensive senior-analyst playbook synthesizing Mandiant M-Trends
   2026 + Targeted Attack Lifecycle, SANS PICERL, Lockheed Cyber Kill
   Chain, David Bianco's Pyramid of Pain + Hunting Maturity Model,
@@ -1276,13 +1289,13 @@ re-baseline. Tracked at issue #44.
 
 ### Changed
 
-- **`dart_playbook/README.md`** — comprehensive rewrite documenting
+- **`dfir_playbook/README.md`** — comprehensive rewrite documenting
   v2 methodology lineage, phase sequence, schema, and the six
   senior-analyst principles encoded in `operator_notes`.
 
 ### Wiki
 
-- `dart-playbook.md` page rewritten to reflect v2 as default, with
+- `dfir-playbook.md` page rewritten to reflect v2 as default, with
   full methodology citations and the case-class table.
   *(Later corrected in QA round 5/6 — v3 became default with the
   Playbook v3 release; v2 retained as methodology baseline. The wording
@@ -1293,7 +1306,7 @@ re-baseline. Tracked at issue #44.
 
 ### Added
 
-- **`dart_playbook/senior-analyst-v2.yaml`** — comprehensive playbook
+- **`dfir_playbook/senior-analyst-v2.yaml`** — comprehensive playbook
   synthesizing frontline DFIR methodology (the methodology-baseline playbook, 7
   contradiction triggers, 25 grounded references). Sources:
   Mandiant M-Trends 2026, Targeted Attack Lifecycle, SANS PICERL,
@@ -1315,12 +1328,12 @@ re-baseline. Tracked at issue #44.
 
 ### Changed
 
-- `dart_playbook/README.md` — documents both v1 and v2, links to
+- `dfir_playbook/README.md` — documents both v1 and v2, links to
   full methodology lineage.
 
 ### Notes
 
-- `dart-agent` deterministic mode still routes through hardcoded
+- `dfir-agent` deterministic mode still routes through hardcoded
   Python phases (Phase 1 design). Phase 2 will auto-map v2 YAML
   sequence into the agent loop. v2 today serves as the canonical
   *specification* of senior-analyst behavior.
@@ -1356,7 +1369,7 @@ re-baseline. Tracked at issue #44.
 
   Test count: 17 → **20**.
 
-All notable changes to Agentic-DART are recorded here.
+All notable changes to Agentic-DFIR are recorded here.
 
 ## [Unreleased] — 2026-04-30
 
@@ -1390,7 +1403,7 @@ functions for the most-asked-for Linux and macOS artifacts:
 
 ### Added — wiki MCP function catalog
 
-New wiki page [MCP-function-catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)
+New wiki page [MCP-function-catalog](https://github.com/Juwon1405/agentic-dfir/wiki/MCP-function-catalog)
 enumerates all 35 functions with: primary OS / artifact, MITRE
 mapping, and published reference (SANS course / paper / vendor doc /
 open-source tool) so reviewers can audit where the detection logic
@@ -1434,7 +1447,7 @@ Scaffolded but not on the live surface (Phase 2):
   parsers ship in Phase 2
 
 ### Added — Live mode infrastructure
-- `dart_mcp.server`: **JSON-RPC 2.0 MCP stdio server** — launchable from Claude Code via `claude mcp add agentic-dart python3 -m dart_mcp.server`. The server exposes exactly the 13 registered tools and refuses anything else (verified by two adversarial tests in `test_extended_mcp.py`).
+- `dfir_mcp.server`: **JSON-RPC 2.0 MCP stdio server** — launchable from Claude Code via `claude mcp add agentic-dfir python3 -m dfir_mcp.server`. The server exposes exactly the 13 registered tools and refuses anything else (verified by two adversarial tests in `test_extended_mcp.py`).
 
 ### Added — Evidence fixtures
 - `examples/sample-evidence/logs/security_sample.evtx.csv` (6 events: 4624 logon, 4688 process create, 4698 scheduled task, 4663 file access)
@@ -1457,7 +1470,7 @@ Scaffolded but not on the live surface (Phase 2):
 ### Added
 - Real implementations for `extract_mft_timeline`, `parse_prefetch`,
   `list_scheduled_tasks`, and `correlate_events`. No more scaffolds.
-- `dart-audit` CLI with `verify`, `lookup`, `trace`, `summary`
+- `dfir-audit` CLI with `verify`, `lookup`, `trace`, `summary`
   subcommands. Enables the "3 clicks from finding to raw evidence"
   claim to be executed, not just asserted.
 - `scripts/eval/demo.py` — deterministic accuracy measurement
@@ -1470,11 +1483,11 @@ Scaffolded but not on the live surface (Phase 2):
 - `--max-iterations` enforcement in the agent controller with
   forced-exit closeout report.
 - `examples/case-studies/case-01-ipkvm-insider/` walkthrough for
-  judges.
+  reviewers.
 - `.github/workflows/ci.yml` — CI across Python 3.10–3.12.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`.
 - Agent audit entries now carry `finding_ids`, which is what
-  `dart-audit trace <finding_id>` relies on.
+  `dfir-audit trace <finding_id>` relies on.
 
 ### Changed
 - `docs/accuracy-report.md` rewritten to show REAL measured numbers

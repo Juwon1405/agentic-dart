@@ -15,7 +15,7 @@
       "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/creds-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.001"
       ],
@@ -29,7 +29,7 @@
       "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/creds-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.001"
       ],
@@ -43,7 +43,7 @@
       "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/creds-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.002"
       ],
@@ -57,7 +57,7 @@
       "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/creds-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.003"
       ],
@@ -71,7 +71,7 @@
       "evidence_path": "disk/creds-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/creds-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.001",
         "T1218.011"
@@ -86,7 +86,7 @@
       "evidence_path": "disk/discovery-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/discovery-processes.csv",
-      "expected_dart_mcp_function": "detect_discovery",
+      "expected_dfir_mcp_function": "detect_discovery",
       "mitre_attack": [
         "T1087.002",
         "T1069.002",
@@ -106,7 +106,7 @@
       "evidence_path": "disk/discovery-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/discovery-processes.csv",
-      "expected_dart_mcp_function": "detect_discovery",
+      "expected_dfir_mcp_function": "detect_discovery",
       "mitre_attack": [
         "T1069.002",
         "T1018"
@@ -121,7 +121,7 @@
       "evidence_path": "disk/log-clearing-events.json",
       "artifact_type": "process_tree",
       "host_path": "disk/log-clearing-events.json",
-      "expected_dart_mcp_function": "detect_defense_evasion",
+      "expected_dfir_mcp_function": "detect_defense_evasion",
       "mitre_attack": [
         "T1490"
       ],
@@ -135,7 +135,7 @@
       "evidence_path": "disk/log-clearing-events.json",
       "artifact_type": "process_tree",
       "host_path": "disk/log-clearing-events.json",
-      "expected_dart_mcp_function": "detect_defense_evasion",
+      "expected_dfir_mcp_function": "detect_defense_evasion",
       "mitre_attack": [
         "T1490"
       ],
@@ -149,7 +149,7 @@
       "evidence_path": "disk/log-clearing-events.json",
       "artifact_type": "process_tree",
       "host_path": "disk/log-clearing-events.json",
-      "expected_dart_mcp_function": "detect_defense_evasion",
+      "expected_dfir_mcp_function": "detect_defense_evasion",
       "mitre_attack": [
         "T1070.001"
       ],
@@ -163,7 +163,7 @@
       "evidence_path": "disk/ransomware-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/ransomware-processes.csv",
-      "expected_dart_mcp_function": "detect_ransomware_behavior",
+      "expected_dfir_mcp_function": "detect_ransomware_behavior",
       "mitre_attack": [
         "T1489"
       ],
@@ -177,7 +177,7 @@
       "evidence_path": "disk/ransomware-processes.csv",
       "artifact_type": "filesystem_artifact",
       "host_path": "disk/ransomware-processes.csv",
-      "expected_dart_mcp_function": "detect_ransomware_behavior",
+      "expected_dfir_mcp_function": "detect_ransomware_behavior",
       "mitre_attack": [
         "T1486"
       ],
@@ -191,7 +191,7 @@
       "evidence_path": "disk/ransomware-processes.csv",
       "artifact_type": "filesystem_artifact",
       "host_path": "disk/ransomware-processes.csv",
-      "expected_dart_mcp_function": "detect_ransomware_behavior",
+      "expected_dfir_mcp_function": "detect_ransomware_behavior",
       "mitre_attack": [
         "T1486"
       ],

@@ -17,7 +17,7 @@ path on success. Downloaded images are large and third-party; they are never
 committed to the repository.
 
 This is run on the user's analysis host (where there's disk space), NOT inside
-the Agentic-DART container. Container disk is too small for the full multi-GB
+the Agentic-DFIR container. Container disk is too small for the full multi-GB
 combined dataset corpus.
 """
 from __future__ import annotations

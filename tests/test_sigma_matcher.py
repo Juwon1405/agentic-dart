@@ -1,6 +1,6 @@
 """Tests for match_sigma_rules — the consolidated Sigma pack matcher (v0.7).
 
-These run against the real dart_sigma/ pack and a small synthetic event log, so
+These run against the real dfir_sigma/ pack and a small synthetic event log, so
 they exercise rule loading, the condition evaluator, and the |contains modifier
 without depending on any case's evidence.
 """
@@ -9,9 +9,9 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
+sys.path.insert(0, str(REPO / "dfir_mcp" / "src"))
 
-import dart_mcp  # noqa: E402
+import dfir_mcp  # noqa: E402
 
 
 def _run(tmp_path, events, monkeypatch):
@@ -22,8 +22,8 @@ def _run(tmp_path, events, monkeypatch):
     """
     log = tmp_path / "events.jsonl"
     log.write_text("\n".join(json.dumps(e) for e in events))
-    monkeypatch.setattr(dart_mcp, "EVIDENCE_ROOT", tmp_path)
-    return dart_mcp.call_tool("match_sigma_rules",
+    monkeypatch.setattr(dfir_mcp, "EVIDENCE_ROOT", tmp_path)
+    return dfir_mcp.call_tool("match_sigma_rules",
                               {"event_log_path": "events.jsonl"})
 
 
@@ -31,7 +31,7 @@ def test_pack_loads_and_reports_version(tmp_path, monkeypatch):
     r = _run(tmp_path, [{"event_type": "noop"}], monkeypatch)
     # Read the expected version from the manifest so a pack bump (v1 -> v2 -> …)
     # never breaks this test: assert the matcher reports what pack.yml declares.
-    _manifest = (REPO / "dart_sigma" / "pack.yml").read_text()
+    _manifest = (REPO / "dfir_sigma" / "pack.yml").read_text()
     _expected = next((l.split(":", 1)[1].strip()
                       for l in _manifest.splitlines() if l.startswith("version:")), None)
     assert r.get("pack_version") == _expected, r
@@ -87,7 +87,7 @@ def test_kerberoasting_rc4_tgs_fires(tmp_path, monkeypatch):
 
 
 def test_missing_log_returns_clean_error(tmp_path, monkeypatch):
-    monkeypatch.setattr(dart_mcp, "EVIDENCE_ROOT", tmp_path)
-    r = dart_mcp.call_tool("match_sigma_rules",
+    monkeypatch.setattr(dfir_mcp, "EVIDENCE_ROOT", tmp_path)
+    r = dfir_mcp.call_tool("match_sigma_rules",
                            {"event_log_path": "nope.jsonl"})
     assert r.get("error") == "file_not_found", r

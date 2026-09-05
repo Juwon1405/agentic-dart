@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-healthcheck.py — API-free readiness check for Agentic-DART.
+healthcheck.py — API-free readiness check for Agentic-DFIR.
 
 Validates that a clone is correctly installed and wired without needing an
 Anthropic API key and without running any live model call or producing any
 fabricated findings:
 
   1. Python version (>= 3.10)
-  2. Local package imports (dart_audit / dart_mcp / dart_agent / dart_corr)
+  2. Local package imports (dfir_audit / dfir_mcp / dfir_agent / dfir_corr)
   3. Third-party dependency versions (anthropic / mcp / duckdb / yaml ...)
   4. MCP tool surface count (native + SIFT split, > 0)
-  5. Collector-adapter CLI (`python3 -m dart_collector_adapter --help`)
+  5. Collector-adapter CLI (`python3 -m dfir_collector_adapter --help`)
   6. Tiered case-study layout (both tiers discoverable; case-01 evidence bundled)
   7. analyze.py is live-only and fails fast without a key (no fake mode)
 
@@ -25,7 +25,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-SRC_DIRS = [REPO / pkg / "src" for pkg in ("dart_audit", "dart_mcp", "dart_agent", "dart_corr")]
+SRC_DIRS = [REPO / pkg / "src" for pkg in ("dfir_audit", "dfir_mcp", "dfir_agent", "dfir_corr")]
 for _p in SRC_DIRS:
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
@@ -52,9 +52,9 @@ def _py_version():
 
 # 2. local package imports
 def _imports():
-    for mod in ("dart_audit", "dart_mcp", "dart_agent", "dart_corr"):
+    for mod in ("dfir_audit", "dfir_mcp", "dfir_agent", "dfir_corr"):
         importlib.import_module(mod)
-    return "dart_audit, dart_mcp, dart_agent, dart_corr importable"
+    return "dfir_audit, dfir_mcp, dfir_agent, dfir_corr importable"
 
 
 # 3. third-party deps + versions
@@ -73,10 +73,10 @@ def _deps():
 
 # 4. MCP tool surface
 def _mcp_surface():
-    os.environ.setdefault("DART_EVIDENCE_ROOT", "/tmp/dart-healthcheck-evidence")
-    Path(os.environ["DART_EVIDENCE_ROOT"]).mkdir(parents=True, exist_ok=True)
-    import dart_mcp
-    reg = dart_mcp._REGISTRY
+    os.environ.setdefault("DFIR_EVIDENCE_ROOT", "/tmp/dfir-healthcheck-evidence")
+    Path(os.environ["DFIR_EVIDENCE_ROOT"]).mkdir(parents=True, exist_ok=True)
+    import dfir_mcp
+    reg = dfir_mcp._REGISTRY
     sift = [k for k in reg if k.startswith("sift_")]
     total, native = len(reg), len(reg) - len(sift)
     assert total > 0 and native > 0 and len(sift) > 0, \
@@ -86,29 +86,29 @@ def _mcp_surface():
 
 # 5. adapter CLI
 def _adapter_cli():
-    # Resolve the adapter: importable -> DART_ADAPTER_DIR -> sibling checkout.
+    # Resolve the adapter: importable -> DFIR_ADAPTER_DIR -> sibling checkout.
     env = dict(os.environ)
     candidates = []
-    if os.environ.get("DART_ADAPTER_DIR"):
-        candidates.append(Path(os.environ["DART_ADAPTER_DIR"]) / "src")
-    candidates.append(REPO.parent / "agentic-dart-collector-adapter" / "src")
+    if os.environ.get("DFIR_ADAPTER_DIR"):
+        candidates.append(Path(os.environ["DFIR_ADAPTER_DIR"]) / "src")
+    candidates.append(REPO.parent / "agentic-dfir-collector-adapter" / "src")
     try:
-        import dart_collector_adapter  # noqa: F401
+        import dfir_collector_adapter  # noqa: F401
         py_path = env.get("PYTHONPATH", "")
     except Exception:  # noqa: BLE001
-        src = next((c for c in candidates if (c / "dart_collector_adapter").is_dir()), None)
+        src = next((c for c in candidates if (c / "dfir_collector_adapter").is_dir()), None)
         assert src is not None, (
-            "collector adapter not importable and not found at DART_ADAPTER_DIR "
-            "or ../agentic-dart-collector-adapter/src "
-            "(install it: pip install -e ../agentic-dart-collector-adapter)"
+            "collector adapter not importable and not found at DFIR_ADAPTER_DIR "
+            "or ../agentic-dfir-collector-adapter/src "
+            "(install it: pip install -e ../agentic-dfir-collector-adapter)"
         )
         py_path = (str(src) + os.pathsep + env.get("PYTHONPATH", "")).rstrip(os.pathsep)
     env["PYTHONPATH"] = py_path
-    r = subprocess.run([sys.executable, "-m", "dart_collector_adapter", "--help"],
+    r = subprocess.run([sys.executable, "-m", "dfir_collector_adapter", "--help"],
                        capture_output=True, text=True, env=env)
     assert r.returncode == 0, f"adapter --help exit {r.returncode}: {r.stderr[-200:]}"
     assert "--source" in r.stdout, "adapter CLI missing --source contract"
-    return "python3 -m dart_collector_adapter --help OK (--source zip|image)"
+    return "python3 -m dfir_collector_adapter --help OK (--source zip|image)"
 
 
 # 6. case-study layout
@@ -145,22 +145,22 @@ def _fail_fast():
 def _sift_tools():
     """Report how many SIFT adapter backing binaries are runnable. Never fails:
     a missing tool just means that adapter raises SiftToolNotFoundError and the
-    native dart_mcp equivalent is used instead. Run scripts/check_sift_tools.py
+    native dfir_mcp equivalent is used instead. Run scripts/check_sift_tools.py
     for the full per-tool table."""
     try:
-        from dart_mcp.sift_adapters._common import _which, SiftToolNotFoundError
+        from dfir_mcp.sift_adapters._common import _which, SiftToolNotFoundError
     except Exception as e:  # noqa: BLE001
         return f"could not import SIFT adapter resolver ({e})"
     tools = [
-        ("yara", "DART_YARA_BIN"),
-        ("vol", "DART_VOLATILITY3_BIN"),
-        ("log2timeline.py", "DART_LOG2TIMELINE_BIN"),
-        ("psort.py", "DART_PSORT_BIN"),
-        ("MFTECmd", "DART_MFTECMD_BIN"),
-        ("EvtxECmd", "DART_EVTXECMD_BIN"),
-        ("PECmd", "DART_PECMD_BIN"),
-        ("RECmd", "DART_RECMD_BIN"),
-        ("AmcacheParser", "DART_AMCACHEPARSER_BIN"),
+        ("yara", "DFIR_YARA_BIN"),
+        ("vol", "DFIR_VOLATILITY3_BIN"),
+        ("log2timeline.py", "DFIR_LOG2TIMELINE_BIN"),
+        ("psort.py", "DFIR_PSORT_BIN"),
+        ("MFTECmd", "DFIR_MFTECMD_BIN"),
+        ("EvtxECmd", "DFIR_EVTXECMD_BIN"),
+        ("PECmd", "DFIR_PECMD_BIN"),
+        ("RECmd", "DFIR_RECMD_BIN"),
+        ("AmcacheParser", "DFIR_AMCACHEPARSER_BIN"),
     ]
     avail = 0
     missing = []
@@ -208,7 +208,7 @@ def _disk_image_tools():
 
 
 def main() -> int:
-    print("Agentic-DART healthcheck (API-free)\n")
+    print("Agentic-DFIR healthcheck (API-free)\n")
     _check("python version", _py_version)
     _check("local imports", _imports)
     _check("dependencies", _deps)

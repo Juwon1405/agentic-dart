@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Agentic-DART installer — complete, idempotent, quiet.
+# Agentic-DFIR installer — complete, idempotent, quiet.
 #
 #   bash scripts/install.sh
 #
 # That's it. No flags to remember. Every run:
-#   - pulls the latest agentic-dart + collector adapter (clones if missing)
+#   - pulls the latest agentic-dfir + collector adapter (clones if missing)
 #   - installs Python packages, Velociraptor, the SIFT toolchain (yara /
 #     Volatility3 / Plaso), and Eric Zimmerman Tools
 #   - checks each piece first and SKIPS whatever is already working
@@ -17,12 +17,12 @@
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ADAPTER_DIR="$(cd "${REPO_ROOT}/.." && pwd)/agentic-dart-collector-adapter"
-REPO_URL="https://github.com/Juwon1405/agentic-dart.git"
-ADAPTER_URL="https://github.com/Juwon1405/agentic-dart-collector-adapter.git"
+ADAPTER_DIR="$(cd "${REPO_ROOT}/.." && pwd)/agentic-dfir-collector-adapter"
+REPO_URL="https://github.com/Juwon1405/agentic-dfir.git"
+ADAPTER_URL="https://github.com/Juwon1405/agentic-dfir-collector-adapter.git"
 EZ_BASE="https://download.ericzimmermanstools.com/net9"
 EZ_TOOLS=(EvtxECmd MFTECmd PECmd RECmd AmcacheParser SBECmd)
-LOGDIR="$(mktemp -d /tmp/dart-install.XXXXXX)"
+LOGDIR="$(mktemp -d /tmp/dfir-install.XXXXXX)"
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
@@ -78,7 +78,7 @@ _pip() {
 }
 _apt() { sudo apt-get install -y -qq "$@"; }
 
-printf "\n${BOLD}Agentic-DART installer${RST}  ${DIM}(idempotent — skips what already works)${RST}\n\n"
+printf "\n${BOLD}Agentic-DFIR installer${RST}  ${DIM}(idempotent — skips what already works)${RST}\n\n"
 
 # Do NOT run this under sudo. Running as root makes pip/healthcheck resolve
 # against root's environment instead of yours (why step 9 reports deps "missing"
@@ -148,17 +148,17 @@ fi
 # ---- 3. Python packages ----------------------------------------------------
 py_pkgs() {
   _pip -r "${REPO_ROOT}/requirements.txt"
-  _pip -e "${REPO_ROOT}/dart_audit" \
-       -e "${REPO_ROOT}/dart_mcp[stdio]" \
-       -e "${REPO_ROOT}/dart_corr" \
-       -e "${REPO_ROOT}/dart_agent[live]"
+  _pip -e "${REPO_ROOT}/dfir_audit" \
+       -e "${REPO_ROOT}/dfir_mcp[stdio]" \
+       -e "${REPO_ROOT}/dfir_corr" \
+       -e "${REPO_ROOT}/dfir_agent[live]"
 }
 # Skip the pip pass entirely if all four packages already import — pip would
 # otherwise spend ~40s re-resolving an already-satisfied environment.
-if python3 -c "import dart_audit, dart_mcp, dart_corr, dart_agent" 2>/dev/null; then
-  skip_step "Agentic-DART Python packages" "already importable"
+if python3 -c "import dfir_audit, dfir_mcp, dfir_corr, dfir_agent" 2>/dev/null; then
+  skip_step "Agentic-DFIR Python packages" "already importable"
 else
-  run_step "Agentic-DART Python packages" py_pkgs || true
+  run_step "Agentic-DFIR Python packages" py_pkgs || true
 fi
 
 # ---- 4. collector adapter --------------------------------------------------
@@ -166,7 +166,7 @@ adapter_pkg() {
   [[ -d "${ADAPTER_DIR}" ]] || { echo "adapter dir missing"; return 1; }
   _pip -e "${ADAPTER_DIR}"
 }
-if python3 -c "import dart_collector_adapter" 2>/dev/null; then
+if python3 -c "import dfir_collector_adapter" 2>/dev/null; then
   skip_step "Collector adapter package" "already importable"
 elif [[ -d "${ADAPTER_DIR}" ]]; then
   run_step "Collector adapter package" adapter_pkg || true
@@ -195,7 +195,7 @@ else
 fi
 
 # ---- 6. yara ---------------------------------------------------------------
-# Resolve yara the same way the adapters do (DART_YARA_BIN -> PATH -> repo
+# Resolve yara the same way the adapters do (DFIR_YARA_BIN -> PATH -> repo
 # bin/), so this step and the availability table can't disagree.
 #
 # KEY INSIGHT (the bug you hit): yara can be INSTALLED but invisible to this
@@ -210,10 +210,10 @@ fi
 yara_adapter_path() {
   python3 - <<'PY' 2>/dev/null
 import sys
-sys.path.insert(0, "dart_mcp/src")
+sys.path.insert(0, "dfir_mcp/src")
 try:
-    from dart_mcp.sift_adapters._common import _which
-    print(_which("yara", env_var="DART_YARA_BIN"))
+    from dfir_mcp.sift_adapters._common import _which
+    print(_which("yara", env_var="DFIR_YARA_BIN"))
 except Exception:
     sys.exit(1)
 PY
@@ -387,20 +387,20 @@ printf "\n  Multiple models? Append them: ${DIM}--models claude-haiku-4-5-202510
 printf "  Results: ${DIM}docs/benchmarks/SUMMARY.md${RST} (latest) + ${DIM}HISTORY.md${RST} (trend over time)\n\n"
 
 # ---- persistent shell aliases (idempotent) ---------------------------------
-# dart-pull = pull latest; dart-auth = show oauth/api credential status.
+# dfir-pull = pull latest; dfir-auth = show oauth/api credential status.
 # Re-running the installer updates these in place (grep -v old line, append
 # current) instead of duplicating — and grep -v sidesteps sed escaping when the
 # alias body contains '&'.
 _install_alias() {
   local _name="$1" _body="$2" _rc="${HOME}/.bashrc"
   touch "${_rc}"
-  grep -vE "^alias ${_name}=" "${_rc}" > "${_rc}.dart.tmp" 2>/dev/null || true
-  mv "${_rc}.dart.tmp" "${_rc}"
+  grep -vE "^alias ${_name}=" "${_rc}" > "${_rc}.dfir.tmp" 2>/dev/null || true
+  mv "${_rc}.dfir.tmp" "${_rc}"
   printf "alias %s='%s'\n" "${_name}" "${_body}" >> "${_rc}"
 }
-_install_alias dart-pull "cd ${REPO_ROOT} && git pull && cd ${ADAPTER_DIR} && git pull && cd ${REPO_ROOT}"
-_install_alias dart-auth "python3 ${REPO_ROOT}/dart_agent/src/dart_agent/auth.py"
+_install_alias dfir-pull "cd ${REPO_ROOT} && git pull && cd ${ADAPTER_DIR} && git pull && cd ${REPO_ROOT}"
+_install_alias dfir-auth "python3 ${REPO_ROOT}/dfir_agent/src/dfir_agent/auth.py"
 printf "${BOLD}Shell aliases${RST} (written to ~/.bashrc)\n"
-printf "  ${GRN}dart-pull${RST}  → cd repo && git pull latest\n"
-printf "  ${GRN}dart-auth${RST}  → oauth/api credential status\n"
+printf "  ${GRN}dfir-pull${RST}  → cd repo && git pull latest\n"
+printf "  ${GRN}dfir-auth${RST}  → oauth/api credential status\n"
 printf "  Run ${DIM}source ~/.bashrc${RST} or open a new shell to use them now.\n\n"

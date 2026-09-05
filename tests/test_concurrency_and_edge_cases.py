@@ -28,12 +28,12 @@ import threading
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "dart_audit" / "src"))
-sys.path.insert(0, str(REPO_ROOT / "dart_mcp" / "src"))
-os.environ.setdefault("DART_EVIDENCE_ROOT", str(REPO_ROOT / "tests" / "fixtures" / "evidence"))
+sys.path.insert(0, str(REPO_ROOT / "dfir_audit" / "src"))
+sys.path.insert(0, str(REPO_ROOT / "dfir_mcp" / "src"))
+os.environ.setdefault("DFIR_EVIDENCE_ROOT", str(REPO_ROOT / "tests" / "fixtures" / "evidence"))
 
-from dart_audit import AuditLogger
-from dart_mcp import _safe_resolve, PathTraversalAttempt
+from dfir_audit import AuditLogger
+from dfir_mcp import _safe_resolve, PathTraversalAttempt
 
 
 def test_concurrent_writes_preserve_chain():
@@ -52,7 +52,7 @@ def test_concurrent_writes_preserve_chain():
     n = sum(1 for _ in tmp.open())
     assert n == 1000, f"expected 1000 entries, got {n}"
 
-    r = subprocess.run([sys.executable, "-m", "dart_audit", "verify", str(tmp)],
+    r = subprocess.run([sys.executable, "-m", "dfir_audit", "verify", str(tmp)],
                        capture_output=True, text=True)
     assert r.returncode == 0, f"chain verify failed under concurrency: {r.stdout}{r.stderr}"
 

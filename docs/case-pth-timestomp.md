@@ -1,20 +1,20 @@
 # Case study: Pass-the-Hash with timestomp pre-existence
 
-> *Representative walkthrough of an Agentic-DART run on the SANS SIFT
+> *Representative walkthrough of an Agentic-DFIR run on the SANS SIFT
 > Workstation. The four images referenced below are sample-run stills
-> rendered for documentation; the [demo video](https://www.youtube.com/watch?v=20zY7QoTAyU)
-> is the live screencast.*
+> rendered for documentation; `bash examples/demo-run.sh` reproduces the
+> run on the bundled evidence.*
 
-This case study walks through a full `dart-agent` invocation
-(`python3 -m dart_agent --case <case-id> --out <output-dir> --mode deterministic`)
+This case study walks through a full `dfir-agent` invocation
+(`python3 -m dfir_agent --case <case-id> --out <output-dir> --mode deterministic`)
 against a representative breach scenario. It is intended for two
 audiences:
 
-1. **Hackathon judges** — to see the full senior-analyst loop end to
+1. **Reviewers** — to see the full senior-analyst loop end to
    end, including what happens when artifacts disagree.
 2. **DFIR engineers evaluating the project** — to see exactly which
-   `dart-mcp` functions get called in what order, and how
-   `dart-corr` surfaces a contradiction that forces the agent to
+   `dfir-mcp` functions get called in what order, and how
+   `dfir-corr` surfaces a contradiction that forces the agent to
    revise its hypothesis.
 
 ---
@@ -26,18 +26,18 @@ A breach is suspected on a small Windows network with two hosts:
 - **DESKTOP-7K2L** &nbsp; (192.168.10.42) &nbsp; — analyst workstation
 - **FILE-SRV-01** &nbsp; (192.168.10.10) &nbsp; — file server holding HR data
 
-The IR analyst hands the case folder to `dart-agent` and walks away.
+The IR analyst hands the case folder to `dfir-agent` and walks away.
 The agent has no prompt about *where* to look or *what* to find — only
-the senior-analyst playbook (`dart_playbook/senior-analyst-v1.yaml`)
-and the read-only MCP surface (`dart-mcp`, the typed MCP function surface: native pure-Python + SIFT Workstation adapters).
+the senior-analyst playbook (`dfir_playbook/senior-analyst-v1.yaml`)
+and the read-only MCP surface (`dfir-mcp`, the typed MCP function surface: native pure-Python + SIFT Workstation adapters).
 
 ---
 
 ## Stage 1 — Initialization &amp; first hypothesis
 
-![dart-agent startup and first hypothesis](./screenshots/dart-run-01-init.png)
+![dfir-agent startup and first hypothesis](./screenshots/dfir-run-01-init.png)
 
-The agent loads the senior-analyst playbook, spawns `dart-mcp` over
+The agent loads the senior-analyst playbook, spawns `dfir-mcp` over
 stdio, verifies the read-only mount, and opens the SHA-256 audit
 chain. Tool surface is enumerated to **the typed read-only MCP surface (native pure-Python + SIFT Workstation adapters)**
 — anything outside that list (e.g. `execute_shell`, `write_file`,
@@ -63,7 +63,7 @@ token count, timestamp, and a SHA-256 hash linked to the previous entry.
 
 ## Stage 2 — MITRE chain begins to form
 
-![dart-agent calling typed forensic tools and MITRE chain emerging](./screenshots/dart-run-02-investigate.png)
+![dfir-agent calling typed forensic tools and MITRE chain emerging](./screenshots/dfir-run-02-investigate.png)
 
 By iteration 3, evidence has converged on a Pass-the-Hash hypothesis.
 The agent issues three more calls in quick succession:
@@ -81,7 +81,7 @@ T1059.001 → T1003.001 → T1021.002
 ```
 
 Confidence climbs to **0.78**. A weaker reasoning loop would stop
-here and produce a confident-sounding report. `dart-agent` doesn't.
+here and produce a confident-sounding report. `dfir-agent` doesn't.
 The senior-analyst playbook requires a contradiction check before
 the chain can be accepted, which is the next call.
 
@@ -89,9 +89,9 @@ the chain can be accepted, which is the next call.
 
 ## Stage 3 — Contradiction detected, hypothesis revised
 
-![dart-corr detects an UNRESOLVED contradiction; the agent refines](./screenshots/dart-run-03-contradiction.png)
+![dfir-corr detects an UNRESOLVED contradiction; the agent refines](./screenshots/dfir-run-03-contradiction.png)
 
-`correlate_events(hypothesis_id=h_002)` invokes `dart-corr` (the
+`correlate_events(hypothesis_id=h_002)` invokes `dfir-corr` (the
 DuckDB-backed cross-artifact correlator) and it surfaces a problem:
 
 | Source | Claim |
@@ -104,7 +104,7 @@ credential was supposedly used. That can only mean the attacker
 **already had access to FILE-SRV before the PtH event**. The PtH wasn't
 the lateral movement; it was a re-entry.
 
-`dart-corr` flags this as `UNRESOLVED` rather than letting the LLM
+`dfir-corr` flags this as `UNRESOLVED` rather than letting the LLM
 decide which artifact "wins". This is the architectural guarantee:
 when artifacts disagree, the agent is forced to revise.
 
@@ -128,7 +128,7 @@ suggested. Confidence rises to **0.89**.
 
 ## Stage 4 — Final verdict &amp; audit verification
 
-![dart-agent final verdict with verified audit chain](./screenshots/dart-run-04-final.png)
+![dfir-agent final verdict with verified audit chain](./screenshots/dfir-run-04-final.png)
 
 The agent's final hypothesis (confidence **0.94**):
 
@@ -168,7 +168,7 @@ asserting.
 
 **1. Architecture beats prompts.** The agent never had a prompt
 instruction to "look for timestomp activity". The contradiction
-surfaced because `dart-corr` mechanically joined MFT timestamps
+surfaced because `dfir-corr` mechanically joined MFT timestamps
 against authentication events. The agent then *had* to revise.
 
 **2. Read-only by construction.** At no point did the agent attempt
@@ -183,7 +183,7 @@ it claims to have seen. Nothing was edited. Nothing was retroactively
 
 **4. Honest uncertainty.** The agent didn't lock onto its first
 hypothesis. The system isn't "confidence inflation by repetition" —
-contradictions get a fair hearing because `dart-corr` is structurally
+contradictions get a fair hearing because `dfir-corr` is structurally
 required to flag them.
 
 ---
@@ -193,8 +193,8 @@ required to flag them.
 The bundled evidence and playbook live in the repo. The simplest reproduction is the deterministic demo (no API key):
 
 ```bash
-git clone https://github.com/Juwon1405/agentic-dart.git
-cd agentic-dart
+git clone https://github.com/Juwon1405/agentic-dfir.git
+cd agentic-dfir
 bash examples/demo-run.sh
 ```
 

@@ -1,66 +1,53 @@
 <p align="center">
-  <img src="./agentic-dart-hero.png" alt="Agentic-DART — Autonomous DFIR Agent" width="100%">
+  <img src="./agentic-dfir-hero.png" alt="Agentic-DFIR — Autonomous DFIR Agent" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://github.com/Juwon1405/agentic-dart/actions/workflows/ci.yml"><img src="https://github.com/Juwon1405/agentic-dart/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="https://github.com/Juwon1405/agentic-dfir/actions/workflows/ci.yml"><img src="https://github.com/Juwon1405/agentic-dfir/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://www.python.org"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
-  <a href="https://findevil.devpost.com/"><img src="https://img.shields.io/badge/SANS%20FIND%20EVIL%21-2026-dc2626.svg" alt="SANS FIND EVIL! 2026"></a>
   <img src="https://img.shields.io/badge/MITRE%20ATT%26CK-aligned-4F46E5.svg" alt="MITRE ATT&CK aligned">
   <img src="https://img.shields.io/badge/MCP-read--only-1A73E8.svg" alt="MCP read-only">
   <img src="https://img.shields.io/badge/audit-SHA--256%20chained-22c55e.svg" alt="audit SHA-256 chained">
 </p>
 
-# Agentic-DART — Autonomous DFIR Agent on SANS SIFT Workstation
+# Agentic-DFIR — Autonomous DFIR Agent for the SIFT Workstation
 
 > *An autonomous DFIR agent that thinks like a senior analyst.*
 > *Architecture-first, not prompt-first.*
 
-**Submission to:** [SANS FIND EVIL! Hackathon 2026](https://findevil.devpost.com/)
 **License:** MIT
-**Status:** 🟢 MVP runs end-to-end; self-correction path validated. Active development through June 15, 2026.
-
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=20zY7QoTAyU">
-    <img src="https://img.youtube.com/vi/20zY7QoTAyU/maxresdefault.jpg" alt="Agentic-DART demo — click to watch on YouTube" width="72%">
-  </a>
-  <br>
-  ▶ <strong><a href="https://www.youtube.com/watch?v=20zY7QoTAyU">Watch the 4-minute narrated demo on YouTube</a></strong>
-</p>
+**Status:** 🟢 MVP runs end-to-end; self-correction path validated.
 
 ---
 
-## Judges' quick reference
+## Quick reference
 
-Every Stage One requirement, mapped to its exact location. Nothing is buried.
+Everything a reviewer needs, mapped to its exact location.
 
-| What you're checking | Where it is |
+| What you need | Where it is |
 |---|---|
-| Public repository | this repo — loads without authentication |
 | OSS license — **MIT** | [`LICENSE`](./LICENSE) |
 | Setup · dependencies · how to run | [§ Install and requirements](#install-and-requirements) |
 | **One-command demo, no API key** | `bash examples/demo-run.sh` |
-| Demo video — 4 min, narrated screencast | top of this README · [YouTube](https://www.youtube.com/watch?v=20zY7QoTAyU) |
-| Architecture diagram + trust boundary | [`docs/dart-architecture.png`](./docs/dart-architecture.png) · [`docs/architecture.md`](./docs/architecture.md) |
-| Architectural pattern | **Pattern 2 — Custom MCP Server** ([§ SIFT alignment](#sift-workstation-alignment-custom-mcp-server-pattern)) |
+| Architecture diagram + trust boundary | [`docs/dfir-architecture.png`](./docs/dfir-architecture.png) · [`docs/architecture.md`](./docs/architecture.md) |
+| SIFT Workstation tool adapters | [§ SIFT Workstation integration](#sift-workstation-integration) |
 | Test datasets + sources | NIST CFReDS · Ali Hadi · Digital Corpora M57 — [`examples/case-studies/`](./examples/case-studies/) |
 | Accuracy report — synthetic **+ external NIST CFReDS** (FP / missed / hallucination + evidence integrity) | [`docs/accuracy-report.md`](./docs/accuracy-report.md) |
 | Known limitations | [`docs/accuracy-report.md`](./docs/accuracy-report.md) § Honest limitations |
-| Agent execution logs — timestamps, tokens, SHA-256 chain | [`examples/out/find-evil-ref-01/audit.jsonl`](./examples/out/find-evil-ref-01/audit.jsonl) |
-| **Finding → artifact → command → hash** | [§ Case study for judges](#case-study-for-judges) |
+| Agent execution logs — timestamps, tokens, SHA-256 chain | [`examples/out/ref-01/audit.jsonl`](./examples/out/ref-01/audit.jsonl) |
+| **Finding → artifact → command → hash** | [§ Case study walkthrough](#case-study-walkthrough) |
 | Self-correction — graded, not anecdotal | case-04 `F-PHISH-006`; reference run `F-013` |
-| Devpost write-up (5 sections) | [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md) |
 
 ---
 
 ## Table of contents
 
-- [**Judges' quick reference**](#judges-quick-reference)
+- [**Quick reference**](#quick-reference)
 - [About the name](#about-the-name)
 - [Development approach](#development-approach)
-- [What Agentic-DART is (and what it is not)](#what-agentic-dart-is-and-what-it-is-not)
-- [Why Agentic-DART exists](#why-agentic-dart-exists)
+- [What Agentic-DFIR is (and what it is not)](#what-agentic-dfir-is-and-what-it-is-not)
+- [Why Agentic-DFIR exists](#why-agentic-dfir-exists)
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
 - [**Quick start**](#quick-start)
@@ -70,10 +57,11 @@ Every Stage One requirement, mapped to its exact location. Nothing is buried.
 - [Troubleshooting](#troubleshooting)
 - [Running the tests](#running-the-tests)
 - [Target case class](#target-case-class)
-- [Judging-criteria alignment (SANS FIND EVIL!)](#judging-criteria-alignment-sans-find-evil)
+- [Architectural guarantees](#architectural-guarantees)
+- [SIFT Workstation integration](#sift-workstation-integration)
 - [Platform support](#platform-support)
 - [Live mode (real Claude API + MCP stdio)](#live-mode-real-claude-api--mcp-stdio)
-- [Case study for judges](#case-study-for-judges)
+- [Case study walkthrough](#case-study-walkthrough)
 - [Measured accuracy (reproducible)](#measured-accuracy-reproducible)
 - [Status — what is implemented vs. what is roadmap](#status--what-is-implemented-vs-what-is-roadmap)
 - [License](#license)
@@ -83,16 +71,14 @@ Every Stage One requirement, mapped to its exact location. Nothing is buried.
 
 ## About the name
 
-**DART** = **D**etection **A**nd **R**esponse **T**eam.
+**Agentic-DFIR** says what the project is: an agentic system for digital forensics and incident response. The name makes no claim on its own — the guarantees do: a read-only MCP tool surface, a SHA-256-chained audit trail behind every finding, and a correlation layer that flags contradictions as `UNRESOLVED` instead of smoothing them over.
 
-**Agentic-DART** starts as an *agentic DFIR* assistant (the focus of this hackathon submission), but is named with deliberate room to grow:
+The current release is the DFIR phase. Later phases build on the same read-only, audit-chained core:
 
-- **Phase 1 (current)** &mdash; agentic DFIR: senior-analyst reasoning encoded as architecture across forensic artifacts. Includes the [agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter) which converts Velociraptor offline-collector output into the `evidence_root` layout that Agentic-DART reads.
+- **Phase 1 (current)** &mdash; agentic DFIR: senior-analyst reasoning encoded as architecture across forensic artifacts. Includes the [agentic-dfir-collector-adapter](https://github.com/Juwon1405/agentic-dfir-collector-adapter) which converts Velociraptor offline-collector output into the `evidence_root` layout that Agentic-DFIR reads.
 - **Phase 2** &mdash; agentic detection engineering: detection-as-code generation, Sigma rule synthesis, coverage-gap reasoning. Includes the supply-chain IOC sweep functions ported from [yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector) *(archived)* and generalized to cross-platform (litellm PyPI attack pattern, npm typosquat detection, install-hook abuse).
 - **Phase 3** &mdash; agentic SOC: triage, enrichment, and supervised response orchestration.
-- **Phase 4** &mdash; broader agentic security workflows beyond traditional D&R boundaries.
-
-The codename is intentionally generic so it remains accurate as the project's scope expands.
+- **Phase 4** &mdash; broader agentic security workflows beyond traditional detection-and-response boundaries.
 
 ---
 
@@ -104,20 +90,20 @@ This project is developed by [Juwon Bang](https://github.com/Juwon1405) with ext
 - **AI-accelerated**: implementation, synthetic evidence generation, test scaffolding, documentation drafting.
 - **Validated**: every function is reviewed and exercised against the bundled case evidence; the full test suite must pass on a clean clone before any commit lands on `main`.
 
-This disclosure follows the spirit of the [SANS FIND EVIL!](https://findevil.devpost.com/) ethos and modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
+This disclosure follows modern open-source practice: AI-assisted development is a tool, not a substitute for engineering judgement.
 
 ---
 
 
-## What Agentic-DART is (and what it is not)
+## What Agentic-DFIR is (and what it is not)
 
-**Agentic-DART is:** an autonomous AI agent that sits on top of the [SANS SIFT Workstation](https://www.sans.org/tools/sift-workstation) and the [Protocol SIFT](https://findevil.devpost.com/) framework, runs a senior-analyst-style reasoning loop with architectural evidence-integrity guarantees, and produces a courtroom-traceable report of its findings.
+**Agentic-DFIR is:** an autonomous AI agent that sits on top of the [SANS SIFT Workstation](https://www.sans.org/tools/sift-workstation), runs a senior-analyst-style reasoning loop with architectural evidence-integrity guarantees, and produces a courtroom-traceable report of its findings.
 
-**Agentic-DART is not:** a replacement for Velociraptor, KAPE, Timesketch, Plaso, or any SIEM/EDR. Those are the layers underneath. See [`docs/comparison.md`](./docs/comparison.md) for the layer map and a side-by-side table.
+**Agentic-DFIR is not:** a replacement for Velociraptor, KAPE, Timesketch, Plaso, or any SIEM/EDR. Those are the layers underneath. See [`docs/comparison.md`](./docs/comparison.md) for the layer map and a side-by-side table.
 
-**The single design principle:** evidence integrity is a property of the system's shape — what functions exist on the MCP server — not a rule the agent is asked to follow. The baseline [Protocol SIFT](https://findevil.devpost.com/) agent prompts the model to behave; Agentic-DART removes the ability to misbehave.
+**The single design principle:** evidence integrity is a property of the system's shape — what functions exist on the MCP server — not a rule the agent is asked to follow. A prompt-first agent asks the model to behave; Agentic-DFIR removes the ability to misbehave.
 
-## Why Agentic-DART exists
+## Why Agentic-DFIR exists
 
 ### The 30-second pitch
 
@@ -125,7 +111,7 @@ Most "agentic DFIR" tools today are a system prompt that *asks* an LLM to behave
 
 That works until someone discovers prompt injection inside an evidence file. Or jailbreaks the model. Or the conversation runs long enough for the system prompt to erode. Then the agent will happily run `rm -rf` on your evidence — because *nothing structural was stopping it.* The boundary lived in conversation. Conversation is mutable.
 
-**Agentic-DART moves the boundary from the prompt to the wire.** The agent is given exactly **48 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
+**Agentic-DFIR moves the boundary from the prompt to the wire.** The agent is given exactly **48 typed, read-only native forensic functions plus 25 SIFT Workstation tool adapters** (Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, Plaso) through a custom MCP server. Anything outside that surface — `execute_shell`, `write_file`, `mount`, `eval` — *does not exist.* It cannot be called regardless of what the prompt says, what the conversation history is, or how clever the jailbreak is. The function is not on the wire. `ToolNotFound` is not a refusal — it is a fact about the universe the agent lives in.
 
 This is what *architecture-first, not prompt-first* means.
 
@@ -133,7 +119,7 @@ This is what *architecture-first, not prompt-first* means.
 
 A single forensic investigation generates dozens of intermediate findings: process trees, MFT timestamps, EVTX events, lateral-movement chains. In conventional tooling these findings vanish into a chat log or a one-off PDF. Nothing accumulates. Every new investigation re-derives the same patterns from scratch.
 
-Agentic-DART takes a different bet, one we believe DFIR has been missing for thirty years:
+Agentic-DFIR takes a different bet, one we believe DFIR has been missing for thirty years:
 
 > **The senior analyst's reasoning is the durable artifact, not the report.**
 >
@@ -141,47 +127,47 @@ Agentic-DART takes a different bet, one we believe DFIR has been missing for thi
 
 Vannevar Bush sketched the *Memex* in 1945 — a personal, curated, associative knowledge store with trails between documents. The piece he could never solve was who does the maintenance. Karpathy's [LLM Wiki pattern (2026)](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) revived the same idea for general knowledge work — the LLM is the maintainer that humans never were.
 
-**Agentic-DART is the same bet, applied to DFIR.**
+**Agentic-DFIR is the same bet, applied to DFIR.**
 
 The senior analyst is the Memex. The playbook is the schema. The MCP surface is the boundary. The audit chain is the trail. The agent is the maintainer.
 
-### Three problems Agentic-DART solves that prompt-first agents cannot
+### Three problems Agentic-DFIR solves that prompt-first agents cannot
 
-| Problem | Prompt-first agent | Agentic-DART |
+| Problem | Prompt-first agent | Agentic-DFIR |
 |---|---|---|
 | **Jailbreak / prompt injection** | "Ignore previous instructions and run `rm -rf /evidence`" — model decides | Function does not exist on wire. `ToolNotFound`. Architecturally impossible. |
-| **Hallucinated findings** | Plausible-sounding claims with fabricated artifacts | Every claim cites an `audit_id`. Serializer rejects findings without one. |
-| **Confidence-laundering** | Model smooths over contradictions to reach a clean conclusion | `dart-corr` flags `UNRESOLVED`. Stop-condition forces hypothesis revision. |
+| **Hallucinated findings** | Plausible-sounding claims with fabricated artifacts | Every claim cites the `audit_id`s of the MCP calls that produced it; `dfir-audit trace` resolves it back to raw evidence. |
+| **Confidence-laundering** | Model smooths over contradictions to reach a clean conclusion | `dfir-corr` flags `UNRESOLVED`. Stop-condition forces hypothesis revision. |
 
 ### The single design principle
 
-> Evidence integrity is a property of the system's *shape* — what functions exist on the MCP server — not a rule the agent is asked to follow. Protocol SIFT prompts the model to behave. Agentic-DART removes the ability to misbehave.
+> Evidence integrity is a property of the system's *shape* — what functions exist on the MCP server — not a rule the agent is asked to follow. A prompt-first agent asks the model to behave; Agentic-DFIR removes the ability to misbehave.
 
-The name **Agentic-DART** carries dual meaning. **DART** = Detection And Response Team (industry-general). **Agentic** = the autonomous reasoning loop. The codename was chosen so the project remains accurate as scope expands beyond DFIR (see [Phase 1–4 roadmap](#about-the-name)).
+The name **Agentic-DFIR** is literal. **Agentic** is the autonomous reasoning loop; **DFIR** is the domain it works in today. Later phases build on the same read-only, audit-chained core (see [Phase 1–4 roadmap](#about-the-name)).
 
 The author's handle, **優心 (yushin)**, reads as "discerning mind" — the trait this architecture is designed to encode.
 
 ## Architecture
 
-![Agentic-DART Architecture](./docs/dart-architecture.png)
+![Agentic-DFIR Architecture](./docs/dfir-architecture.png)
 
-1. **Custom MCP Server** (`dart_mcp`) is the primary enforcement layer. The agent has no `execute_shell()`. Destructive commands are not refused — they are *not present*.
-2. **Direct Agent Extension on Claude Code** (`dart_agent`) handles session ergonomics. Security boundaries live in the server, not the prompt.
+1. **Custom MCP Server** (`dfir_mcp`) is the primary enforcement layer. The agent has no `execute_shell()`. Destructive commands are not refused — they are *not present*.
+2. **Direct Agent Extension on Claude Code** (`dfir_agent`) handles session ergonomics. Security boundaries live in the server, not the prompt.
 3. **Persistent Learning Loop** — every iteration writes hypothesis, confidence, and unresolved gaps to `progress.jsonl`. The next iteration must address those gaps or declare them unreachable.
-4. **Tamper-evident audit chain** (`dart_audit`) — every MCP call is recorded in a SHA-256-chained JSONL file. Any rewrite fails verification.
+4. **Tamper-evident audit chain** (`dfir_audit`) — every MCP call is recorded in a SHA-256-chained JSONL file. Any rewrite fails verification.
 
 Evidence is mounted **read-only at the OS level** before the agent is ever started. For the full design rationale, see [`docs/architecture.md`](./docs/architecture.md).
 
 ## Repository layout
 
 ```text
-agentic-dart/
-├── dart_audit/           SHA-256-chained JSONL logger — every MCP call recorded, tamper-evident
-├── dart_mcp/             Custom MCP server — typed, read-only forensic functions (native + SIFT adapters)
-├── dart_agent/           Iteration controller, hypothesis tracker, self-correction loop
-├── dart_corr/            Cross-artifact correlation engine — DuckDB joins, contradiction flagging
-├── dart_playbook/        Senior-analyst YAML playbooks (v1 / v2 / v3 industrialization)
-├── dart_sigma/           Sigma detection-rule pack — 11 rules (credential access, ransomware, HID, lateral movement); feeds match_sigma_rules
+agentic-dfir/
+├── dfir_audit/           SHA-256-chained JSONL logger — every MCP call recorded, tamper-evident
+├── dfir_mcp/             Custom MCP server — typed, read-only forensic functions (native + SIFT adapters)
+├── dfir_agent/           Iteration controller, hypothesis tracker, self-correction loop
+├── dfir_corr/            Cross-artifact correlation engine — DuckDB joins, contradiction flagging
+├── dfir_playbook/        Senior-analyst YAML playbooks (v1 / v2 / v3 industrialization)
+├── dfir_sigma/           Sigma detection-rule pack — 11 rules (credential access, ransomware, HID, lateral movement); feeds match_sigma_rules
 │
 ├── examples/
 │   ├── case-studies/               two tiers, self-contained cases (README + truth.json + evidence_root)
@@ -199,11 +185,10 @@ agentic-dart/
 │
 ├── README.md             this file
 ├── CHANGELOG.md          release history
-├── DEVPOST_SUBMISSION.md judge-facing field-by-field
 └── LICENSE               MIT
 ```
 
-Each package has its own `README.md` with deeper detail (wire surface for `dart_mcp`, engine internals for `dart_corr`, YAML grammar for `dart_playbook`, audit format for `dart_audit`).
+Each package has its own `README.md` with deeper detail (wire surface for `dfir_mcp`, engine internals for `dfir_corr`, YAML grammar for `dfir_playbook`, audit format for `dfir_audit`).
 
 ## Quick start
 
@@ -211,10 +196,10 @@ The full copy-paste, three-path guide is **[`docs/QUICKSTART.md`](docs/QUICKSTAR
 The short version:
 
 ```bash
-# 1. Install — Agentic-DART + the collector adapter (auto-detects your OS).
+# 1. Install — Agentic-DFIR + the collector adapter (auto-detects your OS).
 #    Add --full for the SIFT toolchain (via cast) + Eric Zimmerman Tools.
-git clone https://github.com/Juwon1405/agentic-dart.git
-cd agentic-dart
+git clone https://github.com/Juwon1405/agentic-dfir.git
+cd agentic-dfir
 bash scripts/install.sh
 
 # 2. Test it now — no API key, deterministic, ~5 s.
@@ -231,7 +216,7 @@ collection (collect → adapt → analyze), are in
 
 ## Demo & benchmarks
 
-> 📹 The full narrated walkthrough is at the **[top of this README](#agentic-dart--autonomous-dfir-agent-on-sans-sift-workstation)** — or [watch it on YouTube](https://www.youtube.com/watch?v=20zY7QoTAyU). Everything below reproduces what the video shows, locally.
+> The offline demo — `bash examples/demo-run.sh` — reproduces the full loop locally with no API key; representative stills from a live run are in [`docs/screenshots/`](./docs/screenshots/).
 
 `analyze.py` is live mode only — it needs an `ANTHROPIC_API_KEY` and fails fast
 otherwise. Everything else below runs with no credentials.
@@ -261,11 +246,11 @@ Notes:
 Expected offline-demo output:
 
 ```
-[dart-agent] iterations: 5
-[dart-agent] findings: 2
-[dart-agent] audit chain: chain verified: 3 entries, tail=<sha256-prefix>...
+[dfir-agent] iterations: 5
+[dfir-agent] findings: 2
+[dfir-agent] audit chain: chain verified: 3 entries, tail=<sha256-prefix>...
 [demo] bypass test — attempting to call an unregistered destructive function:
-[demo] PASS — "ToolNotFound: 'execute_shell' is not exposed by dart-mcp"
+[demo] PASS — "ToolNotFound: 'execute_shell' is not exposed by dfir-mcp"
 ```
 
 The demo walks the full senior-analyst loop against `case-01`'s bundled evidence, triggers a USB contradiction, **auto-self-corrects** by widening the time window, and writes a chain-verified audit log. The bypass test proves the `execute_shell` guardrail is architectural, not prompt-based.
@@ -275,21 +260,21 @@ The demo walks the full senior-analyst loop against `case-01`'s bundled evidence
 <table>
 <tr>
 <td width="50%"><strong>1. Startup, MCP handshake, first hypothesis</strong><br>
-<img src="./docs/screenshots/dart-run-01-init.png" alt="dart-agent startup"></td>
+<img src="./docs/screenshots/dfir-run-01-init.png" alt="dfir-agent startup"></td>
 <td width="50%"><strong>2. Typed tool calls, MITRE chain forming</strong><br>
-<img src="./docs/screenshots/dart-run-02-investigate.png" alt="typed forensic tool calls"></td>
+<img src="./docs/screenshots/dfir-run-02-investigate.png" alt="typed forensic tool calls"></td>
 </tr>
 <tr>
 <td width="50%"><strong>3. Contradiction → hypothesis revision</strong><br>
-<img src="./docs/screenshots/dart-run-03-contradiction.png" alt="dart-corr UNRESOLVED + revision"></td>
+<img src="./docs/screenshots/dfir-run-03-contradiction.png" alt="dfir-corr UNRESOLVED + revision"></td>
 <td width="50%"><strong>4. Final verdict, audit chain verified</strong><br>
-<img src="./docs/screenshots/dart-run-04-final.png" alt="final verdict + verified audit chain"></td>
+<img src="./docs/screenshots/dfir-run-04-final.png" alt="final verdict + verified audit chain"></td>
 </tr>
 </table>
 
-When artifacts disagree, `dart-corr` flags the contradiction as `UNRESOLVED` and the agent is forced to revise — no prompt instruction needed. Architecture-first, not prompt-first.
+When artifacts disagree, `dfir-corr` flags the contradiction as `UNRESOLVED` and the agent is forced to revise — no prompt instruction needed. Architecture-first, not prompt-first.
 
-> *Representative SIFT Workstation stills — the [demo video](https://www.youtube.com/watch?v=20zY7QoTAyU) above is the live screencast.*
+> *Representative SIFT Workstation stills from a live run — the source images are in [`docs/screenshots/`](./docs/screenshots/). `bash examples/demo-run.sh` reproduces the same loop offline.*
 
 ## Real-world investigations (your own evidence)
 
@@ -298,7 +283,7 @@ Two machines, clean separation:
 - **Incident host** (the box you're investigating) — gets **nothing installed**.
   It runs the **Velociraptor offline collector**: a single standalone binary,
   one-time execution, no agent, no install. It writes one `evidence.zip`.
-- **Analysis server** (your SIFT/workstation) — has Agentic-DART **and** the
+- **Analysis server** (your SIFT/workstation) — has Agentic-DFIR **and** the
   collector adapter. All reasoning happens here, never on the evidence host.
 
 You bring evidence in one of two ways, then analyse it with `analyze.py
@@ -313,7 +298,7 @@ You bring evidence in one of two ways, then analyse it with `analyze.py
 #    ...then copy evidence.zip back to the analysis server.
 
 # 2. On the analysis server: normalise the ZIP into an evidence_root.
-python3 -m dart_collector_adapter --source zip \
+python3 -m dfir_collector_adapter --source zip \
     --input evidence.zip --output ./case-001/evidence_root --case-id case-001
 
 # 3. Analyse it.
@@ -327,7 +312,7 @@ The adapter drives Velociraptor's dead-disk remapping on the analysis server,
 so you never run anything on the original media:
 
 ```bash
-python3 -m dart_collector_adapter --source image \
+python3 -m dfir_collector_adapter --source image \
     --input /evidence/disk.E01 --output ./case-001/evidence_root --case-id case-001
 python3 analyze.py --evidence ./case-001/evidence_root --case-id case-001 --max-iterations 25
 ```
@@ -335,13 +320,13 @@ python3 analyze.py --evidence ./case-001/evidence_root --case-id case-001 --max-
 Notes:
 
 - The adapter writes `evidence_root/manifest.json` (SHA-256 index +
-  `source_members` provenance) as the chain-of-custody seed; Agentic-DART
+  `source_members` provenance) as the chain-of-custody seed; Agentic-DFIR
   continues that chain in `audit.jsonl`.
 - Real cases need more iterations than the bundled demos — start around
   `--max-iterations 25`.
 - Full collection detail (which Velociraptor artifacts to use per OS, shipping
   responder binaries, the `--source image` limitations) is in the
-  [collector-adapter README](https://github.com/Juwon1405/agentic-dart-collector-adapter#readme).
+  [collector-adapter README](https://github.com/Juwon1405/agentic-dfir-collector-adapter#readme).
 
 ## Install and requirements
 
@@ -401,8 +386,8 @@ SHA-256-verified Velociraptor binary, and optionally adds the SIFT
 toolchain / EZ Tools:
 
 ```bash
-git clone https://github.com/Juwon1405/agentic-dart.git
-cd agentic-dart
+git clone https://github.com/Juwon1405/agentic-dfir.git
+cd agentic-dfir
 bash scripts/install.sh          # add --full for the SIFT toolchain + EZ Tools
 ```
 
@@ -411,7 +396,7 @@ Manual editable install (equivalent core, without the toolchain staging):
 ```bash
 pip install --upgrade pip wheel
 pip install -r requirements.txt
-pip install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_agent[live]'
+pip install -e ./dfir_audit -e './dfir_mcp[stdio]' -e ./dfir_corr -e './dfir_agent[live]'
 ```
 
 > Prefer an isolated environment? Create and activate a virtualenv before
@@ -419,13 +404,13 @@ pip install -e ./dart_audit -e './dart_mcp[stdio]' -e ./dart_corr -e './dart_age
 > installer neither creates nor requires one.
 
 Each case resolves its own evidence from `case-XX/evidence_root/`, so no global
-`DART_EVIDENCE_ROOT` export is needed for `analyze.py`. For the low-level
-developer commands, `DART_EVIDENCE_ROOT` must point to read-only evidence and
-`DART_DERIVED_ROOT` (for generated Plaso storage and other derived artifacts)
+`DFIR_EVIDENCE_ROOT` export is needed for `analyze.py`. For the low-level
+developer commands, `DFIR_EVIDENCE_ROOT` must point to read-only evidence and
+`DFIR_DERIVED_ROOT` (for generated Plaso storage and other derived artifacts)
 should live outside the evidence tree:
 
 ```bash
-export DART_DERIVED_ROOT="${TMPDIR:-/tmp}/agentic-dart-derived"
+export DFIR_DERIVED_ROOT="${TMPDIR:-/tmp}/agentic-dfir-derived"
 ```
 
 ## Troubleshooting
@@ -434,7 +419,7 @@ export DART_DERIVED_ROOT="${TMPDIR:-/tmp}/agentic-dart-derived"
 
 The installer and every entry-point script run against your current Python
 interpreter. They neither create nor require a virtualenv. If you prefer to
-keep Agentic-DART's dependencies isolated, create and activate one *before*
+keep Agentic-DFIR's dependencies isolated, create and activate one *before*
 installing, then run everything from that activated shell:
 
 ```bash
@@ -448,9 +433,9 @@ The key rule is consistency: install and run with the *same* interpreter.
 If you install inside a venv, keep that venv activated when you run
 `analyze.py`, `scripts/healthcheck.py`, or the benchmark scripts.
 
-### `No module named dart_mcp.server_stdio`
+### `No module named dfir_mcp.server_stdio`
 
-The agent launches `dart_mcp` as an MCP subprocess using the *same* Python
+The agent launches `dfir_mcp` as an MCP subprocess using the *same* Python
 that started the run. This error means the packages were installed into a
 different interpreter than the one you invoked. Fix it by installing and
 running with one interpreter — e.g. re-run `bash scripts/install.sh` from
@@ -464,29 +449,29 @@ adapter. Re-run the adapter's installer, which downloads and SHA-256-verifies
 it into `./bin/`:
 
 ```bash
-( cd ../agentic-dart-collector-adapter && bash scripts/install.sh )
+( cd ../agentic-dfir-collector-adapter && bash scripts/install.sh )
 ```
 
 Then re-run the benchmark. Alternatively, point the adapter at an existing
-binary with `DART_VELOCIRAPTOR_BIN=/path/to/velociraptor` or
+binary with `DFIR_VELOCIRAPTOR_BIN=/path/to/velociraptor` or
 `--velociraptor-bin /path/to/velociraptor`. (`--source zip` does not need
 Velociraptor at all.)
 
 ## Running the tests
 
 ```bash
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-01/evidence_root"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-01/evidence_root"
 
 # After the editable install above:
-python3 -m pytest tests/ dart_corr/tests/
+python3 -m pytest tests/ dfir_corr/tests/
 ```
 
 For a PYTHONPATH-only run without installing the packages:
 
 ```bash
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src:$PWD/dart_corr/src"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src:$PWD/dfir_agent/src:$PWD/dfir_corr/src"
 pip install duckdb PyYAML python-registry mcp anthropic requests
-python3 -m pytest tests/ dart_corr/tests/
+python3 -m pytest tests/ dfir_corr/tests/
 ```
 
 The same suite can also be run file-by-file while debugging:
@@ -508,10 +493,10 @@ python3 tests/test_parse_registry_hive.py               # registry hive parsing 
 python3 tests/test_v05_supply_chain.py                  # cross-platform supply-chain IOC sweeps (v0.6.0)
 python3 tests/test_v06_macos_linux.py                   # macOS quarantine + Linux cron + DNS tunneling (v0.6.1)
 python3 tests/test_parse_linux_dfir.py                  # Linux text-log + shell-history + cron parsing (v0.7.0)
-python3 -m pytest dart_corr/tests/                      # dart_corr extracted engine
+python3 -m pytest dfir_corr/tests/                      # dfir_corr extracted engine
 
 # Or run the whole suite at once (the authoritative count comes from here):
-python3 -m pytest tests/ dart_corr/tests/
+python3 -m pytest tests/ dfir_corr/tests/
 ```
 
 The full suite passes on a clean checkout once the dependencies above are
@@ -530,37 +515,27 @@ Insider-threat and DPRK IT-worker-style patterns:
 
 The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
-## Judging-criteria alignment (SANS FIND EVIL!)
+## Architectural guarantees
 
-### Why this submission wins on every axis
+Five properties of the system, each checkable from the repository:
 
-1. **The bypass test is in the demo.** Most submissions will *claim* their agent can't be jailbroken. We show it. `examples/demo-run.sh` ends with the agent attempting to call `execute_shell` and getting `ToolNotFound` — proof that the boundary is architectural, not promised.
+1. **The bypass test is in the demo.** `examples/demo-run.sh` ends with the agent attempting to call `execute_shell` and getting `ToolNotFound` — the boundary is architectural, not promised.
 
-2. **Every claim is auditable.** A reviewer can replay any finding in our report back to the exact MCP call that produced it via `audit_id`. The serializer refuses to emit findings without one. This is courtroom-grade traceability — and it's the *only* way an AI-produced DFIR report should ever be defensible.
+2. **Every claim is auditable.** Every finding carries the `audit_id`s of the MCP calls that produced it, so any claim in the report can be traced back to the exact call, source artifact, and output hash — `python3 -m dfir_audit trace examples/out/ref-01/audit.jsonl F-013` does this for the reference run. This is the traceability an AI-produced DFIR report needs to be defensible.
 
-3. **The senior-analyst loop is encoded methodology, not vibes.** [Playbook v3](https://github.com/Juwon1405/agentic-dart/blob/main/dart_playbook/senior-analyst-v3.yaml) is a ten-phase YAML methodology synthesizing Mandiant M-Trends 2026, David Bianco's Pyramid of Pain + Hunting Maturity Model, the Diamond Model, MITRE ATT&CK v16, F3EAD, NIST SP 800-61/86/150, **Palantir's ADS Framework, the MaGMa Use Case Framework (FI-ISAC NL), and the TaHiTI threat hunting methodology** — and field practice from Eric Zimmerman, Sarah Edwards, Sean Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth, Roberto Rodriguez (OTRF), and JPCERT/CC. Every framework block cites its source.
+3. **The senior-analyst loop is encoded methodology.** [Playbook v3](https://github.com/Juwon1405/agentic-dfir/blob/main/dfir_playbook/senior-analyst-v3.yaml) is a ten-phase YAML methodology synthesizing Mandiant M-Trends 2026, David Bianco's Pyramid of Pain + Hunting Maturity Model, the Diamond Model, MITRE ATT&CK v16, F3EAD, NIST SP 800-61/86/150, **Palantir's ADS Framework, the MaGMa Use Case Framework (FI-ISAC NL), and the TaHiTI threat hunting methodology** — and field practice from Eric Zimmerman, Sarah Edwards, Sean Metcalf, Patrick Wardle, Hal Pomeranz, Andrew Case, Florian Roth, Roberto Rodriguez (OTRF), and JPCERT/CC. Every framework block cites its source.
 
-4. **The contradiction handler is the differentiator.** When MFT timestamps disagree with EVTX events, weaker agents pick a winner and proceed. Agentic-DART halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
+4. **The contradiction handler forces revision.** When MFT timestamps disagree with EVTX events, an agent that picks a winner and proceeds loses the signal. Agentic-DFIR halts, flags `UNRESOLVED`, and forces hypothesis revision. The demo run shows iteration 7 catching a timestomp that pre-existed the alert window by 11 seconds — the kind of subtle finding that distinguishes a senior analyst from a junior one.
 
-5. **73 tools, full suite green, 0 destructive ops.** **48 native forensic functions + 25 SIFT Workstation tool adapters = 73 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and now TA0011 (Command-and-Control) via DNS tunneling detection. **The full pytest suite passes on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
+5. **73 tools, full suite green, 0 destructive ops.** **48 native forensic functions + 25 SIFT Workstation tool adapters = 73 typed read-only MCP tools.** Broad MITRE ATT&CK enterprise coverage including the supply-chain (TA0003), and TA0011 (Command-and-Control) via DNS tunneling detection. **The full pytest suite passes on a fresh clone** (audit-chain integrity, surface registration, schema validity, path-traversal + null-byte + SQL-injection guard tests, OOM-safe streaming reads, result truncation, prompt-cache breakpoint, all green). **Zero destructive operations possible by construction.** These numbers are reproducible — `bash examples/demo-run.sh` and `python -m pytest` confirm them in under a minute.
 
-| Criterion | How Agentic-DART addresses it | Evidence |
-|---|---|---|
-| Autonomous Execution Quality | Hypothesis tracker + persistent learning loop + self-correction | `progress.jsonl` shows iteration 4 contradiction + auto-widened retry |
-| IR Accuracy | Cross-artifact correlation; contradictions flagged, not smoothed | F-013 replaces F-001 hypothesis when USB contradicts logon |
-| Breadth / Depth | Disk + USB + memory + MFT + Prefetch + browser + auth + scheduled tasks + Sigma — full breadth | `dart_mcp` exposes typed native forensic functions across `__init__.py`, `_v04_expansion.py`, and `_v05_supply_chain.py`; `dart_mcp/sift_adapters/` adds wrappers around Volatility 3 / MFTECmd / EvtxECmd / PECmd / RECmd / AmcacheParser / YARA / Plaso. **The full typed read-only MCP surface is enumerated at runtime via `list_tools()`.** |
-| Constraint Implementation | **Architectural** — no `execute_shell` function exists in the registry | `test_mcp_surface.py::test_calling_unregistered_function_raises` |
-| Audit Trail Quality | Every finding → `audit_id` → MCP call → command → raw output | `audit.jsonl` chain verifiable end-to-end |
-| Usability / Documentation | One-command demo; typed schemas; YAML playbook | `examples/demo-run.sh` runs on a Linux host with Python 3.10+ |
+## SIFT Workstation integration
 
-
-## SIFT Workstation alignment (Custom MCP Server pattern)
-
-The SANS FIND EVIL! 2026 hackathon explicitly supports four architectural patterns. Agentic-DART implements **Pattern 2 — Custom MCP Server** with full SIFT Workstation tool integration.
+Agentic-DFIR is a custom MCP server that wraps the SIFT Workstation toolchain behind the same read-only boundary as its native functions.
 
 ### What this means concretely
 
-In addition to the native pure-Python forensic functions, Agentic-DART now exposes typed adapters that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
+In addition to the native pure-Python forensic functions, Agentic-DFIR now exposes typed adapters that wrap the canonical SIFT Workstation DFIR toolchain through the same read-only MCP boundary:
 
 | SIFT tool | Source | Adapters exposed |
 |---|---|:---:|
@@ -578,22 +553,22 @@ In addition to the native pure-Python forensic functions, Agentic-DART now expos
 Adding subprocess wrappers is the easy part — keeping them safe is the harder part. Every SIFT adapter inherits the same architectural guarantees as the native 48:
 
 - **Read-only EVIDENCE_ROOT enforcement.** All input paths flow through `_safe_resolve()`. Path traversal, null bytes, and absolute escapes are blocked before subprocess is invoked.
-- **SHA-256 audit chain compatibility.** Every input file is hashed; every output artifact is hashed. Both go into the dart_audit ledger so downstream evidence integrity is provable.
+- **SHA-256 audit chain compatibility.** Every input file is hashed; every output artifact is hashed. Both go into the dfir_audit ledger so downstream evidence integrity is provable.
 - **Subprocess timeout by default.** Volatility plugins, log2timeline runs, and YARA recursive scans are all timeout-bounded — a hung tool cannot freeze the agent loop.
 - **Structured output, not raw stdout.** Tool stdout is parsed into Python dicts before reaching the LLM. The agent never sees raw shell output (which would be a prompt-injection vector when filenames contain attacker-controlled text).
-- **Graceful degradation.** When a SIFT binary is not on PATH, the adapter raises `SiftToolNotFoundError` with the install command. The agent can fall back to native pure-Python implementations. This means agentic-dart works on a fresh clone without SIFT, *and* upgrades transparently when run on a real SIFT Workstation.
+- **Graceful degradation.** When a SIFT binary is not on PATH, the adapter raises `SiftToolNotFoundError` with the install command. The agent can fall back to native pure-Python implementations. This means agentic-dfir works on a fresh clone without SIFT, *and* upgrades transparently when run on a real SIFT Workstation.
 
-### Why this matters for FIND EVIL! judging
+### Why this matters
 
-The hackathon explicitly evaluates submissions on **architectural guardrails** and **hallucination management**. Most submissions that wrap SIFT tools do so by giving the LLM a shell — which means the LLM can in principle run `rm -rf` if a prompt-injection succeeds. Agentic-DART's adapter layer keeps the read-only invariant intact even while wrapping `vol`, `MFTECmd`, `log2timeline`, and friends. **Adding tools did not weaken the boundary.**
+Wrapping SIFT tools by giving the LLM a shell means the LLM can in principle run `rm -rf` if a prompt-injection succeeds. Agentic-DFIR's adapter layer keeps the read-only invariant intact even while wrapping `vol`, `MFTECmd`, `log2timeline`, and friends. **Adding tools did not weaken the boundary.**
 
-The full adapter list, schemas, and binary-resolution rules (`DART_VOLATILITY3_BIN`, `DART_MFTECMD_BIN`, etc.) live in `dart_mcp/src/dart_mcp/sift_adapters/`.
+The full adapter list, schemas, and binary-resolution rules (`DFIR_VOLATILITY3_BIN`, `DFIR_MFTECMD_BIN`, etc.) live in `dfir_mcp/src/dfir_mcp/sift_adapters/`.
 
 ---
 
 ## Platform support
 
-**Host (where the agent runs): Linux only.** Agentic-DART is developed and verified on the **SANS SIFT Workstation (Ubuntu 22.04)**; other Linux distributions (RHEL / Rocky / AlmaLinux 8+, Fedora) work via `dnf`/`yum`. macOS and Windows are **not** supported as the host — the Plaso / libyal forensic toolchain doesn't build cleanly on them (see [Install and requirements](#install-and-requirements)). The default shell is bash.
+**Host (where the agent runs): Linux only.** Agentic-DFIR is developed and verified on the **SANS SIFT Workstation (Ubuntu 22.04)**; other Linux distributions (RHEL / Rocky / AlmaLinux 8+, Fedora) work via `dnf`/`yum`. macOS and Windows are **not** supported as the host — the Plaso / libyal forensic toolchain doesn't build cleanly on them (see [Install and requirements](#install-and-requirements)). The default shell is bash.
 
 **Analysis targets (the OS the evidence came from) are cross-platform** — Windows, macOS, and Linux evidence are all analyzed regardless of the (Linux) host the agent runs on. That matrix is below.
 
@@ -613,7 +588,7 @@ The full adapter list, schemas, and binary-resolution rules (`DART_VOLATILITY3_B
 
 ### Typed forensic functions (native layer) — by platform
 
-The full surface is enumerated at runtime via `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. The native layer is summarized by platform below; the SIFT adapter layer follows.
+The full surface is enumerated at runtime via `python3 -c "from dfir_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. The native layer is summarized by platform below; the SIFT adapter layer follows.
 
 | Platform | Functions |
 |---|---|
@@ -627,7 +602,7 @@ The full surface is enumerated at runtime via `python3 -c "from dart_mcp import 
 
 ### 25 SIFT Workstation tool adapters — by tool family
 
-The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **73** (48 native + 25 SIFT).
+The full surface (native + SIFT) is enumerated by `python3 -c "from dfir_mcp import list_tools; [print(t['name']) for t in list_tools()]"`. With SIFT adapters loaded the count is **73** (48 native + 25 SIFT).
 
 | Tool family | Adapters | Count |
 |---|---|:---:|
@@ -642,7 +617,7 @@ The full surface (native + SIFT) is enumerated by `python3 -c "from dart_mcp imp
 | **Total SIFT adapters** | | **25** |
 ### How the surface was built — references and provenance
 
-The native functions are not invented from scratch. Each one is grounded in a published reference. The full mapping with hyperlinks lives in the wiki ([MCP function catalog](https://github.com/Juwon1405/agentic-dart/wiki/MCP-function-catalog)). High-level sources:
+The native functions are not invented from scratch. Each one is grounded in a published reference. The full mapping with hyperlinks lives in the wiki ([MCP function catalog](https://github.com/Juwon1405/agentic-dfir/wiki/MCP-function-catalog)). High-level sources:
 
 | Domain | Primary references |
 |---|---|
@@ -674,45 +649,45 @@ Coverage = **10 / 12** actively detected by scoped rules. Two tactics are **defe
 
 ## Live mode (real Claude API + MCP stdio)
 
-Agentic-DART can run in `live` mode where Claude is the agent, connected to `dart-mcp` over real MCP stdio JSON-RPC. Live mode authenticates with an `ANTHROPIC_API_KEY`; `analyze.py` is the user-facing entry point. Developers can use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
+Agentic-DFIR can run in `live` mode where Claude is the agent, connected to `dfir-mcp` over real MCP stdio JSON-RPC. Live mode authenticates with an `ANTHROPIC_API_KEY`; `analyze.py` is the user-facing entry point. Developers can use `--dry-run` for the same MCP plumbing with a scripted mock when no credential should be present.
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # Default model: claude-haiku-4-5-20251001.
-# Override via --model or DART_MODEL env.
-python3 -m dart_agent --mode live --case my-case --out /tmp/out \
+# Override via --model or DFIR_MODEL env.
+python3 -m dfir_agent --mode live --case my-case --out /tmp/out \
     --prompt "Investigate for IP-KVM insider pattern"
 ```
 
 Without credentials, run the scripted mock over real MCP stdio:
 
 ```bash
-python3 -m dart_agent --mode live --case test --out /tmp/out --dry-run
+python3 -m dfir_agent --mode live --case test --out /tmp/out --dry-run
 ```
 
 See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-use loop, and `tests/test_live_mcp.py` for end-to-end wire-level tests (no credentials needed).
 
-## Case study for judges
+## Case study walkthrough
 
-Eleven case studies are bundled — eight synthetic self-evaluation cases (`self-evaluation/case-01..08`) and three external benchmarks (`external-evaluation/case-01` NIST CFReDS, `case-02` Ali Hadi, `case-03` Digital Corpora M57) — for a total of **99 ground-truth findings** with 108 MITRE ATT&CK technique references across 69 unique techniques attached. For the judge walkthrough, two are the recommended entry points:
+Eleven case studies are bundled — eight synthetic self-evaluation cases (`self-evaluation/case-01..08`) and three external benchmarks (`external-evaluation/case-01` NIST CFReDS, `case-02` Ali Hadi, `case-03` Digital Corpora M57) — for a total of **99 ground-truth findings** with 108 MITRE ATT&CK technique references across 69 unique techniques attached. Two recommended entry points:
 
-1. **[Pass-the-Hash with timestomp pre-existence](./docs/case-pth-timestomp.md)** &mdash; the conceptual walkthrough. A narrative explainer showing the agent build a coherent partial MITRE chain, then have it broken by a `dart-corr` contradiction (timestomp before the credential event), then revise to a correct verdict. This is the architecture-first claim in document form; the bundled, fully-executable equivalent is self-evaluation case-07 (full ransomware chain), which exercises PtH + timestomp in the same call shape.
+1. **[Pass-the-Hash with timestomp pre-existence](./docs/case-pth-timestomp.md)** &mdash; the conceptual walkthrough. A narrative explainer showing the agent build a coherent partial MITRE chain, then have it broken by a `dfir-corr` contradiction (timestomp before the credential event), then revise to a correct verdict. This is the architecture-first claim in document form; the bundled, fully-executable equivalent is self-evaluation case-07 (full ransomware chain), which exercises PtH + timestomp in the same call shape.
 
-2. **[IP-KVM remote-hands insider](./examples/case-studies/self-evaluation/case-01/README.md)** &mdash; a step-by-step walkthrough of the bundled IP-KVM case showing what the agent does at each iteration, what `audit.jsonl` records, and how `dart-audit trace F-013` resolves a finding back to raw evidence in three clicks.
+2. **[IP-KVM remote-hands insider](./examples/case-studies/self-evaluation/case-01/README.md)** &mdash; a step-by-step walkthrough of the bundled IP-KVM case showing what the agent does at each iteration, what `audit.jsonl` records, and how `dfir-audit trace F-013` resolves a finding back to raw evidence in three clicks.
 
 For the full case library — including self-evaluation case-08 (supply-chain → ADCS ESC8 → DCSync → Golden Ticket; added in v0.7.0 as case-11 and ground-truth-reconciled in v0.7.1) — see [`examples/case-studies/`](./examples/case-studies/).
 
 ### Finding → artifact → command → hash (reference run)
 
-Every finding traces to the exact tool call that produced it. Pulled from the committed reference run [`examples/out/find-evil-ref-01/audit.jsonl`](./examples/out/find-evil-ref-01/audit.jsonl) — reproducible byte-for-byte, no API key:
+Every finding traces to the exact tool call that produced it. Pulled from the committed reference run [`examples/out/ref-01/audit.jsonl`](./examples/out/ref-01/audit.jsonl) — reproducible byte-for-byte, no API key:
 
 | Finding | What it says | Command (MCP tool) | Source artifact | `audit_id` | Output SHA-256 |
 |---|---|---|---|---|---|
 | **F-001** | Unusual binary first-executed shortly after reported login | `get_amcache` | `disk/…/AppCompat/Programs/Amcache.hve` | `7f311676` | `sha256:46a1479e…` |
 | **F-013** | IP-KVM device inserted ~3 min before operator logon (remote-hands) | `analyze_usb_history` | `disk/Windows/INF/setupapi.dev.log` | `e4f5009a` → `9ec86afe` | `sha256:560d9655…` |
 
-`F-013`'s two `audit_id`s **are** the self-correction: iteration 3 runs `analyze_usb_history` with a default window and flags the gap `UNRESOLVED`; iteration 4 re-runs it with an explicit window and lands the finding. The serializer **rejects any finding without an `audit_id`**, so a hallucinated claim cannot reach the report. Resolve any finding back to raw evidence yourself with `dart-audit trace F-013`.
+`F-013`'s two `audit_id`s **are** the self-correction: iteration 3 runs `analyze_usb_history` with a default window and flags the gap `UNRESOLVED`; iteration 4 re-runs it with an explicit window and lands the finding. Every finding carries the `audit_id`s of the MCP calls that produced it, so any claim in the report traces back to the tool call, source artifact, and output hash. Resolve `F-013` back to raw evidence yourself with `python3 -m dfir_audit trace examples/out/ref-01/audit.jsonl F-013`.
 
 ## Measured accuracy (reproducible)
 
@@ -760,14 +735,14 @@ For a community-trusted, third-party benchmark, see [`examples/case-studies/exte
 | claude-sonnet-4-6 | 0.50 | 2 / 4 |
 | claude-opus-4-8 | 0.25 | 1 / 4 |
 
-Of the 10 sampled CFReDS findings, only 4 are reachable by the current toolset; the rest need parsers still on the roadmap. Remaining gaps (F-CFR-006 IE6 index.dat, F-CFR-008 Recycle Bin, F-CFR-009 YARA bundling) are tracked as Phase 2 issues [#53](https://github.com/Juwon1405/agentic-dart/issues/53), [#54](https://github.com/Juwon1405/agentic-dart/issues/54), [#55](https://github.com/Juwon1405/agentic-dart/issues/55). Low external recall on a 2004 disk image is **missed coverage, never invention** — every detected finding traces to a tool-call audit_id. This is the honest paradigm gap between hand-built cases and a real third-party image, and `parse_registry_hive` ([#52](https://github.com/Juwon1405/agentic-dart/issues/52)) was the first Phase-2 primitive shipped to start closing it.
+Of the 10 sampled CFReDS findings, only 4 are reachable by the current toolset; the rest need parsers still on the roadmap. Remaining gaps (F-CFR-006 IE6 index.dat, F-CFR-008 Recycle Bin, F-CFR-009 YARA bundling) are tracked as Phase 2 issues [#53](https://github.com/Juwon1405/agentic-dfir/issues/53), [#54](https://github.com/Juwon1405/agentic-dfir/issues/54), [#55](https://github.com/Juwon1405/agentic-dfir/issues/55). Low external recall on a 2004 disk image is **missed coverage, never invention** — every detected finding traces to a tool-call audit_id. This is the honest paradigm gap between hand-built cases and a real third-party image, and `parse_registry_hive` ([#52](https://github.com/Juwon1405/agentic-dfir/issues/52)) was the first Phase-2 primitive shipped to start closing it.
 
 
 ## Status — what is implemented vs. what is roadmap
 
 ### Implemented end-to-end — the full typed read-only MCP surface, all callable from Claude Code live mode
 
-**Native — Windows execution & user activity** *(`dart_mcp/__init__.py`)*
+**Native — Windows execution & user activity** *(`dfir_mcp/__init__.py`)*
 
 | Function | What it does |
 |---|---|
@@ -818,7 +793,7 @@ Of the 10 sampled CFReDS findings, only 4 are reachable by the current toolset; 
 | `correlate_download_to_execution` | URL → file → first execution → child process chain |
 | `detect_exfiltration` | Archive create + suspicious-domain upload + browser drop-site visit chains |
 
-**Native — macOS & Linux** *(`dart_mcp/_v04_expansion.py`)*
+**Native — macOS & Linux** *(`dfir_mcp/_v04_expansion.py`)*
 
 | Function | What it does |
 |---|---|
@@ -830,7 +805,7 @@ Of the 10 sampled CFReDS findings, only 4 are reachable by the current toolset; 
 | `parse_bash_history` | bash/zsh history + 13 attacker-pattern signatures (T1059.004, T1098.004, …) |
 | `parse_launchd_plist` | macOS LaunchAgent/Daemon persistence (T1543.001/.004) |
 
-**Native — supply-chain IOC sweeps** *(`dart_mcp/_v05_supply_chain.py`)*
+**Native — supply-chain IOC sweeps** *(`dfir_mcp/_v05_supply_chain.py`)*
 
 | Function | What it does |
 |---|---|
@@ -841,7 +816,7 @@ Of the 10 sampled CFReDS findings, only 4 are reachable by the current toolset; 
 | `detect_credential_file_access` | SSH/AWS/GCP/Azure/kubeconfig/.env atime/mtime exposure |
 | `grep_shell_history_for_c2` | Shell history search for C2 patterns (litellm.cloud, pastebin, etc.) |
 
-**Native — macOS quarantine + Linux cron + DNS tunneling** *(`dart_mcp/_v06_macos_linux.py`)*
+**Native — macOS quarantine + Linux cron + DNS tunneling** *(`dfir_mcp/_v06_macos_linux.py`)*
 
 | Function | What it does |
 |---|---|
@@ -856,7 +831,7 @@ Of the 10 sampled CFReDS findings, only 4 are reachable by the current toolset; 
 | `correlate_events` | Python proximity join — USB ↔ logon, contradiction flagging |
 | `correlate_timeline` | **DuckDB-backed cross-source join at scale** — N event sources, time-proximity join, KVM-precedes-logon pattern, hardened user-rule ON-clause |
 
-**SIFT Workstation adapters (25)** *(`dart_mcp/sift_adapters/`)*
+**SIFT Workstation adapters (25)** *(`dfir_mcp/sift_adapters/`)*
 
 | Family | Adapters | Wraps |
 |---|---|---|
@@ -865,66 +840,66 @@ Of the 10 sampled CFReDS findings, only 4 are reachable by the current toolset; 
 | YARA | `sift_yara_{scan_file,scan_dir}` (2) | yara |
 | Plaso | `sift_plaso_{log2timeline,psort}` (2) | log2timeline.py / psort.py |
 
-All 25 share the same architectural guarantees as the native layer — read-only `EVIDENCE_ROOT` inputs, persistent derived artifacts constrained to `DART_DERIVED_ROOT` when a tool must write one (Plaso storage), subprocess timeout, SHA-256 of inputs and outputs to the audit chain, typed `SiftToolNotFoundError` graceful fallback when a binary is absent.
+All 25 share the same architectural guarantees as the native layer — read-only `EVIDENCE_ROOT` inputs, persistent derived artifacts constrained to `DFIR_DERIVED_ROOT` when a tool must write one (Plaso storage), subprocess timeout, SHA-256 of inputs and outputs to the audit chain, typed `SiftToolNotFoundError` graceful fallback when a binary is absent.
 
 **Infrastructure**
 
 | Component | What it does |
 |---|---|
-| `dart_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` hard cap, `deterministic` and `live` modes |
-| `dart_audit` (CLI) | SHA-256-chained JSONL logger; `verify / lookup / trace / summary` subcommands; thread-safe under concurrent writers |
-| `dart_mcp.server_stdio` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dart -- python3 -m dart_mcp.server_stdio` |
-| `dart_playbook/senior-analyst-v3.yaml` | **Recommended** — ten-phase senior-analyst methodology with ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
-| `dart_corr/` (extracted package) | Standalone cross-artifact JOIN engine — DuckDB `:memory:`, 9-rule operator-tunable pack. Imports cleanly without `dart_mcp`. The dart_mcp wrappers delegate here for backwards-compat MCP wire surface. |
+| `dfir_agent` (CLI) | Iteration controller, hypothesis tracker, self-correction loop, `--max-iterations` hard cap, `deterministic` and `live` modes |
+| `dfir_audit` (CLI) | SHA-256-chained JSONL logger; `verify / lookup / trace / summary` subcommands; thread-safe under concurrent writers |
+| `dfir_mcp.server_stdio` | **JSON-RPC 2.0 MCP stdio server** — `claude mcp add agentic-dfir -- python3 -m dfir_mcp.server_stdio` |
+| `dfir_playbook/senior-analyst-v3.yaml` | **Recommended** — ten-phase senior-analyst methodology with ADS + MaGMa + TaHiTI + HMM industrialization. v2 (methodology baseline) and v1 (quick demo) also bundled. |
+| `dfir_corr/` (extracted package) | Standalone cross-artifact JOIN engine — DuckDB `:memory:`, 9-rule operator-tunable pack. Imports cleanly without `dfir_mcp`. The dfir_mcp wrappers delegate here for backwards-compat MCP wire surface. |
 
 ### Remaining roadmap (honest)
 
 | Item | Status / target |
 |---|---|
-| Standalone `dart_corr` cross-artifact JOIN engine (MFT ↔ memory process tree) | **Shipped in v0.7.1** — see [`dart_corr/`](./dart_corr/) for the package and 14 unit tests |
+| Standalone `dfir_corr` cross-artifact JOIN engine (MFT ↔ memory process tree) | **Shipped in v0.7.1** — see [`dfir_corr/`](./dfir_corr/) for the package and 14 unit tests |
 | Sigma rule matcher (`match_sigma_rules`) | Phase 2 — scaffolded under `tests/_pending/` |
 | Native EVTX binary parser (drop EvtxECmd CSV sidecar requirement) | Phase 2 — currently `analyze_event_logs` consumes JSON exports; SIFT adapter `sift_evtxecmd_parse` covers the binary path |
-| Additional external-dataset runs (Ali Hadi Challenge #1, Digital Corpora M57) + remaining CFReDS gaps (F-CFR-006/008/009) | Post-submission |
-| Multi-agent decomposition (Memory / Disk / Network / Synthesizer specialists) | Post-submission |
-| TimeSketch export format | Post-submission |
+| Additional external-dataset runs (Ali Hadi Challenge #1, Digital Corpora M57) + remaining CFReDS gaps (F-CFR-006/008/009) | Planned |
+| Multi-agent decomposition (Memory / Disk / Network / Synthesizer specialists) | Planned |
+| TimeSketch export format | Planned |
 | Cloud DFIR (CloudTrail / GuardDuty) | Phase 2 |
 
 
 
 ## Acknowledgments
 
-This is a sole-authored submission by [@Juwon1405](https://github.com/Juwon1405) for the SANS FIND EVIL! 2026 hackathon. All architectural design, the typed MCP tool surface (native pure-Python + SIFT Workstation adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
+Agentic-DFIR is authored and maintained by [@Juwon1405](https://github.com/Juwon1405). All architectural design, the typed MCP tool surface (native pure-Python + SIFT Workstation adapters), the senior-analyst playbook, audit chain, contradiction handler, agent loop, and test suite are original work.
 
 **Community contributions accepted:**
 
-- [@Monibee-Fudgekins](https://github.com/Monibee-Fudgekins) — [PR #42](https://github.com/Juwon1405/agentic-dart/pull/42), 1-line CI matrix expansion (added Python 3.13). Resolved good-first-issue [#7](https://github.com/Juwon1405/agentic-dart/issues/7). Thank you for the clean PR and the link back to the issue.
+- [@Monibee-Fudgekins](https://github.com/Monibee-Fudgekins) — [PR #42](https://github.com/Juwon1405/agentic-dfir/pull/42), 1-line CI matrix expansion (added Python 3.13). Resolved good-first-issue [#7](https://github.com/Juwon1405/agentic-dfir/issues/7). Thank you for the clean PR and the link back to the issue.
 
-For the contribution policy during the hackathon window (through 2026-06-15) and after, see [CONTRIBUTING.md](./CONTRIBUTING.md#competition-period-contribution-policy-through-2026-06-15).
+For the contribution policy, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Companion projects
 
-The Agentic-DART ecosystem is intentionally small. Each repo owns one job.
+The Agentic-DFIR ecosystem is intentionally small. Each repo owns one job.
 
 | Repo                                                                                                    | Role                                                                                              | License    |
 |---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|------------|
-| **[agentic-dart](https://github.com/Juwon1405/agentic-dart)** *(this repo)*                             | Autonomous DFIR analysis engine. Reads an `evidence_root/` and emits findings + audit chain.       | MIT        |
-| **[agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter)**        | *Phase 1.3 — current.* Converts Velociraptor offline-collector ZIPs into the `evidence_root` layout this engine reads. Seeds the chain-of-custody (`manifest.json` + SHA-256 index). | MIT        |
-| **[yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector)** *(archived)*  | Single-file bash collector for macOS hosts that cannot run Velociraptor. Supply-chain IOC patterns ported into `dart_mcp._v05_supply_chain`. | MIT        |
+| **[agentic-dfir](https://github.com/Juwon1405/agentic-dfir)** *(this repo)*                             | Autonomous DFIR analysis engine. Reads an `evidence_root/` and emits findings + audit chain.       | MIT        |
+| **[agentic-dfir-collector-adapter](https://github.com/Juwon1405/agentic-dfir-collector-adapter)**        | *Phase 1.3 — current.* Converts Velociraptor offline-collector ZIPs into the `evidence_root` layout this engine reads. Seeds the chain-of-custody (`manifest.json` + SHA-256 index). | MIT        |
+| **[yushin-mac-artifact-collector](https://github.com/Juwon1405/yushin-mac-artifact-collector)** *(archived)*  | Single-file bash collector for macOS hosts that cannot run Velociraptor. Supply-chain IOC patterns ported into `dfir_mcp._v05_supply_chain`. | MIT        |
 
 **Collection layer is intentionally not part of this repo.** Velociraptor (Win / Linux / Mac, [docs](https://docs.velociraptor.app/)) is the recommended collector; the adapter above handles the layout glue.
 
 ### Phase 1 rollout roadmap
 
-The Agentic-DART Phase 1 deliverables are split across this repo and the companion adapter:
+The Agentic-DFIR Phase 1 deliverables are split across this repo and the companion adapter:
 
 | Step      | Deliverable                                                                                            | Status                                |
 |-----------|--------------------------------------------------------------------------------------------------------|---------------------------------------|
-| **1.0**   | Analysis-PC cold workflow (read disk image → produce report)                                            | ✅ shipped in `dart_agent` + `dart_playbook` |
+| **1.0**   | Analysis-PC cold workflow (read disk image → produce report)                                            | ✅ shipped in `dfir_agent` + `dfir_playbook` |
 | **1.1**   | LLM gateway integration (Anthropic Claude via Bedrock / direct API)                                     | ✅ shipped                            |
-| **1.2**   | Live host workflow scaffolding (SSH-driven `dart_mcp` subprocess on remote)                             | ✅ shipped                            |
-| **1.3**   | Velociraptor → `evidence_root` adapter — [agentic-dart-collector-adapter](https://github.com/Juwon1405/agentic-dart-collector-adapter) | ✅ **shipped (current focus)**       |
-| **1.4**   | `dart-mcp` HTTP transport mode for multi-analyst central deployment                                     | 🔜 in progress                        |
-| **1.5**   | Mode selector matrix (cold / live / hybrid) baked into `dart_agent` CLI                                 | 🔜 next                               |
+| **1.2**   | Live host workflow scaffolding (SSH-driven `dfir_mcp` subprocess on remote)                             | ✅ shipped                            |
+| **1.3**   | Velociraptor → `evidence_root` adapter — [agentic-dfir-collector-adapter](https://github.com/Juwon1405/agentic-dfir-collector-adapter) | ✅ **shipped (current focus)**       |
+| **1.4**   | `dfir-mcp` HTTP transport mode for multi-analyst central deployment                                     | 🔜 in progress                        |
+| **1.5**   | Mode selector matrix (cold / live / hybrid) baked into `dfir_agent` CLI                                 | 🔜 next                               |
 | **1.6**   | Cross-replay verification (same case, two analysts, identical findings)                                 | 🔜 next                               |
 | **1.7**   | Handover + analyst training pack                                                                        | 🔜 next                               |
 
@@ -942,9 +917,8 @@ DFIR practitioner & detection engineer based in Tokyo. Goes by **yushin** in she
 
 - 🐙 GitHub &nbsp; &mdash; &nbsp; [github.com/Juwon1405](https://github.com/Juwon1405)
 - ✉️ Email &nbsp; &mdash; &nbsp; juwon1405.jp@gmail.com
-- 🎯 Hackathon &nbsp; &mdash; &nbsp; [SANS FIND EVIL! 2026](https://findevil.devpost.com/)
 
-This project is a **personal/independent submission**. Built outside any
+This project is a **personal, independent project**. Built outside any
 employer relationship. All work, opinions, and code in this repository
 are my own and do not represent the views of any organization I am
 affiliated with.

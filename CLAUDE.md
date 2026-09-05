@@ -1,4 +1,4 @@
-# CLAUDE.md — AI Assistant Guide for Agentic-DART
+# CLAUDE.md — AI Assistant Guide for Agentic-DFIR
 
 > Guidance for Claude Code (and any AI assistant) working in this repository.
 > Read this before editing. The rules in **Non-negotiables** are load-bearing:
@@ -12,7 +12,7 @@
 
 ## What this project is
 
-**Agentic-DART** is an autonomous DFIR (Digital Forensics & Incident Response)
+**Agentic-DFIR** is an autonomous DFIR (Digital Forensics & Incident Response)
 agent. A senior-analyst reasoning loop calls **typed, read-only** forensic
 tools over MCP, records every call in a **SHA-256-chained audit log**, and
 produces a findings report. The guardrails live in the architecture (a
@@ -23,7 +23,6 @@ Stack:    Python 3.10+, MCP, Anthropic SDK (live mode only)
 Surface:  two layers — native pure-Python forensic functions + SIFT-tool adapters
 Modes:    deterministic (default) / live / dry-run
 License:  MIT
-Entry:    SANS FIND EVIL! 2026
 ```
 
 Exact tool / test / case / finding counts and the current version are
@@ -33,19 +32,19 @@ intentionally **not pinned here** — run **Verify** for live values, or read
 ## Repository map
 
 ```
-dart_audit/      SHA-256-chained JSONL logger — tamper-evident audit of every MCP call
-dart_mcp/        Custom MCP server — typed, read-only forensic functions (native + SIFT adapters)
-dart_agent/      Iteration controller, hypothesis tracker, deterministic + live loops
-dart_corr/       Cross-artifact correlation engine — DuckDB joins, contradiction flagging
-dart_playbook/   Senior-analyst YAML playbooks — DATA, not a Python package
+dfir_audit/      SHA-256-chained JSONL logger — tamper-evident audit of every MCP call
+dfir_mcp/        Custom MCP server — typed, read-only forensic functions (native + SIFT adapters)
+dfir_agent/      Iteration controller, hypothesis tracker, deterministic + live loops
+dfir_corr/       Cross-artifact correlation engine — DuckDB joins, contradiction flagging
+dfir_playbook/   Senior-analyst YAML playbooks — DATA, not a Python package
 examples/        case-studies/{self-evaluation,external-evaluation}/case-NN/ (README+truth.json+evidence_root), demos
 scripts/         install.sh, benchmark/, scripts/eval/demo.py, generate_realistic_evidence.py
-tests/           the main pytest suite; dart_corr/tests/ holds the correlation-engine tests
+tests/           the main pytest suite; dfir_corr/tests/ holds the correlation-engine tests
 docs/            architecture, accuracy report, case walkthroughs
 ```
 
-Note: `dart_audit` / `dart_mcp` / `dart_agent` / `dart_corr` are installable
-Python packages (each has a `pyproject.toml`). `dart_playbook` is a directory
+Note: `dfir_audit` / `dfir_mcp` / `dfir_agent` / `dfir_corr` are installable
+Python packages (each has a `pyproject.toml`). `dfir_playbook` is a directory
 of YAML playbooks with no `pyproject.toml`; it is loaded by path, not imported.
 
 ## Run modes (know which one you are touching)
@@ -57,7 +56,7 @@ of YAML playbooks with no `pyproject.toml`; it is loaded by path, not imported.
 | **Dry-run** | `--dry-run` | none — exercises live plumbing with a mock LLM | smoke-testing the live path |
 
 CI and `scripts/eval/demo.py` run **deterministic only** — they never
-touch the network. Anything you change in live mode (e.g. `dart_agent/auth.py`)
+touch the network. Anything you change in live mode (e.g. `dfir_agent/auth.py`)
 does not affect CI, the accuracy numbers, or the test suite, which are
 mock-backed.
 
@@ -86,14 +85,14 @@ mock-backed.
 ## Verify (run before claiming done)
 
 ```bash
-export PYTHONPATH=dart_audit/src:dart_mcp/src:dart_agent/src:dart_corr/src
+export PYTHONPATH=dfir_audit/src:dfir_mcp/src:dfir_agent/src:dfir_corr/src
 
 # Full test suite — every test must pass
-python3 -m pytest tests/ dart_corr/tests/ -q
+python3 -m pytest tests/ dfir_corr/tests/ -q
 
 # Tool surface — must exactly match the set asserted by tests/test_mcp_surface.py.
 # This prints the live total / native / SIFT split:
-PYTHONPATH=dart_mcp/src python3 -c "import dart_mcp; t=dart_mcp._REGISTRY; \
+PYTHONPATH=dfir_mcp/src python3 -c "import dfir_mcp; t=dfir_mcp._REGISTRY; \
 s=[k for k in t if k.startswith('sift_')]; print(len(t), len(t)-len(s), len(s))"
 
 # Accuracy — must not regress: recall stays 1.0, hallucination stays 0

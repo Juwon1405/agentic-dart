@@ -16,7 +16,7 @@ adds the **two most common initial-access paths in enterprise**:
 1. **Web application attack** → webshell → RCE
 2. **RDP exposed to the internet** → brute force / credential stuffing
 
-Without these, Agentic-DART would ask "how did they get in?" and receive
+Without these, Agentic-DFIR would ask "how did they get in?" and receive
 silence when the answer is SQLi or RDP spray.
 
 ## Scenario A: Web app compromise
@@ -128,14 +128,14 @@ The two scenarios can be stitched together via `correlate_timeline`:
 Same source IP (`198.51.100.77`) drove both entry vectors. That's the
 smoking-gun attribution.
 
-## What the judges should run
+## What to run
 
 ```bash
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-06/evidence_root"
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src:$PWD/dart_agent/src"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-06/evidence_root"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src:$PWD/dfir_agent/src"
 
 python3 << 'PY'
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 import json
 
 # A. Web log analysis
@@ -155,14 +155,14 @@ print(f"RDP: {len(r['credential_stuffing_ips'])} cred-stuffing IPs, "
 PY
 ```
 
-## Why Agentic-DART's approach is meaningfully better here
+## Why Agentic-DFIR's approach is meaningfully better here
 
 Traditional DFIR tools for this case:
 - Web log analysis: grep `sqlmap|union|../..` — misses obfuscated payloads, no correlation
 - Webshell hunt: ClamAV signatures — high false positives, misses custom shells
 - RDP brute force: Security onion / SIEM — requires SIEM infrastructure
 
-Agentic-DART provides:
+Agentic-DFIR provides:
 - **Pattern-based attack detection** with severity tuning (13 hits on real payloads, 0 on benign)
 - **Webshell detection** that combines filename + content + age anomaly for precision+recall
 - **RDP brute force classification** distinguishing credential stuffing vs password spray vs single-account brute force
@@ -177,11 +177,11 @@ This closes the initial-access vector gap that remained after Cases 01-05.
 
 ```bash
 # From the repo root
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-06/evidence_root"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-06/evidence_root"
 
 python3 - <<'PY'
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 
 r = call_tool('analyze_web_access_log', {'access_log': 'web/logs/access.log'})
 print('analyze_web_access_log:', r['lines_examined'], 'lines,', r['attack_count'], 'attacks,', r['scanner_ua_count'], 'scanner UAs')
@@ -191,4 +191,4 @@ print('detect_brute_force_rdp:', r['rdp_failure_count'], 'failures,', len(r['bru
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

@@ -1,21 +1,21 @@
-# How Agentic-DART Compares to Existing DFIR Tooling
+# How Agentic-DFIR Compares to Existing DFIR Tooling
 
 This is the document a reviewer should read before asking "why not just
-use Velociraptor?" Agentic-DART is not a replacement for any of the tools
+use Velociraptor?" Agentic-DFIR is not a replacement for any of the tools
 below — it sits at a different layer of the stack.
 
 ## Layer map
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Agentic-DART                                                     │
+│  Agentic-DFIR                                               │
 │  Autonomous AI agent / orchestration / reasoning            │
 │  (senior-analyst playbook, self-correction, audit chain)    │
 ├─────────────────────────────────────────────────────────────┤
-│  Protocol SIFT (SANS baseline)                              │
+│  Prompt-first baseline agent                                │
 │  MCP plumbing between AI and SIFT tools                     │
 ├─────────────────────────────────────────────────────────────┤
-│  SANS SIFT Workstation — 200+ DFIR tools                   │
+│  SANS SIFT Workstation — 200+ DFIR tools                    │
 │  volatility · plaso · MFTECmd · PECmd · tshark · ...        │
 ├─────────────────────────────────────────────────────────────┤
 │  Velociraptor / KAPE / Timesketch / GRR                     │
@@ -25,7 +25,7 @@ below — it sits at a different layer of the stack.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Agentic-DART does not replace any of the lower layers. It orchestrates them.
+Agentic-DFIR does not replace any of the lower layers. It orchestrates them.
 
 ## Side-by-side
 
@@ -37,15 +37,15 @@ Agentic-DART does not replace any of the lower layers. It orchestrates them.
 | GRR | Remote live forensics | Human operator | Role-based access |
 | Plaso (log2timeline) | Timeline construction | Human / script | N/A |
 | Sigma rules | Detection logic | SIEM/EDR engines | N/A |
-| **Protocol SIFT (baseline)** | AI orchestration | AI agent (prompted) | **Prompt-based** |
-| **Agentic-DART** | AI orchestration | AI agent (architectural) | **Architectural (typed MCP surface)** |
+| **Prompt-first baseline agent** | AI orchestration | AI agent (prompted) | **Prompt-based** |
+| **Agentic-DFIR** | AI orchestration | AI agent (architectural) | **Architectural (typed MCP surface)** |
 
-## The Agentic-DART thesis — where it differs from Protocol SIFT
+## The Agentic-DFIR thesis — where it differs from a prompt-first agent
 
-Protocol SIFT and Agentic-DART share the top-layer category (AI agent on
-SIFT). The difference is how guardrails are enforced:
+A prompt-first baseline agent and Agentic-DFIR share the top-layer category
+(AI agent on SIFT). The difference is how guardrails are enforced:
 
-| Concern | Protocol SIFT (baseline) | Agentic-DART |
+| Concern | Prompt-first baseline agent | Agentic-DFIR |
 |---|---|---|
 | Destructive commands | Agent is told not to | Function does not exist on the server |
 | Evidence modification | Prompt-based "please don't" | `mount -o ro,noload` + no write function in registry |
@@ -54,34 +54,34 @@ SIFT). The difference is how guardrails are enforced:
 | Self-correction | Best-effort prompting | Playbook-forced, `progress.jsonl` state |
 | Accuracy measurement | N/A by default | `scripts/eval/demo.py`, committed numbers |
 
-This is the contribution Agentic-DART tries to make to the FIND EVIL!
-community: move the defender's analog of Anthropic's GTG-1002
-architecture from prompt-obedience to architectural-enforcement.
+This is the contribution Agentic-DFIR tries to make: move the defender's
+analog of Anthropic's GTG-1002 architecture from prompt-obedience to
+architectural enforcement.
 
-## Things Agentic-DART is NOT trying to be
+## Things Agentic-DFIR is NOT trying to be
 
-- It is **not** a Velociraptor replacement. Velociraptor collects; Agentic-DART reasons.
-- It is **not** a Sigma engine replacement. Agentic-DART's `match_sigma_rules`
+- It is **not** a Velociraptor replacement. Velociraptor collects; Agentic-DFIR reasons.
+- It is **not** a Sigma engine replacement. Agentic-DFIR's `match_sigma_rules`
   is a subset implementation for the agent's own triage needs, not a
   production SIEM detection engine.
 - It is **not** a Timesketch alternative. It builds timelines for the
   agent to reason on, not for human visual exploration.
-- It is **not** a production IR platform yet. It is a hackathon
-  submission that demonstrates an architectural thesis and provides a
-  working MVP to build on.
+- It is **not** a production IR platform yet. It is a research-grade
+  implementation that demonstrates an architectural thesis and provides a
+  working MVP to build on; production hardening is Phase 2–3.
 
-## When to use Agentic-DART vs. when to use something else
+## When to use Agentic-DFIR vs. when to use something else
 
 | Goal | Use |
 |------|-----|
 | Collect artifacts from 10,000 endpoints | Velociraptor |
 | Triage a single workstation via live flash drive | KAPE |
 | Visualize a multi-host timeline with a team | Timesketch / Plaso |
-| Run an autonomous AI triage of a disk image with an architectural safety guarantee | **Agentic-DART** |
+| Run an autonomous AI triage of a disk image with an architectural safety guarantee | **Agentic-DFIR** |
 | Detect known attack patterns from Sigma rules at SIEM scale | Splunk / Elastic / Chronicle |
-| Have an AI senior-analyst-style loop produce a courtroom-traceable report | **Agentic-DART** |
+| Have an AI senior-analyst-style loop produce a courtroom-traceable report | **Agentic-DFIR** |
 
-The two use cases where Agentic-DART is the right answer are the ones above
+The two use cases where Agentic-DFIR is the right answer are the ones above
 in bold. For everything else, reach for the tool that was built for
-that job, and consider Agentic-DART as the layer that can orchestrate those
+that job, and consider Agentic-DFIR as the layer that can orchestrate those
 tools under a safety-enforced agent loop.

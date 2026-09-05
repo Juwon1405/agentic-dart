@@ -15,7 +15,7 @@
       "evidence_path": "web/logs/access.log",
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1190",
         "T1595.002"
@@ -30,7 +30,7 @@
       "evidence_path": "web/logs/access.log",
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1190"
       ],
@@ -44,7 +44,7 @@
       "evidence_path": "web/logs/access.log",
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1083"
       ],
@@ -58,7 +58,7 @@
       "evidence_path": "web/logs/access.log",
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1190"
       ],
@@ -72,7 +72,7 @@
       "evidence_path": "web/logs/access.log",
       "artifact_type": "web_access_log",
       "host_path": "web/logs/access.log",
-      "expected_dart_mcp_function": "analyze_web_access_log",
+      "expected_dfir_mcp_function": "analyze_web_access_log",
       "mitre_attack": [
         "T1190"
       ],
@@ -86,7 +86,7 @@
       "evidence_path": "web/var/www/html/uploads/x.php",
       "artifact_type": "web_shell",
       "host_path": "web/var/www/html/uploads/x.php",
-      "expected_dart_mcp_function": "detect_webshell",
+      "expected_dfir_mcp_function": "detect_webshell",
       "mitre_attack": [
         "T1505.003"
       ],
@@ -100,7 +100,7 @@
       "evidence_path": "web/var/www/html/uploads/shell.php",
       "artifact_type": "web_shell",
       "host_path": "web/var/www/html/uploads/shell.php",
-      "expected_dart_mcp_function": "detect_webshell",
+      "expected_dfir_mcp_function": "detect_webshell",
       "mitre_attack": [
         "T1505.003",
         "T1027"
@@ -115,7 +115,7 @@
       "evidence_path": "web/var/www/html/uploads/cmd.php",
       "artifact_type": "web_shell",
       "host_path": "web/var/www/html/uploads/cmd.php",
-      "expected_dart_mcp_function": "detect_webshell",
+      "expected_dfir_mcp_function": "detect_webshell",
       "mitre_attack": [
         "T1505.003"
       ],
@@ -129,7 +129,7 @@
       "evidence_path": "web/var/www/html/",
       "artifact_type": "false_positive_check",
       "host_path": "web/var/www/html/",
-      "expected_dart_mcp_function": "detect_webshell",
+      "expected_dfir_mcp_function": "detect_webshell",
       "mitre_attack": [],
       "severity": "info",
       "rationale": "9 benign PHP files in tree alongside 3 webshells — agent must produce 3 TP and 0 FP. Demonstrates precision."
@@ -141,7 +141,7 @@
       "evidence_path": "disk/rdp-brute-events.json",
       "artifact_type": "windows_security_log",
       "host_path": "disk/rdp-brute-events.json",
-      "expected_dart_mcp_function": "detect_brute_force_rdp",
+      "expected_dfir_mcp_function": "detect_brute_force_rdp",
       "mitre_attack": [
         "T1110.001",
         "T1078"

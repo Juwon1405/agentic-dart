@@ -9,17 +9,17 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "dart_mcp" / "src"))
-os.environ["DART_EVIDENCE_ROOT"] = str(ROOT / "tests" / "fixtures" / "evidence")
+sys.path.insert(0, str(ROOT / "dfir_mcp" / "src"))
+os.environ["DFIR_EVIDENCE_ROOT"] = str(ROOT / "tests" / "fixtures" / "evidence")
 
-from dart_mcp import call_tool  # noqa: E402
-import dart_mcp as _dm  # noqa: E402
+from dfir_mcp import call_tool  # noqa: E402
+import dfir_mcp as _dm  # noqa: E402
 
-# Monkey-patch EVIDENCE_ROOT in case another test imported dart_mcp first
-# with a different DART_EVIDENCE_ROOT (the module reads env at line 45 of
+# Monkey-patch EVIDENCE_ROOT in case another test imported dfir_mcp first
+# with a different DFIR_EVIDENCE_ROOT (the module reads env at line 45 of
 # __init__.py only once, so a later test cannot override via env alone).
 # Affects only this test module's call_tool invocations.
-_dm.EVIDENCE_ROOT = Path(os.environ["DART_EVIDENCE_ROOT"])
+_dm.EVIDENCE_ROOT = Path(os.environ["DFIR_EVIDENCE_ROOT"])
 
 
 # ─── parse_linux_text_log ─────────────────────────────────────────
@@ -97,9 +97,9 @@ def test_parse_linux_shell_history_each_entry_has_required_keys():
 # ─── path safety (the v0.6.1 wall must still hold) ────────────────
 
 def test_parse_linux_text_log_path_traversal_rejected():
-    """Should refuse paths that escape DART_EVIDENCE_ROOT."""
-    os.environ["DART_EVIDENCE_ROOT"] = str(ROOT / "tests" / "fixtures" / "evidence")
-    from dart_mcp import PathTraversalAttempt, call_tool as _ct
+    """Should refuse paths that escape DFIR_EVIDENCE_ROOT."""
+    os.environ["DFIR_EVIDENCE_ROOT"] = str(ROOT / "tests" / "fixtures" / "evidence")
+    from dfir_mcp import PathTraversalAttempt, call_tool as _ct
     try:
         _ct("parse_linux_text_log", {"log_path": "../../../../../etc/passwd"})
     except PathTraversalAttempt:

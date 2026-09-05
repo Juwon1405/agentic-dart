@@ -16,7 +16,7 @@
       "evidence_path": "disk/supplychain-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
-      "expected_dart_mcp_function": "get_process_tree",
+      "expected_dfir_mcp_function": "get_process_tree",
       "mitre_attack": [
         "T1195.002"
       ],
@@ -30,7 +30,7 @@
       "evidence_path": "disk/supplychain-network.json",
       "artifact_type": "network_flow",
       "host_path": "disk/supplychain-network.json",
-      "expected_dart_mcp_function": "detect_exfiltration",
+      "expected_dfir_mcp_function": "detect_exfiltration",
       "mitre_attack": [
         "T1071.001",
         "T1041"
@@ -45,7 +45,7 @@
       "evidence_path": "disk/supplychain-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1187",
         "T1557.001"
@@ -60,7 +60,7 @@
       "evidence_path": "disk/supplychain-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1649"
       ],
@@ -74,7 +74,7 @@
       "evidence_path": "disk/supplychain-security-events.json",
       "artifact_type": "kerberos_event",
       "host_path": "disk/supplychain-security-events.json",
-      "expected_dart_mcp_function": "analyze_kerberos_events",
+      "expected_dfir_mcp_function": "analyze_kerberos_events",
       "mitre_attack": [
         "T1558",
         "T1550.003"
@@ -89,7 +89,7 @@
       "evidence_path": "disk/supplychain-security-events.json",
       "artifact_type": "windows_security_log",
       "host_path": "disk/supplychain-security-events.json",
-      "expected_dart_mcp_function": "analyze_windows_logons",
+      "expected_dfir_mcp_function": "analyze_windows_logons",
       "mitre_attack": [
         "T1550.003",
         "T1078.002"
@@ -104,7 +104,7 @@
       "evidence_path": "disk/supplychain-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
-      "expected_dart_mcp_function": "detect_lateral_movement",
+      "expected_dfir_mcp_function": "detect_lateral_movement",
       "mitre_attack": [
         "T1021.002",
         "T1021.006",
@@ -120,7 +120,7 @@
       "evidence_path": "disk/supplychain-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.006"
       ],
@@ -134,7 +134,7 @@
       "evidence_path": "disk/supplychain-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
-      "expected_dart_mcp_function": "detect_credential_access",
+      "expected_dfir_mcp_function": "detect_credential_access",
       "mitre_attack": [
         "T1003.003"
       ],
@@ -148,7 +148,7 @@
       "evidence_path": "disk/supplychain-processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/supplychain-processes.csv",
-      "expected_dart_mcp_function": "detect_persistence",
+      "expected_dfir_mcp_function": "detect_persistence",
       "mitre_attack": [
         "T1098.005"
       ],
@@ -162,7 +162,7 @@
       "evidence_path": "disk/supplychain-security-events.json",
       "artifact_type": "kerberos_event",
       "host_path": "disk/supplychain-security-events.json",
-      "expected_dart_mcp_function": "analyze_kerberos_events",
+      "expected_dfir_mcp_function": "analyze_kerberos_events",
       "mitre_attack": [
         "T1558.001"
       ],
@@ -176,7 +176,7 @@
       "evidence_path": "disk/supplychain-security-events.json",
       "artifact_type": "windows_security_log",
       "host_path": "disk/supplychain-security-events.json",
-      "expected_dart_mcp_function": "detect_defense_evasion",
+      "expected_dfir_mcp_function": "detect_defense_evasion",
       "mitre_attack": [
         "T1070.001"
       ],

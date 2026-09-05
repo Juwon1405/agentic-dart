@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate Agentic-DART documentation images.
+"""Regenerate Agentic-DFIR documentation images.
 
 The images are deterministic diagrams and terminal stills. They avoid
 release-fragile claims unless the value is part of the current public surface.
@@ -91,7 +91,7 @@ def architecture():
     body_color = (53, 65, 83)
     boundary = (185, 58, 58)
 
-    draw.text((960, 48), "Agentic-DART - Autonomous DFIR Agent on SANS SIFT Workstation",
+    draw.text((960, 48), "Agentic-DFIR - Autonomous DFIR Agent on SIFT Workstation",
               anchor="ma", font=FONT_TITLE, fill=title_color)
     draw.text((960, 100), "Architecture-first, not prompt-first",
               anchor="ma", font=font(25), fill=(95, 107, 126))
@@ -101,28 +101,28 @@ def architecture():
         "client": (620, 285, 1300, 380, "Claude API or dry-run mock",
                    "session ergonomics only; no security boundary here",
                    (219, 234, 254), (59, 130, 246)),
-        "agent": (535, 445, 1385, 560, "dart_agent",
+        "agent": (535, 445, 1385, 560, "dfir_agent",
                   "playbook v3, hypothesis tracker, max-iteration controller",
                   (219, 234, 254), (59, 130, 246)),
         "progress": (90, 445, 510, 565, "progress.jsonl / report.json",
                      "hypothesis, confidence, gaps, final findings",
                      (254, 243, 199), (217, 119, 6)),
-        "playbook": (1410, 445, 1830, 565, "dart_playbook",
+        "playbook": (1410, 445, 1830, 565, "dfir_playbook",
                      "sequencing rules and analyst heuristics",
                      (254, 243, 199), (217, 119, 6)),
-        "mcp": (520, 690, 1400, 850, "dart_mcp - primary enforcement layer",
+        "mcp": (520, 690, 1400, 850, "dfir_mcp - primary enforcement layer",
                 "73 schema-validated read-only tools\n48 native + 25 SIFT adapters\nno execute_shell, write_file, mount, or network egress",
                 (220, 252, 231), (22, 163, 74)),
-        "corr": (520, 890, 1400, 985, "dart_corr",
+        "corr": (520, 890, 1400, 985, "dfir_corr",
                  "DuckDB-backed timeline joins; contradictions stay UNRESOLVED",
                  (243, 232, 255), (126, 34, 206)),
-        "evidence": (520, 1030, 1400, 1148, "DART_EVIDENCE_ROOT",
+        "evidence": (520, 1030, 1400, 1148, "DFIR_EVIDENCE_ROOT",
                      "read-only evidence: EVTX, MFT, Prefetch, Registry, Browser, Web, Auth, Memory",
                      (237, 233, 254), (124, 58, 237)),
-        "derived": (1410, 750, 1830, 870, "DART_DERIVED_ROOT",
+        "derived": (1410, 750, 1830, 870, "DFIR_DERIVED_ROOT",
                     "generated Plaso storage and other derived artifacts; never inside evidence",
                     (224, 242, 254), (2, 132, 199)),
-        "audit": (125, 715, 475, 965, "dart_audit",
+        "audit": (125, 715, 475, 965, "dfir_audit",
                   "SHA-256 chained JSONL\none entry per MCP call\nfinding -> audit_id -> raw tool result",
                   (255, 237, 213), (234, 88, 12)),
     }
@@ -156,7 +156,7 @@ def architecture():
     draw.text((960, 1212),
               "Loop: hypothesis -> typed tool call -> audit entry -> correlation -> revise or emit cited finding",
               anchor="ma", font=font(20), fill=(95, 107, 126))
-    img.save(DOCS / "dart-architecture.png", optimize=True)
+    img.save(DOCS / "dfir-architecture.png", optimize=True)
 
 
 def terminal(path: Path, title: str, lines: list[tuple[str, tuple[int, int, int] | None]]):
@@ -182,20 +182,20 @@ def terminal(path: Path, title: str, lines: list[tuple[str, tuple[int, int, int]
 def screenshots():
     SCREENSHOTS.mkdir(parents=True, exist_ok=True)
     terminal(
-        SCREENSHOTS / "dart-run-01-init.png",
-        "SANS SIFT Workstation - agentic-dart live dry-run",
+        SCREENSHOTS / "dfir-run-01-init.png",
+        "SIFT Workstation - agentic-dfir live dry-run",
         [
-            ("analyst@sift:~/agentic-dart$ python3 -m dart_agent --mode live --dry-run \\\n"
-             "  --case screenshot-dry-run --out /tmp/agentic-dart-screenshot --max-iterations 4", CYAN),
+            ("analyst@sift:~/agentic-dfir$ python3 -m dfir_agent --mode live --dry-run \\\n"
+             "  --case screenshot-dry-run --out /tmp/agentic-dfir-screenshot --max-iterations 4", CYAN),
             ("[live] case=screenshot-dry-run  mode=DRY-RUN  max_iter=4", GREEN),
             ("[live] MCP handshake OK - 73 tools visible", GREEN),
             ("[live] evidence root: case-studies/self-evaluation/case-01/evidence_root (read-only)", MUTED),
-            ("[live] derived root : ${TMPDIR:-/tmp}/agentic-dart-derived", MUTED),
+            ("[live] derived root : ${TMPDIR:-/tmp}/agentic-dfir-derived", MUTED),
             ("[live] no API call is made in --dry-run; MCP stdio plumbing is real", YELLOW),
         ],
     )
     terminal(
-        SCREENSHOTS / "dart-run-02-investigate.png",
+        SCREENSHOTS / "dfir-run-02-investigate.png",
         "typed MCP calls - schema validated",
         [
             ("[mock] iter 1: get_amcache -> ERR", ORANGE),
@@ -205,14 +205,14 @@ def screenshots():
             ("[mock] iter 3: correlate_timeline -> OK", GREEN),
             ("  output: cross_source_correlations=1; kvm_precedes_logon=1", GREEN),
             ("[mock] iter 4: parse_shimcache -> OK", GREEN),
-            ("  every call is routed through dart_mcp.call_tool() schema validation", CYAN),
+            ("  every call is routed through dfir_mcp.call_tool() schema validation", CYAN),
         ],
     )
     terminal(
-        SCREENSHOTS / "dart-run-03-contradiction.png",
+        SCREENSHOTS / "dfir-run-03-contradiction.png",
         "correlation and revision discipline",
         [
-            ("dart_corr: timeline joins run after tool output enters state", PURPLE),
+            ("dfir_corr: timeline joins run after tool output enters state", PURPLE),
             ("rule: same target within 600s across usb and security_log", MUTED),
             ("match: usb_insert -> logon on DESKTOP-7K2L", GREEN),
             ("guard: if kvm_precedes_logon is empty, dry-run emits no finding", YELLOW),
@@ -221,15 +221,15 @@ def screenshots():
         ],
     )
     terminal(
-        SCREENSHOTS / "dart-run-04-final.png",
+        SCREENSHOTS / "dfir-run-04-final.png",
         "final verdict and audit discipline",
         [
             ("REPORT: F-013 - IP-KVM insertion preceded an operator logon", GREEN),
             ("confidence: 0.82", CYAN),
             ("evidence: analyze_usb_history + correlate_timeline + parse_shimcache", INK),
-            ("[dart-agent] deterministic demo: iterations=5 findings=2", GREEN),
-            ("[dart-agent] audit chain: chain verified: 3 entries", GREEN),
-            ("[demo] PASS - ToolNotFound: 'execute_shell' is not exposed by dart-mcp", GREEN),
+            ("[dfir-agent] deterministic demo: iterations=5 findings=2", GREEN),
+            ("[dfir-agent] audit chain: chain verified: 3 entries", GREEN),
+            ("[demo] PASS - ToolNotFound: 'execute_shell' is not exposed by dfir-mcp", GREEN),
         ],
     )
 
@@ -237,7 +237,7 @@ def screenshots():
 def main():
     architecture()
     screenshots()
-    print("regenerated docs/dart-architecture.png and docs/screenshots/*.png")
+    print("regenerated docs/dfir-architecture.png and docs/screenshots/*.png")
 
 
 if __name__ == "__main__":

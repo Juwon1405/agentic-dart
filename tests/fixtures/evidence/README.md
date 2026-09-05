@@ -2,7 +2,7 @@
 
 A small (≤30 lines/file), fully IOC-loaded, byte-stable evidence tree used as a
 **CI fixture by the unit tests** (`tests/`). It deliberately carries artifacts
-for several scenarios at once so a single `DART_EVIDENCE_ROOT` exercises every
+for several scenarios at once so a single `DFIR_EVIDENCE_ROOT` exercises every
 tool's parsing and detection paths in one place.
 
 It is **not** a user-selectable evidence set and is **not** what the accuracy
@@ -29,7 +29,7 @@ change rather than a data drift.
 
 ## How it is used
 
-- The unit tests point `DART_EVIDENCE_ROOT` at this tree for byte-stable
+- The unit tests point `DFIR_EVIDENCE_ROOT` at this tree for byte-stable
   regression assertions.
 - `scripts/generate_realistic_evidence.py` reads the two IOC-only logs from
   here (`web/logs/access.log`, `mac/var/log/auth.log`) and writes them, with

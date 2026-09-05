@@ -20,7 +20,7 @@ one of three outcomes:
 2. **Ransomware** (T1486, T1489, T1490) — encrypt for extortion
 3. **Covering tracks** (T1070) — clear logs, timestomp
 
-Agentic-DART now detects all three across ~30 MITRE sub-techniques.
+Agentic-DFIR now detects all three across ~30 MITRE sub-techniques.
 
 ## Attack reconstruction (bundled evidence)
 
@@ -153,11 +153,11 @@ stats:
 > credential access (T1003.×), discovery (T1087/T1069/T1482/T1018),
 > defense evasion (T1070.001), and impact (T1486/T1489/T1490).
 
-## What the judges should run
+## What to run
 
 ```bash
 python3 << 'PY'
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 import csv
 
 def load(path):
@@ -200,15 +200,15 @@ PY
 
 ## How to invoke this case directly
 
-The detection functions in this case (`detect_credential_access`, `detect_discovery`, `detect_defense_evasion`, `detect_ransomware_behavior`) are designed to be **chained** off the output of `get_process_tree` — they consume process dicts produced by an earlier MCP call rather than reading evidence paths themselves. This is the same chaining pattern `dart_agent` uses internally.
+The detection functions in this case (`detect_credential_access`, `detect_discovery`, `detect_defense_evasion`, `detect_ransomware_behavior`) are designed to be **chained** off the output of `get_process_tree` — they consume process dicts produced by an earlier MCP call rather than reading evidence paths themselves. This is the same chaining pattern `dfir_agent` uses internally.
 
 ```bash
 # From the repo root
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-07/evidence_root"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-07/evidence_root"
 
 python3 - <<'PY'
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 
 # Step 1: pull process tree from creds-processes.csv (mimikatz / procdump / reg save chain)
 tree = call_tool('get_process_tree', {'process_csv': 'disk/creds-processes.csv'})
@@ -248,4 +248,4 @@ detect_discovery: 11 hits, 6 AD recon, 1 bursts
 detect_defense_evasion: 2 findings, max severity: critical
 ```
 
-The chaining pattern is what makes the architectural-first claim concrete: each detection function consumes typed data, not raw paths, and `dart_agent`'s loop is what drives the chaining in the live case. See [docs/accuracy-report.md](../../../docs/accuracy-report.md) for the full schema and measured numbers.
+The chaining pattern is what makes the architectural-first claim concrete: each detection function consumes typed data, not raw paths, and `dfir_agent`'s loop is what drives the chaining in the live case. See [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured numbers.

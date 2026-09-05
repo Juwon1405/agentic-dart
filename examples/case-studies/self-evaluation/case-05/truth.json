@@ -15,7 +15,7 @@
       "evidence_path": "linux/auth.log",
       "artifact_type": "auth_log",
       "host_path": "linux/auth.log",
-      "expected_dart_mcp_function": "analyze_unix_auth",
+      "expected_dfir_mcp_function": "analyze_unix_auth",
       "mitre_attack": [
         "T1110.001"
       ],
@@ -29,7 +29,7 @@
       "evidence_path": "linux/auth.log",
       "artifact_type": "auth_log",
       "host_path": "linux/auth.log",
-      "expected_dart_mcp_function": "detect_privilege_escalation",
+      "expected_dfir_mcp_function": "detect_privilege_escalation",
       "mitre_attack": [
         "T1548.003",
         "T1003.008"
@@ -44,7 +44,7 @@
       "evidence_path": "disk/security-events.json",
       "artifact_type": "windows_security_log",
       "host_path": "disk/security-events.json",
-      "expected_dart_mcp_function": "analyze_windows_logons",
+      "expected_dfir_mcp_function": "analyze_windows_logons",
       "mitre_attack": [
         "T1021.002",
         "T1110.003"
@@ -59,7 +59,7 @@
       "evidence_path": "disk/security-events.json",
       "artifact_type": "windows_security_log",
       "host_path": "disk/security-events.json",
-      "expected_dart_mcp_function": "analyze_windows_logons",
+      "expected_dfir_mcp_function": "analyze_windows_logons",
       "mitre_attack": [
         "T1021.001"
       ],
@@ -73,7 +73,7 @@
       "evidence_path": "disk/security-events.json",
       "artifact_type": "kerberos_event",
       "host_path": "disk/security-events.json",
-      "expected_dart_mcp_function": "analyze_kerberos_events",
+      "expected_dfir_mcp_function": "analyze_kerberos_events",
       "mitre_attack": [
         "T1558.003"
       ],
@@ -87,7 +87,7 @@
       "evidence_path": "disk/security-events.json",
       "artifact_type": "kerberos_event",
       "host_path": "disk/security-events.json",
-      "expected_dart_mcp_function": "analyze_kerberos_events",
+      "expected_dfir_mcp_function": "analyze_kerberos_events",
       "mitre_attack": [
         "T1558.004"
       ],
@@ -101,7 +101,7 @@
       "evidence_path": "disk/processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/processes.csv",
-      "expected_dart_mcp_function": "detect_lateral_movement",
+      "expected_dfir_mcp_function": "detect_lateral_movement",
       "mitre_attack": [
         "T1021.002",
         "T1047"
@@ -116,7 +116,7 @@
       "evidence_path": "disk/security-events.json",
       "artifact_type": "windows_security_log",
       "host_path": "disk/security-events.json",
-      "expected_dart_mcp_function": "analyze_windows_logons",
+      "expected_dfir_mcp_function": "analyze_windows_logons",
       "mitre_attack": [
         "T1078"
       ],

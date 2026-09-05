@@ -10,7 +10,7 @@ change, strike it out (~~like this~~) and explain why.
 
 ## Why now
 
-<!-- One sentence. What forced this? Bug? Hackathon milestone? Idle curiosity? -->
+<!-- One sentence. What forced this? Bug? Roadmap milestone? Idle curiosity? -->
 
 ## Type of change
 

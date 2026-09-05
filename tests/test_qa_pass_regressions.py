@@ -3,7 +3,7 @@ Regression tests from the 2026-05-02 QA pass.
 
 Pins fixes that the existing test matrix did not cover.
 
-  - dart_agent: --max-iterations small enough to skip _phase_hypothesis
+  - dfir_agent: --max-iterations small enough to skip _phase_hypothesis
     used to crash inside _report() because self._primary was unset.
     Fixed by guarding with getattr() defaults.
 
@@ -19,9 +19,9 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-for p in ["dart_audit/src", "dart_mcp/src", "dart_agent/src"]:
+for p in ["dfir_audit/src", "dfir_mcp/src", "dfir_agent/src"]:
     sys.path.insert(0, str(REPO / p))
-os.environ.setdefault("DART_EVIDENCE_ROOT",
+os.environ.setdefault("DFIR_EVIDENCE_ROOT",
                        str(REPO / "tests" / "fixtures" / "evidence"))
 
 
@@ -29,9 +29,9 @@ def test_short_max_iterations_does_not_crash_report():
     """--max-iterations=1 forces an early exit before _phase_hypothesis runs.
     Pre-fix, this triggered AttributeError on self._primary inside _report().
     """
-    if "dart_mcp" in sys.modules:
-        del sys.modules["dart_mcp"]
-    from dart_agent import main
+    if "dfir_mcp" in sys.modules:
+        del sys.modules["dfir_mcp"]
+    from dfir_agent import main
     with tempfile.TemporaryDirectory() as td:
         rc = main(["--case", "short-iter-test", "--out", td,
                    "--mode", "deterministic",
@@ -62,16 +62,16 @@ def test_zone_identifier_full_suffix_strip(tmp_path, monkeypatch):
     code strips the full '.Zone.Identifier' literal, so target_path is
     the real downloaded file.
     """
-    if "dart_mcp" in sys.modules:
-        del sys.modules["dart_mcp"]
-    monkeypatch.setenv("DART_EVIDENCE_ROOT", str(tmp_path))
+    if "dfir_mcp" in sys.modules:
+        del sys.modules["dfir_mcp"]
+    monkeypatch.setenv("DFIR_EVIDENCE_ROOT", str(tmp_path))
     downloads = tmp_path / "downloads"
     downloads.mkdir()
     (downloads / "malware.exe").write_bytes(b"MZ\x90\x00")
     (downloads / "malware.exe.Zone.Identifier").write_text(
         "[ZoneTransfer]\nZoneId=3\nHostUrl=https://attacker.example/p.exe\n",
         encoding="utf-8")
-    from dart_mcp import call_tool
+    from dfir_mcp import call_tool
     result = call_tool("analyze_downloads",
                        {"downloads_source": "downloads",
                         "mode": "zone_identifier"})
@@ -92,9 +92,9 @@ def test_lsass_mask_bitwise_uppercase_and_full_access(tmp_path, monkeypatch):
     check catches any mask containing the dangerous bits regardless of
     spelling.
     """
-    if "dart_mcp" in sys.modules:
-        del sys.modules["dart_mcp"]
-    monkeypatch.setenv("DART_EVIDENCE_ROOT", str(tmp_path))
+    if "dfir_mcp" in sys.modules:
+        del sys.modules["dfir_mcp"]
+    monkeypatch.setenv("DFIR_EVIDENCE_ROOT", str(tmp_path))
     ev = tmp_path / "sysmon.json"
     # Three cases: uppercase 0X1010, PROCESS_ALL_ACCESS, mixed-case
     # '0x143A' (old code only matched lowercase '0x143a'). All three
@@ -119,7 +119,7 @@ def test_lsass_mask_bitwise_uppercase_and_full_access(tmp_path, monkeypatch):
          "SourceImage": "C:/tmp/dump3.exe",
          "SourceProcessId": 1236},
     ]), encoding="utf-8")
-    from dart_mcp import call_tool
+    from dfir_mcp import call_tool
     result = call_tool("detect_credential_access",
                        {"sysmon_events_json": "sysmon.json"})
     findings = result.get("findings", [])
@@ -139,10 +139,10 @@ def test_cron_hourly_emits_full_file_not_arbitrary_line(tmp_path, monkeypatch):
     """
     # Clear cached modules so the @tool side-effect imports re-run
     # against the new EVIDENCE_ROOT.
-    for mod in ("dart_mcp", "dart_mcp._v04_expansion",
-                 "dart_mcp._v05_supply_chain", "dart_mcp._v06_macos_linux"):
+    for mod in ("dfir_mcp", "dfir_mcp._v04_expansion",
+                 "dfir_mcp._v05_supply_chain", "dfir_mcp._v06_macos_linux"):
         sys.modules.pop(mod, None)
-    monkeypatch.setenv("DART_EVIDENCE_ROOT", str(tmp_path))
+    monkeypatch.setenv("DFIR_EVIDENCE_ROOT", str(tmp_path))
     cron_hourly = tmp_path / "etc" / "cron.hourly"
     cron_hourly.mkdir(parents=True)
     script = cron_hourly / "0anacron"
@@ -154,7 +154,7 @@ def test_cron_hourly_emits_full_file_not_arbitrary_line(tmp_path, monkeypatch):
         "exit 0\n",
         encoding="utf-8")
     script.chmod(0o755)
-    from dart_mcp import call_tool
+    from dfir_mcp import call_tool
     # The function appends /etc/cron.hourly internally to evidence_root.
     # Use "." to mean the EVIDENCE_ROOT itself.
     result = call_tool("parse_linux_cron_jobs", {"evidence_root": "."})
@@ -178,9 +178,9 @@ def test_audit_chain_resume_with_large_entries(tmp_path):
     on resume and json.loads to raise. The new backward-growing-chunk
     loop guarantees a complete last line.
     """
-    if "dart_audit" in sys.modules:
-        del sys.modules["dart_audit"]
-    from dart_audit import AuditLogger
+    if "dfir_audit" in sys.modules:
+        del sys.modules["dfir_audit"]
+    from dfir_audit import AuditLogger
     audit_path = tmp_path / "audit.jsonl"
 
     # First session: write an entry whose 'inputs' is ~10 KB

@@ -1,10 +1,10 @@
-"""Tests for dart-mcp: the agent attack surface is a hard-coded set."""
+"""Tests for dfir-mcp: the agent attack surface is a hard-coded set."""
 import sys
 from pathlib import Path
-SRC = Path(__file__).resolve().parents[1] / "dart_mcp" / "src"
+SRC = Path(__file__).resolve().parents[1] / "dfir_mcp" / "src"
 sys.path.insert(0, str(SRC))
 
-from dart_mcp import list_tools, call_tool
+from dfir_mcp import list_tools, call_tool
 
 
 def test_registered_tools_are_exact_set():
@@ -81,7 +81,7 @@ def test_registered_tools_are_exact_set():
         "parse_linux_text_log",
         "parse_linux_shell_history",
         # v0.7 Sigma detection-rule matcher (1 function). Applies the
-        # consolidated, versioned dart_sigma/ rule pack against parsed events so
+        # consolidated, versioned dfir_sigma/ rule pack against parsed events so
         # the agent can corroborate a classification with a detection signature.
         "match_sigma_rules",
     }

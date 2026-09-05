@@ -1,28 +1,28 @@
-# Agentic-DART Architecture
+# Agentic-DFIR Architecture
 
 ## Thesis
 
-Protocol SIFT works. It also hallucinates more than a DFIR practitioner can stand behind in a courtroom-grade report. The fix is not a better prompt. The fix is to make analyst reasoning — and evidence integrity — **properties of the system's shape**, not rules the agent is asked to follow.
+A prompt-first DFIR agent works. It also hallucinates more than a DFIR practitioner can stand behind in a courtroom-grade report. The fix is not a better prompt. The fix is to make analyst reasoning — and evidence integrity — **properties of the system's shape**, not rules the agent is asked to follow.
 
 ## System overview
 
-See [`dart-architecture.png`](./dart-architecture.png).
+See [`dfir-architecture.png`](./dfir-architecture.png) (editable source: [`dfir-architecture.drawio`](./dfir-architecture.drawio)).
 
-The stack is a deliberate hybrid of three of the four supported FIND EVIL! architectural patterns:
+The stack has three layers:
 
-1. **Custom MCP Server (primary enforcement layer)** — `dart-mcp`
-2. **Direct Agent Extension on Claude Code** — `dart-agent`
-3. **Persistent Learning Loop** — iteration controller + `progress.jsonl`
+1. **Custom MCP server (primary enforcement layer)** — `dfir-mcp`, exposing typed native Python functions plus adapters for the SIFT Workstation toolchain
+2. **Agent loop** — `dfir-agent`, a wrapper that drives Claude (Claude Code or the Anthropic API) exclusively through that MCP surface
+3. **Persistent learning loop** — iteration controller + `progress.jsonl`
 
-The fourth pattern (Multi-Agent Framework) is reserved for the post-submission roadmap.
+A multi-agent layer is not part of the current design; later phases build on the same read-only, audit-chained core.
 
 ## Components
 
-### `dart-agent` — Claude Code wrapper
+### `dfir-agent` — Claude Code wrapper
 
 Responsible for:
 
-- Loading the senior-analyst system prompt from `dart_playbook/`
+- Loading the senior-analyst system prompt from `dfir_playbook/`
 - Maintaining the hypothesis tracker (writes to `progress.jsonl`)
 - Running the iteration controller with `--max-iterations` hard cap
 - Routing all forensic work through the MCP server — never through shell
@@ -31,7 +31,7 @@ Not responsible for:
 
 - Security boundaries (those live in the MCP server + OS mount)
 
-### `dart-mcp` — Custom MCP Server
+### `dfir-mcp` — Custom MCP Server
 
 The enforcement layer. Exposes **typed, schema-validated functions only**. Examples:
 
@@ -53,7 +53,7 @@ Functions that **are not exposed** (and therefore cannot be called):
 
 The server pre-parses tool output (which can be gigabytes) and returns cursor-paginated JSON so the LLM context is never flooded.
 
-### `dart-corr` — Cross-artifact correlation engine
+### `dfir-corr` — Cross-artifact correlation engine
 
 Python + DuckDB. Performs timeline joins across:
 
@@ -63,7 +63,7 @@ Python + DuckDB. Performs timeline joins across:
 
 When two sources contradict, the contradiction is flagged as **UNRESOLVED** and written to `progress.jsonl`. The agent is architecturally forbidden from smoothing over contradictions in its report.
 
-### `dart-audit` — JSONL logger
+### `dfir-audit` — JSONL logger
 
 Side-tapped from every MCP call. Each entry:
 
@@ -81,11 +81,11 @@ Side-tapped from every MCP call. Each entry:
 }
 ```
 
-Every finding in the final report carries an `audit_id`. Judges can trace any claim back to the exact tool call in ≤3 clicks.
+Every finding in the final report carries the `audit_id`s of the MCP calls that produced it. Reviewers can trace any claim back to the exact tool call with `python3 -m dfir_audit trace <audit.jsonl> <finding-id>`.
 
-### `dart-playbook` — YAML sequencing rules
+### `dfir-playbook` — YAML sequencing rules
 
-The senior-analyst playbook, expressed as YAML so other responders can contribute without touching Python. See [`../dart_playbook/senior-analyst-v3.yaml`](../dart_playbook/senior-analyst-v3.yaml) (default — industrialization release) or [`v2`](../dart_playbook/senior-analyst-v2.yaml) (methodology baseline) or [`v1`](../dart_playbook/senior-analyst-v1.yaml) (quick demo).
+The senior-analyst playbook, expressed as YAML so other responders can contribute without touching Python. See [`../dfir_playbook/senior-analyst-v3.yaml`](../dfir_playbook/senior-analyst-v3.yaml) (default — industrialization release) or [`v2`](../dfir_playbook/senior-analyst-v2.yaml) (methodology baseline) or [`v1`](../dfir_playbook/senior-analyst-v1.yaml) (quick demo).
 
 ## Evidence integrity — by architecture
 
@@ -107,9 +107,9 @@ This is the architectural property that lets a practitioner stand behind the age
 | Evidence mounted `ro,noload` | OS kernel | None — kernel enforces |
 | SHA-256 pre/post verification | Separate verifier | Detects any deviation |
 
-Agentic-DART uses the bottom three, not the top two.
+Agentic-DFIR uses the bottom three, not the top two.
 
-## Trust boundaries (for judges)
+## Trust boundaries
 
 - **Inside the agent's trust:** Playbook YAML, progress.jsonl (agent-writable state)
 - **Outside the agent's trust:** Evidence files, audit.jsonl (append-only), final report path

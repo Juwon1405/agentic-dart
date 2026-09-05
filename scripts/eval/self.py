@@ -45,15 +45,15 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 # resolve_auth_mode lets us label each model line with its credential source
 # (oauth = cheap subscription, api = metered) before the run starts.
-sys.path.insert(0, str(REPO / "dart_agent" / "src"))
+sys.path.insert(0, str(REPO / "dfir_agent" / "src"))
 try:
-    from dart_agent.auth import resolve_auth_mode
+    from dfir_agent.auth import resolve_auth_mode
 except Exception:  # pragma: no cover
     def resolve_auth_mode(_model=None):
         return None
 CASE_ROOT = REPO / "examples" / "case-studies"
 SELF = CASE_ROOT / "self-evaluation"
-DEFAULT_MODEL = os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001")
+DEFAULT_MODEL = os.environ.get("DFIR_MODEL", "claude-haiku-4-5-20251001")
 MATRIX_MD = REPO / "docs" / "benchmarks" / "MODEL-COMPARISON.md"
 SUMMARY_MD = REPO / "docs" / "benchmarks" / "SUMMARY.md"
 

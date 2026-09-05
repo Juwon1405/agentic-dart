@@ -23,7 +23,7 @@ tool. The macOS-specific signals:
 The staged exfiltration leaves telltale FSEvents: create + delete of
 archive files in `/var/folders/.../TemporaryItems/`.
 
-## Agentic-DART walkthrough
+## Agentic-DFIR walkthrough
 
 ### Iteration 1 — UnifiedLog ingestion
 
@@ -84,7 +84,7 @@ Returns cross-source correlations linking the TCC denial → device unlock →
 XProtect detection → FSEvents creation — a complete attack chain across
 3 macOS data sources.
 
-## What the judges should run
+## What to run
 
 ```bash
 # macOS quickstart (works on Linux too)
@@ -92,7 +92,7 @@ bash examples/demo-run.sh
 
 # Exercise each macOS function
 python3 -c "
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 import json
 
 for name, args in [
@@ -117,11 +117,11 @@ for name, args in [
 
 ```bash
 # From the repo root
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-03/evidence_root"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-03/evidence_root"
 
 python3 - <<'PY'
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 
 r = call_tool('parse_unified_log', {'unifiedlog_json': 'mac/private/var/db/diagnostics/unifiedlog.ndjson'})
 print('parse_unified_log:', r['events_examined'], 'events,', len(r['alerts']), 'alerts')
@@ -131,4 +131,4 @@ print('parse_fsevents:', r['total_rows'], 'rows,', r['suspicious_path_count'], '
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

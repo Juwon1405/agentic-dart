@@ -9,9 +9,9 @@
 > hundreds of academic forensics courses and SANS GCFE / GCFA prep
 > materials.
 >
-> The point of this case is **not** to claim "dart-mcp solves the
+> The point of this case is **not** to claim "dfir-mcp solves the
 > Hacking Case" — that would be dishonest. The point is to **measure
-> honestly what dart-mcp v0.5.3 can and cannot do** against an
+> honestly what dfir-mcp v0.5.3 can and cannot do** against an
 > external dataset that none of the project's authors generated, and
 > to use that measurement to drive Phase 2 prioritization.
 
@@ -31,7 +31,7 @@ Reasons:
 
 1. The image is freely downloadable from NIST's archive — anyone
    reviewing this case can fetch it themselves.
-2. Bundling 4 GB in a hackathon repository is wasteful and makes
+2. Bundling 4 GB in a Git repository is wasteful and makes
    `git clone` painful.
 3. The published `TestAnswers.pdf` already contains the
    peer-reviewed ground truth. Re-deriving it from the raw image
@@ -43,12 +43,12 @@ What this case **does** ship:
 - `evidence-snippet/TestAnswers.txt` — official answers (extracted from PDF)
 - `evidence-snippet/SCHARDT.LOG` — original acquisition log
 - `truth.json` — the 10 sampled findings most relevant to
-  dart-mcp's current capability surface, mapped to expected MCP
+  dfir-mcp's current capability surface, mapped to expected MCP
   functions and labelled with detection status (`directly_detectable_v053`).
 
 ## Honest accuracy assessment (v0.5.3)
 
-Of 10 sampled NIST ground-truth findings, dart-mcp v0.5.3 status:
+Of 10 sampled NIST ground-truth findings, dfir-mcp v0.5.3 status:
 
 | Status | Count | Findings |
 |---|---:|---|
@@ -64,10 +64,10 @@ This is a **deliberate, transparent disclosure**. Compare to
 `docs/accuracy-report.md`:
 - Reference variant (synthetic): recall 1.000 — measures correctness of the detection logic against IOCs the system claims to detect
 - Realistic variant (synthetic + noise): recall 1.000 — measures robustness to noise on the same claim space
-- **CFReDS variant (this case):** recall 0.10-0.40 — measures **expansion potential** against a content-centric paradigm dart-mcp hasn't fully covered yet
+- **CFReDS variant (this case):** recall 0.10-0.40 — measures **expansion potential** against a content-centric paradigm dfir-mcp hasn't fully covered yet
 
 The drop from 1.0 to 0.10 is not a regression; it's a **paradigm
-mismatch**. dart-mcp v0.5.3 is artifact-centric (timeline, persistence
+mismatch**. dfir-mcp v0.5.3 is artifact-centric (timeline, persistence
 mechanisms, lateral movement signals). CFReDS is content-centric (what
 specific strings appear in which specific files). Both are valid
 forensic paradigms; this case study makes the gap explicit and
@@ -79,10 +79,10 @@ CFReDS integration directly drove the Phase 2 priority list:
 
 | Gap | Blocks | Effort |
 |---|---|---|
-| Generic SOFTWARE/SYSTEM/SAM hive value extraction ([#52](https://github.com/Juwon1405/agentic-dart/issues/52)) | F-CFR-001, 004, 007, 010 (4/10 findings) | 1-2 weeks |
-| IE6 / Outlook Express index.dat parser ([#53](https://github.com/Juwon1405/agentic-dart/issues/53)) | F-CFR-006 | 2-3 days |
-| Recycle Bin INFO2 / $I$R parser ([#54](https://github.com/Juwon1405/agentic-dart/issues/54)) | F-CFR-008 | 1-2 days |
-| YARA rule library + bundled rules ([#55](https://github.com/Juwon1405/agentic-dart/issues/55), see also #10) | F-CFR-009 | Phase 2 |
+| Generic SOFTWARE/SYSTEM/SAM hive value extraction ([#52](https://github.com/Juwon1405/agentic-dfir/issues/52)) | F-CFR-001, 004, 007, 010 (4/10 findings) | 1-2 weeks |
+| IE6 / Outlook Express index.dat parser ([#53](https://github.com/Juwon1405/agentic-dfir/issues/53)) | F-CFR-006 | 2-3 days |
+| Recycle Bin INFO2 / $I$R parser ([#54](https://github.com/Juwon1405/agentic-dfir/issues/54)) | F-CFR-008 | 1-2 days |
+| YARA rule library + bundled rules ([#55](https://github.com/Juwon1405/agentic-dfir/issues/55), see also #10) | F-CFR-009 | Phase 2 |
 
 **This is the value of external benchmarking** — it converts "we
 should probably add registry parsing someday" into "registry parsing
@@ -94,7 +94,7 @@ Phase 2 deliverable."
 ```bash
 # After Phase 2 Gap G-001 ships
 python3 -c "
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 
 # Question 5 — registered owner
 r = call_tool('parse_registry_hive', {
@@ -113,10 +113,10 @@ print(f'F-CFR-003 expected: 6+ tools → got: {len(matches)}')
 
 ## What you should take away from this case
 
-If you are evaluating dart-mcp:
+If you are evaluating dfir-mcp:
 
 1. **The reference accuracy numbers (recall=1.0) are real for what
-   they measure** — the synthetic IOC detection paradigm dart-mcp
+   they measure** — the synthetic IOC detection paradigm dfir-mcp
    ships with.
 2. **They do not generalize to all forensic paradigms** — content-
    centric questions ("what does this file contain") need additional

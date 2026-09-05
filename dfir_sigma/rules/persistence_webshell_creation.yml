@@ -1,0 +1,33 @@
+title: Web Shell File Creation in Web Root
+id: dfir-persist-002
+description: >
+  Detects creation of a server-side script (.php/.aspx/.jsp) under a web-server
+  document root (inetpub/wwwroot/htdocs) — the signature of a web-shell drop
+  (T1505.003). General pattern on file extension plus web path.
+status: experimental
+author: Agentic-DFIR
+references:
+  - https://github.com/SigmaHQ/sigma
+logsource:
+  category: file_event
+  product: windows
+detection:
+  ext_php:
+    TargetFilename|endswith: '.php'
+  ext_aspx:
+    TargetFilename|endswith: '.aspx'
+  ext_jsp:
+    TargetFilename|endswith: '.jsp'
+  path_inetpub:
+    TargetFilename|contains: 'inetpub'
+  path_wwwroot:
+    TargetFilename|contains: 'wwwroot'
+  path_htdocs:
+    TargetFilename|contains: 'htdocs'
+  condition: (ext_php or ext_aspx or ext_jsp) and (path_inetpub or path_wwwroot or path_htdocs)
+falsepositives:
+  - Legitimate web app deployment (filter known deploy pipelines)
+level: high
+tags:
+  - attack.persistence
+  - attack.t1505.003

@@ -15,7 +15,7 @@
       "evidence_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
       "artifact_type": "browser_history",
       "host_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
-      "expected_dart_mcp_function": "parse_browser_history",
+      "expected_dfir_mcp_function": "parse_browser_history",
       "mitre_attack": [
         "T1566.002"
       ],
@@ -29,7 +29,7 @@
       "evidence_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
       "artifact_type": "browser_history",
       "host_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History",
-      "expected_dart_mcp_function": "parse_browser_history",
+      "expected_dfir_mcp_function": "parse_browser_history",
       "mitre_attack": [
         "T1071.001"
       ],
@@ -43,7 +43,7 @@
       "evidence_path": "disk/Users/analyst/Downloads/",
       "artifact_type": "download_record",
       "host_path": "disk/Users/analyst/Downloads/",
-      "expected_dart_mcp_function": "analyze_downloads",
+      "expected_dfir_mcp_function": "analyze_downloads",
       "mitre_attack": [
         "T1204.002"
       ],
@@ -57,7 +57,7 @@
       "evidence_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History + disk/Windows/AppCompat/Programs/Amcache.hve",
       "artifact_type": "correlation_finding",
       "host_path": "disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History + disk/Windows/AppCompat/Programs/Amcache.hve",
-      "expected_dart_mcp_function": "correlate_download_to_execution",
+      "expected_dfir_mcp_function": "correlate_download_to_execution",
       "mitre_attack": [
         "T1204.002"
       ],
@@ -72,7 +72,7 @@
       "evidence_path": "disk/Users/analyst/Downloads/",
       "artifact_type": "network_artifact",
       "host_path": "disk/Users/analyst/Downloads/",
-      "expected_dart_mcp_function": "detect_exfiltration",
+      "expected_dfir_mcp_function": "detect_exfiltration",
       "mitre_attack": [
         "T1567.002"
       ],
@@ -86,7 +86,7 @@
       "evidence_path": "disk/Users/analyst/NTUSER.DAT",
       "artifact_type": "self_correction_event",
       "host_path": "disk/Users/analyst/NTUSER.DAT",
-      "expected_dart_mcp_function": "parse_registry_hive",
+      "expected_dfir_mcp_function": "parse_registry_hive",
       "mitre_attack": [],
       "severity": "info",
       "rationale": "Hero hallucination-management demonstration: agent retracts a wrong claim, identifies the true HKCU\\...\\Run\\WinUpdate as actual persistence. Confidence 0.62 → 0.91."

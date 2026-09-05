@@ -1,6 +1,6 @@
 # Dependabot configuration.
 #
-# Policy (DFIR / SANS-submission repository — reproducibility is critical):
+# Policy (DFIR repository — reproducibility is critical):
 #   - Monthly cadence, not daily: dependency churn is reviewed in one batch.
 #   - Cooldown: a freshly published version waits before a PR is opened, so a
 #     malicious release is more likely to be caught upstream first
@@ -38,10 +38,10 @@ updates:
   # ---- Python packages (multi-package layout) ----
   - package-ecosystem: "pip"
     directories:
-      - "/dart_audit"
-      - "/dart_corr"
-      - "/dart_agent"
-      - "/dart_mcp"
+      - "/dfir_audit"
+      - "/dfir_corr"
+      - "/dfir_agent"
+      - "/dfir_mcp"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 5

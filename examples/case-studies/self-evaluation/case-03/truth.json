@@ -15,7 +15,7 @@
       "evidence_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
       "artifact_type": "unified_log",
       "host_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
-      "expected_dart_mcp_function": "parse_unified_log",
+      "expected_dfir_mcp_function": "parse_unified_log",
       "mitre_attack": [
         "T1204.002"
       ],
@@ -29,7 +29,7 @@
       "evidence_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
       "artifact_type": "unified_log",
       "host_path": "mac/private/var/db/diagnostics/unifiedlog.ndjson",
-      "expected_dart_mcp_function": "parse_unified_log",
+      "expected_dfir_mcp_function": "parse_unified_log",
       "mitre_attack": [
         "T1548.006"
       ],
@@ -43,7 +43,7 @@
       "evidence_path": "macos/com.evil.persistence.plist",
       "artifact_type": "launchd_plist",
       "host_path": "macos/com.evil.persistence.plist",
-      "expected_dart_mcp_function": "parse_unified_log",
+      "expected_dfir_mcp_function": "parse_unified_log",
       "mitre_attack": [
         "T1543.001"
       ],
@@ -57,7 +57,7 @@
       "evidence_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
       "artifact_type": "knowledgec",
       "host_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
-      "expected_dart_mcp_function": "parse_knowledgec",
+      "expected_dfir_mcp_function": "parse_knowledgec",
       "mitre_attack": [
         "T1059.004"
       ],
@@ -71,7 +71,7 @@
       "evidence_path": "mac/fsevents.csv",
       "artifact_type": "fsevents",
       "host_path": "mac/fsevents.csv",
-      "expected_dart_mcp_function": "parse_fsevents",
+      "expected_dfir_mcp_function": "parse_fsevents",
       "mitre_attack": [
         "T1074.001"
       ],
@@ -85,7 +85,7 @@
       "evidence_path": "mac/fsevents.csv",
       "artifact_type": "fsevents",
       "host_path": "mac/fsevents.csv",
-      "expected_dart_mcp_function": "parse_fsevents",
+      "expected_dfir_mcp_function": "parse_fsevents",
       "mitre_attack": [
         "T1003"
       ],
@@ -99,7 +99,7 @@
       "evidence_path": "mac/var/log/auth.log",
       "artifact_type": "auth_log",
       "host_path": "mac/var/log/auth.log",
-      "expected_dart_mcp_function": "analyze_unix_auth",
+      "expected_dfir_mcp_function": "analyze_unix_auth",
       "mitre_attack": [
         "T1110.001"
       ],
@@ -113,7 +113,7 @@
       "evidence_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
       "artifact_type": "knowledgec",
       "host_path": "mac/Users/analyst/Library/Application Support/Knowledge/knowledgeC.db",
-      "expected_dart_mcp_function": "parse_knowledgec",
+      "expected_dfir_mcp_function": "parse_knowledgec",
       "mitre_attack": [],
       "severity": "info",
       "rationale": "Cross-platform attribution link between case-01 (Windows IP-KVM) and case-03 (macOS infection)."

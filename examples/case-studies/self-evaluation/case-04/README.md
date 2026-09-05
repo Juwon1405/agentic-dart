@@ -18,7 +18,7 @@ phishing email → browser opens URL → file downloads → user runs it
     → malware calls home → sensitive data compressed → uploaded
 ```
 
-Earlier Agentic-DART case studies proved **execution** and **persistence**
+Earlier Agentic-DFIR case studies proved **execution** and **persistence**
 detection (Case 01, 02) and **macOS system coverage** (Case 03). This
 case closes the two largest remaining gaps: **how the malware got in**
 and **whether data left**.
@@ -32,7 +32,7 @@ redirected to `https://203.0.113.42:8080/payload` which served
 payload then compressed local files and uploaded them to `bashupload.com`
 and `transfer.sh`.
 
-## Agentic-DART walkthrough
+## Agentic-DFIR walkthrough
 
 ### Iteration 1 — Browser history
 
@@ -130,12 +130,12 @@ stats:
 > Findings F-042 through F-047 reference the audit entries that produced
 > this conclusion. Evidence SHA-256 hashes verified pre/post analysis.
 
-## What the judges should run
+## What to run
 
 ```bash
 # Each function end-to-end against bundled evidence
 python3 -c "
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 import json
 
 hist = call_tool('parse_browser_history', {
@@ -163,15 +163,15 @@ print(f'MOTW: {motw[\"total_downloads\"]} Internet-zone files')
 
 ```bash
 # From the repo root
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-04/evidence_root"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-04/evidence_root"
 
 python3 - <<'PY'
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 
 r = call_tool('parse_browser_history', {'history_db': 'disk/Users/analyst/AppData/Local/Google/Chrome/User Data/Default/History'})
 print('parse_browser_history:', r['total'], 'urls,', r['suspicious_url_count'], 'suspicious')
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.

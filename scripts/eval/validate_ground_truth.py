@@ -4,7 +4,7 @@
 Prevents drift between the ground-truth files and the actual analysis code.
 Checks the following and exits non-zero (blocking commit / CI) on any failure:
 
-  1. expected_function is registered in the live MCP registry (dart_mcp._REGISTRY)
+  1. expected_function is registered in the live MCP registry (dfir_mcp._REGISTRY)
   2. evidence_path exists in the evidence pool (non-derived findings, internal cases)
   3. host_path and evidence_path are consistent
   4. Derived findings (self_correction / audit_chain / correlation) are exempt
@@ -31,11 +31,11 @@ DERIVED = {"self_correction_event", "audit_chain", "correlation_finding"}
 
 def mcp_tools():
     """Return the set of registered MCP tool names (single source of truth)."""
-    src = str(REPO / "dart_mcp" / "src")
+    src = str(REPO / "dfir_mcp" / "src")
     if src not in sys.path:
         sys.path.insert(0, src)
-    import dart_mcp
-    return set(dart_mcp._REGISTRY.keys())
+    import dfir_mcp
+    return set(dfir_mcp._REGISTRY.keys())
 
 
 def is_external(tier):
@@ -81,7 +81,7 @@ def main():
         for f in findings:
             fid = f.get("finding_id", "?")
             at = f.get("artifact_type")
-            fn = f.get("expected_dart_mcp_function") or f.get("expected_function")
+            fn = f.get("expected_dfir_mcp_function") or f.get("expected_function")
             derived = at in DERIVED
 
             # (1) Function check. Derived findings (e.g. audit_chain) are not the

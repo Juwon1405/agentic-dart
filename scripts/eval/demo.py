@@ -53,12 +53,12 @@ def _sha_map(root: Path) -> dict[str, str]:
 
 
 def run(quiet: bool = False) -> dict:
-    os.environ["DART_EVIDENCE_ROOT"] = str(CASE01)
-    for pkg in ("dart_audit", "dart_mcp", "dart_agent", "dart_corr"):
+    os.environ["DFIR_EVIDENCE_ROOT"] = str(CASE01)
+    for pkg in ("dfir_audit", "dfir_mcp", "dfir_agent", "dfir_corr"):
         sys.path.insert(0, str(REPO / pkg / "src"))
 
-    from dart_agent import main as agent_main
-    from dart_mcp import call_tool
+    from dfir_agent import main as agent_main
+    from dfir_mcp import call_tool
 
     pre = _sha_map(CASE01)
 
@@ -124,7 +124,7 @@ def main(argv=None) -> int:
                      and r["evidence_integrity"] and r["containment_enforced"]) else 1
 
     ok = lambda b: "PASS" if b else "FAIL"
-    print("Agentic-DART — pipeline check (deterministic, no LLM)")
+    print("Agentic-DFIR — pipeline check (deterministic, no LLM)")
     print(f"  evidence root      : {CASE01.relative_to(REPO)}")
     print()
     print(f"  [1] accuracy       : recall {r['recall']:.0%}  "

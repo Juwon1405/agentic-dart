@@ -1,10 +1,10 @@
 """End-to-end test of live-mode MCP plumbing.
 
 Does NOT require an ANTHROPIC_API_KEY. Runs in --dry-run which uses a
-scripted mock-Claude that still calls the real dart-mcp subprocess
+scripted mock-Claude that still calls the real dfir-mcp subprocess
 over real MCP stdio JSON-RPC. This exercises:
 
-  1. Subprocess spawn of `python -m dart_mcp.server_stdio`
+  1. Subprocess spawn of `python -m dfir_mcp.server_stdio`
   2. MCP initialize() handshake
   3. list_tools() over the wire — verifies all 73 functions are advertised
      (48 native + 25 SIFT Workstation adapters)
@@ -21,16 +21,16 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "dart_mcp" / "src"))
-sys.path.insert(0, str(REPO / "dart_audit" / "src"))
-sys.path.insert(0, str(REPO / "dart_agent" / "src"))
-os.environ["DART_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
+sys.path.insert(0, str(REPO / "dfir_mcp" / "src"))
+sys.path.insert(0, str(REPO / "dfir_audit" / "src"))
+sys.path.insert(0, str(REPO / "dfir_agent" / "src"))
+os.environ["DFIR_EVIDENCE_ROOT"] = str(REPO / "tests" / "fixtures" / "evidence")
 _existing_pythonpath = os.environ.get("PYTHONPATH")
 _repo_pythonpath = os.pathsep.join([
-    str(REPO / "dart_mcp" / "src"),
-    str(REPO / "dart_audit" / "src"),
-    str(REPO / "dart_agent" / "src"),
-    str(REPO / "dart_corr" / "src"),
+    str(REPO / "dfir_mcp" / "src"),
+    str(REPO / "dfir_audit" / "src"),
+    str(REPO / "dfir_agent" / "src"),
+    str(REPO / "dfir_corr" / "src"),
 ])
 os.environ["PYTHONPATH"] = (
     _repo_pythonpath if not _existing_pythonpath
@@ -39,10 +39,10 @@ os.environ["PYTHONPATH"] = (
 
 
 def test_live_mode_subprocess_dryrun():
-    """Run `dart-agent --mode live --dry-run` end-to-end."""
+    """Run `dfir-agent --mode live --dry-run` end-to-end."""
     with tempfile.TemporaryDirectory() as td:
         result = subprocess.run(
-            [sys.executable, "-m", "dart_agent",
+            [sys.executable, "-m", "dfir_agent",
              "--mode", "live", "--case", "live-test",
              "--out", td, "--dry-run", "--max-iterations", "5"],
             capture_output=True, text=True, timeout=60,
@@ -73,7 +73,7 @@ def test_live_mode_subprocess_dryrun():
 
 def test_dryrun_mock_does_not_emit_uncorroborated_finding():
     """The scripted mock must not claim a finding the tools did not support."""
-    from dart_agent.live import LiveRunState, _run_with_mock_claude
+    from dfir_agent.live import LiveRunState, _run_with_mock_claude
 
     class Content:
         def __init__(self, text: str):
@@ -100,7 +100,7 @@ def test_dryrun_mock_does_not_emit_uncorroborated_finding():
 
 
 def test_live_mcp_server_advertises_correct_surface():
-    """Spawn dart-mcp stdio server and call list_tools() over the wire.
+    """Spawn dfir-mcp stdio server and call list_tools() over the wire.
 
     This is the guardrail-over-wire check: the protocol surface must match
     the in-process _REGISTRY exactly. Any drift fails this test.
@@ -111,7 +111,7 @@ def test_live_mcp_server_advertises_correct_surface():
     async def run():
         params = StdioServerParameters(
             command=sys.executable,
-            args=["-m", "dart_mcp.server_stdio"],
+            args=["-m", "dfir_mcp.server_stdio"],
             env={**os.environ},
         )
         async with stdio_client(params) as (read, write):
@@ -195,7 +195,7 @@ def test_live_mcp_executes_real_tool_over_wire():
     async def run():
         params = StdioServerParameters(
             command=sys.executable,
-            args=["-m", "dart_mcp.server_stdio"],
+            args=["-m", "dfir_mcp.server_stdio"],
             env={**os.environ},
         )
         async with stdio_client(params) as (read, write):
@@ -228,7 +228,7 @@ def test_live_mcp_refuses_unregistered_tool_over_wire():
     async def run():
         params = StdioServerParameters(
             command=sys.executable,
-            args=["-m", "dart_mcp.server_stdio"],
+            args=["-m", "dfir_mcp.server_stdio"],
             env={**os.environ},
         )
         async with stdio_client(params) as (read, write):

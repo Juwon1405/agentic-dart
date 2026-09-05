@@ -15,7 +15,7 @@
       "evidence_path": "disk/processes.csv",
       "artifact_type": "process_tree",
       "host_path": "disk/processes.csv",
-      "expected_dart_mcp_function": "get_process_tree",
+      "expected_dfir_mcp_function": "get_process_tree",
       "mitre_attack": [
         "T1059.001",
         "T1059.003"
@@ -30,7 +30,7 @@
       "evidence_path": "disk/events.json",
       "artifact_type": "event_log",
       "host_path": "disk/events.json",
-      "expected_dart_mcp_function": "analyze_event_logs",
+      "expected_dfir_mcp_function": "analyze_event_logs",
       "mitre_attack": [
         "T1003.001"
       ],
@@ -44,7 +44,7 @@
       "evidence_path": "disk/events.json",
       "artifact_type": "event_log",
       "host_path": "disk/events.json",
-      "expected_dart_mcp_function": "analyze_event_logs",
+      "expected_dfir_mcp_function": "analyze_event_logs",
       "mitre_attack": [
         "T1059.001",
         "T1105"
@@ -59,7 +59,7 @@
       "evidence_path": "disk/Windows/System32/config/NTUSER.DAT.runkeys.csv",
       "artifact_type": "registry_run_key",
       "host_path": "disk/Windows/System32/config/NTUSER.DAT.runkeys.csv",
-      "expected_dart_mcp_function": "detect_persistence",
+      "expected_dfir_mcp_function": "detect_persistence",
       "mitre_attack": [
         "T1547.001"
       ],
@@ -73,7 +73,7 @@
       "evidence_path": "disk/Windows/System32/config/SYSTEM.services.csv",
       "artifact_type": "service",
       "host_path": "disk/Windows/System32/config/SYSTEM.services.csv",
-      "expected_dart_mcp_function": "detect_persistence",
+      "expected_dfir_mcp_function": "detect_persistence",
       "mitre_attack": [
         "T1543.003"
       ],
@@ -87,7 +87,7 @@
       "evidence_path": "disk/processes.csv + disk/events.json",
       "artifact_type": "correlation_finding",
       "host_path": "disk/processes.csv + disk/events.json",
-      "expected_dart_mcp_function": "correlate_timeline",
+      "expected_dfir_mcp_function": "correlate_timeline",
       "mitre_attack": [
         "T1003.001",
         "T1059.001"
@@ -103,7 +103,7 @@
       "evidence_path": "disk/Windows/System32/Tasks/RemoteHandsSync",
       "artifact_type": "scheduled_task",
       "host_path": "disk/Windows/System32/Tasks/RemoteHandsSync",
-      "expected_dart_mcp_function": "list_scheduled_tasks",
+      "expected_dfir_mcp_function": "list_scheduled_tasks",
       "mitre_attack": [
         "T1053.005"
       ],

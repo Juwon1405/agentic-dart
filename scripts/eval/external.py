@@ -2,7 +2,7 @@
 """
 external.py — measure the LLM on public third-party DFIR images (needs a key).
 
-This proves Agentic-DART runs on real, externally-authored evidence, not just
+This proves Agentic-DFIR runs on real, externally-authored evidence, not just
 our own synthetic cases. It drives the external-evaluation cases, which map to
 public datasets:
 
@@ -56,16 +56,16 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 # resolve_auth_mode lets us label each model line with its credential source
 # (oauth = cheap subscription, api = metered) before the run starts.
-sys.path.insert(0, str(REPO / "dart_agent" / "src"))
+sys.path.insert(0, str(REPO / "dfir_agent" / "src"))
 try:
-    from dart_agent.auth import resolve_auth_mode
+    from dfir_agent.auth import resolve_auth_mode
 except Exception:  # pragma: no cover
     def resolve_auth_mode(_model=None):
         return None
 CASE_ROOT = REPO / "examples" / "case-studies"
 EXT = CASE_ROOT / "external-evaluation"
 DATASETS_DIR = REPO / "datasets"
-DEFAULT_MODEL = os.environ.get("DART_MODEL", "claude-haiku-4-5-20251001")
+DEFAULT_MODEL = os.environ.get("DFIR_MODEL", "claude-haiku-4-5-20251001")
 
 # external case ref -> dataset short key (from scripts/eval/datasets.py)
 CASE_TO_SHORT = {
@@ -100,7 +100,7 @@ def _fmt_int(n) -> str:
 
 
 def _adapt_image_to_evidence_root(image: Path, evidence_root: Path, case_id: str) -> bool:
-    """Turn a raw disk image into the evidence_root tree dart_mcp reads.
+    """Turn a raw disk image into the evidence_root tree dfir_mcp reads.
 
     Disk images are extracted with sleuthkit (tsk_recover) — the standard
     dead-disk flow. A whole-disk image carries a partition table, so we read it
@@ -108,7 +108,7 @@ def _adapt_image_to_evidence_root(image: Path, evidence_root: Path, case_id: str
     robust across image layouts and OS versions.
 
     Velociraptor (via the collector adapter) is reserved for LIVE collector
-    ZIPs — ``dart_collector_adapter --source zip`` — which is its native
+    ZIPs — ``dfir_collector_adapter --source zip`` — which is its native
     strength. Dead-disk remapping of arbitrary raw images is brittle across
     releases, so for raw images sleuthkit is the primary extractor.
     """
@@ -135,7 +135,7 @@ def _adapt_image_to_evidence_root(image: Path, evidence_root: Path, case_id: str
     raw_image = image
     ewf_mnt = None
     if image.suffix.lower() in (".e01", ".ex01", ".s01") and which("ewfmount"):
-        ewf_mnt = Path(tempfile.mkdtemp(prefix="dart-ewf-"))
+        ewf_mnt = Path(tempfile.mkdtemp(prefix="dfir-ewf-"))
         m = subprocess.run(["ewfmount", str(image), str(ewf_mnt)],
                            capture_output=True, text=True)
         cand = ewf_mnt / "ewf1"

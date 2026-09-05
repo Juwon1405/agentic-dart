@@ -1,0 +1,24 @@
+title: User Account Creation
+id: dfir-persist-003
+description: >
+  Detects creation of a new local/domain user account (Security EventID 4720).
+  Attackers create accounts for persistence after initial access (T1136.001) —
+  e.g. the user1/hacker accounts seen in web-server compromises. General pattern;
+  baseline expected account-provisioning sources.
+status: experimental
+author: Agentic-DFIR
+references:
+  - https://github.com/SigmaHQ/sigma
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4720
+  condition: selection
+falsepositives:
+  - Legitimate account provisioning (HR onboarding, IT automation)
+level: medium
+tags:
+  - attack.persistence
+  - attack.t1136.001

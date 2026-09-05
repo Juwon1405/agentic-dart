@@ -9,9 +9,9 @@
 > distributed "Web Server Case" challenge, used in DFIR coursework at
 > Champlain College and several other forensics programs.
 >
-> The point of this case is **not** to claim "dart-mcp solves the Hadi
+> The point of this case is **not** to claim "dfir-mcp solves the Hadi
 > Challenge" — that would be dishonest at v0.6.1. The point is to
-> **measure honestly what dart-mcp can and cannot do** against a Linux
+> **measure honestly what dfir-mcp can and cannot do** against a Linux
 > web-server compromise dataset that none of this project's authors
 > generated, and to use that measurement to drive Phase 2
 > prioritization of the Linux artefact surface.
@@ -53,7 +53,7 @@ Reasons:
 
 1. The image is freely downloadable from the Ali Hadi page — any reviewer
    can fetch it themselves with one wget.
-2. Bundling 1.5 GB in a hackathon repository is wasteful and makes
+2. Bundling 1.5 GB in a Git repository is wasteful and makes
    `git clone` painful.
 3. The published challenge ships with an answer key (PDF) and is
    discussed in numerous public write-ups — re-deriving ground truth
@@ -72,7 +72,7 @@ What this case **does** ship:
 
 ```bash
 # 1. Download the dataset (one-time, ~1.5 GB)
-cd ~/agentic-dart
+cd ~/agentic-dfir
 python3 -m scripts.eval.download hadi1 ./datasets
 
 # 2. Run the benchmark
@@ -87,8 +87,8 @@ The downloader resumes interrupted parts and verifies checksums where
 published. The benchmark runner:
 
 1. SHA-256 hashes the image (proof of identity)
-2. Converts to `evidence_root/` via agentic-dart-collector-adapter
-3. Runs `dart_agent` with the senior-analyst-v3 playbook
+2. Converts to `evidence_root/` via agentic-dfir-collector-adapter
+3. Runs `dfir_agent` with the senior-analyst-v3 playbook
 4. Scores `findings.json` against `truth.json` in both strict
    (exact `evidence_id`) and lenient (artifact type + path prefix) modes
 5. Detects hallucinations (findings without `audit_id` reference)
@@ -97,7 +97,7 @@ published. The benchmark runner:
 
 ## Expected detection surface
 
-At v0.6.1, dart-mcp's Linux artefact functions cover this case as
+At v0.6.1, dfir-mcp's Linux artefact functions cover this case as
 follows. Status reflects what the MCP surface can directly extract from
 the bundled image with no manual preprocessing.
 
@@ -116,16 +116,16 @@ These numbers are **predictions**, not measurements. Real benchmark
 output is appended to `docs/benchmarks/SUMMARY.md` when the user runs
 the suite on their analysis host.
 
-## Why this case matters to the SANS submission
+## Why this case matters
 
-| SANS criterion | What this case proves |
+| Property | What this case proves |
 |---|---|
-| IR Accuracy | Strict + lenient recall on a *non-authored* dataset |
-| Hallucination Management | hallucination rate measured against published answer key |
-| Audit Trail Quality | audit chain SHA-256 verification on a real evidence collection |
+| Accuracy | Strict + lenient recall on a *non-authored* dataset |
+| Hallucination rate | hallucination rate measured against published answer key |
+| Audit trail | audit chain SHA-256 verification on a real evidence collection |
 | Documentation | README + ground-truth + reproducible commands |
-| Autonomous Execution | end-to-end run with no human in the loop |
-| Architectural Guardrails | read-only MCP boundary preserved against external image |
+| Autonomous execution | end-to-end run with no human in the loop |
+| Read-only boundary | read-only MCP boundary preserved against external image |
 
 ## Phase 2 implications
 

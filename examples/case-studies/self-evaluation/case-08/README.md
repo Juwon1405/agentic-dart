@@ -222,7 +222,7 @@ most under-monitored AD persistence vector. Detecting it requires
 either DS Object Access auditing (4662) on the AdminSDHolder
 container, or process-tree analysis of `dsacls.exe` / `ldifde.exe`
 invocations as in case-08. The current `detect_persistence` function
-does not parse 4662 events; that work is tracked post-SANS.
+does not parse 4662 events; that work is tracked as a deferred backlog item.
 
 ### `detect_defense_evasion` — log clearing on initial-access host
 
@@ -342,13 +342,13 @@ password.
 
 ```bash
 # From the repo root
-export PYTHONPATH="$PWD/dart_audit/src:$PWD/dart_mcp/src"
-export DART_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-08/evidence_root"
+export PYTHONPATH="$PWD/dfir_audit/src:$PWD/dfir_mcp/src"
+export DFIR_EVIDENCE_ROOT="$PWD/examples/case-studies/self-evaluation/case-08/evidence_root"
 
 python3 - <<'PY'
 import csv, json
 from pathlib import Path
-from dart_mcp import call_tool
+from dfir_mcp import call_tool
 
 ROOT = Path("examples/case-studies/self-evaluation/case-08/evidence_root")
 
@@ -428,13 +428,13 @@ Each function returns a typed dict; the printed values above are the
 headline counts a SOC analyst looks at first. The full structured
 output (with `source.path`, `source.sha256`, individual hit details,
 MITRE technique IDs, severity, timestamps) is in the returned dict —
-see [docs/accuracy-report.md](../../../docs/accuracy-report.md) for the
+see [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the
 full schema and measured recall/FPR.
 
 
 ## Ground-truth finding map
 
-This table maps each ground-truth finding ID to the expected dart-mcp
+This table maps each ground-truth finding ID to the expected dfir-mcp
 function, MITRE ATT&CK technique, and primary evidence path. Use it to
 trace `findings.json` outputs back to specific ground-truth entries.
 

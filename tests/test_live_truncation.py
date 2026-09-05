@@ -1,6 +1,6 @@
 """Unit tests for the hybrid-architecture result-truncation guardrail.
 
-These exercise dart_agent.live._truncate_tool_result, which caps an
+These exercise dfir_agent.live._truncate_tool_result, which caps an
 oversized MCP tool result before it's handed back to the model. The
 function is pure (no mcp SDK, no API key, no subprocess), so unlike
 test_live_mcp.py these run everywhere including CI without the mcp
@@ -11,7 +11,7 @@ import sys
 # live.py does lazy imports of anthropic/mcp guarded by try/except, so
 # importing it without those packages installed is safe — the module
 # loads and the pure helpers are available.
-from dart_agent.live import (
+from dfir_agent.live import (
     _truncate_tool_result,
     _MCP_RESULT_CHAR_CAP,
     _TRUNCATION_NOTICE,
