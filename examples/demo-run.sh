@@ -2,9 +2,11 @@
 # Agentic-DFIR — reproducible demo run.
 #
 # Produces, from a clean checkout:
-#   out/ref-01/audit.jsonl      (chain-verifiable)
-#   out/ref-01/progress.jsonl   (iteration-by-iteration)
-#   out/ref-01/report.json      (final findings)
+#   out/demo/audit.jsonl        (chain-verifiable)
+#   out/demo/progress.jsonl     (iteration-by-iteration)
+#   out/demo/report.json        (final findings)
+#
+# examples/out/ref-01/ is the committed reference run and is left untouched.
 
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -13,7 +15,7 @@ REPO="$(cd "${HERE}/.." && pwd)"
 export DFIR_EVIDENCE_ROOT="${REPO}/examples/case-studies/self-evaluation/case-01/evidence_root"
 export PYTHONPATH="${REPO}/dfir_audit/src:${REPO}/dfir_mcp/src:${REPO}/dfir_agent/src:${REPO}/dfir_corr/src"
 
-OUT="${REPO}/examples/out/ref-01"
+OUT="${REPO}/examples/out/demo"
 rm -rf "${OUT}"
 mkdir -p "${OUT}"
 
@@ -22,7 +24,7 @@ echo "[demo] output dir    : ${OUT}"
 echo ""
 
 python3 -m dfir_agent \
-  --case ref-01 \
+  --case demo \
   --out "${OUT}" \
   --max-iterations 10 \
   --mode deterministic

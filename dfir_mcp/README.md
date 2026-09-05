@@ -17,9 +17,9 @@ If a destructive capability is not part of the MCP surface, the agent cannot inv
 
 | Layer | Count | Source | When to use |
 |---|---:|---|---|
-| **Native** | 47 | Pure Python in `dfir_mcp/__init__.py` | Always available, fresh-clone demo |
+| **Native** | 48 | Pure Python in `dfir_mcp/__init__.py` | Always available, fresh-clone demo |
 | **SIFT adapters** | 25 | Subprocess wrappers in `dfir_mcp/sift_adapters/` | When deployed on SIFT Workstation |
-| **Total** | **72** | | |
+| **Total** | **73** | | |
 
 The SIFT adapter layer wraps the SIFT Workstation toolchain behind the same read-only MCP boundary. See the project root README's `## SIFT Workstation integration` section.
 

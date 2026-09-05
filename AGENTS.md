@@ -23,7 +23,7 @@ Python 3.10+, MIT.
 - `dfir_corr/` — DuckDB cross-artifact correlation engine (Python package)
 - `dfir_playbook/` — senior-analyst YAML playbooks; **data, no `pyproject.toml`, loaded by path**
 - `examples/` — `case-studies/{self-evaluation,external-evaluation}/case-NN/` (README + truth.json + evidence_root), demos
-- `scripts/` — `install.sh`, `benchmark/`, `scripts/eval/demo.py`, `generate_realistic_evidence.py`
+- `scripts/` — `install.sh`, `healthcheck.py`, `check_sift_tools.py`, `regenerate_*.py`, `eval/` (demo, self, external, download, score, validate_ground_truth)
 - `tests/` — main pytest suite; `dfir_corr/tests/` — correlation-engine tests
 
 ## Preferred commands

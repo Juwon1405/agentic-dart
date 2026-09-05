@@ -42,8 +42,8 @@ bash examples/demo-run.sh
 python3 -m scripts.eval.demo
 
 # 3) Trace any finding back to the exact tool call that produced it.
-python3 -m dfir_audit verify examples/out/ref-01/audit.jsonl
-python3 -m dfir_audit trace  examples/out/ref-01/audit.jsonl F-013
+python3 -m dfir_audit verify examples/out/demo/audit.jsonl
+python3 -m dfir_audit trace  examples/out/demo/audit.jsonl F-013
 
 # 4) Smoke-test the live path WITHOUT a key. The real MCP wire + tool-use loop
 #    run end to end, but a SCRIPTED stand-in plays Claude (no network, no real

@@ -16,6 +16,20 @@
 - Every package version bumped to 2.0.0 — the rename changed import paths.
 
 ### Fixed
+- **Version strings** — `dfir_corr.__version__` (was 1.0.2) and the MCP
+  `serverInfo` version (was 0.2.0) now report 2.0.0; the `dfir_corr`
+  distribution is named `dfir-corr` like its siblings.
+- **Documentation drift from the June `run_eval` → `analyze` / `benchmark` →
+  `eval` refactor** — the repository tree, `scripts/README.md`, the package
+  README CLI for `dfir_agent`, the external case-study run commands, the
+  benchmark-history file list, test counts, `dfir_mcp` layer counts (48 + 25 =
+  73), ground-truth totals (94 findings / 102 technique references / 66
+  techniques), and the roadmap rows for `match_sigma_rules` and the external
+  datasets now match the tree and the ledger.
+- **`examples/demo-run.sh` writes to `examples/out/demo/`** (ignored) instead
+  of overwriting the committed reference run in `examples/out/ref-01/`.
+- **Pre-commit ground-truth hook** now matches `truth.json` (the files were
+  renamed from `ground-truth.json`), so it fires again on truth edits.
 - **mcp SDK pinned to `>=1.0.0,<2`** in `requirements.txt`, `dfir_mcp[stdio]`
   and `dfir_agent[live]`. mcp 2.0 removed the low-level `Server.list_tools()`
   and `Server.call_tool()` decorators that `dfir_mcp.server_stdio` is built

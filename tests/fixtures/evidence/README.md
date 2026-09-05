@@ -31,10 +31,8 @@ change rather than a data drift.
 
 - The unit tests point `DFIR_EVIDENCE_ROOT` at this tree for byte-stable
   regression assertions.
-- `scripts/generate_realistic_evidence.py` reads the two IOC-only logs from
-  here (`web/logs/access.log`, `mac/var/log/auth.log`) and writes them, with
-  deterministic benign noise added, into the canonical bundled evidence root
-  (`../case-studies/self-evaluation/case-01/evidence_root/`).
+- The canonical bundled evidence root (`../case-studies/self-evaluation/case-01/evidence_root/`)
+  is committed as-is; this fixture is the small IOC-only tree the unit tests use.
 - `python3 -m scripts.eval.demo` scores the canonical bundled
   evidence root (not this fixture) for the case-01 findings (F-001, F-013).
 - Per-case scoring (`scripts/eval/score.py`) walks each

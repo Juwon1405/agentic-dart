@@ -17,13 +17,13 @@
 > *Architecture-first, not prompt-first.*
 
 **License:** MIT
-**Status:** 🟢 MVP runs end-to-end; self-correction path validated.
+**Status:** 🟢 Stable release line (2.0.0); runs end-to-end offline, self-correction path validated.
 
 ---
 
 ## Quick reference
 
-Everything a reviewer needs, mapped to its exact location.
+Where everything lives.
 
 | What you need | Where it is |
 |---|---|
@@ -179,7 +179,7 @@ agentic-dfir/
 ├── analyze.py           primary user-facing command (live mode; fail-fast without a key)
 ├── requirements.txt      third-party deps (mirrors the package pyproject lower bounds)
 ├── tests/                pytest suite (run it for the authoritative count)
-├── scripts/              install.sh, healthcheck.py, benchmark/, scripts/eval/demo.py, generate_realistic_evidence.py
+├── scripts/              install.sh, healthcheck.py, check_sift_tools.py, regenerate_*.py, eval/ (demo · self · external · download · score · validate_ground_truth)
 ├── docs/                 architecture.md, accuracy-report.md, case walkthroughs
 ├── .github/workflows/    CI matrix (Python 3.10–3.13) + URL reachability
 │
@@ -234,7 +234,9 @@ Notes:
 - Every self-evaluation case (`case-01`–`08`) ships its own bundled
   `evidence_root` + `truth.json` and runs via
   `python3 analyze.py --case self-evaluation/case-NN`. `case-01` is the
-  canonical measured baseline (recall 1.0, hallucination 0).
+  canonical baseline: the deterministic demo reproduces its two reference
+  findings with hallucination 0, and live recall per model is recorded in
+  [`docs/benchmarks/SUMMARY.md`](./docs/benchmarks/SUMMARY.md).
 - External cases are public third-party datasets: `case-01` NIST CFReDS,
   `case-02` Ali Hadi web-server, `case-03` Digital Corpora M57-Patents (Jo).
   `--download` fetches the **raw disk image only** (several GB — can take a
@@ -351,7 +353,7 @@ installed automatically by `scripts/install.sh`):
 | Library | Minimum | Role |
 |---|---|---|
 | `anthropic` | ≥ 0.40 | Claude API client (live mode) |
-| `mcp` | ≥ 1.0 | MCP client/server transport |
+| `mcp` | ≥ 1.0, < 2 | MCP client/server transport (2.x removed the low-level server decorators the stdio server registers with) |
 | `duckdb` | ≥ 1.5.3, < 2.0 | in-memory correlation store |
 | `python-registry` | ≥ 1.3 | Windows registry hive parsing |
 | `PyYAML` | ≥ 6.0 | playbook / Sigma rule loading |
@@ -513,7 +515,7 @@ Insider-threat and DPRK IT-worker-style patterns:
 - Process-tree anomalies associated with remote-hands operations
 - Living-off-the-land sequencing across MFT / Amcache / Prefetch / memory
 
-The MVP demo case exercises the IP-KVM remote-hands pattern end-to-end.
+The bundled demo case exercises the IP-KVM remote-hands pattern end-to-end.
 
 ## Architectural guarantees
 
@@ -670,7 +672,7 @@ See [`docs/live-mode.md`](./docs/live-mode.md) for the architecture, the tool-us
 
 ## Case study walkthrough
 
-Eleven case studies are bundled — eight synthetic self-evaluation cases (`self-evaluation/case-01..08`) and three external benchmarks (`external-evaluation/case-01` NIST CFReDS, `case-02` Ali Hadi, `case-03` Digital Corpora M57) — for a total of **99 ground-truth findings** with 108 MITRE ATT&CK technique references across 69 unique techniques attached. Two recommended entry points:
+Eleven case studies are bundled — eight synthetic self-evaluation cases (`self-evaluation/case-01..08`) and three external benchmarks (`external-evaluation/case-01` NIST CFReDS, `case-02` Ali Hadi, `case-03` Digital Corpora M57) — for a total of **94 ground-truth findings** with 102 MITRE ATT&CK technique references across 66 unique techniques attached. Two recommended entry points:
 
 1. **[Pass-the-Hash with timestomp pre-existence](./docs/case-pth-timestomp.md)** &mdash; the conceptual walkthrough. A narrative explainer showing the agent build a coherent partial MITRE chain, then have it broken by a `dfir-corr` contradiction (timestomp before the credential event), then revise to a correct verdict. This is the architecture-first claim in document form; the bundled, fully-executable equivalent is self-evaluation case-07 (full ransomware chain), which exercises PtH + timestomp in the same call shape.
 
@@ -857,9 +859,9 @@ All 25 share the same architectural guarantees as the native layer — read-only
 | Item | Status / target |
 |---|---|
 | Standalone `dfir_corr` cross-artifact JOIN engine (MFT ↔ memory process tree) | **Shipped in v0.7.1** — see [`dfir_corr/`](./dfir_corr/) for the package and 14 unit tests |
-| Sigma rule matcher (`match_sigma_rules`) | Phase 2 — scaffolded under `tests/_pending/` |
+| Sigma rule matcher (`match_sigma_rules`) | **Shipped in v1.1.0** — matches parsed events against the `dfir_sigma/` pack (11 rules) |
 | Native EVTX binary parser (drop EvtxECmd CSV sidecar requirement) | Phase 2 — currently `analyze_event_logs` consumes JSON exports; SIFT adapter `sift_evtxecmd_parse` covers the binary path |
-| Additional external-dataset runs (Ali Hadi Challenge #1, Digital Corpora M57) + remaining CFReDS gaps (F-CFR-006/008/009) | Planned |
+| Remaining NIST CFReDS parser gaps (F-CFR-006 / 008 / 009) | Phase 2 — [#53](https://github.com/Juwon1405/agentic-dfir/issues/53), [#54](https://github.com/Juwon1405/agentic-dfir/issues/54), [#55](https://github.com/Juwon1405/agentic-dfir/issues/55) |
 | Multi-agent decomposition (Memory / Disk / Network / Synthesizer specialists) | Planned |
 | TimeSketch export format | Planned |
 | Cloud DFIR (CloudTrail / GuardDuty) | Phase 2 |

@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dfir_corr"
+name = "dfir-corr"
 version = "2.0.0"
 description = "Cross-artifact correlation engine — DuckDB-backed timeline joins and contradiction flagging for Agentic-DFIR"
 readme = "README.md"

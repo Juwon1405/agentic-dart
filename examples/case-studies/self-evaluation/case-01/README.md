@@ -91,11 +91,11 @@ bash examples/demo-run.sh
 python3 -m scripts.eval.demo
 
 # Audit chain integrity
-python3 -m dfir_audit verify examples/out/ref-01/audit.jsonl
+python3 -m dfir_audit verify examples/out/demo/audit.jsonl
 
 # Trace from finding to raw evidence (the "3 clicks" claim)
-python3 -m dfir_audit trace examples/out/ref-01/audit.jsonl F-013
-python3 -m dfir_audit trace examples/out/ref-01/audit.jsonl F-001
+python3 -m dfir_audit trace examples/out/demo/audit.jsonl F-013
+python3 -m dfir_audit trace examples/out/demo/audit.jsonl F-001
 
 # Bypass tests — architectural guardrails
 python3 tests/test_mcp_bypass.py

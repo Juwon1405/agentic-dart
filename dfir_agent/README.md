@@ -4,7 +4,7 @@ Claude Code wrapper. Loads the senior-analyst system prompt, maintains the hypot
 
 ## Responsibilities
 
-- Load playbook YAML from `dfir-playbook/`
+- Load playbook YAML from `dfir_playbook/`
 - Build the senior-analyst system prompt
 - Run the iteration loop with `--max-iterations` hard cap
 - Write `progress.jsonl` after every iteration (hypothesis, confidence, unresolved gaps)
@@ -16,17 +16,22 @@ Claude Code wrapper. Loads the senior-analyst system prompt, maintains the hypot
 - Tool execution (delegated to `dfir-mcp`)
 - Correlation logic (delegated to `dfir-corr`)
 
-## CLI (draft)
+## CLI
 
 ```bash
-dfir-agent \
+export DFIR_EVIDENCE_ROOT=/path/to/evidence_root
+python3 -m dfir_agent \
     --case <case-id> \
-    --image <path-to-disk-image> \
-    --memory <path-to-memory-capture> \
-    --playbook dfir-playbook/senior-analyst-v3.yaml \
-    --max-iterations 10 \
-    --out ./out/<case-id>/
+    --out ./out/<case-id>/ \
+    --mode deterministic \
+    --max-iterations 10
+
+# live mode (Claude API over MCP stdio); --dry-run swaps in a scripted mock, no key needed
+python3 -m dfir_agent --case <case-id> --out ./out/<case-id>/ --mode live [--model <id>] [--dry-run]
 ```
+
+The playbook is loaded from `dfir_playbook/` by path; the run writes
+`audit.jsonl`, `progress.jsonl` and `report.json` into `--out`.
 
 ## Status
 

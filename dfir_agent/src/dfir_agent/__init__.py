@@ -10,12 +10,12 @@ This is the wrapper that sits between Claude Code and dfir-mcp. It:
 5. Respects --max-iterations hard cap
 6. Emits a structured closeout report
 
-For the MVP, the "agent" runs in two modes:
+The agent runs in two modes:
 
 - `live`: talks to Claude Code via the MCP stdio server. Requires network.
 - `deterministic`: a scripted analyst that calls dfir_mcp functions directly
-  and exercises the self-correction path. This mode is what the demo video
-  and accuracy report run against — reproducible, offline, no API calls.
+  and exercises the self-correction path. This mode is what the accuracy
+  report runs against — reproducible, offline, no API calls.
 """
 from __future__ import annotations
 

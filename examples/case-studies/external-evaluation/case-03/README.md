@@ -84,11 +84,11 @@ cd ~/agentic-dfir
 python3 -m scripts.eval.download m57 ./datasets
 
 # 2. Run the benchmark
-python3 -m scripts.eval.external m57
+python3 -m scripts.eval.external --case external-evaluation/case-03
 
 # 3. Inspect the report
-cat docs/benchmarks/m57_jo_*.json
 cat docs/benchmarks/SUMMARY.md
+cat docs/benchmarks/MODEL-COMPARISON.md
 ```
 
 Note: M57 images are distributed in AFF or E01 format. The downloader

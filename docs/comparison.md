@@ -68,7 +68,7 @@ architectural enforcement.
   agent to reason on, not for human visual exploration.
 - It is **not** a production IR platform yet. It is a research-grade
   implementation that demonstrates an architectural thesis and provides a
-  working MVP to build on; production hardening is Phase 2–3.
+  working reference implementation to build on; production hardening is Phase 2–3.
 
 ## When to use Agentic-DFIR vs. when to use something else
 

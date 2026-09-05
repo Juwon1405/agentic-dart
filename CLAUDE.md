@@ -38,7 +38,7 @@ dfir_agent/      Iteration controller, hypothesis tracker, deterministic + live 
 dfir_corr/       Cross-artifact correlation engine — DuckDB joins, contradiction flagging
 dfir_playbook/   Senior-analyst YAML playbooks — DATA, not a Python package
 examples/        case-studies/{self-evaluation,external-evaluation}/case-NN/ (README+truth.json+evidence_root), demos
-scripts/         install.sh, benchmark/, scripts/eval/demo.py, generate_realistic_evidence.py
+scripts/         install.sh, healthcheck.py, check_sift_tools.py, regenerate_*.py, eval/ (demo, self, external, download, score, validate_ground_truth)
 tests/           the main pytest suite; dfir_corr/tests/ holds the correlation-engine tests
 docs/            architecture, accuracy report, case walkthroughs
 ```

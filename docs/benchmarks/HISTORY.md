@@ -1,6 +1,6 @@
 # Benchmark run history
 
-Append-only ledger. Every `python3 -m scripts.eval.self` and `python3 -m scripts.eval.external` run adds one row at the bottom — rows are never overwritten, so this is the trend over time. The snapshot tables (`MODEL-COMPARISON.md`, `EXTERNAL-COMPARISON.md`, `SUMMARY.md`) always hold the latest run only.
+Append-only ledger. Every `python3 -m scripts.eval.self` and `python3 -m scripts.eval.external` run adds one row at the bottom — rows are never overwritten, so this is the trend over time. The snapshot tables (`MODEL-COMPARISON.md`, `SUMMARY.md`) always hold the latest run only.
 
 | Run (UTC) | Tier | Models | Cases | Mean recall | Per-model recall |
 |---|---|---|---|---|---|

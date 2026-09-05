@@ -210,17 +210,11 @@ __marimo__/
 datasets/
 
 
-# Demo recording assets — kept locally, NOT in repo
-# Videos, voiceover scripts, slide generators, storyboards
-docs/demo_assets/
-docs/voiceover/
-docs/DEMO_STORYBOARD.md
-docs/DEMO_STORYBOARD_v2.md
-*.mp4
 
 # Runtime output from examples/demo-run.sh (regenerated on every run;
 # audit chain hashes are run-specific, so committing the JSONL files
 # would cause spurious dirty-tree noise on every demo invocation).
+# examples/out/ref-01 is the committed reference run and stays tracked.
 examples/out/*
 !examples/out/ref-01/
 !examples/out/ref-01/**

@@ -1,9 +1,9 @@
 # Tests
 
 `pytest` test suite for the five packages plus the live-mode agent loop.
-The suite is split across two directories — **150 tests total**:
+The suite is split across two directories — **156 tests total**:
 
-- `tests/` — **136** tests (dfir_mcp / dfir_agent / dfir_audit, parsers,
+- `tests/` — **142** tests (dfir_mcp / dfir_agent / dfir_audit, parsers,
   live-mode loop, hardening).
 - `dfir_corr/tests/` — **14** tests (the correlation engine extracted into
   its own package in v0.7.1).

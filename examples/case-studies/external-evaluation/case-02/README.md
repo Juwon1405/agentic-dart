@@ -76,11 +76,11 @@ cd ~/agentic-dfir
 python3 -m scripts.eval.download hadi1 ./datasets
 
 # 2. Run the benchmark
-python3 -m scripts.eval.external hadi1
+python3 -m scripts.eval.external --case external-evaluation/case-02
 
 # 3. Inspect the report
-cat docs/benchmarks/hadi_challenge_1_*.json
 cat docs/benchmarks/SUMMARY.md
+cat docs/benchmarks/MODEL-COMPARISON.md
 ```
 
 The downloader resumes interrupted parts and verifies checksums where

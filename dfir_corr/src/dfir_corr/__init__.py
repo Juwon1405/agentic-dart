@@ -24,7 +24,7 @@ These functions are exposed to the MCP wire through dfir_mcp, which
 imports and wraps them. Calling code can use either entry point —
 direct import or via the MCP server — and gets identical behavior.
 
-Version: 1.0.2 (extracted from dfir_mcp inline implementation)
+Version: 2.0.0 (extracted from dfir_mcp inline implementation in 0.7.1)
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-__version__ = "1.0.2"
+__version__ = "2.0.0"
 
 # Timestamp formats we accept on input. Kept tolerant because evidence
 # sources (Plaso/log2timeline, EVTX, MFT, bash history) all have their

@@ -18,7 +18,7 @@ import sys
 from . import list_tools, call_tool
 
 PROTOCOL_VERSION = "2024-11-05"
-SERVER_INFO = {"name": "dfir-mcp", "version": "0.2.0"}
+SERVER_INFO = {"name": "dfir-mcp", "version": "2.0.0"}
 
 # Server-side diagnostics go to stderr so they don't corrupt the
 # JSON-RPC stream on stdout. The MCP client still receives a clean
