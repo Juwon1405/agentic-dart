@@ -1,5 +1,46 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- **Documentation consolidated into `docs/`.** One page per topic, indexed by
+  `docs/README.md`. New pages: `overview.md`, `about-the-name.md`,
+  `memex-bet.md`, `architecture-first-vs-prompt-first.md`, `threat-model.md`,
+  `glossary.md`, `faq.md`, `mcp-function-catalog.md`, `sift-adapter-layer.md`,
+  `platform-support.md`, `operator-guide.md`, `running-on-sift.md`,
+  `case-ip-kvm.md`, `writing-case-studies.md`, `roadmap.md`,
+  `self-learning-loop.md`. The existing `architecture.md`, `accuracy-report.md`,
+  `comparison.md`, `dataset.md`, `live-mode.md`, `troubleshooting.md`,
+  `QUICKSTART.md` and `case-pth-timestomp.md` absorbed the matching README
+  sections and documentation pages, so each topic is described in exactly one
+  place.
+- **GitHub wiki retired.** Its pages now live under `docs/` with the same
+  content; wiki-style links were rewritten as relative links into the tree.
+- **README reduced to a landing page** — what it is, the guarantees, quick
+  start, the architecture diagram, a grouped table of every documentation
+  page, companion projects, acknowledgments, license and author. The install,
+  troubleshooting, platform-support, live-mode, case-study, accuracy and status
+  sections moved to their `docs/` pages.
+- **Package READMEs** (`dfir_mcp`, `dfir_agent`, `dfir_audit`, `dfir_corr`,
+  `dfir_playbook`) are now the single description of each package; the
+  per-package documentation pages were merged into them.
+- **`scripts/regenerate_hero.py`** draws the third image to `docs/banner.png`
+  (the documentation index banner); `docs/wiki-banner.png` is removed.
+- **`CONTRIBUTING.md`** points contributors at `docs/writing-case-studies.md`
+  and the documentation index; **`tests/README.md`** no longer states test
+  counts and describes how CI runs each file.
+
+### Added
+- **`tests/test_docs_consistency.py`** — keeps the documentation honest in CI,
+  standard library only: every relative link and `#anchor` resolves (GitHub
+  slug rules); every documented command exists (`python3 -m dfir_*` and
+  `scripts.*` modules, `scripts/*.py`, `scripts/eval/*.py`, `examples/*.sh`,
+  `analyze.py`); every tool-surface count (total / native / SIFT) equals what
+  `dfir_mcp.list_tools()` registers; the newest released version in
+  `CHANGELOG.md` equals the version in every `*/pyproject.toml`; and every
+  "N ground-truth findings" phrase equals the number of findings in the bundled
+  `truth.json` files. It runs in the pytest batch of `.github/workflows/ci.yml`.
+
 ## [2.0.0] — 2026-09-05 — Project renamed to Agentic-DFIR
 
 ### Changed

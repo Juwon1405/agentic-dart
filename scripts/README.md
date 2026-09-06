@@ -31,6 +31,6 @@ runtime package surface — they are repository tooling.
 ## Assets
 
 - **`regenerate_hero.py`** — draws the hero (`agentic-dfir-hero.png`), the
-  social-preview thumbnail (`agentic-dfir-thumbnail.png`) and the wiki banner
-  (`docs/wiki-banner.png`) from scratch, deterministically. Asset regeneration
-  only — not a runtime path.
+  social-preview thumbnail (`agentic-dfir-thumbnail.png`) and the documentation
+  index banner (`docs/banner.png`, the header of `docs/README.md`) from scratch,
+  deterministically. Asset regeneration only — not a runtime path.

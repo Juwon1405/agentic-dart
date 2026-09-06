@@ -16,9 +16,15 @@ welcomed.
 - **New IP-KVM / remote-hands signature** — extend `IP_KVM_VID_PID` in
   `dfir_mcp/src/dfir_mcp/__init__.py`. Include a CVE, advisory, or
   observed-in-wild reference in the PR description.
-- **Documentation and cases** — case studies under
-  `examples/case-studies/` following the pattern of
-  `self-evaluation/case-01/`.
+- **Case studies** — new bundled cases under `examples/case-studies/`
+  following the pattern of `self-evaluation/case-01/`. The layout,
+  the `truth.json` schema and validation, scoring, and what the PR
+  needs to carry are in
+  [`docs/writing-case-studies.md`](./docs/writing-case-studies.md).
+- **Documentation** — every page lives under [`docs/`](./docs/README.md)
+  (one page per topic, indexed in `docs/README.md`); each package
+  documents itself in its own `README.md`. Fix or extend the existing
+  page rather than adding a parallel one.
 
 ## What we will not accept
 

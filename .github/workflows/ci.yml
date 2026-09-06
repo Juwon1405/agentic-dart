@@ -99,7 +99,8 @@ jobs:
             tests/test_sigma_matcher.py \
             tests/test_live_findings_extraction.py \
             tests/test_download.py \
-            tests/test_eval_layout.py
+            tests/test_eval_layout.py \
+            tests/test_docs_consistency.py
 
       - name: Live MCP smoke (stdio subprocess via mcp SDK — isolated step)
         # mcp SDK is provided by the dfir_mcp[stdio] extra installed above —

@@ -3,9 +3,9 @@
 Agentic-DFIR is exercised against two tiers of evidence. Tier 1 is bundled with
 the repository and has authored ground truth; Tier 2 is public third-party
 material that is downloaded on demand. Per-case, per-model results for both
-tiers are recorded in [`benchmarks/ledger.json`](benchmarks/ledger.json) and
-rendered into [`benchmarks/MODEL-COMPARISON.md`](benchmarks/MODEL-COMPARISON.md)
-and [`benchmarks/SUMMARY.md`](benchmarks/SUMMARY.md).
+tiers are recorded in [`benchmarks/ledger.json`](./benchmarks/ledger.json) and
+rendered into [`benchmarks/MODEL-COMPARISON.md`](./benchmarks/MODEL-COMPARISON.md)
+and [`benchmarks/SUMMARY.md`](./benchmarks/SUMMARY.md).
 
 ## Primary dataset — bundled self-evaluation cases
 
@@ -16,19 +16,21 @@ project. Every case directory carries a `README.md` (incident narrative) and a
 the `dfir_mcp` function expected to surface it, MITRE ATT&CK technique(s), and
 severity).
 
-- **Evidence:** `case-01/evidence_root/` is the single production-volume
-  evidence tree the whole tier is built on. Every scenario's artifacts are
-  seeded into that one noisy host image among benign noise, so `case-02` …
-  `case-08` are scenario specifications whose `truth.json` entries point at
-  files inside the shared tree. The per-scenario map is in
-  `examples/case-studies/self-evaluation/README.md`.
+- **Evidence:** each case ships its own `evidence_root/` holding that
+  scenario's artifacts plus benign noise, so recall is measured per case
+  without any prompt hint. `truth.json` entries point at files inside the
+  case's own tree (`disk/…`, `linux/…`, `mac/…`, `web/…`). The scenario
+  narratives are in
+  [`examples/case-studies/self-evaluation/README.md`](../examples/case-studies/self-evaluation/README.md).
 - **Ground truth:** authored alongside the evidence; each `truth.json` records
   its provenance in `case_metadata.ground_truth_provenance`.
   `scripts/eval/validate_ground_truth.py` gates truth-file integrity in CI.
 - **License:** authored for this project and distributed under the repository
   license; no third-party material.
-- **Integrity:** SHA-256 of every file is recorded in `audit.jsonl` at agent
-  startup and re-checked at finalization.
+- **Integrity:** every MCP call's output digest is SHA-256-chained into
+  `audit.jsonl`; `scripts/eval/demo.py` additionally hashes every file under
+  the evidence root before and after the deterministic run and reports
+  `evidence_integrity`.
 
 | Case | Title | Evidence type | Expected findings |
 |---|---|---|---:|
@@ -47,16 +49,18 @@ Three community-verified public forensic images under
 `examples/case-studies/external-evaluation/case-01` … `case-03`. Each is a
 multi-GB image under its own licence, so the full evidence is **not committed**;
 only `README.md` and `truth.json` are bundled (case-01 also ships a small
-`evidence-snippet/` of freely redistributable artifacts). Fetch, verify, and
-adapt with:
+`evidence-snippet/` of freely redistributable artifacts). Fetch the image with:
 
 ```bash
 python3 analyze.py --case external-evaluation/case-01 --download
 ```
 
-The dataset registry (URLs, checksums, image names) is
-`scripts/eval/datasets.py`; `python3 -m scripts.eval.download --help` lists the
-fetch commands.
+`--download` fetches and checksum-verifies the image only. To download,
+verify and adapt the image into the case's `evidence_root/` in one step
+without spending tokens, use `python3 -m scripts.eval.external --prepare-only`
+(all three cases) or `--case external-evaluation/case-01` for one. The dataset
+registry (URLs, checksums, image names) is `scripts/eval/datasets.py`;
+`python3 -m scripts.eval.download --help` lists the fetch commands.
 
 ### 1. NIST CFReDS — Hacking Case (`external-evaluation/case-01`)
 
@@ -88,14 +92,25 @@ fetch commands.
 
 Ground truth for every case lives in that case's `truth.json`; scoring is
 `scripts/eval/score.py` (recall over the tool-reachable subset of findings).
-Per-case, per-model results are recorded in `benchmarks/ledger.json` by
+Per-case, per-model results are recorded in
+[`benchmarks/ledger.json`](./benchmarks/ledger.json) by
 `python3 -m scripts.eval.self` and `python3 -m scripts.eval.external`; the
-rendered tables are `benchmarks/MODEL-COMPARISON.md` (per case),
-`benchmarks/SUMMARY.md` (totals), and `benchmarks/HISTORY.md` (run history).
+rendered tables are
+[`benchmarks/MODEL-COMPARISON.md`](./benchmarks/MODEL-COMPARISON.md) (per
+case), [`benchmarks/SUMMARY.md`](./benchmarks/SUMMARY.md) (totals), and
+[`benchmarks/HISTORY.md`](./benchmarks/HISTORY.md) (run history).
 
 ## Integrity and reproducibility
 
 - All dataset files are mounted read-only (`mount -o ro,noload`) before the agent is invoked
-- SHA-256 of every input is recorded in `audit.jsonl` at startup and at finalization
+- `scripts/eval/demo.py` hashes every input before and after the deterministic run and fails if any digest changed
 - No dataset file is ever modified; extraction writes only to the output directory
-- Chain-of-custody for each run is preserved in `audit.jsonl` with `run_id`
+- Chain-of-custody for each deterministic run is preserved in the SHA-256-chained `audit.jsonl`
+
+## See also
+
+- [Accuracy report](./accuracy-report.md) — how these cases are scored and what the numbers mean
+- [`benchmarks/README.md`](./benchmarks/README.md) — the ledger and its reading
+- [Quick start](./QUICKSTART.md) — the download → adapt → analyze steps for the external tier
+- [`scripts/eval/README.md`](../scripts/eval/README.md) — the evaluation suite
+- [`examples/README.md`](../examples/README.md) — the evidence and case-study layout

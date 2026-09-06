@@ -5,9 +5,9 @@ regenerate_hero.py -- draw the Agentic-DFIR hero images from scratch.
 The hero is generated, not hand-edited, so the three surfaces that show it stay
 in sync and no release-fragile number is baked into a bitmap:
 
-  agentic-dfir-hero.png       1920x540   README header (also the profile README and the wiki Home)
+  agentic-dfir-hero.png       1920x540   README header (also the profile README)
   agentic-dfir-thumbnail.png  1280x720   GitHub social preview (its own 16:9 layout)
-  docs/wiki-banner.png        1200x300   wiki banner
+  docs/banner.png             1200x300   documentation index banner (docs/README.md)
 
 Design: a ruled editorial page. Bone paper, a large Charter wordmark, the
 tagline in italic oxblood, hairline rules. The lower rule is the chain of
@@ -36,7 +36,7 @@ ROOT = Path(__file__).resolve().parent.parent
 OUTPUTS = {
     "hero.png": ROOT / "agentic-dfir-hero.png",
     "thumb.png": ROOT / "agentic-dfir-thumbnail.png",
-    "banner.png": ROOT / "docs" / "wiki-banner.png",
+    "banner.png": ROOT / "docs" / "banner.png",
 }
 S = 2  # supersampling factor
 
