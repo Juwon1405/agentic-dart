@@ -10,7 +10,7 @@ discover the incident from the evidence itself.
 For every (case, model) it runs the live agent, scores the findings against the
 case's truth.json over the tool-reachable subset, and records recall + token
 cost. With one model it reads as a simple per-case list; with several it writes
-the comparison matrix to docs/benchmarks/MODEL-COMPARISON.md so a future model
+the comparison matrix to out/benchmarks/MODEL-COMPARISON.md so a future model
 can be dropped in and re-measured identically.
 
 Run `python3 -m scripts.eval.demo` first to confirm the toolchain — if demo is
@@ -26,7 +26,7 @@ Usage
   # one case
   python3 -m scripts.eval.self --case self-evaluation/case-01
 
-  # full model comparison -> docs/benchmarks/MODEL-COMPARISON.md
+  # full model comparison -> out/benchmarks/MODEL-COMPARISON.md
   python3 -m scripts.eval.self \\
       --models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8
 
@@ -54,8 +54,8 @@ except Exception:  # pragma: no cover
 CASE_ROOT = REPO / "examples" / "case-studies"
 SELF = CASE_ROOT / "self-evaluation"
 DEFAULT_MODEL = os.environ.get("DFIR_MODEL", "claude-haiku-4-5-20251001")
-MATRIX_MD = REPO / "docs" / "benchmarks" / "MODEL-COMPARISON.md"
-SUMMARY_MD = REPO / "docs" / "benchmarks" / "SUMMARY.md"
+MATRIX_MD = REPO / "out" / "benchmarks" / "MODEL-COMPARISON.md"
+SUMMARY_MD = REPO / "out" / "benchmarks" / "SUMMARY.md"
 
 
 def discover_self_cases() -> list[str]:
@@ -300,9 +300,9 @@ def main(argv=None) -> int:
     from _history import append_run as _append_run
     _append_run("self", rows, args.models)
     print(f"\nResults written:")
-    print(f"  docs/benchmarks/SUMMARY.md            (per-case ledger, self+external)")
-    print(f"  docs/benchmarks/MODEL-COMPARISON.md   (per-case detail)")
-    print(f"  docs/benchmarks/HISTORY.md            (append-only run log)")
+    print(f"  out/benchmarks/SUMMARY.md            (per-case ledger, self+external)")
+    print(f"  out/benchmarks/MODEL-COMPARISON.md   (per-case detail)")
+    print(f"  out/benchmarks/HISTORY.md            (append-only run log)")
 
     ok = sum(1 for r in rows if r["ok"])
     print(f"\nDone: {ok}/{len(rows)} runs succeeded.")

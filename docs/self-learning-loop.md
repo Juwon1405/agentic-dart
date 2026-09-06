@@ -143,5 +143,5 @@ authentication (`dfir_agent.auth`), and the YAML playbooks — so the loop is an
 - [Roadmap](./roadmap.md) — where Phase 2 sits among the four phases
 - [Architecture-first vs prompt-first](./architecture-first-vs-prompt-first.md) — why lessons land in text, not weights
 - [The Memex Bet](./memex-bet.md) — the compounding-artifact thesis this loop extends
-- [Accuracy report](./accuracy-report.md) — the numbers the guard would compare
+- [`scripts/eval/README.md`](../scripts/eval/README.md) — the runners whose scores the guard would compare
 - [dfir-playbook](../dfir_playbook/README.md) — the file the loop edits

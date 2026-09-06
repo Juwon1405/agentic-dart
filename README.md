@@ -95,9 +95,7 @@ All long-form documentation lives under [`docs/`](./docs/README.md); each packag
 | | [`dfir_corr`](./dfir_corr/README.md) | The DuckDB correlation engine: timeline joins, `UNRESOLVED` contradictions, the rule pack. |
 | | [`dfir_playbook`](./dfir_playbook/README.md) | The senior-analyst playbooks: the three bundled YAMLs, the v3 schema, forking for a new case class. |
 | | [`dfir_sigma`](./dfir_sigma/README.md) | The versioned Sigma detection pack matched by `match_sigma_rules`. |
-| Evaluation and case studies | [Accuracy report](./docs/accuracy-report.md) | Metrics, ground truth, per-run invariants, representative outputs, and the limitations that weight the numbers. |
-| | [Benchmarks](./docs/benchmarks/README.md) | Recall by model, self vs external, rendered from the per-case ledger. |
-| | [Dataset](./docs/dataset.md) | The bundled self-evaluation tier and the on-demand external tier, with licenses. |
+| Evaluation and case studies | [Dataset](./docs/dataset.md) | The bundled self-evaluation tier and the on-demand external tier, with licenses. |
 | | [Case study: IP-KVM remote-hands insider](./docs/case-ip-kvm.md) | The bundled executable case: finding → artifact → command → hash, on the committed reference run. |
 | | [Case study: Pass-the-Hash with timestomp](./docs/case-pth-timestomp.md) | The conceptual walkthrough of a run, stage by stage, through a contradiction and a revision. |
 | | [Writing case studies](./docs/writing-case-studies.md) | Adding a bundled case: layout, `truth.json`, validation, scoring, what a PR needs. |

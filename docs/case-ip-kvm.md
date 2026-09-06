@@ -201,9 +201,10 @@ Iterations to verdict: 5. Audit chain entries: 3 (verified). The integrity
 check hashes every file under the evidence tree with SHA-256 before and after
 the run and passes only if nothing changed; the containment check attempts an
 unregistered destructive call and passes only if `dfir-mcp` refuses it. This is
-a toolchain check on one deterministic case, not a model benchmark — see the
-[Accuracy report](./accuracy-report.md) for the methodology and the measured
-results across cases and models.
+a toolchain check on one deterministic case, not a model benchmark. To measure
+a model across the bundled or external cases, run `python3 -m scripts.eval.self`
+or `python3 -m scripts.eval.external` (see
+[`scripts/eval/README.md`](../scripts/eval/README.md)).
 
 ---
 

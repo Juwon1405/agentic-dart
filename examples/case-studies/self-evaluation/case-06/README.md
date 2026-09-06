@@ -191,4 +191,4 @@ print('detect_brute_force_rdp:', r['rdp_failure_count'], 'failures,', len(r['bru
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict; the per-function schema is in [docs/mcp-function-catalog.md](../../../../docs/mcp-function-catalog.md).

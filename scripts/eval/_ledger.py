@@ -5,7 +5,7 @@ The old layout split self (SUMMARY.md / MODEL-COMPARISON.md) from external
 `scripts.eval.external` run couldn't show up next to the self cases, and the
 "last run" date sat once at the top instead of per case.
 
-This module is a *ledger*: docs/benchmarks/ledger.json holds, for every case
+This module is a *ledger*: out/benchmarks/ledger.json holds, for every case
 (self AND external), the last time that case was run and its per-model result.
 Running one case — even one model of one case — updates only that case's row and
 only that model's cell, stamping that row with the current time. Nothing else is
@@ -20,7 +20,7 @@ import json as _json
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
-_BENCH = _REPO / "docs" / "benchmarks"
+_BENCH = _REPO / "out" / "benchmarks"
 _LEDGER = _BENCH / "ledger.json"
 _SUMMARY = _BENCH / "SUMMARY.md"
 _COMPARISON = _BENCH / "MODEL-COMPARISON.md"

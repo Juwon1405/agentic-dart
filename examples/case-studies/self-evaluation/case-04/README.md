@@ -174,4 +174,4 @@ print('parse_browser_history:', r['total'], 'urls,', r['suspicious_url_count'], 
 PY
 ```
 
-Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict — see [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured recall/FPR.
+Each function returns a typed dict; the printed values above are the headline counts a SOC analyst looks at first. The full structured output (with `source.path`, `source.sha256`, individual hit details, MITRE technique IDs, severity, timestamps) is in the returned dict; the per-function schema is in [docs/mcp-function-catalog.md](../../../../docs/mcp-function-catalog.md).

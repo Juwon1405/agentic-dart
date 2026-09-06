@@ -79,8 +79,8 @@ python3 -m scripts.eval.download hadi1 ./datasets
 python3 -m scripts.eval.external --case external-evaluation/case-02
 
 # 3. Inspect the report
-cat docs/benchmarks/SUMMARY.md
-cat docs/benchmarks/MODEL-COMPARISON.md
+cat out/benchmarks/SUMMARY.md
+cat out/benchmarks/MODEL-COMPARISON.md
 ```
 
 The downloader resumes interrupted parts and verifies checksums where
@@ -113,7 +113,7 @@ the bundled image with no manual preprocessing.
 - Lenient (full + partial): ~0.80
 
 These numbers are **predictions**, not measurements. Real benchmark
-output is appended to `docs/benchmarks/SUMMARY.md` when the user runs
+output is written to `out/benchmarks/SUMMARY.md` when the user runs
 the suite on their analysis host.
 
 ## Why this case matters

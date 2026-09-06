@@ -2,10 +2,9 @@
 
 Agentic-DFIR is exercised against two tiers of evidence. Tier 1 is bundled with
 the repository and has authored ground truth; Tier 2 is public third-party
-material that is downloaded on demand. Per-case, per-model results for both
-tiers are recorded in [`benchmarks/ledger.json`](./benchmarks/ledger.json) and
-rendered into [`benchmarks/MODEL-COMPARISON.md`](./benchmarks/MODEL-COMPARISON.md)
-and [`benchmarks/SUMMARY.md`](./benchmarks/SUMMARY.md).
+material that is downloaded on demand. Scores are not published with the
+project: the evaluation runners write them under `out/benchmarks/` on the
+machine that measured them.
 
 ## Primary dataset — bundled self-evaluation cases
 
@@ -92,13 +91,11 @@ registry (URLs, checksums, image names) is `scripts/eval/datasets.py`;
 
 Ground truth for every case lives in that case's `truth.json`; scoring is
 `scripts/eval/score.py` (recall over the tool-reachable subset of findings).
-Per-case, per-model results are recorded in
-[`benchmarks/ledger.json`](./benchmarks/ledger.json) by
-`python3 -m scripts.eval.self` and `python3 -m scripts.eval.external`; the
-rendered tables are
-[`benchmarks/MODEL-COMPARISON.md`](./benchmarks/MODEL-COMPARISON.md) (per
-case), [`benchmarks/SUMMARY.md`](./benchmarks/SUMMARY.md) (totals), and
-[`benchmarks/HISTORY.md`](./benchmarks/HISTORY.md) (run history).
+Run `python3 -m scripts.eval.self` or `python3 -m scripts.eval.external` to
+measure a model against these cases yourself; both write a per-case ledger and
+the rendered tables under `out/benchmarks/`. Numbers depend on the model, the
+host and the day, so the project ships the cases and the scorer rather than a
+scoreboard.
 
 ## Integrity and reproducibility
 
@@ -109,8 +106,7 @@ case), [`benchmarks/SUMMARY.md`](./benchmarks/SUMMARY.md) (totals), and
 
 ## See also
 
-- [Accuracy report](./accuracy-report.md) — how these cases are scored and what the numbers mean
-- [`benchmarks/README.md`](./benchmarks/README.md) — the ledger and its reading
+- [`scripts/eval/README.md`](../scripts/eval/README.md) — the runners and the scorer
 - [Quick start](./QUICKSTART.md) — the download → adapt → analyze steps for the external tier
 - [`scripts/eval/README.md`](../scripts/eval/README.md) — the evaluation suite
 - [`examples/README.md`](../examples/README.md) — the evidence and case-study layout

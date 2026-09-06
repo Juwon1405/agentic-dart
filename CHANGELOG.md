@@ -9,26 +9,42 @@
   `glossary.md`, `faq.md`, `mcp-function-catalog.md`, `sift-adapter-layer.md`,
   `platform-support.md`, `operator-guide.md`, `running-on-sift.md`,
   `case-ip-kvm.md`, `writing-case-studies.md`, `roadmap.md`,
-  `self-learning-loop.md`. The existing `architecture.md`, `accuracy-report.md`,
-  `comparison.md`, `dataset.md`, `live-mode.md`, `troubleshooting.md`,
-  `QUICKSTART.md` and `case-pth-timestomp.md` absorbed the matching README
-  sections and documentation pages, so each topic is described in exactly one
-  place.
+  `self-learning-loop.md`. The existing `architecture.md`, `comparison.md`,
+  `dataset.md`, `live-mode.md`, `troubleshooting.md`, `QUICKSTART.md` and
+  `case-pth-timestomp.md` absorbed the matching README sections and
+  documentation pages, so each topic is described in exactly one place.
 - **GitHub wiki retired.** Its pages now live under `docs/` with the same
   content; wiki-style links were rewritten as relative links into the tree.
 - **README reduced to a landing page** — what it is, the guarantees, quick
   start, the architecture diagram, a grouped table of every documentation
   page, companion projects, acknowledgments, license and author. The install,
-  troubleshooting, platform-support, live-mode, case-study, accuracy and status
+  troubleshooting, platform-support, live-mode, case-study and status
   sections moved to their `docs/` pages.
 - **Package READMEs** (`dfir_mcp`, `dfir_agent`, `dfir_audit`, `dfir_corr`,
   `dfir_playbook`) are now the single description of each package; the
   per-package documentation pages were merged into them.
+- **Benchmark scores are no longer published with the project.** `docs/accuracy-report.md`
+  and the committed `docs/benchmarks/` ledger, renders and chart are removed;
+  `scripts/eval/` still measures and now writes its ledger, per-case tables and
+  run history under `out/benchmarks/` (ignored). A score is a property of the
+  model, the host and the day it was measured, so shipping one made every
+  improvement owe a benchmark release. The bundled cases, their `truth.json`
+  ground truth, the scorer and the deterministic `scripts.eval.demo` regression
+  gate in CI are unchanged.
 - **`scripts/regenerate_hero.py`** draws the third image to `docs/banner.png`
   (the documentation index banner); `docs/wiki-banner.png` is removed.
 - **`CONTRIBUTING.md`** points contributors at `docs/writing-case-studies.md`
   and the documentation index; **`tests/README.md`** no longer states test
   counts and describes how CI runs each file.
+
+### Fixed
+- **`dfir_mcp` rebuilds its full tool surface on every import.** Extension
+  modules register through the `@tool` decorator at import time, so re-importing
+  `dfir_mcp` after dropping it from `sys.modules` (or `importlib.reload`) left
+  the parent with an empty registry while the children stayed cached, and the
+  surface silently shrank to the functions defined in `__init__.py`. Extensions
+  now load through a helper that evicts the cached child first, so any import
+  order yields all 73 tools.
 
 ### Added
 - **`tests/test_docs_consistency.py`** — keeps the documentation honest in CI,

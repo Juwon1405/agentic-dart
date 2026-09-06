@@ -60,11 +60,12 @@ Of 10 sampled NIST ground-truth findings, dfir-mcp v0.5.3 status:
 - Strict (full detection only): **0.10**
 - Lenient (full + partial): **0.40**
 
-This is a **deliberate, transparent disclosure**. Compare to
-`docs/accuracy-report.md`:
-- Reference variant (synthetic): recall 1.000 — measures correctness of the detection logic against IOCs the system claims to detect
-- Realistic variant (synthetic + noise): recall 1.000 — measures robustness to noise on the same claim space
-- **CFReDS variant (this case):** recall 0.10-0.40 — measures **expansion potential** against a content-centric paradigm dfir-mcp hasn't fully covered yet
+This is a **deliberate, transparent disclosure**. The bundled synthetic cases
+measure whether the detection logic is correct on the IOC classes the system
+claims to cover, and whether it stays correct under benign noise. This case
+measures something else — **expansion potential** against a content-centric
+paradigm `dfir-mcp` has not fully covered yet — so a low score here is missed
+coverage, not a wrong answer.
 
 The drop from 1.0 to 0.10 is not a regression; it's a **paradigm
 mismatch**. dfir-mcp v0.5.3 is artifact-centric (timeline, persistence

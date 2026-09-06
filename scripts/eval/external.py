@@ -450,9 +450,9 @@ def main(argv=None) -> int:
     from _history import append_run as _append_run
     _append_run("external", rows, args.models)
     print(f"\nResults written:")
-    print(f"  docs/benchmarks/SUMMARY.md            (per-case ledger, self+external)")
-    print(f"  docs/benchmarks/MODEL-COMPARISON.md   (per-case detail)")
-    print(f"  docs/benchmarks/HISTORY.md            (append-only run log)")
+    print(f"  out/benchmarks/SUMMARY.md            (per-case ledger, self+external)")
+    print(f"  out/benchmarks/MODEL-COMPARISON.md   (per-case detail)")
+    print(f"  out/benchmarks/HISTORY.md            (append-only run log)")
 
     ok = sum(1 for r in rows if r["ok"])
     print(f"\nDone: {ok}/{len(rows)} runs succeeded.")

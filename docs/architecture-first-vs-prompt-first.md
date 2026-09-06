@@ -78,7 +78,7 @@ Anyone can write a system prompt that says "be safe". Architectural guarantees a
 
 Honest accounting:
 
-- **Architecture cannot prevent the agent from drawing wrong conclusions.** That's an accuracy concern, not a safety one. `dfir-corr` and the playbook help, but the agent can still be confidently wrong. The measured numbers are in [`accuracy-report.md`](./accuracy-report.md).
+- **Architecture cannot prevent the agent from drawing wrong conclusions.** That's an accuracy concern, not a safety one. `dfir-corr` and the playbook help, but the agent can still be confidently wrong. Measuring that is what `scripts/eval/` is for; see [`scripts/eval/README.md`](../scripts/eval/README.md).
 - **Architecture cannot prevent leakage.** If a tool legitimately reads data and the agent puts it in the report, the data is in the report. Confidentiality is a separate concern, addressed by what evidence you choose to mount.
 - **Architecture cannot self-update.** New attack patterns require new tools. Phase 2 — Sigma synthesis — is partly about closing this gap by giving the agent a way to *propose* new detections without granting it write access to existing ones. See [`about-the-name.md`](./about-the-name.md#phase-2--agentic-detection-engineering).
 

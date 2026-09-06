@@ -290,9 +290,8 @@ what each release shipped at the time.
 
 | Item | Status | Reference |
 |---|---|---|
-| Accuracy measured on the three external datasets — NIST CFReDS, Ali Hadi #1, Digital Corpora M57 (three models) | Done 2026-06-15 | [`docs/benchmarks/SUMMARY.md`](./benchmarks/SUMMARY.md) |
-| Accuracy report committed | Done | [Accuracy report](./accuracy-report.md) |
-| Remaining NIST CFReDS parser gaps — IE6 / Outlook Express `index.dat`, Recycle Bin INFO2 / `$I`/`$R` metadata, a bundled YARA rule library (findings F-CFR-006 / 008 / 009) | Open work, Phase 2 | [Accuracy report](./accuracy-report.md) |
+| Accuracy measured on the three external datasets — NIST CFReDS, Ali Hadi #1, Digital Corpora M57 (three models) | Done 2026-06-15 | run `python3 -m scripts.eval.external` to reproduce |
+| Remaining NIST CFReDS parser gaps — IE6 / Outlook Express `index.dat`, Recycle Bin INFO2 / `$I`/`$R` metadata, a bundled YARA rule library (findings F-CFR-006 / 008 / 009) | Open work, Phase 2 | [`examples/case-studies/external-evaluation/case-01/`](../examples/case-studies/external-evaluation/case-01/) |
 
 ### Remaining roadmap (honest)
 

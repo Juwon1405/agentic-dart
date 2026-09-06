@@ -86,8 +86,7 @@ Notes:
   `evidence_root` + `truth.json` and runs via
   `python3 analyze.py --case self-evaluation/case-NN`. `case-01` is the
   canonical baseline: the deterministic demo reproduces its two reference
-  findings with hallucination 0, and live recall per model is recorded in
-  [`docs/benchmarks/SUMMARY.md`](./benchmarks/SUMMARY.md).
+  findings with hallucination 0.
 - External cases are public third-party datasets: `case-01` NIST CFReDS,
   `case-02` Ali Hadi web-server, `case-03` Digital Corpora M57-Patents (Jo).
   `--download` fetches the **raw disk image only** (several GB — can take a
@@ -158,7 +157,7 @@ python3 analyze.py --case self-evaluation/case-01 --model claude-opus-4-8
 #   The DFIR_MODEL env var sets the same default without the flag.
 
 # Benchmark the detection skill across all three models on the bundled evidence
-# (recall / false-positive / hallucination, written to docs/benchmarks/):
+# (recall / false-positive / hallucination, written to out/benchmarks/):
 python3 -m scripts.eval.self --models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8
 
 # External datasets ship as raw disk images — three steps (--download does NOT analyze):
@@ -191,8 +190,7 @@ Each run writes to `out/<tier>/<case>/<timestamp>/`
 (`findings.json`, `report.json`, `summary.json`, `live_summary.json`,
 `live_transcript.txt` and `live_tool_calls.jsonl`).
 How the live loop works, the credential options and the token-usage
-accounting are in [Live mode](./live-mode.md); the measured numbers are in the
-[Accuracy report](./accuracy-report.md).
+accounting are in [Live mode](./live-mode.md).
 
 ---
 
@@ -252,5 +250,4 @@ verify the audit chain and trace a finding back to evidence is in
 - [Running on the SIFT Workstation](./running-on-sift.md)
 - [Troubleshooting](./troubleshooting.md)
 - [Architecture](./architecture.md)
-- [Accuracy report](./accuracy-report.md)
 - [Case library](../examples/case-studies/) — the bundled and external cases

@@ -40,8 +40,6 @@ This directory is the complete documentation set for Agentic-DFIR: one page per 
 
 ## Evaluation and case studies
 
-- [Accuracy report](./accuracy-report.md) — how detection accuracy is measured, the invariants the architecture enforces on every run, the representative deterministic outputs per case, and the limitations a reviewer needs to weight the headline numbers.
-- [Benchmarks](./benchmarks/README.md) — recall by model, self-evaluation vs external, rendered from the per-case ledger rather than transcribed by hand.
 - [Dataset](./dataset.md) — the two evidence tiers: bundled self-evaluation cases with authored ground truth, and public third-party material downloaded on demand, with sources and license notes.
 - [Case study: IP-KVM remote-hands insider](./case-ip-kvm.md) — the bundled executable case that the demo runs: what the agent does at each iteration, what `audit.jsonl` records, and how a finding traces to the tool call, source artifact and output hash on the committed reference run.
 - [Case study: Pass-the-Hash with timestomp pre-existence](./case-pth-timestomp.md) — the conceptual walkthrough of a run against a two-host breach: which functions are called, how `dfir-corr` surfaces a contradiction, and how the agent revises its hypothesis because of it.
@@ -60,7 +58,6 @@ This directory is the complete documentation set for Agentic-DFIR: one page per 
 
 ## Subdirectories
 
-- **`benchmarks/`** — the benchmark ledger and everything rendered from it: `README.md` (recall by model, linked above under Evaluation and case studies), `MODEL-COMPARISON.md` (per-case detail), `SUMMARY.md` (totals), `HISTORY.md` / `HISTORY.jsonl` (run history), `ledger.json` (the per-run source), and the `recall-by-model` chart. Read alongside the Accuracy report and the Evaluation suite page.
 - **`screenshots/`** — the four sample-run stills (`dfir-run-01-init.png` through `dfir-run-04-final.png`) used by the Quick start, the Pass-the-Hash case study and the Roadmap.
 
 The architecture diagram lives at the top level of this directory: `dfir-architecture.drawio` is the editable source and `dfir-architecture.png` is the rendered image used by the project README and the Architecture page. Edit the `.drawio` file and re-export the PNG; do not edit the PNG directly. The banner at the top of this page (`banner.png`) is drawn by `scripts/regenerate_hero.py`, described on the Scripts page.

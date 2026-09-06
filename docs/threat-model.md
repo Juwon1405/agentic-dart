@@ -94,7 +94,7 @@ but wrong conclusion. Accuracy is a different concern from safety,
 addressed by:
 
 - The bundled pytest suite (`tests/`)
-- [`accuracy-report.md`](./accuracy-report.md) (measured against published ground truth)
+- The evaluation runners in [`scripts/eval/`](../scripts/eval/README.md) (scored against the bundled ground truth)
 - `dfir-corr` contradiction detection
 
 A false finding is an *accuracy* problem, not a *security* problem.

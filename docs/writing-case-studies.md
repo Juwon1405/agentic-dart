@@ -238,7 +238,6 @@ Typical review turnaround: 3-7 days.
 ## See also
 
 - [Architecture](./architecture.md)
-- [Accuracy report](./accuracy-report.md) — how case-study accuracy gets measured
 - [Case library](../examples/case-studies/README.md) — the eleven bundled cases and their tiers
 - [`scripts/eval/README.md`](../scripts/eval/README.md) — the runners and the scorer
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md)

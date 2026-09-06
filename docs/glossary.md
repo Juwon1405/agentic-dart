@@ -74,7 +74,7 @@ A claim the agent emits in its final report, e.g. "USB Kingston DataTraveler ins
 
 ### Ground truth
 
-The expected findings for a bundled case, stored in that case's `truth.json`. Eleven cases ship with the repository: eight synthetic self-evaluation cases and three external-evaluation cases built on public datasets. Scoring lives in `scripts/eval/`; see [Dataset](./dataset.md) and [Accuracy report](./accuracy-report.md).
+The expected findings for a bundled case, stored in that case's `truth.json`. Eleven cases ship with the repository: eight synthetic self-evaluation cases and three external-evaluation cases built on public datasets. Scoring lives in `scripts/eval/`; see [Dataset](./dataset.md).
 
 ### Hypothesis
 

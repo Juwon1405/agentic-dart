@@ -3966,8 +3966,31 @@ def __forbidden_never_registered():
     raise NotImplementedError("documentation only")
 
 
+def _load_extension(name: str):
+    """Import an extension module so its ``@tool`` registrations land in THIS
+    module's ``_REGISTRY``.
+
+    Extension modules register at import time. If ``dfir_mcp`` itself is
+    dropped from ``sys.modules`` and imported again (tests do this to pick up
+    a changed ``DFIR_EVIDENCE_ROOT``; ``importlib.reload`` has the same
+    effect), the parent is rebuilt with an empty registry while the children
+    stay cached, so a plain ``from dfir_mcp import _v04_expansion`` would
+    return the cached module without re-running a single decorator — and the
+    surface would silently shrink to the functions defined in this file.
+    Dropping the cached extension (and its submodules) first makes every
+    import of ``dfir_mcp`` rebuild the full surface.
+    """
+    import importlib
+    import sys as _sys
+
+    full = f"{__name__}.{name}"
+    for cached in [m for m in list(_sys.modules) if m == full or m.startswith(full + ".")]:
+        _sys.modules.pop(cached, None)
+    return importlib.import_module(full)
+
+
 # v0.4 expansion: Linux + macOS coverage (4 functions)
-from dfir_mcp import _v04_expansion as _v04  # noqa: E402, F401
+_v04 = _load_extension("_v04_expansion")  # noqa: E402
 
 # v0.5 expansion: SIFT Workstation tool adapters. Adapters subprocess into
 # Volatility 3, MFTECmd, EvtxECmd, PECmd, RECmd, AmcacheParser, YARA, and
@@ -3976,7 +3999,7 @@ from dfir_mcp import _v04_expansion as _v04  # noqa: E402, F401
 # on PATH; the agent is expected to fall back to native dfir_mcp
 # implementations in that case. Importing the subpackage triggers @tool
 # registration for ~22 wrappers.
-from dfir_mcp import sift_adapters as _sift  # noqa: E402, F401
+_sift = _load_extension("sift_adapters")  # noqa: E402
 
 # v0.5 expansion: supply-chain attack IOC sweeps (6 functions).
 # Cross-platform port of the macOS-only supply_chain module from
@@ -3984,18 +4007,18 @@ from dfir_mcp import sift_adapters as _sift  # noqa: E402, F401
 # PyPI typosquatting, Node.js install hooks, backdoor persistence locations,
 # credential file access timing, and shell-history C2 patterns.
 # MITRE ATT&CK: T1195.002, T1547, T1552, T1059.006.
-from dfir_mcp import _v05_supply_chain as _v05_sc  # noqa: E402, F401
+_v05_sc = _load_extension("_v05_supply_chain")  # noqa: E402
 
 # v0.6 expansion: macOS quarantine + Linux cron + DNS tunneling (3 functions).
 # Adds T1204 download provenance (Sarah Edwards QuarantineV2), T1053.003 cron
 # enumeration with attacker-pattern flagging, and TA0011/T1071.004 DNS C2
 # detection (entropy + volume + tool signatures). DNS detection opens
 # Command-and-Control coverage that was Phase 2 in earlier releases.
-from dfir_mcp import _v06_macos_linux as _v06  # noqa: E402, F401
+_v06 = _load_extension("_v06_macos_linux")  # noqa: E402
 
 # v0.7 expansion: Sigma detection-rule matcher (1 function). Applies the
 # consolidated, versioned rule pack in dfir_sigma/ against parsed events so the
 # agent can corroborate a classification with a detection signature. Rules are
 # general behavioural patterns sourced from / modelled on SigmaHQ — not case
 # answers. Importing registers the match_sigma_rules @tool.
-from dfir_mcp import _v07_sigma as _v07  # noqa: E402, F401
+_v07 = _load_extension("_v07_sigma")  # noqa: E402

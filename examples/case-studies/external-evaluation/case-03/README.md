@@ -87,8 +87,8 @@ python3 -m scripts.eval.download m57 ./datasets
 python3 -m scripts.eval.external --case external-evaluation/case-03
 
 # 3. Inspect the report
-cat docs/benchmarks/SUMMARY.md
-cat docs/benchmarks/MODEL-COMPARISON.md
+cat out/benchmarks/SUMMARY.md
+cat out/benchmarks/MODEL-COMPARISON.md
 ```
 
 Note: M57 images are distributed in AFF or E01 format. The downloader

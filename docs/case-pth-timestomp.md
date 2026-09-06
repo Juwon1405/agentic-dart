@@ -229,5 +229,4 @@ findings back to the evidence.
 - [Case study: IP-KVM remote-hands insider](./case-ip-kvm.md) — the bundled, executable case study
 - [Architecture](./architecture.md) — the component layout this walkthrough exercises
 - [`dfir-corr`](../dfir_corr/README.md) — the engine that found the contradiction
-- [Accuracy report](./accuracy-report.md) — measured metrics on the bundled cases
 - [Writing case studies](./writing-case-studies.md) — how to add a new bundled case

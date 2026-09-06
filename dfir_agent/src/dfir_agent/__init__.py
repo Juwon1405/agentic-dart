@@ -205,9 +205,8 @@ class DeterministicAnalyst:
         self.iteration += 1
         # The USB call BEFORE we know if F-013 will be produced: we speculatively
         # tag it, then drop the tag by rewriting the chain if no contradiction
-        # is found. For the MVP we tag unconditionally (worst case: F-013 ID
-        # appears in an audit entry that did not ultimately produce it — which
-        # is documented in docs/accuracy-report.md).
+        # is found. We tag unconditionally; worst case the F-013 ID appears in
+        # an audit entry that did not ultimately produce it.
         out, aid = self._call(
             "analyze_usb_history",
             {"system_hive": "disk/Windows/System32/config/SYSTEM",

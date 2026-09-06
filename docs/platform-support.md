@@ -74,7 +74,7 @@ The SIFT adapters inherit provenance from the tools they wrap (Volatility 3, the
 | **TA0011** | **Command and Control** | **Partial** — `detect_dns_tunneling` (DNS query logs: T1071.004, T1568.002, T1572, added in v0.6.1) and `grep_shell_history_for_c2` (T1071) give log- and process-side indicators. Full PCAP-based C2 detection is **deferred to Phase 2** |
 | TA0040 | Impact | `detect_ransomware_behavior` (mass-rename + shadow-copy delete + ransom notes) |
 
-Coverage = **10 / 12** tactics actively detected by scoped rules. Two tactics are **partial** and are not claimed as covered: Collection (parsers present, no scoped rule yet) and Command and Control (DNS-log and shell-history indicators only; PCAP-based detection is roadmap — see [Roadmap](./roadmap.md)). `match_sigma_rules` adds cross-tactic corroboration from the 11-rule Sigma pack (credential access, defense evasion, impact, initial access, lateral movement, persistence). This matches the measured table in [Accuracy report](./accuracy-report.md); 12/12 is not claimed. See it for the per-technique T-ID mapping.
+Coverage = **10 / 12** tactics actively detected by scoped rules. Two tactics are **partial** and are not claimed as covered: Collection (parsers present, no scoped rule yet) and Command and Control (DNS-log and shell-history indicators only; PCAP-based detection is roadmap — see [Roadmap](./roadmap.md)). `match_sigma_rules` adds cross-tactic corroboration from the 11-rule Sigma pack (credential access, defense evasion, impact, initial access, lateral movement, persistence). 12/12 is not claimed. The per-technique T-ID mapping for each function is in the [MCP function catalog](./mcp-function-catalog.md).
 
 Against the bundled ground truth — 11 cases (8 self-evaluation + 3 external-evaluation), 94 ground-truth findings — the `truth.json` files carry 102 MITRE technique references over 66 unique techniques. `scripts/eval/validate_ground_truth.py` checks that every `expected_dfir_mcp_function` named there is a registered tool; see [Evidence dataset](./dataset.md).
 
@@ -84,5 +84,4 @@ Against the bundled ground truth — 11 cases (8 self-evaluation + 3 external-ev
 - [SIFT Workstation adapter layer](./sift-adapter-layer.md) — the 25 adapters, binary resolution, contract
 - [Operator guide](./operator-guide.md) — install, requirements, running your own evidence
 - [Running on SIFT](./running-on-sift.md) — the primary host, step by step
-- [Accuracy report](./accuracy-report.md) — measured coverage and limitations
 - [Evidence dataset](./dataset.md) — the bundled and external cases

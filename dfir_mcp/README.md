@@ -154,7 +154,7 @@ The PR checklist is in [Contributing](../CONTRIBUTING.md). The short version:
 4. Cursor-paginated output for anything that can be large
 5. Exact-set tests updated — `tests/test_mcp_surface.py::test_registered_tools_are_exact_set` and `tests/test_mcp_bypass.py::test_surface_is_exact_positive_and_negative_set` — plus a negative test where the function introduces a new argument class
 6. Test evidence added under each case's `evidence_root/`
-7. The [MCP function catalog](../docs/mcp-function-catalog.md), [Platform support](../docs/platform-support.md) and [Accuracy report](../docs/accuracy-report.md) updated
+7. The [MCP function catalog](../docs/mcp-function-catalog.md) and [Platform support](../docs/platform-support.md) updated
 
 PRs that miss any of these will be sent back.
 

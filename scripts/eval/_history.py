@@ -6,7 +6,7 @@ That's the right behavior for "what does the agent score right now". But it
 throws away the trend: you can't see whether a change helped or hurt run over
 run.
 
-This module keeps a single append-only ledger — docs/benchmarks/HISTORY.md —
+This module keeps a single append-only ledger — out/benchmarks/HISTORY.md —
 that BOTH the self and external harnesses write one row to at the end of every
 run. Rows are timestamped (UTC) and never overwritten, so the file is a
 chronological record of every benchmark execution: tier, models, case count,
@@ -22,8 +22,8 @@ import json as _json
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
-_HISTORY_MD = _REPO / "docs" / "benchmarks" / "HISTORY.md"
-_HISTORY_JSONL = _REPO / "docs" / "benchmarks" / "HISTORY.jsonl"
+_HISTORY_MD = _REPO / "out" / "benchmarks" / "HISTORY.md"
+_HISTORY_JSONL = _REPO / "out" / "benchmarks" / "HISTORY.jsonl"
 
 _HEADER = (
     "# Benchmark run history\n\n"

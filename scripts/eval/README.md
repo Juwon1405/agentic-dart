@@ -24,7 +24,7 @@ python3 -m scripts.eval.demo
 export ANTHROPIC_API_KEY=sk-ant-...
 python3 -m scripts.eval.self
 
-# 2. self cases, compare models -> docs/benchmarks/MODEL-COMPARISON.md
+# 2. self cases, compare models -> out/benchmarks/MODEL-COMPARISON.md
 python3 -m scripts.eval.self \
     --models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8
 

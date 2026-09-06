@@ -246,31 +246,11 @@ def test_referenced_commands_exist(doc: Path):
 
 @lru_cache(maxsize=None)
 def tool_surface() -> dict[str, int]:
-    """Count the surface in a fresh interpreter.
+    from dfir_mcp import list_tools
 
-    Other tests in the same pytest session delete ``sys.modules["dfir_mcp"]``
-    and re-import it, which leaves a partial registry behind (the extension
-    modules are already imported, so their registrations do not re-run). An
-    in-process ``list_tools()`` therefore under-counts when the whole suite
-    runs together; a subprocess sees the real surface.
-    """
-    import json
-    import os
-    import subprocess
-
-    code = (
-        "import json; from dfir_mcp import list_tools; t = list_tools(); "
-        "s = [x for x in t if x['name'].startswith('sift_')]; "
-        "print(json.dumps({'total': len(t), 'native': len(t) - len(s), 'sift': len(s)}))"
-    )
-    env = dict(os.environ)
-    src_dirs = [str(REPO / pkg / "src") for pkg in ("dfir_audit", "dfir_mcp", "dfir_agent", "dfir_corr")]
-    env["PYTHONPATH"] = os.pathsep.join(src_dirs + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
-    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
-                         check=True, cwd=str(REPO), env=env)
-    surface = json.loads(out.stdout.strip().splitlines()[-1])
-    assert surface["native"] + surface["sift"] == surface["total"]
-    return surface
+    tools = list_tools()
+    sift = [t for t in tools if t["name"].startswith("sift_")]
+    return {"total": len(tools), "native": len(tools) - len(sift), "sift": len(sift)}
 
 
 # A number may be closed by bold/italic markers ("= 73** typed read-only tools").

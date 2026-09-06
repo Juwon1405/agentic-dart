@@ -250,10 +250,7 @@ examples/case-studies/external-evaluation/*/SCHARDT.0[0-9]
 # the adapters auto-discover them via _search_repo_bins().
 /bin/
 
-# Benchmark output is rendered from docs/benchmarks/ledger.json (the source of
-# record) and committed, so the repo always shows the latest recorded values:
-# ledger.json + SUMMARY.md + MODEL-COMPARISON.md are all tracked. The legacy
-# per-run .rows.json and EXTERNAL-COMPARISON files are no longer produced.
-docs/benchmarks/MODEL-COMPARISON.rows.json
-docs/benchmarks/EXTERNAL-COMPARISON.md
-docs/benchmarks/EXTERNAL-COMPARISON.rows.json
+# Benchmark output (ledger.json, SUMMARY.md, MODEL-COMPARISON.md, HISTORY.md)
+# is written under out/benchmarks/ by scripts/eval/, which the /out/ rule above
+# already ignores. Scores are a property of the machine, the model and the day
+# they were measured, so they are not committed.

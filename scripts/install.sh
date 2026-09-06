@@ -384,7 +384,7 @@ printf "             8 bundled cases with ready evidence (fast, no images).\n"
 printf "    ${BOLD}external${RST} ${DIM}python3 -m scripts.eval.external --models claude-haiku-4-5-20251001${RST}\n"
 printf "             full-disk public images (downloads + adapts if missing).\n"
 printf "\n  Multiple models? Append them: ${DIM}--models claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-8${RST}\n"
-printf "  Results: ${DIM}docs/benchmarks/SUMMARY.md${RST} (latest) + ${DIM}HISTORY.md${RST} (trend over time)\n\n"
+printf "  Results: ${DIM}out/benchmarks/SUMMARY.md${RST} (latest) + ${DIM}HISTORY.md${RST} (trend over time)\n\n"
 
 # ---- persistent shell aliases (idempotent) ---------------------------------
 # dfir-pull = pull latest; dfir-auth = show oauth/api credential status.

@@ -248,4 +248,4 @@ detect_discovery: 11 hits, 6 AD recon, 1 bursts
 detect_defense_evasion: 2 findings, max severity: critical
 ```
 
-The chaining pattern is what makes the architectural-first claim concrete: each detection function consumes typed data, not raw paths, and `dfir_agent`'s loop is what drives the chaining in the live case. See [docs/accuracy-report.md](../../../../docs/accuracy-report.md) for the full schema and measured numbers.
+The chaining pattern is what makes the architectural-first claim concrete: each detection function consumes typed data, not raw paths, and `dfir_agent`'s loop is what drives the chaining in the live case. The per-function schema is in [docs/mcp-function-catalog.md](../../../../docs/mcp-function-catalog.md).

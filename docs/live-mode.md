@@ -310,8 +310,9 @@ For reproducibility the agent pins `temperature=0` on every model call that
 accepts it. Models that have deprecated the parameter (Claude Opus 4.8 returns
 HTTP 400 "temperature is deprecated for this model") are detected on the first
 rejection and the parameter is dropped for the rest of the run — there is
-nothing to configure. What this means for run-to-run variance is covered in
-the [accuracy report](./accuracy-report.md#model-selection--determinism--what-we-learned).
+nothing to configure. Where a model does accept `temperature`, pinning it to 0
+reduces run-to-run variance on identical evidence — it reduces it, it does not
+eliminate it.
 
 For air-gapped or credential-free reproduction, deterministic mode handles the
 same case classes the playbook covers with no external dependency. `--dry-run`
@@ -336,5 +337,4 @@ context-window exhaustion, the MCP server not showing up in Claude Code) are in
 - [dfir-mcp](../dfir_mcp/README.md) — the typed surface that gets exposed
 - [Architecture](./architecture.md) — how the packages fit together
 - [Operator guide](./operator-guide.md) — install, requirements, running your own evidence
-- [Accuracy report](./accuracy-report.md) — what the live runs score and how that is measured
 - [Troubleshooting](./troubleshooting.md)
